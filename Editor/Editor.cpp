@@ -1,15 +1,26 @@
+// Enable mouse wheel scrolling.
+#define _WIN32_WINDOWS 0x0501
+
 #include <windows.h>
 #include <stdlib.h>
 #include <string.h>
 #include <tchar.h>
+#include "Scene.h"
 
 static TCHAR szWindowClass[] = _T("UltraEd");
 static TCHAR szTitle[] = _T("UltraEd v0.1");
+CScene scene;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   switch(message)
   {
+  case WM_MOUSEWHEEL:
+    scene.OnMouseWheel(HIWORD(wParam));
+    break;
+  case WM_SIZE:
+    if(wParam != SIZE_MINIMIZED) scene.Resize();
+    break;
   case WM_DESTROY:
     PostQuitMessage(0);
     break;
@@ -60,11 +71,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   ShowWindow(hWnd, nCmdShow);
   UpdateWindow(hWnd);
   
-  MSG msg;
-  while (GetMessage(&msg, NULL, 0, 0))
+  if(!scene.Create(hWnd))
   {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
+    return 1;
+  }
+  
+  MSG msg;
+  while(WM_QUIT != msg.message)
+  {
+    if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+    }
+    else
+    {
+      scene.Render();
+    }
   }
   
   return msg.wParam;
