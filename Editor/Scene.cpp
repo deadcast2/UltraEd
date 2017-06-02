@@ -18,7 +18,7 @@ CScene::~CScene()
 BOOL CScene::Create(HWND handle) 
 {
   m_hWnd = handle;
-
+  
   if((m_d3d8 = Direct3DCreate8(D3D_SDK_VERSION)) == NULL)
   {
     return FALSE;
@@ -46,6 +46,33 @@ BOOL CScene::Create(HWND handle)
   Resize();
   
   return TRUE;
+}
+
+void CScene::OnImportModel() 
+{
+  OPENFILENAME ofn;
+  char szFile[260];
+
+  ZeroMemory(&ofn, sizeof(ofn));
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = m_hWnd;
+  ofn.lpstrFile = szFile;
+  ofn.lpstrFile[0] = '\0';
+  ofn.nMaxFile = sizeof(szFile);
+  ofn.lpstrFilter = "3D Studio (*.3ds)\0*.3ds\0Autodesk (*.fbx)\0*.fbx\0"
+    "Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
+    "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj";
+  ofn.nFilterIndex = 1;
+  ofn.lpstrTitle = "Select a model";
+  ofn.nMaxFileTitle = 0;
+  ofn.lpstrInitialDir = NULL;
+  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+  
+  if(GetOpenFileName(&ofn))
+  {
+    CModel model = CModel(ofn.lpstrFile);
+    m_models[model.GetId()] = model;
+  }
 }
 
 void CScene::Render() 

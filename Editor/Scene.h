@@ -23,6 +23,7 @@ public:
   void Resize();
   void Move(POINT, POINT, float);
   void OnMouseWheel(short zDelta);
+  void CScene::OnImportModel();
   void Pick(POINT);
   void ReleaseResources();
   void CheckInput(float);

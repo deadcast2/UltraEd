@@ -16,6 +16,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   switch(message)
   {
+  case WM_COMMAND:
+    switch(LOWORD(wParam))
+    {
+    case ID_FILE_IMPORTMODEL:
+      scene.OnImportModel();
+      break;
+    }
+    break;
   case WM_MOUSEWHEEL:
     scene.OnMouseWheel(HIWORD(wParam));
     break;
