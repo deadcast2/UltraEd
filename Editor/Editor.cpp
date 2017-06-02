@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <tchar.h>
+#include "resource.h"
 #include "Scene.h"
 
 static TCHAR szWindowClass[] = _T("UltraEd");
@@ -45,7 +46,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
   wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
   wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-  wcex.lpszMenuName = NULL;
+  wcex.lpszMenuName = MAKEINTRESOURCE(IDR_MAIN_MENU);
   wcex.lpszClassName = szWindowClass;
   wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
   
