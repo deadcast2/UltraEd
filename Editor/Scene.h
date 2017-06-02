@@ -24,7 +24,7 @@ public:
   void Move(POINT, POINT, float);
   void OnMouseWheel(short zDelta);
   void CScene::OnImportModel();
-  void Pick(POINT);
+  void Pick(POINT mousePoint);
   void ReleaseResources();
   void CheckInput(float);
   void ScreenRaycast(POINT screenPoint,

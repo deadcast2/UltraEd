@@ -75,6 +75,26 @@ void CScene::OnImportModel()
   }
 }
 
+void CScene::Pick(POINT mousePoint)
+{
+  D3DXVECTOR3 orig, dir;
+  ScreenRaycast(mousePoint, &orig, &dir);
+  BOOL gizmoSelected = m_gizmo.Select(orig, dir);
+  
+  // Check all models to see which poly might have been picked.
+  std::map<GUID, CModel>::iterator it;
+  for(it = m_models.begin(); it != m_models.end(); it++)
+  {
+    if(it->second.Pick(orig, dir))
+    {
+      m_selectedModelId = it->first;
+      return;
+    }
+  }
+  
+  if(!gizmoSelected) m_selectedModelId = GUID_NULL;
+}
+
 void CScene::Render() 
 {
   // Calculate the frame rendering speed.

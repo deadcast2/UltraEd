@@ -17,25 +17,41 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
   switch(message)
   {
   case WM_COMMAND:
-    switch(LOWORD(wParam))
     {
-    case ID_FILE_IMPORTMODEL:
-      scene.OnImportModel();
+      switch(LOWORD(wParam))
+      {
+      case ID_FILE_IMPORTMODEL:
+        scene.OnImportModel();
+        break;
+      }
       break;
     }
-    break;
   case WM_MOUSEWHEEL:
-    scene.OnMouseWheel(HIWORD(wParam));
-    break;
+    {
+      scene.OnMouseWheel(HIWORD(wParam));
+      break;
+    }
+  case WM_LBUTTONDOWN:
+    {
+      POINT point = {LOWORD(lParam), HIWORD(lParam)};
+      scene.Pick(point);
+      break;
+    }
   case WM_SIZE:
-    if(wParam != SIZE_MINIMIZED) scene.Resize();
-    break;
+    {
+      if(wParam != SIZE_MINIMIZED) scene.Resize();
+      break;
+    }
   case WM_DESTROY:
-    PostQuitMessage(0);
-    break;
+    {
+      PostQuitMessage(0);
+      break;
+    }
   default:
-    return DefWindowProc(hWnd, message, wParam, lParam);
-    break;
+    {
+      return DefWindowProc(hWnd, message, wParam, lParam);
+      break;
+    }
   }
   
   return 0;
