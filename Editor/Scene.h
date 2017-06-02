@@ -23,7 +23,8 @@ public:
   void Resize();
   void Move(POINT, POINT, float);
   void OnMouseWheel(short zDelta);
-  void CScene::OnImportModel();
+  void OnApplyTexture();
+  void OnImportModel();
   void Pick(POINT mousePoint);
   void ReleaseResources();
   void CheckInput(float);

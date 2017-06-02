@@ -58,6 +58,10 @@ BEGIN
     BEGIN
         MENUITEM "Import Model",                ID_FILE_IMPORTMODEL
     END
+    POPUP "Tool"
+    BEGIN
+        MENUITEM "Apply Texture",               ID_TOOL_APPLYTEXTURE
+    END
 END
 
 #endif    // English (U.S.) resources

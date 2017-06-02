@@ -75,6 +75,40 @@ void CScene::OnImportModel()
   }
 }
 
+void CScene::OnApplyTexture()
+{
+  OPENFILENAME ofn;
+  char szFile[260];
+
+  ZeroMemory(&ofn, sizeof(ofn));
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = m_hWnd;
+  ofn.lpstrFile = szFile;
+  ofn.lpstrFile[0] = '\0';
+  ofn.nMaxFile = sizeof(szFile);
+  ofn.lpstrFilter = "BMP (*.bmp)\0*.bmp\0JPEG (*.jpg)\0"
+    "*.jpg\0PNG (*.png)\0*.png\0TGA (*.tga)\0*.tga";
+  ofn.nFilterIndex = 1;
+  ofn.lpstrTitle = "Select a texture";
+  ofn.nMaxFileTitle = 0;
+  ofn.lpstrInitialDir = NULL;
+  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+  
+  if(m_selectedModelId == GUID_NULL)
+  {
+    MessageBox(m_hWnd, "An object must be selected first.", "Error", MB_OK);
+    return;
+  }
+  
+  if(GetOpenFileName(&ofn))
+  {
+    if(!m_models[m_selectedModelId].LoadTexture(m_device, ofn.lpstrFile))
+    {
+      MessageBox(m_hWnd, "Texture could not be loaded.", "Error", MB_OK);
+    }
+  }
+}
+
 void CScene::Pick(POINT mousePoint)
 {
   D3DXVECTOR3 orig, dir;
