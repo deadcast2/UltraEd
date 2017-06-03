@@ -125,34 +125,37 @@ void CGizmo::SetupMaterials()
 void CGizmo::SetupTransHandles()
 {
   m_models[0] = CModel("assets/trans-gizmo.dae");
-  m_models[0].Rotate(D3DXVECTOR3(0, D3DX_PI / 2, 0), D3DXVECTOR3(0, 1, 0));
+  m_models[0].Rotate(D3DXVECTOR3(0, -D3DX_PI / 2, 0), D3DXVECTOR3(0, 1, 0));
 
   m_models[1] = CModel("assets/trans-gizmo.dae");
-  m_models[1].Rotate(D3DXVECTOR3(-D3DX_PI / 2, 0, 0), D3DXVECTOR3(1, 0, 0));
+  m_models[1].Rotate(D3DXVECTOR3(D3DX_PI / 2, 0, 0), D3DXVECTOR3(1, 0, 0));
 
   m_models[2] = CModel("assets/trans-gizmo.dae");
+  m_models[2].Rotate(D3DXVECTOR3(0, D3DX_PI, 0), D3DXVECTOR3(0, 1, 0));
 }
 
 void CGizmo::SetupScaleHandles()
 {
   m_models[3] = CModel("assets/scale-gizmo.dae");
-  m_models[3].Rotate(D3DXVECTOR3(0, D3DX_PI / 2, 0), D3DXVECTOR3(0, 1, 0));
+  m_models[3].Rotate(D3DXVECTOR3(0, -D3DX_PI / 2, 0), D3DXVECTOR3(0, 1, 0));
 
   m_models[4] = CModel("assets/scale-gizmo.dae");
-  m_models[4].Rotate(D3DXVECTOR3(-D3DX_PI / 2, 0, 0), D3DXVECTOR3(1, 0, 0));
+  m_models[4].Rotate(D3DXVECTOR3(D3DX_PI / 2, 0, 0), D3DXVECTOR3(1, 0, 0));
 
   m_models[5] = CModel("assets/scale-gizmo.dae");
+  m_models[5].Rotate(D3DXVECTOR3(0, D3DX_PI, 0), D3DXVECTOR3(0, 1, 0));
 }
 
 void CGizmo::SetupRotateHandles()
 {
   m_models[6] = CModel("assets/rot-gizmo.dae");
-  m_models[6].Rotate(D3DXVECTOR3(0, D3DX_PI / 2, 0), D3DXVECTOR3(0, 1, 0));
+  m_models[6].Rotate(D3DXVECTOR3(0, -D3DX_PI / 2, 0), D3DXVECTOR3(0, 1, 0));
 
   m_models[7] = CModel("assets/rot-gizmo.dae");
-  m_models[7].Rotate(D3DXVECTOR3(-D3DX_PI / 2, 0, 0), D3DXVECTOR3(1, 0, 0));
+  m_models[7].Rotate(D3DXVECTOR3(D3DX_PI / 2, 0, 0), D3DXVECTOR3(1, 0, 0));
 
   m_models[8] = CModel("assets/rot-gizmo.dae");
+  m_models[8].Rotate(D3DXVECTOR3(0, D3DX_PI, 0), D3DXVECTOR3(0, 1, 0));
 }
 
 void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)

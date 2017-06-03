@@ -22,7 +22,7 @@ CModel::CModel(const char* filePath)
   Assimp::Importer importer;
   
   const aiScene* scene = importer.ReadFile(filePath,
-    aiProcess_Triangulate | aiProcess_FlipUVs |
+    aiProcess_Triangulate | aiProcess_ConvertToLeftHanded |
     aiProcess_OptimizeMeshes);
   
   if(scene)

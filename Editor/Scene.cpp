@@ -161,7 +161,7 @@ void CScene::Render()
     light.Diffuse.g = 1.0f;
     light.Diffuse.b = 1.0f;
     light.Range = 1000.0f;
-    vecDir = D3DXVECTOR3(90, 0.0f, 90);
+    vecDir = D3DXVECTOR3(90, 0, 90);
     D3DXVec3Normalize((D3DXVECTOR3*)&light.Direction, &vecDir);
     
     ID3DXMatrixStack *matrixStack;
