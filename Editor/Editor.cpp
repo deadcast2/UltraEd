@@ -62,9 +62,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
   case WM_SIZE:
     {
-      MoveWindow(toolbarWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
-      MoveWindow(renderWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
-      if(wParam != SIZE_MINIMIZED) scene.Resize(LOWORD(lParam), HIWORD(lParam));
+      if(wParam != SIZE_MINIMIZED)
+      {
+        // Resize the child windows and the scene.
+        MoveWindow(toolbarWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
+        MoveWindow(renderWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
+        scene.Resize(LOWORD(lParam), HIWORD(lParam));
+      }
+      break;
+    }
+  case WM_ERASEBKGND:
+    {
+      return 1;
       break;
     }
   case WM_DESTROY:
@@ -178,7 +187,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   {
     return 1;
   }
-
+  
   // Trigger the scene resize calculation.
   SendMessage(parentWindow, WM_SIZE, 0, MAKELPARAM(windowWidth, windowHeight));
   
