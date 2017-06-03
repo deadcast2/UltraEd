@@ -1,3 +1,5 @@
+#define WIN32_LEAN_AND_MEAN
+
 // Enable mouse wheel scrolling.
 #define _WIN32_WINDOWS 0x0501
 
