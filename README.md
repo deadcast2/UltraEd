@@ -10,11 +10,11 @@ To compile the source on Win XP download this dependency pack I put together: ht
 
 ### Todo
 
-~~1. Add object translation gizmo~~
-2. Add object scale gizmo
-3. Add object rotate gizmo
+1. ~~Add object translation gizmo~~
+2. ~~Add object scale gizmo~~
+3. ~~Add object rotate gizmo~~
 4. Limit poly amount for imported models
-5. Support texture import
+5. ~~Support texture import~~
 6. Add grid snapping
 7. Allow saving of scene
 8. Allow loading of scene
@@ -26,3 +26,4 @@ To compile the source on Win XP download this dependency pack I put together: ht
 14. Write bake process for special objects
 15. Write bake process for textures
 16. Write bake process for audio
+17. Add mouse smoothing to movement
