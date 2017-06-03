@@ -21,7 +21,6 @@ public:
   BOOL Create(HWND windowHandle);
   void Render();
   void Resize(int width, int height);
-  void Move(POINT, POINT, float);
   void OnMouseWheel(short zDelta);
   void OnApplyTexture();
   void OnImportModel();
@@ -42,6 +41,7 @@ private:
   std::map<GUID, CModel> m_models;
   CGrid m_grid;
   GUID m_selectedModelId;
+  float mouseSmoothX, mouseSmoothY;
 };
 
 #endif

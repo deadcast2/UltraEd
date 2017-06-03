@@ -234,6 +234,7 @@ void CScene::CheckInput(float deltaTime)
   
   static POINT prevMousePoint = mousePoint;
   static int showCount = 0;
+  const float smoothingModifier = 18.0f;
   
   if(GetAsyncKeyState('1')) m_gizmo.SetModifier(Translate);
   if(GetAsyncKeyState('2')) m_gizmo.SetModifier(Scale);
@@ -249,39 +250,49 @@ void CScene::CheckInput(float deltaTime)
   {
     if(showCount == 0) showCount = ShowCursor(FALSE);
     
-    Move(mousePoint, prevMousePoint, deltaTime);
+    if(GetAsyncKeyState('W')) m_camera.Walk(4.0f * deltaTime);
+    if(GetAsyncKeyState('S')) m_camera.Walk(-4.0f * deltaTime);
+  
+    if(GetAsyncKeyState('A')) m_camera.Strafe(-4.0f * deltaTime);
+    if(GetAsyncKeyState('D')) m_camera.Strafe(4.0f * deltaTime);
+  
+    if(GetAsyncKeyState('Q')) m_camera.Roll(4.0f * deltaTime);
+    if(GetAsyncKeyState('E')) m_camera.Roll(-4.0f * deltaTime);
+
+    mouseSmoothX = Lerp(deltaTime * smoothingModifier, 
+      mouseSmoothX, mousePoint.x - prevMousePoint.x);
+
+    mouseSmoothY = Lerp(deltaTime * smoothingModifier, 
+      mouseSmoothY, mousePoint.y - prevMousePoint.y);
+  
+    m_camera.Yaw(mouseSmoothX * deltaTime);
+    m_camera.Pitch(mouseSmoothY * deltaTime);
   }
   else if(GetAsyncKeyState(VK_MBUTTON))
   {
     if(showCount == 0) showCount = ShowCursor(FALSE);
+
+    mouseSmoothX = Lerp(deltaTime * smoothingModifier, 
+      mouseSmoothX, prevMousePoint.x - mousePoint.x);
+
+    mouseSmoothY = Lerp(deltaTime * smoothingModifier, 
+      mouseSmoothY, mousePoint.y - prevMousePoint.y);
     
-    m_camera.Strafe((prevMousePoint.x - mousePoint.x) * deltaTime);
-    m_camera.Fly((mousePoint.y - prevMousePoint.y) * deltaTime);
+    m_camera.Strafe(mouseSmoothX * deltaTime);
+    m_camera.Fly(mouseSmoothY * deltaTime);
   }
   else
   {
     if(showCount == -1) showCount = ShowCursor(TRUE);
     
     m_gizmo.Reset();
+
+    // Reset smoothing values for new mouse camera movement.
+    mouseSmoothX = mouseSmoothX = 0;
   }
   
   // Remeber the last position so we know how much to move the camera.
   prevMousePoint = mousePoint;
-}
-
-void CScene::Move(POINT mousePoint, POINT prevMousePoint, float deltaTime)
-{
-  if(GetAsyncKeyState('W')) m_camera.Walk(4.0f * deltaTime);
-  if(GetAsyncKeyState('S')) m_camera.Walk(-4.0f * deltaTime);
-  
-  if(GetAsyncKeyState('A')) m_camera.Strafe(-4.0f * deltaTime);
-  if(GetAsyncKeyState('D')) m_camera.Strafe(4.0f * deltaTime);
-  
-  if(GetAsyncKeyState('Q')) m_camera.Roll(4.0f * deltaTime);
-  if(GetAsyncKeyState('E')) m_camera.Roll(-4.0f * deltaTime);
-  
-  m_camera.Yaw((mousePoint.x - prevMousePoint.x) * deltaTime);
-  m_camera.Pitch((mousePoint.y - prevMousePoint.y) * deltaTime);
 }
 
 void CScene::OnMouseWheel(short zDelta) 
