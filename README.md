@@ -26,4 +26,4 @@ To compile the source on Win XP download this dependency pack I put together: ht
 14. Write bake process for special objects
 15. Write bake process for textures
 16. Write bake process for audio
-17. Add mouse smoothing to movement
+17. ~~Add mouse smoothing to movement~~
