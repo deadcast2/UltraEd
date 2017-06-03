@@ -18,9 +18,9 @@ class CScene
 public:
   CScene();
   ~CScene();
-  BOOL Create(HWND handle);
+  BOOL Create(HWND windowHandle);
   void Render();
-  void Resize();
+  void Resize(int width, int height);
   void Move(POINT, POINT, float);
   void OnMouseWheel(short zDelta);
   void OnApplyTexture();
@@ -30,6 +30,7 @@ public:
   void CheckInput(float);
   void ScreenRaycast(POINT screenPoint,
     D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
+  void SetGizmoModifier(GizmoModifierState state);
   
 private:
   HWND m_hWnd;

@@ -58,7 +58,7 @@ BEGIN
     BEGIN
         MENUITEM "Import Model",                ID_FILE_IMPORTMODEL
     END
-    POPUP "Tool"
+    POPUP "Tools"
     BEGIN
         MENUITEM "Apply Texture",               ID_TOOL_APPLYTEXTURE
     END
@@ -73,6 +73,13 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_MAIN_ICON           ICON    DISCARDABLE     "ultraed.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_TOOLBAR             BITMAP  DISCARDABLE     "toolbar.bmp"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

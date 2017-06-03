@@ -2,14 +2,23 @@
 #define _WIN32_WINDOWS 0x0501
 
 #include <windows.h>
+#include <commctrl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <tchar.h>
 #include "resource.h"
 #include "Scene.h"
 
-static TCHAR szWindowClass[] = _T("UltraEd");
-static TCHAR szTitle[] = _T("UltraEd v0.1");
+#define IDM_TOOLBAR_TRANSLATE 5000
+#define IDM_TOOLBAR_ROTATE 5001
+#define IDM_TOOLBAR_SCALE 5002
+
+const int windowWidth = 800;
+const int windowHeight = 600;
+const TCHAR szWindowClass[] = _T("UltraEd");
+const TCHAR szTitle[] = _T("UltraEd v0.1");
+
+HWND parentWindow, toolbarWindow, renderWindow;
 CScene scene;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -25,6 +34,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
       case ID_TOOL_APPLYTEXTURE:
         scene.OnApplyTexture();
+        break;
+      case IDM_TOOLBAR_TRANSLATE:
+        scene.SetGizmoModifier(Translate);
+        break;
+      case IDM_TOOLBAR_ROTATE:
+        scene.SetGizmoModifier(Rotate);
+        break;
+      case IDM_TOOLBAR_SCALE:
+        scene.SetGizmoModifier(Scale);
         break;
       }
       break;
@@ -42,7 +60,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
   case WM_SIZE:
     {
-      if(wParam != SIZE_MINIMIZED) scene.Resize();
+      MoveWindow(toolbarWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
+      MoveWindow(renderWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
+      if(wParam != SIZE_MINIMIZED) scene.Resize(LOWORD(lParam), HIWORD(lParam));
       break;
     }
   case WM_DESTROY:
@@ -58,6 +78,42 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
   }
   
   return 0;
+}
+
+HWND CreateToolbar(HWND hWnd, HINSTANCE hInst)
+{
+  TBBUTTON tbrButtons[3];  
+  tbrButtons[0].idCommand = IDM_TOOLBAR_TRANSLATE;
+  tbrButtons[0].fsState   = TBSTATE_ENABLED;
+  tbrButtons[0].fsStyle   = TBSTYLE_BUTTON;
+  tbrButtons[0].dwData    = 0L;
+  tbrButtons[0].iBitmap   = 0;
+  tbrButtons[0].iString   = 0;
+  
+  tbrButtons[1].idCommand = IDM_TOOLBAR_ROTATE;
+  tbrButtons[1].fsState   = TBSTATE_ENABLED;
+  tbrButtons[1].fsStyle   = TBSTYLE_BUTTON;
+  tbrButtons[1].dwData    = 0L;
+  tbrButtons[1].iBitmap   = 1;
+  tbrButtons[1].iString   = 0;
+  
+  tbrButtons[2].idCommand = IDM_TOOLBAR_SCALE;
+  tbrButtons[2].fsState   = TBSTATE_ENABLED;
+  tbrButtons[2].fsStyle   = TBSTYLE_BUTTON;
+  tbrButtons[2].dwData    = 0L;
+  tbrButtons[2].iBitmap   = 2;
+  tbrButtons[2].iString   = 0;
+  
+  return CreateToolbarEx(hWnd,
+    WS_VISIBLE | WS_CHILD | WS_BORDER,
+    IDB_TOOLBAR,
+    3,
+    hInst,
+    IDB_TOOLBAR,
+    tbrButtons,
+    3,
+    16, 16, 16, 16,
+    sizeof(TBBUTTON));
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -79,30 +135,50 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   
   if(!RegisterClassEx(&wcex))
   {
-    MessageBox(NULL, _T("Call to RegisterClassEx failed!"),
-      _T("Error"), NULL);
-    
+    MessageBox(NULL, "Call to RegisterClassEx failed!", "Error", NULL);
     return 1;
   }
   
-  HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-    CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, NULL, NULL, hInstance, NULL);
+  // Create the main window which we'll add the toolbar and renderer to.
+  parentWindow = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+    CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, NULL, NULL, hInstance, NULL);
   
-  if(!hWnd)
+  if(!parentWindow)
   {
-    MessageBox(NULL, _T("Call to CreateWindow failed!"),
-      _T("Error"), NULL);
-    
+    MessageBox(NULL, "Could not create parent window.", "Error", NULL);
     return 1;
   }
   
-  ShowWindow(hWnd, nCmdShow);
-  UpdateWindow(hWnd);
+  toolbarWindow = CreateToolbar(parentWindow, hInstance);
+  if(!toolbarWindow)
+  {
+    MessageBox(NULL, "Could not create toolbar.", "Error", NULL);
+    return 1;
+  }
   
-  if(!scene.Create(hWnd))
+  ShowWindow(parentWindow, nCmdShow);
+  UpdateWindow(parentWindow);
+  
+  // Create the window for rendering the scene.
+  renderWindow = CreateWindow(szWindowClass, szTitle, WS_CLIPSIBLINGS | WS_CHILD,
+    CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, parentWindow, NULL, hInstance, NULL);
+  
+  if(!renderWindow)
+  {
+    MessageBox(NULL, "Could not create render child window.", "Error", NULL);
+    return 1;
+  }
+  
+  ShowWindow(renderWindow, nCmdShow);
+  UpdateWindow(renderWindow);
+  
+  if(!scene.Create(renderWindow))
   {
     return 1;
   }
+
+  // Trigger the scene resize calculation.
+  SendMessage(parentWindow, WM_SIZE, 0, MAKELPARAM(windowWidth, windowHeight));
   
   MSG msg;
   while(WM_QUIT != msg.message)

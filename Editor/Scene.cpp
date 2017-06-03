@@ -15,9 +15,9 @@ CScene::~CScene()
   if(m_d3d8) m_d3d8->Release();
 }
 
-BOOL CScene::Create(HWND handle) 
+BOOL CScene::Create(HWND windowHandle) 
 {
-  m_hWnd = handle;
+  m_hWnd = windowHandle;
   
   if((m_d3d8 = Direct3DCreate8(D3D_SDK_VERSION)) == NULL)
   {
@@ -36,15 +36,14 @@ BOOL CScene::Create(HWND handle)
   m_d3dpp.EnableAutoDepthStencil = TRUE;
   m_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
   
-  if(FAILED(m_d3d8->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, handle,
+  if(FAILED(m_d3d8->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, windowHandle,
     D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device)))
   {
     return FALSE;
   }
   
   m_gizmo.SetCamera(&m_camera);
-  Resize();
-  
+
   return TRUE;
 }
 
@@ -211,9 +210,9 @@ void CScene::Render()
   lastTime = currentTime;
 }
 
-void CScene::Resize() 
+void CScene::Resize(int width, int height) 
 {
-  float aspect = (float)800 / (float)600;
+  float aspect = (float)width / (float)height;
   float fov = 3.14f / 2.0f;
   
   D3DXMATRIX m;
@@ -319,6 +318,11 @@ void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *
   (*origin).x = m._41;
   (*origin).y = m._42;
   (*origin).z = m._43;
+}
+
+void CScene::SetGizmoModifier(GizmoModifierState state)
+{
+  m_gizmo.SetModifier(state);
 }
 
 void CScene::ReleaseResources()
