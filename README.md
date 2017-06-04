@@ -27,3 +27,6 @@ To compile the source on Win XP download this dependency pack I put together: ht
 15. Write bake process for textures
 16. Write bake process for audio
 17. ~~Add mouse smoothing to movement~~
+18. Allow switching from global to local space
+19. Add support for vertex coloring
+20. Add object properties pane to view info
