@@ -39,6 +39,9 @@ private:
   GizmoState m_state;
   GizmoModifierState m_modifierState;
   D3DXVECTOR3 m_updateStartPoint;
+  D3DXVECTOR3 m_xAxisRot;
+  D3DXVECTOR3 m_yAxisRot;
+  D3DXVECTOR3 m_zAxisRot;
   CCamera *m_camera;
 };
 
