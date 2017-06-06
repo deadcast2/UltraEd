@@ -1,5 +1,4 @@
 ![alt logo](https://s3.amazonaws.com/kittypizza/ultraed.png)
-# UltraEd
 A level editor/game engine for the Nintendo 64 (WIP)
 
 ---
