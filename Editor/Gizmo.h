@@ -4,7 +4,7 @@
 #include "Camera.h"
 #include "Model.h"
 
-enum GizmoState { TransX, TransY, TransZ };
+enum GizmoState { XAxis, YAxis, ZAxis };
 
 enum GizmoModifierState { Translate, Scale, Rotate };
 

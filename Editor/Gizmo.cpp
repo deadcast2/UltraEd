@@ -29,11 +29,11 @@ D3DXVECTOR3 CGizmo::GetModifyVector()
 {
   switch(m_state)
   {
-  case TransX:
+  case XAxis:
     return D3DXVECTOR3(1, 0, 0);
-  case TransY:
+  case YAxis:
     return D3DXVECTOR3(0, 1, 0);
-  case TransZ:
+  case ZAxis:
     return D3DXVECTOR3(0, 0, 1);
   }
   
@@ -66,19 +66,19 @@ BOOL CGizmo::Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
 {
   if(m_models[m_modifierState * 3 + 0].Pick(orig, dir))
   {
-    m_state = TransX;
+    m_state = XAxis;
     return TRUE;
   }
   
   if(m_models[m_modifierState * 3 + 1].Pick(orig, dir))
   {
-    m_state = TransY;
+    m_state = YAxis;
     return TRUE;
   }
   
   if(m_models[m_modifierState * 3 + 2].Pick(orig, dir))
   {
-    m_state = TransZ;
+    m_state = ZAxis;
     return TRUE;
   }
 
@@ -164,7 +164,7 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
   D3DXVECTOR3 v0, v1, v2, intersectPoint;
   
   // Detect which plane that needs to be computed.
-  if(m_state == TransY)
+  if(m_state == YAxis)
   {
     v0 = D3DXVECTOR3(modelPos.x, modelPos.y, modelPos.z);
     v1 = D3DXVECTOR3(modelPos.x + 1, modelPos.y, modelPos.z);

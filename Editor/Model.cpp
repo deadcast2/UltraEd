@@ -131,6 +131,21 @@ void CModel::SetPosition(D3DXVECTOR3 position)
   m_position = position;
 }
 
+D3DXVECTOR3 CModel::GetRotation()
+{
+  return m_rotation;
+}
+
+void CModel::SetRotation(D3DXVECTOR3 rotation)
+{
+  m_rotation = rotation;
+}
+
+D3DXVECTOR3 CModel::GetScale()
+{
+  return m_scale;
+}
+
 void CModel::SetScale(D3DXVECTOR3 scale)
 {
   m_scale = scale;

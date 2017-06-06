@@ -21,6 +21,9 @@ public:
   GUID GetId();
   D3DXVECTOR3 GetPosition();
   void SetPosition(D3DXVECTOR3 position);
+  D3DXVECTOR3 GetRotation();
+  void SetRotation(D3DXVECTOR3 rotation);
+  D3DXVECTOR3 GetScale();
   void SetScale(D3DXVECTOR3 scale);
   void Release();
   void Render(IDirect3DDevice8*, ID3DXMatrixStack*);
