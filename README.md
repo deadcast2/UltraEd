@@ -1,5 +1,6 @@
 ![alt logo](https://s3.amazonaws.com/kittypizza/ultraed.png)
-A level editor/game engine for the Nintendo 64 (WIP)
+
+## A level editor/game engine for the Nintendo 64 (WIP)
 
 ---
 
@@ -29,3 +30,4 @@ To compile the source on Win XP download this dependency pack I put together: ht
 18. Allow switching from global to local space
 19. Add support for vertex coloring
 20. Add object properties pane to view info
+21. Allow manual setting of object transformations
