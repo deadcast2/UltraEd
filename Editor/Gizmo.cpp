@@ -204,6 +204,16 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
     else
     {
       model->Rotate(m_updateStartPoint - intersectPoint, GetModifyVector());
+
+      // Keep gizmo in-sync with the model's rotation.
+      D3DXVECTOR3 modelRot = model->GetRotation();
+
+      for(int i = 0; i < 3; i++)
+      {
+        m_models[i * 3 + 0].SetRotation(D3DXVECTOR3(0, modelRot.y, modelRot.z) + m_xAxisRot);
+        m_models[i * 3 + 1].SetRotation(D3DXVECTOR3(modelRot.x, modelRot.y, modelRot.z) + m_yAxisRot);
+        m_models[i * 3 + 2].SetRotation(D3DXVECTOR3(-modelRot.x, modelRot.y, modelRot.z) + m_zAxisRot);
+      }
     }
     
     m_updateStartPoint = intersectPoint;
