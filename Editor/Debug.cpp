@@ -27,6 +27,11 @@ CDebug& CDebug::Instance()
 
 void CDebug::DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to)
 {
+  Instance()._DrawLine(from, to);
+}
+
+void CDebug::_DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to)
+{
   MeshVertex v1;
   v1.position = from;
     
