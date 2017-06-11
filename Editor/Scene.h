@@ -9,6 +9,7 @@
 #include <d3dx8.h>
 #include "Camera.h"
 #include "Common.h"
+#include "Debug.h"
 #include "Gizmo.h"
 #include "Grid.h"
 #include "Model.h"

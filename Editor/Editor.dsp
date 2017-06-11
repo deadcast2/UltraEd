@@ -95,6 +95,10 @@ SOURCE=.\Camera.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Debug.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Editor.cpp
 # End Source File
 # Begin Source File
@@ -132,6 +136,10 @@ SOURCE=.\Camera.h
 # Begin Source File
 
 SOURCE=.\Common.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Debug.h
 # End Source File
 # Begin Source File
 

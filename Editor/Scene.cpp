@@ -179,6 +179,9 @@ void CScene::Render()
     
     // Draw the grid.
     m_grid.Render(m_device);
+
+    // Draw any debug lines.
+    CDebug::Instance().Render(m_device);
     
     std::map<GUID, CModel>::iterator it;
     for(it = m_models.begin(); it != m_models.end(); it++)

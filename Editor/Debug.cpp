@@ -1,49 +1,45 @@
-#include "Grid.h"
+#include "Debug.h"
 
-CGrid::CGrid()
+CDebug* CDebug::m_instance = &Instance();
+
+CDebug::CDebug()
 {
   m_vertexBuffer = 0;
   
-  int i = 0;
-  const int size = 30;
-  
-  // Create the x-axis lines.
-  for(i = 0; i <= size; i++)
-  {
-    MeshVertex v1;
-    v1.position = D3DXVECTOR3(-size / 2 + i, 0, -size / 2);
-    
-    MeshVertex v2;
-    v2.position = D3DXVECTOR3(-size / 2 + i, 0, size / 2);
-    
-    m_vertices.push_back(v1);
-    m_vertices.push_back(v2);
-  }
-  
-  // Create the z-axis lines.
-  for(i = 0; i <= size; i++)
-  {
-    MeshVertex v1;
-    v1.position = D3DXVECTOR3(-size / 2, 0, -size / 2 + i);
-    
-    MeshVertex v2;
-    v2.position = D3DXVECTOR3(size / 2, 0, -size / 2 + i);
-    
-    m_vertices.push_back(v1);
-    m_vertices.push_back(v2);
-  }
-  
   ZeroMemory(&m_material, sizeof(D3DMATERIAL8));
   m_material.Emissive.r = 0.55f;
-  m_material.Emissive.g = 0.55f;
+  m_material.Emissive.g = 1.0f;
   m_material.Emissive.b = 0.55f;
 }
 
-CGrid::~CGrid()
-{ 
+CDebug::~CDebug()
+{
+  Release();
 }
 
-IDirect3DVertexBuffer8* CGrid::GetBuffer(IDirect3DDevice8* device)
+CDebug& CDebug::Instance()
+{
+  if(m_instance == NULL)
+    m_instance = new CDebug;
+
+  return *m_instance;
+}
+
+void CDebug::DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to)
+{
+  MeshVertex v1;
+  v1.position = from;
+    
+  MeshVertex v2;
+  v2.position = to;
+  
+  m_vertices.push_back(v1);
+  m_vertices.push_back(v2);
+
+  Release();
+}
+
+IDirect3DVertexBuffer8* CDebug::GetBuffer(IDirect3DDevice8* device)
 {
   if(m_vertexBuffer == NULL)
   {
@@ -71,7 +67,7 @@ IDirect3DVertexBuffer8* CGrid::GetBuffer(IDirect3DDevice8* device)
   return m_vertexBuffer;
 }
 
-void CGrid::Render(IDirect3DDevice8* device)
+void CDebug::Render(IDirect3DDevice8* device)
 {
   IDirect3DVertexBuffer8* buffer = GetBuffer(device);
   
@@ -84,7 +80,7 @@ void CGrid::Render(IDirect3DDevice8* device)
   }
 }
 
-void CGrid::Release()
+void CDebug::Release()
 {
   if(m_vertexBuffer != NULL)
   {
