@@ -151,6 +151,13 @@ void CModel::SetScale(D3DXVECTOR3 scale)
   m_scale = scale;
 }
 
+D3DXVECTOR3 CModel::GetRight()
+{
+  D3DXVECTOR3 right = D3DXVECTOR3(1, 0, 0);
+  D3DXVec3TransformCoord(&right, &right, &GetRotationMatrix());
+  return right;
+}
+
 void CModel::Move(D3DXVECTOR3 position, D3DXVECTOR3 along)
 {
   D3DXVECTOR3 xVector(position.x, 0, 0);
@@ -161,8 +168,12 @@ void CModel::Move(D3DXVECTOR3 position, D3DXVECTOR3 along)
   
   D3DXVECTOR3 zVector(0, 0, position.z);
   D3DXVec3Scale(&zVector, &zVector, along.z);
+
+  D3DXVECTOR3 diff = xVector + yVector + zVector;
+
+  D3DXVec3TransformCoord(&diff, &diff, &GetRotationMatrix());
   
-  m_position += (xVector + yVector + zVector);
+  m_position += diff;
 }
 
 void CModel::Scale(D3DXVECTOR3 position, D3DXVECTOR3 along)
@@ -211,6 +222,20 @@ D3DXMATRIX CModel::GetMatrix()
   D3DXMatrixRotationZ(&rotationZ, m_rotation.z);
   
   return scale * rotationX * rotationY * rotationZ * translation;
+}
+
+D3DXMATRIX CModel::GetRotationMatrix()
+{
+  D3DXMATRIX rotationX;
+  D3DXMatrixRotationX(&rotationX, m_rotation.x);
+  
+  D3DXMATRIX rotationY;
+  D3DXMatrixRotationY(&rotationY, m_rotation.y);
+  
+  D3DXMATRIX rotationZ;
+  D3DXMatrixRotationZ(&rotationZ, m_rotation.z);
+  
+  return rotationX * rotationY * rotationZ;
 }
 
 BOOL CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir)

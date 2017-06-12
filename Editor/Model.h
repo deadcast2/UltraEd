@@ -15,6 +15,7 @@ public:
   ~CModel();
   BOOL LoadTexture(IDirect3DDevice8 *device, const char* filePath);
   D3DXMATRIX GetMatrix();
+  D3DXMATRIX GetRotationMatrix();
   void Move(D3DXVECTOR3 position, D3DXVECTOR3 along);
   void Scale(D3DXVECTOR3 position, D3DXVECTOR3 along);
   void Rotate(D3DXVECTOR3 position, D3DXVECTOR3 along);
@@ -25,6 +26,7 @@ public:
   void SetRotation(D3DXVECTOR3 rotation);
   D3DXVECTOR3 GetScale();
   void SetScale(D3DXVECTOR3 scale);
+  D3DXVECTOR3 GetRight();
   void Release();
   void Render(IDirect3DDevice8*, ID3DXMatrixStack*);
   std::vector<MeshVertex> GetVertices();

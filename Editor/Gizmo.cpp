@@ -1,4 +1,5 @@
 #include "Gizmo.h"
+#include "Debug.h"
 
 CGizmo::CGizmo()
 {
@@ -164,26 +165,25 @@ void CGizmo::SetupRotateHandles()
 
 void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
 {
-  D3DXVECTOR3 modelPos = model->GetPosition();
+  D3DXVECTOR3 look = model->GetPosition() - m_camera->GetPosition();
+  D3DXVec3Normalize(&look, &look);
+  D3DXVECTOR3 right = model->GetRight();
+  D3DXVECTOR3 up;
+  D3DXVec3Cross(&up, &right, &look);
+  D3DXVec3Cross(&look, &right, &up);
+
   D3DXVECTOR3 v0, v1, v2, intersectPoint;
-  
-  // Detect which plane that needs to be computed.
-  if(m_state == YAxis)
-  {
-    v0 = D3DXVECTOR3(modelPos.x, modelPos.y, modelPos.z);
-    v1 = D3DXVECTOR3(modelPos.x + 1, modelPos.y, modelPos.z);
-    v2 = D3DXVECTOR3(modelPos.x + 1, modelPos.y + 1, modelPos.z);
-  }
-  else
-  {
-    v0 = D3DXVECTOR3(modelPos.x, modelPos.y, modelPos.z);
-    v1 = D3DXVECTOR3(modelPos.x + 1, modelPos.y, modelPos.z);
-    v2 = D3DXVECTOR3(modelPos.x + 1, modelPos.y, modelPos.z + 1);
-  }
+  v0 = model->GetPosition();
+  v1 = v0 + right;
+  v2 = v0 + up;
+    
+  CDebug::DrawLine(v0, v1);
+  CDebug::DrawLine(v1, v2);
+  CDebug::DrawLine(v2, v0);
   
   D3DXPLANE testPlane;
   D3DXPlaneFromPoints(&testPlane, &v0, &v1, &v2); 
-  D3DXVECTOR3 rayEnd = orig + (dir * 1000);
+  D3DXVECTOR3 rayEnd = orig + (dir * 100);
   
   if(D3DXPlaneIntersectLine(&intersectPoint, &testPlane,
     &orig, &rayEnd) != NULL)
