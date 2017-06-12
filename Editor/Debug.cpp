@@ -30,6 +30,18 @@ void CDebug::DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to)
   Instance()._DrawLine(from, to);
 }
 
+void CDebug::Log(const char *format, ...)
+{
+  va_list args;
+  va_start(args, format);
+ 
+  char buffer[256];
+  vsprintf(buffer, format, args);
+  OutputDebugString(buffer);
+  
+  va_end(args);
+}
+
 void CDebug::_DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to)
 {
   MeshVertex v1;

@@ -12,6 +12,7 @@ public:
   void Render(IDirect3DDevice8*);
   static CDebug& Instance();
   static void DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to);
+  static void Log(const char *format, ...);
   
 private:
   static CDebug* m_instance;
