@@ -152,7 +152,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   
   // Create the main window which we'll add the toolbar and renderer to.
   parentWindow = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-    CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, NULL, NULL, hInstance, NULL);
+    (GetSystemMetrics(SM_CXSCREEN) / 2) - (windowWidth / 2), 
+    (GetSystemMetrics(SM_CYSCREEN) / 2) - (windowHeight / 2), 
+    windowWidth, windowHeight, NULL, NULL, hInstance, NULL);
   
   if(!parentWindow)
   {
