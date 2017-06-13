@@ -9,6 +9,7 @@ public:
   CCamera();
   ~CCamera();
   D3DXVECTOR3 GetPosition();
+  D3DXVECTOR3 GetForward();
   void Fly(float units); // up/down
   void Strafe(float units); // left/right
   void Walk(float units); // forward/backward
@@ -20,7 +21,7 @@ public:
 private:
   D3DXVECTOR3 m_right;
   D3DXVECTOR3 m_up;
-  D3DXVECTOR3 m_look;
+  D3DXVECTOR3 m_forward;
   D3DXVECTOR3 m_pos;
 };
 

@@ -320,7 +320,7 @@ void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *
   v.z = 1.0f;
   
   // Get the camera inverse view matrix.
-  D3DXMATRIX matView, m;
+  D3DXMATRIX m;
   D3DXMatrixInverse(&m, NULL, &m_camera.GetViewMatrix());
   
   // Transform the screen space pick ray into 3D space.

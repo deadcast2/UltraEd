@@ -165,25 +165,53 @@ void CGizmo::SetupRotateHandles()
 
 void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
 {
+  D3DXVECTOR3 v0, v1, v2, intersectPoint;
   D3DXVECTOR3 look = model->GetPosition() - m_camera->GetPosition();
   D3DXVec3Normalize(&look, &look);
-  D3DXVECTOR3 right = model->GetRight();
-  D3DXVECTOR3 up;
-  D3DXVec3Cross(&up, &right, &look);
-  D3DXVec3Cross(&look, &right, &up);
 
-  D3DXVECTOR3 v0, v1, v2, intersectPoint;
-  v0 = model->GetPosition();
-  v1 = v0 + right;
-  v2 = v0 + up;
+  if(m_state == XAxis)
+  {
+    D3DXVECTOR3 right = model->GetRight();
+    D3DXVECTOR3 up;
+    D3DXVec3Cross(&up, &right, &look);
+    D3DXVec3Cross(&look, &right, &up);
+
+    v0 = model->GetPosition();
+    v1 = v0 + right;
+    v2 = v0 + up;
+  }
+  else if(m_state == YAxis)
+  {
+    D3DXVECTOR3 up = model->GetUp();
+    D3DXVECTOR3 right;
+    D3DXVec3Cross(&right, &up, &look);
+    D3DXVec3Cross(&look, &up, &right);
+
+    v0 = model->GetPosition();
+    v1 = v0 + right;
+    v2 = v0 + up;
+  }
+  else if(m_state == ZAxis)
+  {
+    D3DXVECTOR3 forward = model->GetForward();
+    D3DXVECTOR3 up;
+    D3DXVec3Cross(&up, &forward, &look);
+    D3DXVec3Cross(&look, &forward, &up);
+
+    v0 = model->GetPosition();
+    v1 = v0 + forward;
+    v2 = v0 + up;
+  }
     
   CDebug::DrawLine(v0, v1);
   CDebug::DrawLine(v1, v2);
   CDebug::DrawLine(v2, v0);
   
   D3DXPLANE testPlane;
-  D3DXPlaneFromPoints(&testPlane, &v0, &v1, &v2); 
-  D3DXVECTOR3 rayEnd = orig + (dir * 100);
+  D3DXPlaneFromPoints(&testPlane, &v0, &v1, &v2);
+  D3DXVECTOR3 rayEnd = orig + (dir * 1000);
+
+  CDebug::DrawLine(orig, rayEnd);
   
   if(D3DXPlaneIntersectLine(&intersectPoint, &testPlane,
     &orig, &rayEnd) != NULL)

@@ -158,6 +158,20 @@ D3DXVECTOR3 CModel::GetRight()
   return right;
 }
 
+D3DXVECTOR3 CModel::GetForward()
+{
+  D3DXVECTOR3 forward = D3DXVECTOR3(0, 0, 1);
+  D3DXVec3TransformCoord(&forward, &forward, &GetRotationMatrix());
+  return forward;
+}
+
+D3DXVECTOR3 CModel::GetUp()
+{
+  D3DXVECTOR3 up = D3DXVECTOR3(0, 1, 0);
+  D3DXVec3TransformCoord(&up, &up, &GetRotationMatrix());
+  return up;
+}
+
 void CModel::Move(D3DXVECTOR3 position, D3DXVECTOR3 along)
 {
   D3DXVECTOR3 xVector(position.x, 0, 0);

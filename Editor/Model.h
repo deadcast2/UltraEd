@@ -27,6 +27,8 @@ public:
   D3DXVECTOR3 GetScale();
   void SetScale(D3DXVECTOR3 scale);
   D3DXVECTOR3 GetRight();
+  D3DXVECTOR3 GetForward();
+  D3DXVECTOR3 GetUp();
   void Release();
   void Render(IDirect3DDevice8*, ID3DXMatrixStack*);
   std::vector<MeshVertex> GetVertices();
