@@ -165,6 +165,7 @@ void CGizmo::SetupRotateHandles()
 
 void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
 {
+  D3DXVECTOR3 targetDir = D3DXVECTOR3(0, 0, 0);
   D3DXVECTOR3 v0, v1, v2, intersectPoint;
   D3DXVECTOR3 look = model->GetPosition() - m_camera->GetPosition();
   D3DXVec3Normalize(&look, &look);
@@ -179,6 +180,8 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
     v0 = model->GetPosition();
     v1 = v0 + right;
     v2 = v0 + up;
+
+    targetDir = right;
   }
   else if(m_state == YAxis)
   {
@@ -190,6 +193,8 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
     v0 = model->GetPosition();
     v1 = v0 + right;
     v2 = v0 + up;
+
+    targetDir = up;
   }
   else if(m_state == ZAxis)
   {
@@ -201,6 +206,8 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
     v0 = model->GetPosition();
     v1 = v0 + forward;
     v2 = v0 + up;
+
+    targetDir = forward;
   }
     
   CDebug::DrawLine(v0, v1);
@@ -210,8 +217,6 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
   D3DXPLANE testPlane;
   D3DXPlaneFromPoints(&testPlane, &v0, &v1, &v2);
   D3DXVECTOR3 rayEnd = orig + (dir * 1000);
-
-  CDebug::DrawLine(orig, rayEnd);
   
   if(D3DXPlaneIntersectLine(&intersectPoint, &testPlane,
     &orig, &rayEnd) != NULL)
@@ -223,7 +228,15 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
     
     if(m_modifierState == Translate)
     {
-      model->Move(intersectPoint - m_updateStartPoint, GetModifyVector());
+      D3DXVECTOR3 mouseDir = intersectPoint - m_updateStartPoint;
+      D3DXVECTOR3 normMouseDir;
+      D3DXVec3Normalize(&normMouseDir, &mouseDir);
+
+      FLOAT moveDist = D3DXVec3Length(&mouseDir);
+      FLOAT angle = acosf(D3DXVec3Dot(&targetDir, &normMouseDir));
+      FLOAT modifier = 1.0f - (angle/(D3DX_PI/2));
+
+      model->Move(targetDir * (moveDist * modifier));
     }
     else if(m_modifierState == Scale)
     {

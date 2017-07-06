@@ -16,7 +16,7 @@ public:
   BOOL LoadTexture(IDirect3DDevice8 *device, const char* filePath);
   D3DXMATRIX GetMatrix();
   D3DXMATRIX GetRotationMatrix();
-  void Move(D3DXVECTOR3 position, D3DXVECTOR3 along);
+  void Move(D3DXVECTOR3 position);
   void Scale(D3DXVECTOR3 position, D3DXVECTOR3 along);
   void Rotate(D3DXVECTOR3 position, D3DXVECTOR3 along);
   GUID GetId();
