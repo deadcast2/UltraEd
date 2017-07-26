@@ -102,3 +102,13 @@ D3DXVECTOR3 CCamera::GetForward()
 {
   return m_forward;
 }
+
+D3DXVECTOR3 CCamera::GetRight()
+{
+  return m_right;
+}
+
+D3DXVECTOR3 CCamera::GetUp()
+{
+  return m_up;
+}
