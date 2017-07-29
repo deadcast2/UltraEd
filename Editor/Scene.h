@@ -31,6 +31,7 @@ public:
   void ScreenRaycast(POINT screenPoint,
     D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
   void SetGizmoModifier(GizmoModifierState state);
+  bool ToggleMovementSpace();
   
 private:
   HWND m_hWnd;

@@ -16,8 +16,9 @@ CModel::CModel(const char* filePath)
   m_position = D3DXVECTOR3(0, 0, 0);
   
   m_scale = D3DXVECTOR3(1, 1, 1);
-  
-  m_rotation = D3DXVECTOR3(0, 0, 0);
+
+  D3DXMatrixIdentity(&m_localRot);
+  D3DXMatrixIdentity(&m_worldRot);
   
   Assimp::Importer importer;
   
@@ -131,14 +132,9 @@ void CModel::SetPosition(D3DXVECTOR3 position)
   m_position = position;
 }
 
-D3DXVECTOR3 CModel::GetRotation()
-{
-  return m_rotation;
-}
-
 void CModel::SetRotation(D3DXVECTOR3 rotation)
 {
-  m_rotation = rotation;
+  D3DXMatrixRotationYawPitchRoll(&m_worldRot, rotation.y, rotation.x, rotation.z);
 }
 
 D3DXVECTOR3 CModel::GetScale()
@@ -191,18 +187,18 @@ void CModel::Scale(D3DXVECTOR3 position, D3DXVECTOR3 along)
   m_scale += (xVector + yVector + zVector);
 }
 
-void CModel::Rotate(D3DXVECTOR3 position, D3DXVECTOR3 along)
+void CModel::Rotate(FLOAT angle, D3DXVECTOR3 dir)
 {
-  D3DXVECTOR3 xVector(position.x, 0, 0);
-  D3DXVec3Scale(&xVector, &xVector, along.x);
-  
-  D3DXVECTOR3 yVector(0, position.y, 0);
-  D3DXVec3Scale(&yVector, &yVector, along.y);
-  
-  D3DXVECTOR3 zVector(0, 0, position.z);
-  D3DXVec3Scale(&zVector, &zVector, along.z);
-  
-  m_rotation += (xVector + yVector + zVector);
+  D3DXMATRIX newWorld;
+  D3DXMatrixRotationAxis(&newWorld, &dir, angle);
+  m_worldRot *= newWorld;
+}
+
+void CModel::RotateLocal(FLOAT angle, D3DXVECTOR3 dir)
+{
+  D3DXMATRIX newLocal;
+  D3DXMatrixRotationAxis(&newLocal, &dir, angle);
+  m_localRot *= newLocal;
 }
 
 D3DXMATRIX CModel::GetMatrix()
@@ -213,30 +209,17 @@ D3DXMATRIX CModel::GetMatrix()
   D3DXMATRIX scale;
   D3DXMatrixScaling(&scale, m_scale.x, m_scale.y, m_scale.z);
   
-  D3DXMATRIX rotationX;
-  D3DXMatrixRotationX(&rotationX, m_rotation.x);
-  
-  D3DXMATRIX rotationY;
-  D3DXMatrixRotationY(&rotationY, m_rotation.y);
-  
-  D3DXMATRIX rotationZ;
-  D3DXMatrixRotationZ(&rotationZ, m_rotation.z);
-  
-  return scale * rotationX * rotationY * rotationZ * translation;
+  return scale * m_worldRot * m_localRot * translation;
 }
 
 D3DXMATRIX CModel::GetRotationMatrix()
+{  
+  return m_worldRot * m_localRot;
+}
+
+void CModel::SetLocalRotationMatrix(D3DXMATRIX mat)
 {
-  D3DXMATRIX rotationX;
-  D3DXMatrixRotationX(&rotationX, m_rotation.x);
-  
-  D3DXMATRIX rotationY;
-  D3DXMatrixRotationY(&rotationY, m_rotation.y);
-  
-  D3DXMATRIX rotationZ;
-  D3DXMatrixRotationZ(&rotationZ, m_rotation.z);
-  
-  return rotationX * rotationY * rotationZ;
+  m_localRot = mat;
 }
 
 BOOL CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir)

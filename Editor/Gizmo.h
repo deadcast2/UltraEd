@@ -15,6 +15,7 @@ public:
   ~CGizmo();
   void SetCamera(CCamera *camera);
   void SetModifier(GizmoModifierState state);
+  bool ToggleSpace();
   void Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model);
   void Reset();
   BOOL Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
@@ -36,6 +37,7 @@ private:
   D3DMATERIAL8 m_greenMaterial;
   D3DMATERIAL8 m_blueMaterial;
   CModel m_models[9];
+  CModel *m_selectedModel;
   GizmoState m_state;
   GizmoModifierState m_modifierState;
   D3DXVECTOR3 m_updateStartPoint;
@@ -43,6 +45,7 @@ private:
   D3DXVECTOR3 m_yAxisRot;
   D3DXVECTOR3 m_zAxisRot;
   CCamera *m_camera;
+  bool m_worldSpaceToggled;
 };
 
 #endif

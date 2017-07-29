@@ -62,6 +62,11 @@ BEGIN
     BEGIN
         MENUITEM "Apply Texture",               ID_TOOL_APPLYTEXTURE
     END
+    POPUP "Movement"
+    BEGIN
+        MENUITEM "World Space",                 ID_MOVEMENT_WORLDSPACE
+        , CHECKED
+    END
 END
 
 

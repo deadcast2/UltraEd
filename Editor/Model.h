@@ -16,13 +16,14 @@ public:
   BOOL LoadTexture(IDirect3DDevice8 *device, const char* filePath);
   D3DXMATRIX GetMatrix();
   D3DXMATRIX GetRotationMatrix();
+  void SetLocalRotationMatrix(D3DXMATRIX mat);
   void Move(D3DXVECTOR3 position);
   void Scale(D3DXVECTOR3 position, D3DXVECTOR3 along);
-  void Rotate(D3DXVECTOR3 position, D3DXVECTOR3 along);
+  void Rotate(FLOAT angle, D3DXVECTOR3 dir);
+  void RotateLocal(FLOAT angle, D3DXVECTOR3 dir);
   GUID GetId();
   D3DXVECTOR3 GetPosition();
   void SetPosition(D3DXVECTOR3 position);
-  D3DXVECTOR3 GetRotation();
   void SetRotation(D3DXVECTOR3 rotation);
   D3DXVECTOR3 GetScale();
   void SetScale(D3DXVECTOR3 scale);
@@ -44,7 +45,8 @@ private:
   std::vector<MeshVertex> m_vertices;
   D3DXVECTOR3 m_position;
   D3DXVECTOR3 m_scale;
-  D3DXVECTOR3 m_rotation;
+  D3DXMATRIX m_localRot;
+  D3DXMATRIX m_worldRot;
   LPDIRECT3DTEXTURE8 m_texture;
 };
 

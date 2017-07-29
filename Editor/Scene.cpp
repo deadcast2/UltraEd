@@ -339,6 +339,11 @@ void CScene::SetGizmoModifier(GizmoModifierState state)
   m_gizmo.SetModifier(state);
 }
 
+bool CScene::ToggleMovementSpace()
+{
+  return m_gizmo.ToggleSpace();
+}
+
 void CScene::ReleaseResources()
 {
   m_grid.Release();

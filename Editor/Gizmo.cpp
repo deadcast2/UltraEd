@@ -9,6 +9,10 @@ CGizmo::CGizmo()
   m_xAxisRot = D3DXVECTOR3(0, -D3DX_PI / 2, 0);
   m_yAxisRot = D3DXVECTOR3(D3DX_PI / 2, 0, 0);
   m_zAxisRot = D3DXVECTOR3(0, D3DX_PI, 0);
+
+  m_worldSpaceToggled = TRUE;
+
+  m_selectedModel = NULL;
   
   SetupMaterials();
   
@@ -130,37 +134,37 @@ void CGizmo::SetupMaterials()
 void CGizmo::SetupTransHandles()
 {
   m_models[0] = CModel("assets/trans-gizmo.dae");
-  m_models[0].Rotate(m_xAxisRot, D3DXVECTOR3(0, 1, 0));
+  m_models[0].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
 
   m_models[1] = CModel("assets/trans-gizmo.dae");
-  m_models[1].Rotate(m_yAxisRot, D3DXVECTOR3(1, 0, 0));
+  m_models[1].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
 
   m_models[2] = CModel("assets/trans-gizmo.dae");
-  m_models[2].Rotate(m_zAxisRot, D3DXVECTOR3(0, 1, 0));
+  m_models[2].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
 }
 
 void CGizmo::SetupScaleHandles()
 {
   m_models[3] = CModel("assets/scale-gizmo.dae");
-  m_models[3].Rotate(m_xAxisRot, D3DXVECTOR3(0, 1, 0));
+  m_models[3].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
 
   m_models[4] = CModel("assets/scale-gizmo.dae");
-  m_models[4].Rotate(m_yAxisRot, D3DXVECTOR3(1, 0, 0));
+  m_models[4].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
 
   m_models[5] = CModel("assets/scale-gizmo.dae");
-  m_models[5].Rotate(m_zAxisRot, D3DXVECTOR3(0, 1, 0));
+  m_models[5].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
 }
 
 void CGizmo::SetupRotateHandles()
 {
-  m_models[6] = CModel("assets/rot-gizmo.dae");
-  m_models[6].Rotate(m_xAxisRot, D3DXVECTOR3(0, 1, 0));
+  m_models[6] = CModel("assets/trans-gizmo.dae");
+  m_models[6].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
 
-  m_models[7] = CModel("assets/rot-gizmo.dae");
-  m_models[7].Rotate(m_yAxisRot, D3DXVECTOR3(1, 0, 0));
+  m_models[7] = CModel("assets/trans-gizmo.dae");
+  m_models[7].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
 
-  m_models[8] = CModel("assets/rot-gizmo.dae");
-  m_models[8].Rotate(m_zAxisRot, D3DXVECTOR3(0, 1, 0));
+  m_models[8] = CModel("assets/trans-gizmo.dae");
+  m_models[8].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
 }
 
 void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
@@ -170,9 +174,11 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
   D3DXVECTOR3 look = model->GetPosition() - m_camera->GetPosition();
   D3DXVec3Normalize(&look, &look);
 
+  m_selectedModel = model;
+
   if(m_state == XAxis)
   {
-    D3DXVECTOR3 right = model->GetRight();
+    D3DXVECTOR3 right = m_worldSpaceToggled ? D3DXVECTOR3(1, 0, 0) : model->GetRight();
     D3DXVECTOR3 up;
     D3DXVec3Cross(&up, &right, &look);
     D3DXVec3Cross(&look, &right, &up);
@@ -185,7 +191,7 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
   }
   else if(m_state == YAxis)
   {
-    D3DXVECTOR3 up = model->GetUp();
+    D3DXVECTOR3 up =  m_worldSpaceToggled ? D3DXVECTOR3(0, 1, 0) : model->GetUp();
     D3DXVECTOR3 right;
     D3DXVec3Cross(&right, &up, &look);
     D3DXVec3Cross(&look, &up, &right);
@@ -198,7 +204,7 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
   }
   else if(m_state == ZAxis)
   {
-    D3DXVECTOR3 forward = model->GetForward();
+    D3DXVECTOR3 forward =  m_worldSpaceToggled ? D3DXVECTOR3(0, 0, 1) : model->GetForward();
     D3DXVECTOR3 up;
     D3DXVec3Cross(&up, &forward, &look);
     D3DXVec3Cross(&look, &forward, &up);
@@ -209,11 +215,7 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
 
     targetDir = forward;
   }
-    
-  CDebug::DrawLine(v0, v1);
-  CDebug::DrawLine(v1, v2);
-  CDebug::DrawLine(v2, v0);
-  
+
   D3DXPLANE testPlane;
   D3DXPlaneFromPoints(&testPlane, &v0, &v1, &v2);
   D3DXVECTOR3 rayEnd = orig + (dir * 1000);
@@ -233,7 +235,11 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
       D3DXVec3Normalize(&normMouseDir, &mouseDir);
 
       FLOAT moveDist = D3DXVec3Length(&mouseDir);
-      FLOAT angle = acosf(D3DXVec3Dot(&targetDir, &normMouseDir));
+
+      FLOAT dot = D3DXVec3Dot(&targetDir, &normMouseDir);
+      dot = dot < -1.0f ? -1.0f : dot > 1.0f ? 1.0f : dot;
+
+      FLOAT angle = acosf(dot);
       FLOAT modifier = 1.0f - (angle/(D3DX_PI/2));
 
       model->Move(targetDir * (moveDist * modifier));
@@ -244,16 +250,29 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
     }
     else
     {
-      model->Rotate(m_updateStartPoint - intersectPoint, GetModifyVector());
+      D3DXVECTOR3 mouseDir = intersectPoint - m_updateStartPoint;
+      D3DXVECTOR3 normMouseDir;
+      D3DXVec3Normalize(&normMouseDir, &mouseDir);
 
-      // Keep gizmo in-sync with the model's rotation.
-      D3DXVECTOR3 modelRot = model->GetRotation();
+      FLOAT moveDist = D3DXVec3Length(&mouseDir);
 
-      for(int i = 0; i < 3; i++)
+      FLOAT dot = D3DXVec3Dot(&targetDir, &normMouseDir);
+      dot = dot < -1.0f ? -1.0f : dot > 1.0f ? 1.0f : dot;
+
+      FLOAT angle = acosf(dot);
+      FLOAT modifier = 1.0f - (angle/(D3DX_PI/2));
+
+      model->RotateLocal(moveDist * modifier, targetDir);
+      
+      if(!m_worldSpaceToggled)
       {
-        m_models[i * 3 + 0].SetRotation(D3DXVECTOR3(0, modelRot.y, modelRot.z) + m_xAxisRot);
-        m_models[i * 3 + 1].SetRotation(D3DXVECTOR3(modelRot.x, modelRot.y, modelRot.z) + m_yAxisRot);
-        m_models[i * 3 + 2].SetRotation(D3DXVECTOR3(-modelRot.x, modelRot.y, modelRot.z) + m_zAxisRot);
+        // Keep gizmo in-sync with the model's rotation.
+        for(int i = 0; i < 3; i++)
+        {
+          m_models[i * 3 + 0].SetLocalRotationMatrix(model->GetRotationMatrix());
+          m_models[i * 3 + 1].SetLocalRotationMatrix(model->GetRotationMatrix());
+          m_models[i * 3 + 2].SetLocalRotationMatrix(model->GetRotationMatrix());
+        }
       }
     }
     
@@ -282,4 +301,22 @@ void CGizmo::UpdateScale()
     FLOAT length = D3DXVec3Length(&distance) * 0.2;
     SetScale(D3DXVECTOR3(length, length, length));
   }
+}
+
+bool CGizmo::ToggleSpace()
+{
+  m_worldSpaceToggled = !m_worldSpaceToggled;
+
+  D3DXMATRIX identity;
+  D3DXMatrixIdentity(&identity);
+  D3DXMATRIX mat = m_worldSpaceToggled ? identity : m_selectedModel->GetRotationMatrix();
+
+  for(int i = 0; i < 3; i++)
+  {
+    m_models[i * 3 + 0].SetLocalRotationMatrix(mat);
+    m_models[i * 3 + 1].SetLocalRotationMatrix(mat);
+    m_models[i * 3 + 2].SetLocalRotationMatrix(mat);
+  }
+
+  return m_worldSpaceToggled;
 }

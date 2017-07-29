@@ -37,6 +37,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case ID_TOOL_APPLYTEXTURE:
         scene.OnApplyTexture();
         break;
+      case ID_MOVEMENT_WORLDSPACE:
+        {
+          HMENU menu = GetMenu(hWnd);
+          if(menu != NULL)
+          {
+            bool toggled = scene.ToggleMovementSpace();
+            CheckMenuItem(menu, wParam, toggled ? MF_CHECKED : MF_UNCHECKED);
+          }
+          break;
+        }
       case IDM_TOOLBAR_TRANSLATE:
         scene.SetGizmoModifier(Translate);
         break;
