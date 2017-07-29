@@ -157,13 +157,13 @@ void CGizmo::SetupScaleHandles()
 
 void CGizmo::SetupRotateHandles()
 {
-  m_models[6] = CModel("assets/trans-gizmo.dae");
+  m_models[6] = CModel("assets/rot-gizmo.dae");
   m_models[6].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
 
-  m_models[7] = CModel("assets/trans-gizmo.dae");
+  m_models[7] = CModel("assets/rot-gizmo.dae");
   m_models[7].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
 
-  m_models[8] = CModel("assets/trans-gizmo.dae");
+  m_models[8] = CModel("assets/rot-gizmo.dae");
   m_models[8].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
 }
 
