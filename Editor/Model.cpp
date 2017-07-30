@@ -173,18 +173,9 @@ void CModel::Move(D3DXVECTOR3 position)
   m_position += position;
 }
 
-void CModel::Scale(D3DXVECTOR3 position, D3DXVECTOR3 along)
+void CModel::Scale(D3DXVECTOR3 position)
 {
-  D3DXVECTOR3 xVector(position.x, 0, 0);
-  D3DXVec3Scale(&xVector, &xVector, along.x);
-  
-  D3DXVECTOR3 yVector(0, position.y, 0);
-  D3DXVec3Scale(&yVector, &yVector, along.y);
-  
-  D3DXVECTOR3 zVector(0, 0, position.z);
-  D3DXVec3Scale(&zVector, &zVector, along.z);
-  
-  m_scale += (xVector + yVector + zVector);
+  m_scale += position;
 }
 
 void CModel::Rotate(FLOAT angle, D3DXVECTOR3 dir)
