@@ -238,6 +238,7 @@ void CScene::CheckInput(float deltaTime)
   static POINT prevMousePoint = mousePoint;
   static int showCount = 0;
   const float smoothingModifier = 18.0f;
+  const float mouseSpeedModifier = 0.55f;
   
   if(GetAsyncKeyState('1')) m_gizmo.SetModifier(Translate);
   if(GetAsyncKeyState('2')) m_gizmo.SetModifier(Scale);
@@ -268,8 +269,8 @@ void CScene::CheckInput(float deltaTime)
     mouseSmoothY = Lerp(deltaTime * smoothingModifier, 
       mouseSmoothY, mousePoint.y - prevMousePoint.y);
   
-    m_camera.Yaw(mouseSmoothX * deltaTime);
-    m_camera.Pitch(mouseSmoothY * deltaTime);
+    m_camera.Yaw(mouseSmoothX * mouseSpeedModifier * deltaTime);
+    m_camera.Pitch(mouseSmoothY * mouseSpeedModifier * deltaTime);
   }
   else if(GetAsyncKeyState(VK_MBUTTON))
   {
