@@ -108,12 +108,20 @@ void CModel::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *matrixStack)
   }
 }
 
-void CModel::Release()
+void CModel::Release(ModelRelease type)
 {
   if(m_vertexBuffer != NULL)
   {
     m_vertexBuffer->Release();
     m_vertexBuffer = 0;
+  }
+
+  if(type == VertexBufferOnly) return;
+
+  if(m_texture != NULL)
+  {
+    m_texture->Release();
+    m_texture = 0;
   }
 }
 

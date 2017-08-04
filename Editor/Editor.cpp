@@ -27,6 +27,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   switch(message)
   {
+  case WM_KEYDOWN:
+  {
+    switch(LOWORD(wParam))
+    {
+    case VK_DELETE:
+      scene.Delete();
+      break;
+    }
+  }
   case WM_COMMAND:
     {
       switch(LOWORD(wParam))

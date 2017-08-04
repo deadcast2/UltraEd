@@ -7,6 +7,8 @@
 #include <vector>
 #include "Mesh.h"
 
+enum ModelRelease { AllResources, VertexBufferOnly };
+
 class CModel  
 {
 public:
@@ -30,7 +32,7 @@ public:
   D3DXVECTOR3 GetRight();
   D3DXVECTOR3 GetForward();
   D3DXVECTOR3 GetUp();
-  void Release();
+  void Release(ModelRelease type);
   void Render(IDirect3DDevice8*, ID3DXMatrixStack*);
   std::vector<MeshVertex> GetVertices();
   BOOL Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir);

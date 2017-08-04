@@ -65,7 +65,7 @@ void CGizmo::Release()
 {
   for(int i = 0; i < 9; i++)
   {
-    m_models[i].Release();
+    m_models[i].Release(AllResources);
   }
 }
 

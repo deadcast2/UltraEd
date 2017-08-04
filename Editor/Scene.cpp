@@ -10,7 +10,7 @@ CScene::CScene()
 
 CScene::~CScene()
 {
-  ReleaseResources();
+  ReleaseResources(AllResources);
   if(m_device) m_device->Release();
   if(m_d3d8) m_d3d8->Release();
 }
@@ -223,7 +223,7 @@ void CScene::Resize(int width, int height)
   
   if(m_device)
   {
-    ReleaseResources();
+    ReleaseResources(VertexBufferOnly);
     m_device->Reset(&m_d3dpp);
     m_device->SetTransform(D3DTS_PROJECTION, &m);
   }
@@ -345,7 +345,7 @@ bool CScene::ToggleMovementSpace()
   return m_gizmo.ToggleSpace();
 }
 
-void CScene::ReleaseResources()
+void CScene::ReleaseResources(ModelRelease type)
 {
   m_grid.Release();
   m_gizmo.Release();
@@ -353,6 +353,17 @@ void CScene::ReleaseResources()
   std::map<GUID, CModel>::iterator it;
   for(it = m_models.begin(); it != m_models.end(); it++)
   {
-    it->second.Release();
+    it->second.Release(type);
+  }
+}
+
+void CScene::Delete()
+{
+  if(m_selectedModelId != GUID_NULL)
+  {
+    CModel model = m_models[m_selectedModelId];
+    model.Release(AllResources);
+    m_models.erase(m_selectedModelId);
+    m_selectedModelId = GUID_NULL;
   }
 }

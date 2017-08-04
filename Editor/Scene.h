@@ -20,13 +20,14 @@ public:
   CScene();
   ~CScene();
   BOOL Create(HWND windowHandle);
+  void Delete();
   void Render();
   void Resize(int width, int height);
   void OnMouseWheel(short zDelta);
   void OnApplyTexture();
   void OnImportModel();
   void Pick(POINT mousePoint);
-  void ReleaseResources();
+  void ReleaseResources(ModelRelease type);
   void CheckInput(float);
   void ScreenRaycast(POINT screenPoint,
     D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
