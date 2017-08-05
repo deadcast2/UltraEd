@@ -14,14 +14,17 @@
 #define IDM_TOOLBAR_TRANSLATE 5000
 #define IDM_TOOLBAR_ROTATE 5001
 #define IDM_TOOLBAR_SCALE 5002
+#define IDM_MENU_DELETE_OBJECT 9001
 
 const int windowWidth = 800;
 const int windowHeight = 600;
+const int mouseWaitPeriod = 500; // milliseconds
 const TCHAR szWindowClass[] = _T("UltraEd");
 const TCHAR szTitle[] = _T("UltraEd v0.1");
 
 HWND parentWindow, toolbarWindow, renderWindow;
 CScene scene;
+DWORD mouseClickTick = 0;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -65,6 +68,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case IDM_TOOLBAR_SCALE:
         scene.SetGizmoModifier(Scale);
         break;
+      case IDM_MENU_DELETE_OBJECT:
+        scene.Delete();
+        break;
       }
       break;
     }
@@ -77,6 +83,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
       POINT point = {LOWORD(lParam), HIWORD(lParam)};
       scene.Pick(point);
+      break;
+    }
+  case WM_RBUTTONDOWN:
+    {
+      mouseClickTick = GetTickCount();
+      break;
+    }
+  case WM_RBUTTONUP:
+    {
+      // Only show menu when doing a fast click so
+      // it doesn't show after dragging.
+      if(GetTickCount() - mouseClickTick < mouseWaitPeriod)
+      {
+        POINT point = {LOWORD(lParam), HIWORD(lParam)};
+        ClientToScreen(hWnd, &point);
+        HMENU menu = CreatePopupMenu();
+        AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete Object"));
+        TrackPopupMenu(menu, TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
+        DestroyMenu(menu);
+      }
       break;
     }
   case WM_SIZE:

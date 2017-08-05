@@ -236,7 +236,6 @@ void CScene::CheckInput(float deltaTime)
   ScreenToClient(m_hWnd, &mousePoint);
   
   static POINT prevMousePoint = mousePoint;
-  static int showCount = 0;
   const float smoothingModifier = 18.0f;
   const float mouseSpeedModifier = 0.55f;
   
@@ -252,8 +251,6 @@ void CScene::CheckInput(float deltaTime)
   }
   else if(GetAsyncKeyState(VK_RBUTTON))
   {
-    if(showCount == 0) showCount = ShowCursor(FALSE);
-    
     if(GetAsyncKeyState('W')) m_camera.Walk(4.0f * deltaTime);
     if(GetAsyncKeyState('S')) m_camera.Walk(-4.0f * deltaTime);
   
@@ -274,8 +271,6 @@ void CScene::CheckInput(float deltaTime)
   }
   else if(GetAsyncKeyState(VK_MBUTTON))
   {
-    if(showCount == 0) showCount = ShowCursor(FALSE);
-
     mouseSmoothX = Lerp(deltaTime * smoothingModifier, 
       mouseSmoothX, prevMousePoint.x - mousePoint.x);
 
@@ -287,8 +282,6 @@ void CScene::CheckInput(float deltaTime)
   }
   else
   {
-    if(showCount == -1) showCount = ShowCursor(TRUE);
-    
     m_gizmo.Reset();
 
     // Reset smoothing values for new mouse camera movement.
