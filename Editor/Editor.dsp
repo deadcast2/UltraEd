@@ -95,6 +95,10 @@ SOURCE=.\Camera.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\cJSON.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\Debug.cpp
 # End Source File
 # Begin Source File
@@ -132,6 +136,10 @@ SOURCE=.\UltraEd.rc
 # Begin Source File
 
 SOURCE=.\Camera.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\cJSON.h
 # End Source File
 # Begin Source File
 

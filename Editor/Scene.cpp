@@ -6,6 +6,19 @@ CScene::CScene()
   m_selectedModelId = GUID_NULL;
   m_d3d8 = 0;
   m_device = 0;
+  
+  ZeroMemory(&m_defaultMaterial, sizeof(D3DMATERIAL8));
+  m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
+  m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
+  m_defaultMaterial.Diffuse.b = m_defaultMaterial.Ambient.b = 1.0f;
+  m_defaultMaterial.Diffuse.a = m_defaultMaterial.Ambient.a = 1.0f;
+  
+  ZeroMemory(&m_worldLight, sizeof(D3DLIGHT8));
+  m_worldLight.Type = D3DLIGHT_DIRECTIONAL;
+  m_worldLight.Diffuse.r = 1.0f;
+  m_worldLight.Diffuse.g = 1.0f;
+  m_worldLight.Diffuse.b = 1.0f;
+  m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
 }
 
 CScene::~CScene()
@@ -43,10 +56,10 @@ BOOL CScene::Create(HWND windowHandle)
   }
   
   m_gizmo.SetCamera(&m_camera);
-
+  
   // Setup the new scene.
   OnNew();
-
+  
   return TRUE;
 }
 
@@ -55,17 +68,17 @@ void CScene::OnNew()
   // Update the window title.
   HWND parentWnd = GetParent(m_hWnd);
   SetWindowText(parentWnd, "New Scene - UltraEd v0.1");
-
+  
   // Delete any selected objects.
   Delete();
-
+  
   // Release all models.
   std::map<GUID, CModel>::iterator it;
   for(it = m_models.begin(); it != m_models.end(); it++)
   {
     it->second.Release(AllResources);
   }
-
+  
   m_models.clear();
   m_camera.Reset();
 }
@@ -74,7 +87,7 @@ void CScene::OnImportModel()
 {
   OPENFILENAME ofn;
   char szFile[260];
-
+  
   ZeroMemory(&ofn, sizeof(ofn));
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = m_hWnd;
@@ -101,7 +114,7 @@ void CScene::OnApplyTexture()
 {
   OPENFILENAME ofn;
   char szFile[260];
-
+  
   ZeroMemory(&ofn, sizeof(ofn));
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = m_hWnd;
@@ -162,31 +175,6 @@ void CScene::Render()
   
   if(m_device)
   {
-    D3DMATERIAL8 mtrl2;
-    ZeroMemory(&mtrl2, sizeof(D3DMATERIAL8));
-    mtrl2.Diffuse.r = mtrl2.Ambient.r = 1.0f;
-    mtrl2.Diffuse.g = mtrl2.Ambient.g = 1.0f;
-    mtrl2.Diffuse.b = mtrl2.Ambient.b = 1.0f;
-    mtrl2.Diffuse.a = mtrl2.Ambient.a = 1.0f;
-    
-    D3DMATERIAL8 mtrl3;
-    ZeroMemory(&mtrl3, sizeof(D3DMATERIAL8));
-    mtrl3.Diffuse.r = mtrl2.Ambient.r = 1.0f;
-    mtrl3.Diffuse.g = mtrl2.Ambient.g = 0.0f;
-    mtrl3.Diffuse.b = mtrl2.Ambient.b = 1.0f;
-    mtrl3.Diffuse.a = mtrl2.Ambient.a = 1.0f;
-    
-    D3DXVECTOR3 vecDir;
-    D3DLIGHT8 light;
-    ZeroMemory(&light, sizeof(D3DLIGHT8));
-    light.Type = D3DLIGHT_DIRECTIONAL;
-    light.Diffuse.r = 1.0f;
-    light.Diffuse.g = 1.0f;
-    light.Diffuse.b = 1.0f;
-    light.Range = 1000.0f;
-    vecDir = D3DXVECTOR3(90, 0, 90);
-    D3DXVec3Normalize((D3DXVECTOR3*)&light.Direction, &vecDir);
-    
     ID3DXMatrixStack *matrixStack;
     if(!SUCCEEDED(D3DXCreateMatrixStack(0, &matrixStack))) return;
     matrixStack->LoadMatrix(&m_camera.GetViewMatrix());
@@ -196,27 +184,21 @@ void CScene::Render()
     
     if(!SUCCEEDED(m_device->BeginScene())) return;
     
-    m_device->SetLight(0, &light);
+    m_device->SetLight(0, &m_worldLight);
     m_device->LightEnable(0, TRUE);
     m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
     
     // Draw the grid.
     m_grid.Render(m_device);
-
+    
     // Draw any debug lines.
     CDebug::Instance().Render(m_device);
     
+    m_device->SetMaterial(&m_defaultMaterial);
+    
     std::map<GUID, CModel>::iterator it;
     for(it = m_models.begin(); it != m_models.end(); it++)
-    {
-      // Color the selected model.
-      if(it->first == m_selectedModelId)
-      {
-        m_device->SetMaterial(&mtrl3);
-      } else {
-        m_device->SetMaterial(&mtrl2);
-      }
-      
+    {      
       it->second.Render(m_device, matrixStack);
     }
     
@@ -276,19 +258,19 @@ void CScene::CheckInput(float deltaTime)
   {
     if(GetAsyncKeyState('W')) m_camera.Walk(4.0f * deltaTime);
     if(GetAsyncKeyState('S')) m_camera.Walk(-4.0f * deltaTime);
-  
+    
     if(GetAsyncKeyState('A')) m_camera.Strafe(-4.0f * deltaTime);
     if(GetAsyncKeyState('D')) m_camera.Strafe(4.0f * deltaTime);
-  
+    
     if(GetAsyncKeyState('Q')) m_camera.Roll(4.0f * deltaTime);
     if(GetAsyncKeyState('E')) m_camera.Roll(-4.0f * deltaTime);
-
+    
     mouseSmoothX = Lerp(deltaTime * smoothingModifier, 
       mouseSmoothX, mousePoint.x - prevMousePoint.x);
-
+    
     mouseSmoothY = Lerp(deltaTime * smoothingModifier, 
       mouseSmoothY, mousePoint.y - prevMousePoint.y);
-  
+    
     m_camera.Yaw(mouseSmoothX * mouseSpeedModifier * deltaTime);
     m_camera.Pitch(mouseSmoothY * mouseSpeedModifier * deltaTime);
   }
@@ -296,7 +278,7 @@ void CScene::CheckInput(float deltaTime)
   {
     mouseSmoothX = Lerp(deltaTime * smoothingModifier, 
       mouseSmoothX, prevMousePoint.x - mousePoint.x);
-
+    
     mouseSmoothY = Lerp(deltaTime * smoothingModifier, 
       mouseSmoothY, mousePoint.y - prevMousePoint.y);
     
@@ -306,7 +288,7 @@ void CScene::CheckInput(float deltaTime)
   else
   {
     m_gizmo.Reset();
-
+    
     // Reset smoothing values for new mouse camera movement.
     mouseSmoothX = mouseSmoothX = 0;
   }

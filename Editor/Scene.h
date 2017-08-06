@@ -37,6 +37,8 @@ public:
   
 private:
   HWND m_hWnd;
+  D3DLIGHT8 m_worldLight;
+  D3DMATERIAL8 m_defaultMaterial;
   CGizmo m_gizmo;
   CCamera m_camera;
   IDirect3DDevice8* m_device;
