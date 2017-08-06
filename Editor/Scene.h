@@ -24,6 +24,7 @@ public:
   void Render();
   void Resize(int width, int height);
   void OnMouseWheel(short zDelta);
+  void OnNew();
   void OnApplyTexture();
   void OnImportModel();
   void Pick(POINT mousePoint);

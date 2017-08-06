@@ -18,9 +18,9 @@
 
 const int windowWidth = 800;
 const int windowHeight = 600;
-const int mouseWaitPeriod = 500; // milliseconds
+const int mouseWaitPeriod = 250; // milliseconds
 const TCHAR szWindowClass[] = _T("UltraEd");
-const TCHAR szTitle[] = _T("UltraEd v0.1");
+const TCHAR szTitle[] = _T("Loading");
 
 HWND parentWindow, toolbarWindow, renderWindow;
 CScene scene;
@@ -43,6 +43,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
       switch(LOWORD(wParam))
       {
+      case ID_FILE_NEWSCENE:
+        if(MessageBox(hWnd, "All scene data will be erased.",
+          "Are you sure?", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+        {
+          scene.OnNew();
+        }
+        break;
+      case ID_FILE_EXIT:
+        PostQuitMessage(0);
+        break;
       case ID_FILE_IMPORTMODEL:
         scene.OnImportModel();
         break;
@@ -97,6 +107,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       if(GetTickCount() - mouseClickTick < mouseWaitPeriod)
       {
         POINT point = {LOWORD(lParam), HIWORD(lParam)};
+        
+        // Try and pick an object.
+        scene.Pick(point);
+
         ClientToScreen(hWnd, &point);
         HMENU menu = CreatePopupMenu();
         AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete Object"));

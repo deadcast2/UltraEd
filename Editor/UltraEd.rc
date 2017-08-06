@@ -56,7 +56,10 @@ IDR_MAIN_MENU MENU DISCARDABLE
 BEGIN
     POPUP "File"
     BEGIN
+        MENUITEM "New Scene",                   ID_FILE_NEWSCENE
         MENUITEM "Import Model",                ID_FILE_IMPORTMODEL
+        MENUITEM SEPARATOR
+        MENUITEM "Exit",                        ID_FILE_EXIT
     END
     POPUP "Tools"
     BEGIN

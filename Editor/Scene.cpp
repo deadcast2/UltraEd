@@ -44,7 +44,30 @@ BOOL CScene::Create(HWND windowHandle)
   
   m_gizmo.SetCamera(&m_camera);
 
+  // Setup the new scene.
+  OnNew();
+
   return TRUE;
+}
+
+void CScene::OnNew()
+{
+  // Update the window title.
+  HWND parentWnd = GetParent(m_hWnd);
+  SetWindowText(parentWnd, "New Scene - UltraEd v0.1");
+
+  // Delete any selected objects.
+  Delete();
+
+  // Release all models.
+  std::map<GUID, CModel>::iterator it;
+  for(it = m_models.begin(); it != m_models.end(); it++)
+  {
+    it->second.Release(AllResources);
+  }
+
+  m_models.clear();
+  m_camera.Reset();
 }
 
 void CScene::OnImportModel() 
