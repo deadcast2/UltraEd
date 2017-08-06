@@ -144,7 +144,7 @@ void CScene::OnApplyTexture()
   }
 }
 
-void CScene::Pick(POINT mousePoint)
+BOOL CScene::Pick(POINT mousePoint)
 {
   D3DXVECTOR3 orig, dir;
   ScreenRaycast(mousePoint, &orig, &dir);
@@ -157,11 +157,12 @@ void CScene::Pick(POINT mousePoint)
     if(it->second.Pick(orig, dir))
     {
       m_selectedModelId = it->first;
-      return;
+      return TRUE;
     }
   }
   
   if(!gizmoSelected) m_selectedModelId = GUID_NULL;
+  return FALSE;
 }
 
 void CScene::Render() 

@@ -27,7 +27,7 @@ public:
   void OnNew();
   void OnApplyTexture();
   void OnImportModel();
-  void Pick(POINT mousePoint);
+  BOOL Pick(POINT mousePoint);
   void ReleaseResources(ModelRelease type);
   void CheckInput(float);
   void ScreenRaycast(POINT screenPoint,

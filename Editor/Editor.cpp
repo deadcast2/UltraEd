@@ -107,15 +107,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       if(GetTickCount() - mouseClickTick < mouseWaitPeriod)
       {
         POINT point = {LOWORD(lParam), HIWORD(lParam)};
-        
-        // Try and pick an object.
-        scene.Pick(point);
-
-        ClientToScreen(hWnd, &point);
-        HMENU menu = CreatePopupMenu();
-        AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete Object"));
-        TrackPopupMenu(menu, TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
-        DestroyMenu(menu);
+        if(scene.Pick(point))
+        {
+          ClientToScreen(hWnd, &point);
+          HMENU menu = CreatePopupMenu();
+          AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete Object"));
+          TrackPopupMenu(menu, TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
+          DestroyMenu(menu);
+        }
       }
       break;
     }
