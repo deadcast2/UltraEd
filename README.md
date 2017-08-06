@@ -31,3 +31,5 @@ To compile the source on Win XP download this dependency pack I put together: ht
 19. Add support for vertex coloring
 20. Add object properties pane to view info
 21. Allow manual setting of object transformations
+22. Add view switching (persp, top, left, forward)
+23. ~~Add object deletion from keyboard and mouse~~
