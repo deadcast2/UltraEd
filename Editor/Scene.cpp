@@ -203,12 +203,11 @@ void CScene::Render()
       it->second.Render(m_device, matrixStack);
     }
     
-    // Draw the gizmo on "top" of all objects in scene.
-    m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
-    
     // Draw the gizmo.
     if(m_selectedModelId != GUID_NULL)
     {
+      // Draw the gizmo on "top" of all objects in scene.
+      m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
       m_gizmo.Render(m_device, matrixStack);
     }
     
