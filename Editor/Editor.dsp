@@ -107,6 +107,10 @@ SOURCE=.\Editor.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FileIO.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Gizmo.cpp
 # End Source File
 # Begin Source File
@@ -148,6 +152,10 @@ SOURCE=.\Common.h
 # Begin Source File
 
 SOURCE=.\Debug.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\FileIO.h
 # End Source File
 # Begin Source File
 

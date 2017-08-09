@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "FileIO.h"
 
 CScene::CScene()
 {
@@ -81,6 +82,12 @@ void CScene::OnNew()
   
   m_models.clear();
   m_camera.Reset();
+}
+
+void CScene::OnSave()
+{
+  CFileIO fileIO;
+  fileIO.Save(this);
 }
 
 void CScene::OnImportModel() 

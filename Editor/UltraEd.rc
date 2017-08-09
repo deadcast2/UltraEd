@@ -57,6 +57,8 @@ BEGIN
     POPUP "File"
     BEGIN
         MENUITEM "New Scene",                   ID_FILE_NEWSCENE
+        MENUITEM "Save Scene",                  ID_FILE_SAVESCENE
+        MENUITEM SEPARATOR
         MENUITEM "Import Model",                ID_FILE_IMPORTMODEL
         MENUITEM SEPARATOR
         MENUITEM "Exit",                        ID_FILE_EXIT
