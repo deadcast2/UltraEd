@@ -22,7 +22,7 @@ BOOL CFileIO::Save(CScene *scene)
   ofn.nMaxFile = sizeof(szFile);
   ofn.lpstrFilter = "JSON (*.json)";
   ofn.nFilterIndex = 1;
-  ofn.lpstrTitle = "Select scene";
+  ofn.lpstrTitle = "Save Scene";
   ofn.nMaxFileTitle = 0;
   ofn.lpstrInitialDir = NULL;
   ofn.Flags = OFN_OVERWRITEPROMPT;

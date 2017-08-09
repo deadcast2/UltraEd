@@ -105,10 +105,10 @@ void CScene::OnImportModel()
     "Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
     "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj";
   ofn.nFilterIndex = 1;
-  ofn.lpstrTitle = "Select a model";
+  ofn.lpstrTitle = "Import Model";
   ofn.nMaxFileTitle = 0;
   ofn.lpstrInitialDir = NULL;
-  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
   
   if(GetOpenFileName(&ofn))
   {
