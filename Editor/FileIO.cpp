@@ -9,7 +9,7 @@ CFileIO::~CFileIO()
 {
 }
 
-BOOL CFileIO::Save(CScene *scene)
+BOOL CFileIO::Save(std::vector<CSavable*> savables)
 {
   OPENFILENAME ofn;
   char szFile[260];
@@ -20,7 +20,7 @@ BOOL CFileIO::Save(CScene *scene)
   ofn.lpstrFile = szFile;
   ofn.lpstrFile[0] = '\0';
   ofn.nMaxFile = sizeof(szFile);
-  ofn.lpstrFilter = "JSON (*.json)";
+  ofn.lpstrFilter = "UltraEd (*.ultra)";
   ofn.nFilterIndex = 1;
   ofn.lpstrTitle = "Save Scene";
   ofn.nMaxFileTitle = 0;
@@ -32,23 +32,21 @@ BOOL CFileIO::Save(CScene *scene)
     char *saveName = ofn.lpstrFile;
 
     // Add the extension if not supplied in the dialog.
-    if(strstr(saveName, ".json") == NULL)
+    if(strstr(saveName, ".ultra") == NULL)
     {
-      sprintf(saveName, "%s.json", saveName);
+      sprintf(saveName, "%s.ultra", saveName);
     }
-
-    // Create some dummy JSON data.
-    cJSON *root = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "test", cJSON_CreateString("hi"));
-    char *rendered = cJSON_Print(root);
     
     // Write the JSON data out.
     FILE *file = fopen(saveName, "w");
-    fprintf(file, rendered);
+    std::vector<CSavable*>::iterator it;
+
+    for(it = savables.begin(); it != savables.end(); ++it)
+    {      
+      fprintf(file, (*it)->Save());
+    }
+
     fclose(file);
-    
-    // Clean!
-    cJSON_Delete(root); 
   }
   
   return TRUE;

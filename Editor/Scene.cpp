@@ -87,7 +87,9 @@ void CScene::OnNew()
 void CScene::OnSave()
 {
   CFileIO fileIO;
-  fileIO.Save(this);
+  std::vector<CSavable*> savables;
+  savables.push_back(this);
+  fileIO.Save(savables);
 }
 
 void CScene::OnImportModel() 
@@ -373,8 +375,22 @@ void CScene::Delete()
   }
 }
 
-Pack CScene::Save()
+char* CScene::Save()
 {
-  Pack pack = { Editor, "Save scene" };
-  return pack;
+  char buffer[128];
+  cJSON *root = cJSON_CreateObject();
+  cJSON *scene = cJSON_CreateObject();
+  cJSON_AddItemToObject(root, "scene", scene);
+
+  // Save camera transform.
+  cJSON *camera = cJSON_CreateObject();
+  cJSON_AddItemToObject(scene, "camera", camera);
+  D3DXVECTOR3 cameraPos = m_camera.GetPosition();
+  sprintf(buffer, "%f %f %f", cameraPos.x, cameraPos.y, cameraPos.z);
+  cJSON_AddStringToObject(camera, "position", buffer);
+
+  char *rendered = cJSON_Print(root);
+  cJSON_Delete(root);
+
+  return rendered;
 }

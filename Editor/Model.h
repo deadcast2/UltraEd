@@ -16,7 +16,7 @@ public:
   CModel();
   CModel(const char* filePath);
   ~CModel();
-  Pack Save();
+  char* Save();
   BOOL LoadTexture(IDirect3DDevice8 *device, const char* filePath);
   D3DXMATRIX GetMatrix();
   D3DXMATRIX GetRotationMatrix();

@@ -8,7 +8,7 @@ class CFileIO
 public:
   CFileIO();
   ~CFileIO();
-  BOOL Save(CScene *scene);
+  BOOL Save(std::vector<CSavable*> savables);
 };
 
 #endif

@@ -7,6 +7,7 @@
 #include <map>
 #include <d3d8.h>
 #include <d3dx8.h>
+#include "cJSON.h"
 #include "Camera.h"
 #include "Common.h"
 #include "Debug.h"
@@ -20,7 +21,7 @@ class CScene : public CSavable
 public:
   CScene();
   ~CScene();
-  Pack Save();
+  char* Save();
   BOOL Create(HWND windowHandle);
   void Delete();
   void Render();
