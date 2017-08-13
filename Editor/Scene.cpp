@@ -372,3 +372,9 @@ void CScene::Delete()
     m_selectedModelId = GUID_NULL;
   }
 }
+
+Pack CScene::Save()
+{
+  Pack pack = { Editor, "Save scene" };
+  return pack;
+}

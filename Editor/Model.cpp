@@ -290,3 +290,9 @@ BOOL CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
 
   return TRUE;
 }
+
+Pack CModel::Save()
+{
+  Pack pack = { Object, "Save object" };
+  return pack;
+}

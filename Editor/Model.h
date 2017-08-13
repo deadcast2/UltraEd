@@ -6,15 +6,17 @@
 #include <assimp/postprocess.h>
 #include <vector>
 #include "Mesh.h"
+#include "Savable.h"
 
 enum ModelRelease { AllResources, VertexBufferOnly };
 
-class CModel  
+class CModel : public CSavable
 {
 public:
   CModel();
   CModel(const char* filePath);
   ~CModel();
+  Pack Save();
   BOOL LoadTexture(IDirect3DDevice8 *device, const char* filePath);
   D3DXMATRIX GetMatrix();
   D3DXMATRIX GetRotationMatrix();

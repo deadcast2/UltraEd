@@ -179,6 +179,10 @@ SOURCE=.\resource.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Savable.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Scene.h
 # End Source File
 # End Group
