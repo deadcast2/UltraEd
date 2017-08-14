@@ -1,13 +1,18 @@
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
+#include <string>
+#include "cJSON.h"
+#include "Savable.h"
+
 #include <d3dx8.h>
 
-class CCamera  
+class CCamera : public CSavable
 {
 public:
   CCamera();
   ~CCamera();
+  char* Save();
   D3DXVECTOR3 GetPosition();
   D3DXVECTOR3 GetForward();
   D3DXVECTOR3 GetRight();

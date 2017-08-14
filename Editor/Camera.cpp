@@ -117,3 +117,36 @@ D3DXVECTOR3 CCamera::GetUp()
 {
   return m_up;
 }
+
+char* CCamera::Save()
+{
+  char buffer[128];
+  cJSON *root = cJSON_CreateObject();
+  cJSON *camera = cJSON_CreateObject();
+  cJSON_AddItemToObject(root, "camera", camera);
+
+  // Position.
+  D3DXVECTOR3 cameraPos = GetPosition();
+  sprintf(buffer, "%f %f %f", cameraPos.x, cameraPos.y, cameraPos.z);
+  cJSON_AddStringToObject(camera, "position", buffer);
+
+  // Forward.
+  D3DXVECTOR3 cameraForward = GetForward();
+  sprintf(buffer, "%f %f %f", cameraForward.x, cameraForward.y, cameraForward.z);
+  cJSON_AddStringToObject(camera, "forward", buffer);
+
+  // Right.
+  D3DXVECTOR3 cameraRight = GetRight();
+  sprintf(buffer, "%f %f %f", cameraRight.x, cameraRight.y, cameraRight.z);
+  cJSON_AddStringToObject(camera, "right", buffer);
+
+  // Up.
+  D3DXVECTOR3 cameraUp = GetUp();
+  sprintf(buffer, "%f %f %f", cameraUp.x, cameraUp.y, cameraUp.z);
+  cJSON_AddStringToObject(camera, "up", buffer);
+
+  char *rendered = cJSON_Print(root);
+  cJSON_Delete(root);
+
+  return rendered;
+}

@@ -14,14 +14,12 @@
 #include "Gizmo.h"
 #include "Grid.h"
 #include "Model.h"
-#include "Savable.h"
 
-class CScene : public CSavable
+class CScene
 {
 public:
   CScene();
   ~CScene();
-  char* Save();
   BOOL Create(HWND windowHandle);
   void Delete();
   void Render();
