@@ -5,6 +5,7 @@ class CSavable
 {
 public:
   virtual char* Save() = 0;
+  virtual bool Load(char *data) = 0;
 };
 
 #endif

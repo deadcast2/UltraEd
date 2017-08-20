@@ -27,6 +27,7 @@ public:
   void OnMouseWheel(short zDelta);
   void OnNew();
   void OnSave();
+  void OnLoad();
   void OnApplyTexture();
   void OnImportModel();
   BOOL Pick(POINT mousePoint);

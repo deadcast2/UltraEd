@@ -8,7 +8,8 @@ class CFileIO
 public:
   CFileIO();
   ~CFileIO();
-  BOOL Save(std::vector<CSavable*> savables);
+  bool Save(std::vector<CSavable*> savables);
+  bool Load(char** data);
 };
 
 #endif

@@ -295,3 +295,8 @@ char* CModel::Save()
 {
   return "Save model";
 }
+
+bool CModel::Load(char* data)
+{
+  return false;
+}

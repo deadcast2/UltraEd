@@ -58,6 +58,7 @@ BEGIN
     BEGIN
         MENUITEM "New Scene",                   ID_FILE_NEWSCENE
         MENUITEM "Save Scene",                  ID_FILE_SAVESCENE
+        MENUITEM "Load Scene",                  ID_FILE_LOADSCENE
         MENUITEM SEPARATOR
         MENUITEM "Import Model",                ID_FILE_IMPORTMODEL
         MENUITEM SEPARATOR

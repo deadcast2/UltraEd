@@ -92,6 +92,15 @@ void CScene::OnSave()
   fileIO.Save(savables);
 }
 
+void CScene::OnLoad()
+{
+  CFileIO fileIO;
+  char *data = NULL;
+  fileIO.Load(&data);
+  m_camera.Load(data);
+  free(data);
+}
+
 void CScene::OnImportModel() 
 {
   OPENFILENAME ofn;

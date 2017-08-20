@@ -53,6 +53,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case ID_FILE_SAVESCENE:
         scene.OnSave();
         break;
+      case ID_FILE_LOADSCENE:
+        scene.OnLoad();
+        break;
       case ID_FILE_EXIT:
         PostQuitMessage(0);
         break;

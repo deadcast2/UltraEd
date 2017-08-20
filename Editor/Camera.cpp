@@ -125,28 +125,47 @@ char* CCamera::Save()
   cJSON *camera = cJSON_CreateObject();
   cJSON_AddItemToObject(root, "camera", camera);
 
-  // Position.
-  D3DXVECTOR3 cameraPos = GetPosition();
-  sprintf(buffer, "%f %f %f", cameraPos.x, cameraPos.y, cameraPos.z);
+  sprintf(buffer, "%f %f %f", m_pos.x, m_pos.y, m_pos.z);
   cJSON_AddStringToObject(camera, "position", buffer);
 
-  // Forward.
-  D3DXVECTOR3 cameraForward = GetForward();
-  sprintf(buffer, "%f %f %f", cameraForward.x, cameraForward.y, cameraForward.z);
+  sprintf(buffer, "%f %f %f", m_forward.x, m_forward.y, m_forward.z);
   cJSON_AddStringToObject(camera, "forward", buffer);
 
-  // Right.
-  D3DXVECTOR3 cameraRight = GetRight();
-  sprintf(buffer, "%f %f %f", cameraRight.x, cameraRight.y, cameraRight.z);
+  sprintf(buffer, "%f %f %f", m_right.x, m_right.y, m_right.z);
   cJSON_AddStringToObject(camera, "right", buffer);
 
-  // Up.
-  D3DXVECTOR3 cameraUp = GetUp();
-  sprintf(buffer, "%f %f %f", cameraUp.x, cameraUp.y, cameraUp.z);
+  sprintf(buffer, "%f %f %f", m_up.x, m_up.y, m_up.z);
   cJSON_AddStringToObject(camera, "up", buffer);
 
   char *rendered = cJSON_Print(root);
   cJSON_Delete(root);
 
   return rendered;
+}
+
+bool CCamera::Load(char *data)
+{
+  float x, y, z;
+  cJSON *root = cJSON_Parse(data);
+  cJSON *camera = cJSON_GetObjectItemCaseSensitive(root, "camera");
+ 
+  cJSON *position = cJSON_GetObjectItemCaseSensitive(camera, "position");
+  sscanf(position->valuestring, "%f %f %f", &x, &y, &z);
+  m_pos = D3DXVECTOR3(x, y, z);
+
+  cJSON *forward = cJSON_GetObjectItemCaseSensitive(camera, "forward");
+  sscanf(forward->valuestring, "%f %f %f", &x, &y, &z);
+  m_forward = D3DXVECTOR3(x, y, z);
+
+  cJSON *right = cJSON_GetObjectItemCaseSensitive(camera, "right");
+  sscanf(right->valuestring, "%f %f %f", &x, &y, &z);
+  m_right = D3DXVECTOR3(x, y, z);
+
+  cJSON *up = cJSON_GetObjectItemCaseSensitive(camera, "up");
+  sscanf(up->valuestring, "%f %f %f", &x, &y, &z);
+  m_up = D3DXVECTOR3(x, y, z);
+
+  cJSON_Delete(root);
+
+  return true;
 }
