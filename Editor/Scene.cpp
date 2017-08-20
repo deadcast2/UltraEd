@@ -94,11 +94,14 @@ void CScene::OnSave()
 
 void CScene::OnLoad()
 {
-  CFileIO fileIO;
   char *data = NULL;
-  fileIO.Load(&data);
-  m_camera.Load(data);
-  free(data);
+  CFileIO fileIO;
+  
+  if(fileIO.Load(&data))
+  {
+    m_camera.Load(data);
+    free(data);
+  }
 }
 
 void CScene::OnImportModel() 
