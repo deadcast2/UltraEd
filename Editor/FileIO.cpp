@@ -1,13 +1,6 @@
 #include "FileIO.h"
 #include "cJSON.h"
-
-CFileIO::CFileIO()
-{
-}
-
-CFileIO::~CFileIO()
-{
-}
+#include <shlwapi.h>
 
 bool CFileIO::Save(std::vector<CSavable*> savables)
 {
@@ -91,4 +84,54 @@ bool CFileIO::Load(char** data)
   }
 
   return false;
+}
+
+char* CFileIO::Copy(const char* file, bool makeUnique)
+{
+  const char* root = "Library";
+  const char* assets = "Assets/";
+
+  if(CreateDirectory(root, NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
+  {
+    char* name = PathFindFileName(file);
+    char* target = (char*)malloc(128);
+    char guidBuffer[40];
+    GUID uniqueIdentifier;
+    wchar_t guidWide[40];
+
+    // Cache the starting directory.
+    if(strlen(startingDir) == 0)
+    {
+      // Get directory where editor is running.
+      GetCurrentDirectory(128, startingDir);
+    }
+
+    if(strncmp(file, assets, strlen(assets)) == 0) return strdup(file);
+
+    // Create a unique identifier and convert to a char array.
+    CoCreateGuid(&uniqueIdentifier);
+    StringFromGUID2(uniqueIdentifier, guidWide, 40);
+    wcstombs(guidBuffer, guidWide, 40);
+
+    // Remove the first and last curly brace from GUID.
+    memmove(guidBuffer, guidBuffer + 1, strlen(guidBuffer));
+    guidBuffer[strlen(guidBuffer) - 1] = '\0';
+
+    // Format the new file path.
+    if(makeUnique)
+    {
+      sprintf(target, "%s\\%s\\%s-%s", startingDir, root, guidBuffer, name);
+    }
+    else
+    {
+      sprintf(target, "%s\\%s\\%s", startingDir, root, name);
+    }
+
+    if(CopyFile(file, target, TRUE))
+    {
+      return target;
+    }
+  }
+
+  return NULL;
 }

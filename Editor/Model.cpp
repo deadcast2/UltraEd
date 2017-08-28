@@ -1,4 +1,5 @@
 #include "Model.h"
+#include "FileIO.h"
 
 CModel::CModel()
 {
@@ -22,7 +23,8 @@ CModel::CModel(const char* filePath)
   
   Assimp::Importer importer;
   
-  const aiScene* scene = importer.ReadFile(filePath,
+  char* newPath = CFileIO::Instance().Copy(filePath, true);
+  const aiScene* scene = importer.ReadFile(newPath,
     aiProcess_Triangulate | aiProcess_ConvertToLeftHanded |
     aiProcess_OptimizeMeshes);
   
@@ -30,6 +32,8 @@ CModel::CModel(const char* filePath)
   {
     Process(scene->mRootNode, scene);
   }
+
+  free(newPath);
 }
 
 CModel::~CModel()

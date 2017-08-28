@@ -86,18 +86,15 @@ void CScene::OnNew()
 
 void CScene::OnSave()
 {
-  CFileIO fileIO;
   std::vector<CSavable*> savables;
   savables.push_back(&m_camera);
-  fileIO.Save(savables);
+  CFileIO::Instance().Save(savables);
 }
 
 void CScene::OnLoad()
 {
   char *data = NULL;
-  CFileIO fileIO;
-  
-  if(fileIO.Load(&data))
+  if(CFileIO::Instance().Load(&data))
   {
     m_camera.Load(data);
     free(data);

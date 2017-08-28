@@ -6,10 +6,17 @@
 class CFileIO
 {
 public:
-  CFileIO();
-  ~CFileIO();
+  static CFileIO& Instance()
+  {
+    static CFileIO instance;
+    return instance;
+  }
   bool Save(std::vector<CSavable*> savables);
   bool Load(char** data);
+  char* Copy(const char* file, bool makeUnique);
+
+private:
+  char startingDir[128];
 };
 
 #endif
