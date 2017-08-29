@@ -11,29 +11,29 @@ CModel::CModel(const char* filePath)
   CoCreateGuid(&m_id);
   
   m_vertexBuffer = 0;
-
   m_texture = 0;
-  
   m_position = D3DXVECTOR3(0, 0, 0);
-  
   m_scale = D3DXVECTOR3(1, 1, 1);
 
   D3DXMatrixIdentity(&m_localRot);
   D3DXMatrixIdentity(&m_worldRot);
   
   Assimp::Importer importer;
-  
-  char* newPath = CFileIO::Instance().Copy(filePath, true);
-  const aiScene* scene = importer.ReadFile(newPath,
+  FileInfo info = CFileIO::Instance().Import(filePath);
+  const aiScene* scene = importer.ReadFile(info.path,
     aiProcess_Triangulate | aiProcess_ConvertToLeftHanded |
     aiProcess_OptimizeMeshes);
   
+  // Save path to user imported file for saving later.
+  if(info.type == User)
+  {
+    resourcePaths["vertexDataPath"] = info.path;
+  }
+
   if(scene)
   {
     Process(scene->mRootNode, scene);
   }
-
-  free(newPath);
 }
 
 CModel::~CModel()
@@ -287,10 +287,15 @@ BOOL CModel::IntersectTriangle(const D3DXVECTOR3& orig,
 
 BOOL CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
 {
-  if(FAILED(D3DXCreateTextureFromFile(device, filePath, &m_texture)))
+  FileInfo info = CFileIO::Instance().Import(filePath);
+
+  if(FAILED(D3DXCreateTextureFromFile(device, info.path, &m_texture)))
   {
     return FALSE;
   }
+
+  // Save location of texture for scene saving.
+  if(info.type == User) resourcePaths["textureDataPath"] = info.path;
 
   return TRUE;
 }

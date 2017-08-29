@@ -1,6 +1,8 @@
 #ifndef _MODEL_H_
 #define _MODEL_H_
 
+#pragma warning(disable: 4786)
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>

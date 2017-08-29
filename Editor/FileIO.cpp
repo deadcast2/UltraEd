@@ -86,7 +86,7 @@ bool CFileIO::Load(char** data)
   return false;
 }
 
-char* CFileIO::Copy(const char* file, bool makeUnique)
+FileInfo CFileIO::Import(const char* file)
 {
   const char* root = "Library";
   const char* assets = "Assets/";
@@ -102,11 +102,14 @@ char* CFileIO::Copy(const char* file, bool makeUnique)
     // Cache the starting directory.
     if(strlen(startingDir) == 0)
     {
-      // Get directory where editor is running.
       GetCurrentDirectory(128, startingDir);
     }
 
-    if(strncmp(file, assets, strlen(assets)) == 0) return strdup(file);
+    if(strncmp(file, assets, strlen(assets)) == 0)
+    {
+      FileInfo info = { strdup(file), Editor };
+      return info;
+    }
 
     // Create a unique identifier and convert to a char array.
     CoCreateGuid(&uniqueIdentifier);
@@ -117,21 +120,16 @@ char* CFileIO::Copy(const char* file, bool makeUnique)
     memmove(guidBuffer, guidBuffer + 1, strlen(guidBuffer));
     guidBuffer[strlen(guidBuffer) - 1] = '\0';
 
-    // Format the new file path.
-    if(makeUnique)
-    {
-      sprintf(target, "%s\\%s\\%s-%s", startingDir, root, guidBuffer, name);
-    }
-    else
-    {
-      sprintf(target, "%s\\%s\\%s", startingDir, root, name);
-    }
+    // Format new imported path.
+    sprintf(target, "%s\\%s\\%s-%s", startingDir, root, guidBuffer, name);
 
-    if(CopyFile(file, target, TRUE))
+    if(CopyFile(file, target, FALSE))
     {
-      return target;
+      FileInfo info = { target, User };
+      return info;
     }
   }
 
-  return NULL;
+  FileInfo info = { strdup(file), Unknown };
+  return info;
 }

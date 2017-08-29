@@ -3,6 +3,14 @@
 
 #include "Scene.h"
 
+enum FileType { Unknown, User, Editor };
+
+typedef struct
+{
+  char* path;
+  FileType type;
+} FileInfo;
+
 class CFileIO
 {
 public:
@@ -13,7 +21,7 @@ public:
   }
   bool Save(std::vector<CSavable*> savables);
   bool Load(char** data);
-  char* Copy(const char* file, bool makeUnique);
+  FileInfo Import(const char* file);
 
 private:
   char startingDir[128];
