@@ -1,5 +1,6 @@
 #include "FileIO.h"
 #include "cJSON.h"
+#include "microtar.h"
 #include <shlwapi.h>
 
 bool CFileIO::Save(std::vector<CSavable*> savables)
@@ -22,25 +23,36 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
   
   if(GetSaveFileName(&ofn))
   {
-    char *saveName = ofn.lpstrFile;
+    char* saveName = ofn.lpstrFile;
 
     // Add the extension if not supplied in the dialog.
     if(strstr(saveName, ".ultra") == NULL)
     {
       sprintf(saveName, "%s.ultra", saveName);
     }
+
+    // Prepare tar file for writing.
+    mtar_t tar;
+    mtar_open(&tar, saveName, "w");
     
-    // Write the JSON data out.
-    FILE *file = fopen(saveName, "w");
-    std::vector<CSavable*>::iterator it;
-    cJSON *root = cJSON_CreateObject();
+    // Write the scene JSON data.
+    cJSON* root = cJSON_CreateObject();
     cJSON* array = cJSON_CreateArray();
     cJSON_AddItemToObject(root, "models", array);
 
+    std::vector<CSavable*>::iterator it;
     for(it = savables.begin(); it != savables.end(); ++it)
     {
       Savable current = (*it)->Save();
       cJSON *object = current.object->child;
+
+      // Rewrite and archive the attached resources.
+      std::map<char*, char*>::iterator rit;
+      std::map<char*, char*> resources = (*it)->GetResources();
+      for(rit = resources.begin(); rit != resources.end(); rit++)
+      {      
+        cJSON_AddStringToObject(object, rit->first, rit->second);
+      }
 
       if(current.type == SavableType::Editor)
       {
@@ -52,9 +64,14 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
       }
     }
 
-    fprintf(file, cJSON_Print(root));
+    char* rendered = cJSON_Print(root);
     cJSON_Delete(root);
-    fclose(file);
+
+    mtar_write_file_header(&tar, "scene.json", strlen(rendered));
+    mtar_write_data(&tar, rendered, strlen(rendered));
+
+    mtar_finalize(&tar);
+    mtar_close(&tar);
   }
   
   return true;

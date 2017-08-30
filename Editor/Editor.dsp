@@ -123,6 +123,10 @@ SOURCE=.\Mesh.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\microtar.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\Model.cpp
 # End Source File
 # Begin Source File
@@ -168,6 +172,10 @@ SOURCE=.\Grid.h
 # Begin Source File
 
 SOURCE=.\Mesh.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\microtar.h
 # End Source File
 # Begin Source File
 

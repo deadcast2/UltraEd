@@ -27,7 +27,7 @@ CModel::CModel(const char* filePath)
   // Save path to user imported file for saving later.
   if(info.type == User)
   {
-    dictionary["vertexDataPath"] = info.path;
+    resources["vertexDataPath"] = info.path;
   }
 
   if(scene)
@@ -295,7 +295,7 @@ BOOL CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
   }
 
   // Save location of texture for scene saving.
-  if(info.type == User) dictionary["textureDataPath"] = info.path;
+  if(info.type == User) resources["textureDataPath"] = info.path;
 
   return TRUE;
 }
@@ -315,12 +315,6 @@ Savable CModel::Save()
   buffer[strlen(buffer) - 1] = '\0';
 
   cJSON_AddStringToObject(model, "id", buffer);
-
-  std::map<char*, char*>::iterator it;
-  for(it = dictionary.begin(); it != dictionary.end(); it++)
-  {      
-    cJSON_AddStringToObject(model, it->first, it->second);
-  }
 
   Savable savable = { root, SavableType::Model };
 

@@ -22,9 +22,13 @@ class CSavable
 public:
   virtual Savable Save() = 0;
   virtual bool Load(char *data) = 0;
+  std::map<char*, char*> GetResources()
+  {
+    return resources;
+  };
 
 protected:
-  std::map<char*, char*> dictionary;
+  std::map<char*, char*> resources;
 };
 
 #endif
