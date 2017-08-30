@@ -31,7 +31,7 @@ public:
   void OnApplyTexture();
   void OnImportModel();
   BOOL Pick(POINT mousePoint);
-  void ReleaseResources(ModelRelease type);
+  void ReleaseResources(ModelRelease::Value type);
   void CheckInput(float);
   void ScreenRaycast(POINT screenPoint,
     D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);

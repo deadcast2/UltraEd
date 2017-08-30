@@ -12,7 +12,7 @@ class CCamera : public CSavable
 public:
   CCamera();
   ~CCamera();
-  char* Save();
+  Savable Save();
   bool Load(char* data);
   D3DXVECTOR3 GetPosition();
   D3DXVECTOR3 GetForward();

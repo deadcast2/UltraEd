@@ -118,7 +118,7 @@ D3DXVECTOR3 CCamera::GetUp()
   return m_up;
 }
 
-char* CCamera::Save()
+Savable CCamera::Save()
 {
   char buffer[128];
   cJSON *root = cJSON_CreateObject();
@@ -137,10 +137,8 @@ char* CCamera::Save()
   sprintf(buffer, "%f %f %f", m_up.x, m_up.y, m_up.z);
   cJSON_AddStringToObject(camera, "up", buffer);
 
-  char *rendered = cJSON_Print(root);
-  cJSON_Delete(root);
-
-  return rendered;
+  Savable savable = { root, SavableType::Editor };
+  return savable;
 }
 
 bool CCamera::Load(char *data)

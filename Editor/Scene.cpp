@@ -24,7 +24,7 @@ CScene::CScene()
 
 CScene::~CScene()
 {
-  ReleaseResources(AllResources);
+  ReleaseResources(ModelRelease::AllResources);
   if(m_device) m_device->Release();
   if(m_d3d8) m_d3d8->Release();
 }
@@ -77,7 +77,7 @@ void CScene::OnNew()
   std::map<GUID, CModel>::iterator it;
   for(it = m_models.begin(); it != m_models.end(); it++)
   {
-    it->second.Release(AllResources);
+    it->second.Release(ModelRelease::AllResources);
   }
   
   m_models.clear();
@@ -88,6 +88,14 @@ void CScene::OnSave()
 {
   std::vector<CSavable*> savables;
   savables.push_back(&m_camera);
+
+  // Save all of the models in the scene.
+  std::map<GUID, CModel>::iterator it;
+  for(it = m_models.begin(); it != m_models.end(); it++)
+  {
+    savables.push_back(&it->second);
+  }
+
   CFileIO::Instance().Save(savables);
 }
 
@@ -246,7 +254,7 @@ void CScene::Resize(int width, int height)
   
   if(m_device)
   {
-    ReleaseResources(VertexBufferOnly);
+    ReleaseResources(ModelRelease::VertexBufferOnly);
     m_device->Reset(&m_d3dpp);
     m_device->SetTransform(D3DTS_PROJECTION, &m);
   }
@@ -361,7 +369,7 @@ bool CScene::ToggleMovementSpace()
   return m_gizmo.ToggleSpace();
 }
 
-void CScene::ReleaseResources(ModelRelease type)
+void CScene::ReleaseResources(ModelRelease::Value type)
 {
   m_grid.Release();
   m_gizmo.Release();
@@ -378,7 +386,7 @@ void CScene::Delete()
   if(m_selectedModelId != GUID_NULL)
   {
     CModel model = m_models[m_selectedModelId];
-    model.Release(AllResources);
+    model.Release(ModelRelease::AllResources);
     m_models.erase(m_selectedModelId);
     m_selectedModelId = GUID_NULL;
   }

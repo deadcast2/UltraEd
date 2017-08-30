@@ -10,7 +10,10 @@
 #include "Mesh.h"
 #include "Savable.h"
 
-enum ModelRelease { AllResources, VertexBufferOnly };
+struct ModelRelease
+{
+  enum Value { AllResources, VertexBufferOnly };
+};
 
 class CModel : public CSavable
 {
@@ -18,7 +21,7 @@ public:
   CModel();
   CModel(const char* filePath);
   ~CModel();
-  char* Save();
+  Savable Save();
   bool Load(char* data);
   BOOL LoadTexture(IDirect3DDevice8 *device, const char* filePath);
   D3DXMATRIX GetMatrix();
@@ -37,7 +40,7 @@ public:
   D3DXVECTOR3 GetRight();
   D3DXVECTOR3 GetForward();
   D3DXVECTOR3 GetUp();
-  void Release(ModelRelease type);
+  void Release(ModelRelease::Value type);
   void Render(IDirect3DDevice8*, ID3DXMatrixStack*);
   std::vector<MeshVertex> GetVertices();
   BOOL Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir);

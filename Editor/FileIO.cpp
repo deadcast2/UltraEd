@@ -33,12 +33,27 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
     // Write the JSON data out.
     FILE *file = fopen(saveName, "w");
     std::vector<CSavable*>::iterator it;
+    cJSON *root = cJSON_CreateObject();
+    cJSON* array = cJSON_CreateArray();
+    cJSON_AddItemToObject(root, "models", array);
 
     for(it = savables.begin(); it != savables.end(); ++it)
-    {      
-      fprintf(file, (*it)->Save());
+    {
+      Savable current = (*it)->Save();
+      cJSON *object = current.object->child;
+
+      if(current.type == SavableType::Editor)
+      {
+        cJSON_AddItemToObject(root, object->string, object);
+      }
+      else if(current.type == SavableType::Model)
+      {
+        cJSON_AddItemToArray(array, object);
+      }
     }
 
+    fprintf(file, cJSON_Print(root));
+    cJSON_Delete(root);
     fclose(file);
   }
   

@@ -27,7 +27,7 @@ CModel::CModel(const char* filePath)
   // Save path to user imported file for saving later.
   if(info.type == User)
   {
-    resourcePaths["vertexDataPath"] = info.path;
+    dictionary["vertexDataPath"] = info.path;
   }
 
   if(scene)
@@ -112,7 +112,7 @@ void CModel::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *matrixStack)
   }
 }
 
-void CModel::Release(ModelRelease type)
+void CModel::Release(ModelRelease::Value type)
 {
   if(m_vertexBuffer != NULL)
   {
@@ -120,7 +120,7 @@ void CModel::Release(ModelRelease type)
     m_vertexBuffer = 0;
   }
 
-  if(type == VertexBufferOnly) return;
+  if(type == ModelRelease::VertexBufferOnly) return;
 
   if(m_texture != NULL)
   {
@@ -295,14 +295,36 @@ BOOL CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
   }
 
   // Save location of texture for scene saving.
-  if(info.type == User) resourcePaths["textureDataPath"] = info.path;
+  if(info.type == User) dictionary["textureDataPath"] = info.path;
 
   return TRUE;
 }
 
-char* CModel::Save()
+Savable CModel::Save()
 {
-  return "Save model";
+  char buffer[128];
+  wchar_t guidWide[40];
+  cJSON *root = cJSON_CreateObject();
+  cJSON *model = cJSON_CreateObject();
+  cJSON_AddItemToObject(root, "model", model);
+
+  // Convert GUID to string.
+  StringFromGUID2(m_id, guidWide, 40);
+  wcstombs(buffer, guidWide, 40);
+  memmove(buffer, buffer + 1, strlen(buffer));
+  buffer[strlen(buffer) - 1] = '\0';
+
+  cJSON_AddStringToObject(model, "id", buffer);
+
+  std::map<char*, char*>::iterator it;
+  for(it = dictionary.begin(); it != dictionary.end(); it++)
+  {      
+    cJSON_AddStringToObject(model, it->first, it->second);
+  }
+
+  Savable savable = { root, SavableType::Model };
+
+  return savable;
 }
 
 bool CModel::Load(char* data)
