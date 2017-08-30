@@ -44,14 +44,35 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
     for(it = savables.begin(); it != savables.end(); ++it)
     {
       Savable current = (*it)->Save();
-      cJSON *object = current.object->child;
+      cJSON* object = current.object->child;
 
       // Rewrite and archive the attached resources.
       std::map<char*, char*>::iterator rit;
       std::map<char*, char*> resources = (*it)->GetResources();
       for(rit = resources.begin(); rit != resources.end(); rit++)
-      {      
-        cJSON_AddStringToObject(object, rit->first, rit->second);
+      {
+        const char* fileName = PathFindFileName(rit->second);
+        FILE* file = fopen(rit->second, "rb");
+
+        if(file == NULL) continue;
+
+        cJSON_AddStringToObject(object, rit->first, fileName);
+        
+        // Calculate resource length.
+        fseek(file, 0, SEEK_END);
+        long fileLength = ftell(file);
+        rewind(file);
+
+        // Read all contents of resource into a buffer.
+        char* fileContents = (char*)malloc(fileLength);
+        fread(fileContents, fileLength, 1, file);
+
+        // Write the buffer to the tar archive.
+        mtar_write_file_header(&tar, fileName, fileLength);
+        mtar_write_data(&tar, fileContents, fileLength);
+
+        fclose(file);
+        free(fileContents);
       }
 
       if(current.type == SavableType::Editor)
@@ -97,14 +118,14 @@ bool CFileIO::Load(char** data)
   
   if(GetOpenFileName(&ofn))
   {
-    FILE *file = fopen(ofn.lpstrFile, "r");
+    FILE* file = fopen(ofn.lpstrFile, "r");
     if(file == NULL) return false;
 
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
     fseek(file, 0, SEEK_SET);
     
-    char *contents = (char*)malloc(size);
+    char* contents = (char*)malloc(size);
     if(contents == NULL) return false;
 
     fread(contents, size, 1, file);
