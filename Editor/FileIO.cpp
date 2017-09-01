@@ -118,18 +118,15 @@ bool CFileIO::Load(char** data)
   
   if(GetOpenFileName(&ofn))
   {
-    FILE* file = fopen(ofn.lpstrFile, "r");
-    if(file == NULL) return false;
-
-    fseek(file, 0, SEEK_END);
-    long size = ftell(file);
-    fseek(file, 0, SEEK_SET);
+    mtar_t tar;
+    mtar_header_t header;
     
-    char* contents = (char*)malloc(size);
-    if(contents == NULL) return false;
+    mtar_open(&tar, ofn.lpstrFile, "r");
+    mtar_find(&tar, "scene.json", &header);
 
-    fread(contents, size, 1, file);
-    fclose(file);
+    char *contents = (char*)calloc(1, header.size + 1);
+    mtar_read_data(&tar, contents, header.size);
+    mtar_close(&tar);
 
     *data = contents;
 
