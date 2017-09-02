@@ -16,8 +16,8 @@ To compile the source on Win XP download this dependency pack I put together: ht
 4. Limit poly amount for imported models
 5. ~~Support texture import~~
 6. Add grid snapping
-7. Allow saving of scene
-8. Allow loading of scene
+7. Allow saving of scene (partially completed)
+8. Allow loading of scene (partially completed)
 9. Add tree view list of all objects in scene
 10. Add camera object
 11. Add audio import
@@ -33,3 +33,5 @@ To compile the source on Win XP download this dependency pack I put together: ht
 21. Allow manual setting of object transformations
 22. Add view switching (persp, top, left, forward)
 23. ~~Add object deletion from keyboard and mouse~~
+24. Refactor string GUID creation to a utility function.
+25. Consolidate code to show common dialogs for files.
