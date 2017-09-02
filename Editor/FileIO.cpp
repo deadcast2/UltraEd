@@ -1,6 +1,7 @@
 #include "FileIO.h"
 #include "cJSON.h"
 #include "microtar.h"
+#include "fastlz.h"
 #include <shlwapi.h>
 
 bool CFileIO::Save(std::vector<CSavable*> savables)
@@ -93,9 +94,11 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
 
     mtar_finalize(&tar);
     mtar_close(&tar);
+
+    return Compress(saveName);
   }
   
-  return true;
+  return false;
 }
 
 bool CFileIO::Load(char** data)
@@ -116,7 +119,7 @@ bool CFileIO::Load(char** data)
   ofn.lpstrInitialDir = NULL;
   ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
   
-  if(GetOpenFileName(&ofn))
+  if(GetOpenFileName(&ofn) && Decompress(&ofn.lpstrFile))
   {
     mtar_t tar;
     mtar_header_t header;
@@ -127,6 +130,7 @@ bool CFileIO::Load(char** data)
     char *contents = (char*)calloc(1, header.size + 1);
     mtar_read_data(&tar, contents, header.size);
     mtar_close(&tar);
+    remove(ofn.lpstrFile);
 
     *data = contents;
 
@@ -182,4 +186,82 @@ FileInfo CFileIO::Import(const char* file)
 
   FileInfo info = { strdup(file), Unknown };
   return info;
+}
+
+bool CFileIO::Compress(const char* path)
+{
+  FILE* file = fopen(path, "rb");
+  if(file == NULL) return false;
+
+  // Get the total size of the file.
+  fseek(file, 0, SEEK_END);
+  long size = ftell(file);
+  rewind(file);
+
+  // Read in entire file.
+  char* data = (char*)malloc(size);
+  if(data == NULL) return false;
+  int bytesRead = fread(data, 1, size, file);
+  if(bytesRead != size) return false;
+  fclose(file);
+
+  // Compressed buffer must be at least 5% larger.
+  char* compressed = (char*)malloc(size + (size * 0.05));
+  if(compressed == NULL) return false;
+  int bytesCompressed = fastlz_compress(data, size, compressed);
+  if(bytesCompressed == 0) return false;
+
+  // Write compressed file back out.
+  file = fopen(path, "wb");
+  if(file == NULL) return false;
+  unsigned int bytesWritten = fwrite(compressed, 1, bytesCompressed, file);
+  if(bytesWritten != bytesCompressed) return false;
+  fclose(file);
+  free(compressed);
+  free(data);
+
+  return true;
+}
+
+bool CFileIO::Decompress(char** path)
+{
+  FILE* file = fopen(*path, "rb");
+  if(file == NULL) return false;
+
+  // Get the total size of the file.
+  fseek(file, 0, SEEK_END);
+  long size = ftell(file);
+  rewind(file);
+
+  // Read in entire file.
+  char* data = (char*)malloc(size);
+  if(data == NULL) return false;
+  int bytesRead = fread(data, 1, size, file);
+  if(bytesRead != size) return false;
+  fclose(file);
+
+  int maxout = size * size; // Need to fix this!
+  char* decompressed = (char*)malloc(maxout);
+  if(decompressed == NULL) return false;
+  int bytesDecompressed = fastlz_decompress(data, size, decompressed, maxout);
+  if(bytesDecompressed == 0) return false;
+
+  // Create a temp path to extract the scene file.
+  std::string pathBuffer(*path);
+  std::string tempName(tmpnam(NULL));
+  pathBuffer.append(tempName.erase(0,1));
+
+  // Write decompressed file back out.
+  file = fopen(pathBuffer.c_str(), "wb");
+  if(file == NULL) return false;
+  unsigned int bytesWritten = fwrite(decompressed, 1, bytesDecompressed, file);
+  if(bytesWritten != bytesDecompressed) return false;
+  fclose(file);
+  free(decompressed);
+  free(data);
+
+  // Pass the new path out.
+  *path = strdup(pathBuffer.c_str());
+
+  return true;
 }

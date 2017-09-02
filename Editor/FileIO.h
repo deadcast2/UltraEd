@@ -24,6 +24,10 @@ public:
   FileInfo Import(const char* file);
 
 private:
+  bool Compress(const char* path);
+  bool Decompress(char** path);
+
+private:
   char startingDir[128];
 };
 
