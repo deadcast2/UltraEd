@@ -211,13 +211,21 @@ bool CFileIO::Compress(const char* path)
   int bytesCompressed = fastlz_compress(data, size, compressed);
   if(bytesCompressed == 0) return false;
 
+  // Annotate compressed data with uncompressed size.
+  int annotatedSize = bytesCompressed + sizeof(int);
+  char* buffer = (char*)malloc(annotatedSize);
+  memcpy(buffer, &size, sizeof(int));
+  memcpy(buffer + sizeof(int), compressed, bytesCompressed);
+
   // Write compressed file back out.
   file = fopen(path, "wb");
   if(file == NULL) return false;
-  unsigned int bytesWritten = fwrite(compressed, 1, bytesCompressed, file);
-  if(bytesWritten != bytesCompressed) return false;
+  unsigned int bytesWritten = fwrite(buffer, 1, annotatedSize, file);
+  if(bytesWritten != annotatedSize) return false;
   fclose(file);
+
   free(compressed);
+  free(buffer);
   free(data);
 
   return true;
@@ -240,10 +248,14 @@ bool CFileIO::Decompress(char** path)
   if(bytesRead != size) return false;
   fclose(file);
 
-  int maxout = size * size; // Need to fix this!
-  char* decompressed = (char*)malloc(maxout);
+  // Read the uncompressed file length.
+  int uncompressedSize = 0;
+  memmove(&uncompressedSize, data, sizeof(int));
+  memmove(data, data + sizeof(int), size - sizeof(int));
+
+  char* decompressed = (char*)malloc(uncompressedSize);
   if(decompressed == NULL) return false;
-  int bytesDecompressed = fastlz_decompress(data, size, decompressed, maxout);
+  int bytesDecompressed = fastlz_decompress(data, size - sizeof(int), decompressed, uncompressedSize);
   if(bytesDecompressed == 0) return false;
 
   // Create a temp path to extract the scene file.
