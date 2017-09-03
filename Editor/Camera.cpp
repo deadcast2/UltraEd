@@ -141,10 +141,9 @@ Savable CCamera::Save()
   return savable;
 }
 
-bool CCamera::Load(char *data)
+bool CCamera::Load(cJSON* root)
 {
   float x, y, z;
-  cJSON *root = cJSON_Parse(data);
   cJSON *camera = cJSON_GetObjectItemCaseSensitive(root, "camera");
  
   cJSON *position = cJSON_GetObjectItemCaseSensitive(camera, "position");
@@ -162,8 +161,6 @@ bool CCamera::Load(char *data)
   cJSON *up = cJSON_GetObjectItemCaseSensitive(camera, "up");
   sscanf(up->valuestring, "%f %f %f", &x, &y, &z);
   m_up = D3DXVECTOR3(x, y, z);
-
-  cJSON_Delete(root);
 
   return true;
 }

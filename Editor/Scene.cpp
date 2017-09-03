@@ -101,11 +101,24 @@ void CScene::OnSave()
 
 void CScene::OnLoad()
 {
-  char *data = NULL;
-  if(CFileIO::Instance().Load(&data))
+  cJSON* root = NULL;
+  if(CFileIO::Instance().Load(&root))
   {
-    m_camera.Load(data);
-    free(data);
+    m_camera.Load(root);
+
+    // Create saved models.
+    cJSON* models = cJSON_GetObjectItem(root, "models");
+    cJSON* modelItem = NULL;
+    cJSON_ArrayForEach(modelItem, models)
+    {
+      CModel model;
+      if(model.Load(modelItem))
+      {
+        m_models[model.GetId()] = model;
+      }
+    }
+
+    cJSON_Delete(root);
   }
 }
 

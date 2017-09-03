@@ -20,7 +20,7 @@ public:
     return instance;
   }
   bool Save(std::vector<CSavable*> savables);
-  bool Load(char** data);
+  bool Load(cJSON** data);
   FileInfo Import(const char* file);
 
 private:

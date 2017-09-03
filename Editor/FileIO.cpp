@@ -47,6 +47,10 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
       Savable current = (*it)->Save();
       cJSON* object = current.object->child;
 
+      // Add array to hold all attached resources.
+      cJSON* resourceArray = cJSON_CreateArray();
+      cJSON_AddItemToObject(object, "resources", resourceArray);
+
       // Rewrite and archive the attached resources.
       std::map<char*, char*>::iterator rit;
       std::map<char*, char*> resources = (*it)->GetResources();
@@ -57,7 +61,9 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
 
         if(file == NULL) continue;
 
-        cJSON_AddStringToObject(object, rit->first, fileName);
+        cJSON* item = cJSON_CreateObject();
+        cJSON_AddStringToObject(item, rit->first, fileName);
+        cJSON_AddItemToArray(resourceArray, item);
         
         // Calculate resource length.
         fseek(file, 0, SEEK_END);
@@ -101,7 +107,7 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
   return false;
 }
 
-bool CFileIO::Load(char** data)
+bool CFileIO::Load(cJSON** data)
 {
   OPENFILENAME ofn;
   char szFile[260];
@@ -123,16 +129,46 @@ bool CFileIO::Load(char** data)
   {
     mtar_t tar;
     mtar_header_t header;
-    
+
     mtar_open(&tar, ofn.lpstrFile, "r");
     mtar_find(&tar, "scene.json", &header);
 
-    char *contents = (char*)calloc(1, header.size + 1);
+    char* contents = (char*)calloc(1, header.size + 1);
     mtar_read_data(&tar, contents, header.size);
+    cJSON* root = cJSON_Parse(contents);
+
+    // Iterate through all models.
+    cJSON* models = cJSON_GetObjectItem(root, "models");
+    cJSON* model = NULL;
+    cJSON_ArrayForEach(model, models)
+    {
+      // Locate each packed model resource.
+      cJSON* resources = cJSON_GetObjectItem(model, "resources");
+      cJSON* resource = NULL;
+      cJSON_ArrayForEach(resource, resources)
+      {
+        char target[128];
+        const char* fileName = resource->child->valuestring;
+
+        // Locate the resource to extract.
+        mtar_find(&tar, fileName, &header);
+        char* buffer = (char*)calloc(1, header.size + 1);
+        mtar_read_data(&tar, buffer, header.size);
+
+        // Format path and write to library.
+        sprintf(target, "%s\\%s\\%s", startingDir, "Library", fileName);
+        FILE* file = fopen(target, "wb");
+        fwrite(buffer, 1, header.size, file);
+        fclose(file);
+        free(buffer);
+      }
+    }
+
     mtar_close(&tar);
+    free(contents);
     remove(ofn.lpstrFile);
 
-    *data = contents;
+    *data = root;
 
     return true;
   }

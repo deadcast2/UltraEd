@@ -13,7 +13,7 @@ public:
   CCamera();
   ~CCamera();
   Savable Save();
-  bool Load(char* data);
+  bool Load(cJSON* root);
   D3DXVECTOR3 GetPosition();
   D3DXVECTOR3 GetForward();
   D3DXVECTOR3 GetRight();

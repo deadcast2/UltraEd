@@ -321,7 +321,9 @@ Savable CModel::Save()
   return savable;
 }
 
-bool CModel::Load(char* data)
+bool CModel::Load(cJSON* root)
 {
+  cJSON* id = cJSON_GetObjectItemCaseSensitive(root, "id");
+  // TODO
   return false;
 }
