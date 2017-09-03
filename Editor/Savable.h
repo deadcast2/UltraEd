@@ -4,6 +4,7 @@
 #pragma warning(disable: 4786)
 
 #include <map>
+#include <d3d8.h>
 #include "cJSON.h"
 
 struct SavableType
@@ -21,7 +22,7 @@ class CSavable
 {
 public:
   virtual Savable Save() = 0;
-  virtual bool Load(cJSON* root) = 0;
+  virtual bool Load(IDirect3DDevice8 *device, cJSON* root) = 0;
   std::map<char*, char*> GetResources()
   {
     return resources;

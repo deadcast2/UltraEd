@@ -22,7 +22,7 @@ public:
   CModel(const char* filePath);
   ~CModel();
   Savable Save();
-  bool Load(cJSON* root);
+  bool Load(IDirect3DDevice8 *device, cJSON* root);
   BOOL LoadTexture(IDirect3DDevice8 *device, const char* filePath);
   D3DXMATRIX GetMatrix();
   D3DXMATRIX GetRotationMatrix();
@@ -44,6 +44,10 @@ public:
   void Render(IDirect3DDevice8*, ID3DXMatrixStack*);
   std::vector<MeshVertex> GetVertices();
   BOOL Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
+
+private:
+  void Init();
+  void Import(const char* filePath);
   
 private:
   GUID m_id;

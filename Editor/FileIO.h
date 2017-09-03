@@ -26,9 +26,7 @@ public:
 private:
   bool Compress(const char* path);
   bool Decompress(char** path);
-
-private:
-  char startingDir[128];
+  std::string RootPath();
 };
 
 #endif

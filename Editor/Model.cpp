@@ -3,9 +3,20 @@
 
 CModel::CModel()
 {
+  Init();
 }
 
 CModel::CModel(const char* filePath)
+{
+  Init();
+  Import(filePath);
+}
+
+CModel::~CModel()
+{
+}
+
+void CModel::Init()
 {
   // Assign the model a unique id.
   CoCreateGuid(&m_id);
@@ -17,7 +28,10 @@ CModel::CModel(const char* filePath)
 
   D3DXMatrixIdentity(&m_localRot);
   D3DXMatrixIdentity(&m_worldRot);
-  
+}
+
+void CModel::Import(const char* filePath)
+{
   Assimp::Importer importer;
   FileInfo info = CFileIO::Instance().Import(filePath);
   const aiScene* scene = importer.ReadFile(info.path,
@@ -34,10 +48,6 @@ CModel::CModel(const char* filePath)
   {
     Process(scene->mRootNode, scene);
   }
-}
-
-CModel::~CModel()
-{
 }
 
 void CModel::Process(aiNode* node, const aiScene* scene)
@@ -291,6 +301,7 @@ BOOL CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
 
   if(FAILED(D3DXCreateTextureFromFile(device, info.path, &m_texture)))
   {
+    free(info.path);
     return FALSE;
   }
 
@@ -321,9 +332,25 @@ Savable CModel::Save()
   return savable;
 }
 
-bool CModel::Load(cJSON* root)
+bool CModel::Load(IDirect3DDevice8 *device, cJSON* root)
 {
-  cJSON* id = cJSON_GetObjectItemCaseSensitive(root, "id");
-  // TODO
-  return false;
+  cJSON* id = cJSON_GetObjectItem(root, "id");
+  cJSON* resources = cJSON_GetObjectItem(root, "resources");
+  cJSON* resource = NULL;
+  
+  cJSON_ArrayForEach(resource, resources)
+  {
+    const char* path = resource->child->valuestring;
+
+    if(strcmp(resource->child->string, "vertexDataPath") == 0)
+    {  
+      Import(path);
+    }
+    else if(strcmp(resource->child->string, "textureDataPath") == 0)
+    {
+      LoadTexture(device, path);
+    }
+  }
+
+  return true;
 }

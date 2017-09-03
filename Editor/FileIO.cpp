@@ -111,6 +111,7 @@ bool CFileIO::Load(cJSON** data)
 {
   OPENFILENAME ofn;
   char szFile[260];
+  std::string rootPath = RootPath();
   
   ZeroMemory(&ofn, sizeof(ofn));
   ofn.lStructSize = sizeof(ofn);
@@ -156,11 +157,14 @@ bool CFileIO::Load(cJSON** data)
         mtar_read_data(&tar, buffer, header.size);
 
         // Format path and write to library.
-        sprintf(target, "%s\\%s\\%s", startingDir, "Library", fileName);
+        sprintf(target, "%s\\%s", rootPath.c_str(), fileName);
         FILE* file = fopen(target, "wb");
         fwrite(buffer, 1, header.size, file);
         fclose(file);
         free(buffer);
+
+        // Update the path to the fully qualified target.
+        resource->child->valuestring = strdup(target);
       }
     }
 
@@ -168,6 +172,7 @@ bool CFileIO::Load(cJSON** data)
     free(contents);
     remove(ofn.lpstrFile);
 
+    // Pass the constructed json object out.
     *data = root;
 
     return true;
@@ -178,23 +183,28 @@ bool CFileIO::Load(cJSON** data)
 
 FileInfo CFileIO::Import(const char* file)
 {
-  const char* root = "Library";
-  const char* assets = "Assets/";
+  std::string rootPath = RootPath();
 
-  if(CreateDirectory(root, NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
+  int digit;
+  const char* name = PathFindFileName(file);
+  bool isGUID = sscanf(name, "%4x%4x-%4x-%4x-%4x-%4x%4x%4x%c",
+    &digit, &digit, &digit, &digit, &digit, &digit, &digit, &digit, &digit) == 8;
+
+  // When a GUID then must have already been imported so don't re-import.
+  if(isGUID)
   {
-    char* name = PathFindFileName(file);
+    FileInfo info = { strdup(file), User };
+    return info;
+  }
+
+  if(CreateDirectory(rootPath.c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
+  {
     char* target = (char*)malloc(128);
     char guidBuffer[40];
     GUID uniqueIdentifier;
     wchar_t guidWide[40];
 
-    // Cache the starting directory.
-    if(strlen(startingDir) == 0)
-    {
-      GetCurrentDirectory(128, startingDir);
-    }
-
+    const char* assets = "Assets/";
     if(strncmp(file, assets, strlen(assets)) == 0)
     {
       FileInfo info = { strdup(file), Editor };
@@ -211,7 +221,7 @@ FileInfo CFileIO::Import(const char* file)
     guidBuffer[strlen(guidBuffer) - 1] = '\0';
 
     // Format new imported path.
-    sprintf(target, "%s\\%s\\%s-%s", startingDir, root, guidBuffer, name);
+    sprintf(target, "%s\\%s", rootPath.c_str(), guidBuffer);
 
     if(CopyFile(file, target, FALSE))
     {
@@ -312,4 +322,14 @@ bool CFileIO::Decompress(char** path)
   *path = strdup(pathBuffer.c_str());
 
   return true;
+}
+
+std::string CFileIO::RootPath()
+{
+    char pathBuffer[MAX_PATH];
+    GetModuleFileName(NULL, pathBuffer, MAX_PATH);
+    std::string pathString(pathBuffer);
+    pathString = pathString.substr(0, pathString.find_last_of("\\/"));
+    pathString.append("\\Library");
+    return pathString;
 }

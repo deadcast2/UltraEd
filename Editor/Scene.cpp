@@ -104,7 +104,7 @@ void CScene::OnLoad()
   cJSON* root = NULL;
   if(CFileIO::Instance().Load(&root))
   {
-    m_camera.Load(root);
+    m_camera.Load(m_device, root);
 
     // Create saved models.
     cJSON* models = cJSON_GetObjectItem(root, "models");
@@ -112,7 +112,7 @@ void CScene::OnLoad()
     cJSON_ArrayForEach(modelItem, models)
     {
       CModel model;
-      if(model.Load(modelItem))
+      if(model.Load(m_device, modelItem))
       {
         m_models[model.GetId()] = model;
       }
