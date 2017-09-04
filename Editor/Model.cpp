@@ -337,7 +337,19 @@ bool CModel::Load(IDirect3DDevice8 *device, cJSON* root)
   cJSON* id = cJSON_GetObjectItem(root, "id");
   cJSON* resources = cJSON_GetObjectItem(root, "resources");
   cJSON* resource = NULL;
+
+  // Set ID to what was saved.
+  GUID guid;
+  wchar_t wideString[40];
+  std::string guidString(id->valuestring);
+  guidString = guidString.insert(0, "{").append("}");
+  mbstowcs(wideString, guidString.c_str(), 40);
+  if(IIDFromString(wideString, &guid) == S_OK)
+  {
+    m_id = guid;
+  }
   
+  // Load any vertex or texture data.
   cJSON_ArrayForEach(resource, resources)
   {
     const char* path = resource->child->valuestring;
