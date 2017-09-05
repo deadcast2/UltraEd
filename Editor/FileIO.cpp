@@ -41,8 +41,7 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
     cJSON *array = cJSON_CreateArray();
     cJSON_AddItemToObject(root, "models", array);
 
-    std::vector<CSavable*>::iterator it;
-    for(it = savables.begin(); it != savables.end(); ++it)
+    for(std::vector<CSavable*>::iterator it = savables.begin(); it != savables.end(); ++it)
     {
       Savable current = (*it)->Save();
       cJSON *object = current.object->child;
@@ -52,9 +51,8 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
       cJSON_AddItemToObject(object, "resources", resourceArray);
 
       // Rewrite and archive the attached resources.
-      std::map<std::string, std::string>::iterator rit;
       std::map<std::string, std::string> resources = (*it)->GetResources();
-      for(rit = resources.begin(); rit != resources.end(); rit++)
+      for(std::map<std::string, std::string>::iterator rit = resources.begin(); rit != resources.end(); ++rit)
       {
         const char *fileName = PathFindFileName(rit->second.c_str());
         FILE *file = fopen(rit->second.c_str(), "rb");

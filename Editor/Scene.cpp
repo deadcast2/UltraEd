@@ -74,8 +74,7 @@ void CScene::OnNew()
   Delete();
   
   // Release all models.
-  std::map<GUID, CModel>::iterator it;
-  for(it = m_models.begin(); it != m_models.end(); it++)
+  for(std::map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
   {
     it->second.Release(ModelRelease::AllResources);
   }
@@ -90,8 +89,7 @@ void CScene::OnSave()
   savables.push_back(&m_camera);
 
   // Save all of the models in the scene.
-  std::map<GUID, CModel>::iterator it;
-  for(it = m_models.begin(); it != m_models.end(); it++)
+  for(std::map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
   {
     savables.push_back(&it->second);
   }
@@ -190,8 +188,7 @@ bool CScene::Pick(POINT mousePoint)
   BOOL gizmoSelected = m_gizmo.Select(orig, dir);
   
   // Check all models to see which poly might have been picked.
-  std::map<GUID, CModel>::iterator it;
-  for(it = m_models.begin(); it != m_models.end(); it++)
+  for(std::map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
   {
     if(it->second.Pick(orig, dir))
     {
@@ -236,8 +233,8 @@ void CScene::Render()
     
     m_device->SetMaterial(&m_defaultMaterial);
     
-    std::map<GUID, CModel>::iterator it;
-    for(it = m_models.begin(); it != m_models.end(); it++)
+    // Render all models.
+    for(std::map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
     {      
       it->second.Render(m_device, stack);
     }
@@ -387,8 +384,7 @@ void CScene::ReleaseResources(ModelRelease::Value type)
   m_grid.Release();
   m_gizmo.Release();
   
-  std::map<GUID, CModel>::iterator it;
-  for(it = m_models.begin(); it != m_models.end(); it++)
+  for(std::map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
   {
     it->second.Release(type);
   }
