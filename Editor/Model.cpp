@@ -55,8 +55,8 @@ void CModel::Process(aiNode *node, const aiScene *scene)
   
   for(i = 0; i < node->mNumMeshes; i++)
   {
-    aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-    std::vector<MeshVertex> verts = CMesh(node->mTransformation, mesh).Vertices();
+    aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
+    vector<MeshVertex> verts = CMesh(node->mTransformation, mesh).Vertices();
     m_vertices.insert(m_vertices.end(), verts.begin(), verts.end()); 
   }
   
@@ -94,7 +94,7 @@ IDirect3DVertexBuffer8 *CModel::GetBuffer(IDirect3DDevice8 *device)
   return m_vertexBuffer;
 }
 
-std::vector<MeshVertex> CModel::GetVertices()
+vector<MeshVertex> CModel::GetVertices()
 {
   return m_vertices;
 }
@@ -229,7 +229,7 @@ void CModel::SetLocalRotationMatrix(D3DXMATRIX mat)
 
 bool CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
 {
-  std::vector<MeshVertex> vertices = GetVertices();
+  vector<MeshVertex> vertices = GetVertices();
   
   // Test all faces in this model.
   for(int j = 0; j < vertices.size() / 3; j++)

@@ -5,27 +5,29 @@
 
 #include "Scene.h"
 
+using namespace std;
+
 enum FileType { Unknown, User, Editor };
 
 typedef struct
 {
-  std::string path;
+  string path;
   FileType type;
 } FileInfo;
 
 class CFileIO
 {
 public:
-  static bool Save(std::vector<CSavable*> savables, std::string &fileName);
-  static bool Load(cJSON **data, std::string &fileName);
+  static bool Save(vector<CSavable*> savables, string &fileName);
+  static bool Load(cJSON **data, string &fileName);
   static FileInfo Import(const char *file);
 
 private:
   CFileIO() {}
   static bool Compress(const char *path);
   static bool Decompress(char **path);
-  static std::string RootPath();
-  static std::string CleanFileName(const char *fileName);
+  static string RootPath();
+  static string CleanFileName(const char *fileName);
 };
 
 #endif

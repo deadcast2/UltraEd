@@ -7,6 +7,8 @@
 #include <d3d8.h>
 #include "cJSON.h"
 
+using namespace std;
+
 struct SavableType
 {
   enum Value { Editor, Model };
@@ -23,13 +25,13 @@ class CSavable
 public:
   virtual Savable Save() = 0;
   virtual bool Load(IDirect3DDevice8 *device, cJSON *root) = 0;
-  std::map<std::string, std::string> GetResources()
+  map<string, string> GetResources()
   {
     return resources;
   };
 
 protected:
-  std::map<std::string, std::string> resources;
+  map<string, string> resources;
 };
 
 #endif

@@ -25,7 +25,7 @@ GUID CUtil::StringToGuid(const char *guid)
   return GUID_NULL;
 }
 
-std::string CUtil::GuidToString(GUID guid)
+string CUtil::GuidToString(GUID guid)
 {
   char guidBuffer[CLSID_LENGTH];
   wchar_t guidWide[CLSID_LENGTH];
@@ -33,6 +33,6 @@ std::string CUtil::GuidToString(GUID guid)
   StringFromGUID2(guid, guidWide, CLSID_LENGTH);
   wcstombs(guidBuffer, guidWide, CLSID_LENGTH);
 
-  return std::string(guidBuffer);
+  return string(guidBuffer);
 }
 

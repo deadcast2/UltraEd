@@ -10,6 +10,8 @@
 #include "Mesh.h"
 #include "Savable.h"
 
+using namespace std;
+
 struct ModelRelease
 {
   enum Value { AllResources, VertexBufferOnly };
@@ -41,7 +43,7 @@ public:
   D3DXVECTOR3 GetUp();
   void Release(ModelRelease::Value type);
   void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
-  std::vector<MeshVertex> GetVertices();
+  vector<MeshVertex> GetVertices();
   bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
 
 private:
@@ -55,7 +57,7 @@ private:
   IDirect3DVertexBuffer8 *GetBuffer(IDirect3DDevice8 *device);
   bool IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir,
     D3DXVECTOR3 &v0, D3DXVECTOR3 &v1, D3DXVECTOR3 &v2);
-  std::vector<MeshVertex> m_vertices;
+  vector<MeshVertex> m_vertices;
   D3DXVECTOR3 m_position;
   D3DXVECTOR3 m_scale;
   D3DXMATRIX m_localRot;

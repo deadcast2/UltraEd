@@ -6,6 +6,8 @@
 #include <assimp/scene.h>
 #include <assimp/cimport.h>
 
+using namespace std;
+
 struct MeshVertex
 {
   D3DXVECTOR3 position;
@@ -18,10 +20,10 @@ class CMesh
 public:
   CMesh(aiMatrix4x4 transform, aiMesh *mesh);
   ~CMesh();
-  std::vector<MeshVertex> Vertices();
+  vector<MeshVertex> Vertices();
   
 private:
-  std::vector<MeshVertex> m_vertices;
+  vector<MeshVertex> m_vertices;
 };
 
 #endif

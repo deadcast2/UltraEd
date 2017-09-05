@@ -4,6 +4,8 @@
 #include <rpc.h>
 #include <string>
 
+using namespace std;
+
 #define CLSID_LENGTH 40
 
 class CUtil
@@ -11,7 +13,7 @@ class CUtil
 public:
   static GUID NewGuid();
   static GUID StringToGuid(const char *guid);
-  static std::string GuidToString(GUID guid);
+  static string GuidToString(GUID guid);
 
 private:
   CUtil() {};

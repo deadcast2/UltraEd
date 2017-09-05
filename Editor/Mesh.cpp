@@ -38,7 +38,7 @@ CMesh::~CMesh()
 {
 }
 
-std::vector<MeshVertex> CMesh::Vertices()
+vector<MeshVertex> CMesh::Vertices()
 {
   return m_vertices;
 }

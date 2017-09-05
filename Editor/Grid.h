@@ -3,6 +3,8 @@
 
 #include "Mesh.h"
 
+using namespace std;
+
 class CGrid  
 {
 public:
@@ -15,7 +17,7 @@ private:
   D3DMATERIAL8 m_material;
   IDirect3DVertexBuffer8 *m_vertexBuffer;
   IDirect3DVertexBuffer8 *GetBuffer(IDirect3DDevice8 *device);
-  std::vector<MeshVertex> m_vertices;
+  vector<MeshVertex> m_vertices;
 };
 
 #endif

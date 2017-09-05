@@ -3,6 +3,8 @@
 
 #include "Mesh.h"
 
+using namespace std;
+
 class CDebug  
 {
 public:
@@ -19,7 +21,7 @@ private:
   D3DMATERIAL8 m_material;
   IDirect3DVertexBuffer8 *m_vertexBuffer;
   IDirect3DVertexBuffer8 *GetBuffer(IDirect3DDevice8 *device);
-  std::vector<MeshVertex> m_vertices;
+  vector<MeshVertex> m_vertices;
   void _DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to);
 };
 

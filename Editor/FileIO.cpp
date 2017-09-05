@@ -5,7 +5,7 @@
 #include "fastlz.h"
 #include <shlwapi.h>
 
-bool CFileIO::Save(std::vector<CSavable*> savables, std::string &fileName)
+bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
 {
   OPENFILENAME ofn;
   char szFile[260];
@@ -44,7 +44,7 @@ bool CFileIO::Save(std::vector<CSavable*> savables, std::string &fileName)
     cJSON *array = cJSON_CreateArray();
     cJSON_AddItemToObject(root, "models", array);
 
-    for(std::vector<CSavable*>::iterator it = savables.begin(); it != savables.end(); ++it)
+    for(vector<CSavable*>::iterator it = savables.begin(); it != savables.end(); ++it)
     {
       Savable current = (*it)->Save();
       cJSON *object = current.object->child;
@@ -54,8 +54,8 @@ bool CFileIO::Save(std::vector<CSavable*> savables, std::string &fileName)
       cJSON_AddItemToObject(object, "resources", resourceArray);
 
       // Rewrite and archive the attached resources.
-      std::map<std::string, std::string> resources = (*it)->GetResources();
-      for(std::map<std::string, std::string>::iterator rit = resources.begin(); rit != resources.end(); ++rit)
+      map<string, string> resources = (*it)->GetResources();
+      for(map<string, string>::iterator rit = resources.begin(); rit != resources.end(); ++rit)
       {
         const char *fileName = PathFindFileName(rit->second.c_str());
         FILE *file = fopen(rit->second.c_str(), "rb");
@@ -108,11 +108,11 @@ bool CFileIO::Save(std::vector<CSavable*> savables, std::string &fileName)
   return false;
 }
 
-bool CFileIO::Load(cJSON **data, std::string &fileName)
+bool CFileIO::Load(cJSON **data, string &fileName)
 {
   OPENFILENAME ofn;
   char szFile[260];
-  std::string rootPath = RootPath();
+  string rootPath = RootPath();
   
   ZeroMemory(&ofn, sizeof(ofn));
   ofn.lStructSize = sizeof(ofn);
@@ -187,7 +187,7 @@ bool CFileIO::Load(cJSON **data, std::string &fileName)
 FileInfo CFileIO::Import(const char *file)
 {
   FileInfo info;
-  std::string rootPath = RootPath();
+  string rootPath = RootPath();
 
   // When a GUID then must have already been imported so don't re-import.
   if(CUtil::StringToGuid(PathFindFileName(file)) != GUID_NULL)
@@ -296,8 +296,8 @@ bool CFileIO::Decompress(char **path)
   if(bytesDecompressed == 0) return false;
 
   // Create a temp path to extract the scene file.
-  std::string pathBuffer(*path);
-  std::string tempName(tmpnam(NULL));
+  string pathBuffer(*path);
+  string tempName(tmpnam(NULL));
   pathBuffer.append(tempName.erase(0,1));
 
   // Write decompressed file back out.
@@ -315,20 +315,20 @@ bool CFileIO::Decompress(char **path)
   return true;
 }
 
-std::string CFileIO::RootPath()
+string CFileIO::RootPath()
 {
     char pathBuffer[MAX_PATH];
     GetModuleFileName(NULL, pathBuffer, MAX_PATH);
-    std::string pathString(pathBuffer);
+    string pathString(pathBuffer);
     pathString = pathString.substr(0, pathString.find_last_of("\\/"));
     pathString.append("\\Library");
     return pathString;
 }
 
-std::string CFileIO::CleanFileName(const char *fileName)
+string CFileIO::CleanFileName(const char *fileName)
 {
-  std::string cleanedName(PathFindFileName(fileName));
-  std::string::size_type pos = cleanedName.find('.');
-  if(pos != std::string::npos) cleanedName.erase(pos, std::string::npos);
+  string cleanedName(PathFindFileName(fileName));
+  string::size_type pos = cleanedName.find('.');
+  if(pos != string::npos) cleanedName.erase(pos, string::npos);
   return cleanedName;
 }

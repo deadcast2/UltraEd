@@ -74,7 +74,7 @@ void CScene::OnNew()
   Delete();
   
   // Release all models.
-  for(std::map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+  for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
   {
     it->second.Release(ModelRelease::AllResources);
   }
@@ -85,16 +85,16 @@ void CScene::OnNew()
 
 void CScene::OnSave()
 {
-  std::vector<CSavable*> savables;
+  vector<CSavable*> savables;
   savables.push_back(&m_camera);
 
   // Save all of the models in the scene.
-  for(std::map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+  for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
   {
     savables.push_back(&it->second);
   }
 
-  std::string savedName;
+  string savedName;
   if(CFileIO::Save(savables, savedName))
   {
     HWND parentWnd = GetParent(m_hWnd);
@@ -109,7 +109,7 @@ void CScene::OnLoad()
   OnNew();
 
   cJSON *root = NULL;
-  std::string loadedName;
+  string loadedName;
   if(CFileIO::Load(&root, loadedName))
   {
     m_camera.Load(m_device, root);
@@ -202,7 +202,7 @@ bool CScene::Pick(POINT mousePoint)
   BOOL gizmoSelected = m_gizmo.Select(orig, dir);
   
   // Check all models to see which poly might have been picked.
-  for(std::map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+  for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
   {
     if(it->second.Pick(orig, dir))
     {
@@ -248,7 +248,7 @@ void CScene::Render()
     m_device->SetMaterial(&m_defaultMaterial);
     
     // Render all models.
-    for(std::map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+    for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
     {      
       it->second.Render(m_device, stack);
     }
@@ -398,7 +398,7 @@ void CScene::ReleaseResources(ModelRelease::Value type)
   m_grid.Release();
   m_gizmo.Release();
   
-  for(std::map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+  for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
   {
     it->second.Release(type);
   }

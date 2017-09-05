@@ -47,7 +47,7 @@ private:
   IDirect3DDevice8 *m_device;
   IDirect3D8 *m_d3d8;
   D3DPRESENT_PARAMETERS m_d3dpp;
-  std::map<GUID, CModel> m_models;
+  map<GUID, CModel> m_models;
   CGrid m_grid;
   GUID m_selectedModelId;
   float mouseSmoothX, mouseSmoothY;
