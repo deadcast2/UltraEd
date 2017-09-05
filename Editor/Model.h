@@ -30,7 +30,6 @@ public:
   void Move(D3DXVECTOR3 position);
   void Scale(D3DXVECTOR3 position);
   void Rotate(FLOAT angle, D3DXVECTOR3 dir);
-  void RotateLocal(FLOAT angle, D3DXVECTOR3 dir);
   GUID GetId();
   D3DXVECTOR3 GetPosition();
   void SetPosition(D3DXVECTOR3 position);

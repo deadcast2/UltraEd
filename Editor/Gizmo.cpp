@@ -250,7 +250,7 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
     }
     else
     {
-      model->RotateLocal(moveDist * modifier, targetDir);
+      model->Rotate(moveDist * modifier, targetDir);
       
       if(!m_worldSpaceToggled)
       {

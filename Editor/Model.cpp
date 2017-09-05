@@ -207,13 +207,6 @@ void CModel::Rotate(FLOAT angle, D3DXVECTOR3 dir)
   m_worldRot *= newWorld;
 }
 
-void CModel::RotateLocal(FLOAT angle, D3DXVECTOR3 dir)
-{
-  D3DXMATRIX newLocal;
-  D3DXMatrixRotationAxis(&newLocal, &dir, angle);
-  m_localRot *= newLocal;
-}
-
 D3DXMATRIX CModel::GetMatrix()
 {
   D3DXMATRIX translation;
@@ -227,7 +220,7 @@ D3DXMATRIX CModel::GetMatrix()
 
 D3DXMATRIX CModel::GetRotationMatrix()
 {  
-  return m_worldRot * m_localRot;
+  return m_worldRot;
 }
 
 void CModel::SetLocalRotationMatrix(D3DXMATRIX mat)
@@ -326,6 +319,17 @@ Savable CModel::Save()
 
   cJSON_AddStringToObject(model, "id", buffer);
 
+  sprintf(buffer, "%f %f %f", m_position.x, m_position.y, m_position.z);
+  cJSON_AddStringToObject(model, "position", buffer);
+
+  sprintf(buffer, "%f %f %f", m_scale.x, m_scale.y, m_scale.z);
+  cJSON_AddStringToObject(model, "scale", buffer);
+
+  D3DXQUATERNION quat;
+  D3DXQuaternionRotationMatrix(&quat, &m_worldRot);
+  sprintf(buffer, "%f %f %f %f", quat.x, quat.y, quat.z, quat.w);
+  cJSON_AddStringToObject(model, "rotation", buffer);
+
   Savable savable = { root, SavableType::Model };
 
   return savable;
@@ -333,6 +337,7 @@ Savable CModel::Save()
 
 bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
 {
+  float x, y, z, w;
   cJSON *id = cJSON_GetObjectItem(root, "id");
   cJSON *resources = cJSON_GetObjectItem(root, "resources");
   cJSON *resource = NULL;
@@ -347,6 +352,18 @@ bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
   {
     m_id = guid;
   }
+
+  cJSON *position = cJSON_GetObjectItem(root, "position");
+  sscanf(position->valuestring, "%f %f %f", &x, &y, &z);
+  m_position = D3DXVECTOR3(x, y, z);
+
+  cJSON *scale = cJSON_GetObjectItem(root, "scale");
+  sscanf(scale->valuestring, "%f %f %f", &x, &y, &z);
+  m_scale = D3DXVECTOR3(x, y, z);
+
+  cJSON *rotation = cJSON_GetObjectItem(root, "rotation");
+  sscanf(rotation->valuestring, "%f %f %f %f", &x, &y, &z, &w);
+  D3DXMatrixRotationQuaternion(&m_worldRot, &D3DXQUATERNION(x, y, z, w));
   
   // Load any vertex or texture data.
   cJSON_ArrayForEach(resource, resources)
