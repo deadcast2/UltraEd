@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "FileIO.h"
+#include "Dialog.h"
 
 CScene::CScene()
 {
@@ -136,59 +137,32 @@ void CScene::OnLoad()
 
 void CScene::OnImportModel() 
 {
-  OPENFILENAME ofn;
-  char szFile[260];
-  
-  ZeroMemory(&ofn, sizeof(ofn));
-  ofn.lStructSize = sizeof(ofn);
-  ofn.hwndOwner = m_hWnd;
-  ofn.lpstrFile = szFile;
-  ofn.lpstrFile[0] = '\0';
-  ofn.nMaxFile = sizeof(szFile);
-  ofn.lpstrFilter = "3D Studio (*.3ds)\0*.3ds\0Autodesk (*.fbx)\0*.fbx\0"
+  string file;
+  if(CDialog::Open("Import Model", 
+    "3D Studio (*.3ds)\0*.3ds\0Autodesk (*.fbx)\0*.fbx\0"
     "Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
-    "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj";
-  ofn.nFilterIndex = 1;
-  ofn.lpstrTitle = "Import Model";
-  ofn.nMaxFileTitle = 0;
-  ofn.lpstrInitialDir = NULL;
-  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-  
-  if(GetOpenFileName(&ofn))
+    "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj", file))
   {
-    CModel model = CModel(ofn.lpstrFile);
+    CModel model = CModel(file.c_str());
     m_models[model.GetId()] = model;
   }
 }
 
 void CScene::OnApplyTexture()
-{
-  OPENFILENAME ofn;
-  char szFile[260];
-  
-  ZeroMemory(&ofn, sizeof(ofn));
-  ofn.lStructSize = sizeof(ofn);
-  ofn.hwndOwner = m_hWnd;
-  ofn.lpstrFile = szFile;
-  ofn.lpstrFile[0] = '\0';
-  ofn.nMaxFile = sizeof(szFile);
-  ofn.lpstrFilter = "BMP (*.bmp)\0*.bmp\0JPEG (*.jpg)\0"
-    "*.jpg\0PNG (*.png)\0*.png\0TGA (*.tga)\0*.tga";
-  ofn.nFilterIndex = 1;
-  ofn.lpstrTitle = "Select a texture";
-  ofn.nMaxFileTitle = 0;
-  ofn.lpstrInitialDir = NULL;
-  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-  
+{ 
+  string file;
+
   if(m_selectedModelId == GUID_NULL)
   {
     MessageBox(m_hWnd, "An object must be selected first.", "Error", MB_OK);
     return;
   }
   
-  if(GetOpenFileName(&ofn))
+  if(CDialog::Open("Select a texture",
+    "BMP (*.bmp)\0*.bmp\0JPEG (*.jpg)\0"
+    "*.jpg\0PNG (*.png)\0*.png\0TGA (*.tga)\0*.tga", file))
   {
-    if(!m_models[m_selectedModelId].LoadTexture(m_device, ofn.lpstrFile))
+    if(!m_models[m_selectedModelId].LoadTexture(m_device, file.c_str()))
     {
       MessageBox(m_hWnd, "Texture could not be loaded.", "Error", MB_OK);
     }

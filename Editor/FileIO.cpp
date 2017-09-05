@@ -3,41 +3,23 @@
 #include "cJSON.h"
 #include "microtar.h"
 #include "fastlz.h"
+#include "Dialog.h"
 #include <shlwapi.h>
 
 bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
-{
-  OPENFILENAME ofn;
-  char szFile[260];
-  
-  ZeroMemory(&ofn, sizeof(ofn));
-  ofn.lStructSize = sizeof(ofn);
-  ofn.hwndOwner = NULL;
-  ofn.lpstrFile = szFile;
-  ofn.lpstrFile[0] = '\0';
-  ofn.nMaxFile = sizeof(szFile);
-  ofn.lpstrFilter = "UltraEd (*.ultra)";
-  ofn.nFilterIndex = 1;
-  ofn.lpstrTitle = "Save Scene";
-  ofn.nMaxFileTitle = 0;
-  ofn.lpstrInitialDir = NULL;
-  ofn.Flags = OFN_OVERWRITEPROMPT;
-  
-  if(GetSaveFileName(&ofn))
+{ 
+  string file;
+
+  if(CDialog::Save("Save Scene", "UltraEd (*.ultra)", file))
   {
-    char *saveName = ofn.lpstrFile;
-
     // Add the extension if not supplied in the dialog.
-    if(strstr(saveName, ".ultra") == NULL)
-    {
-      sprintf(saveName, "%s.ultra", saveName);
-    }
+    if(file.find(".ultra") == string::npos) file.append(".ultra");
 
-    fileName = CleanFileName(saveName);
+    fileName = CleanFileName(file.c_str());
 
     // Prepare tar file for writing.
     mtar_t tar;
-    mtar_open(&tar, saveName, "w");
+    mtar_open(&tar, file.c_str(), "w");
     
     // Write the scene JSON data.
     cJSON *root = cJSON_CreateObject();
@@ -102,7 +84,7 @@ bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
     mtar_finalize(&tar);
     mtar_close(&tar);
 
-    return Compress(saveName);
+    return Compress(file.c_str());
   }
   
   return false;
@@ -110,31 +92,16 @@ bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
 
 bool CFileIO::Load(cJSON **data, string &fileName)
 {
-  OPENFILENAME ofn;
-  char szFile[260];
-  string rootPath = RootPath();
+  string file;
   
-  ZeroMemory(&ofn, sizeof(ofn));
-  ofn.lStructSize = sizeof(ofn);
-  ofn.hwndOwner = NULL;
-  ofn.lpstrFile = szFile;
-  ofn.lpstrFile[0] = '\0';
-  ofn.nMaxFile = sizeof(szFile);
-  ofn.lpstrFilter = "UltraEd (*.ultra)";
-  ofn.nFilterIndex = 1;
-  ofn.lpstrTitle = "Load Scene";
-  ofn.nMaxFileTitle = 0;
-  ofn.lpstrInitialDir = NULL;
-  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-  
-  if(GetOpenFileName(&ofn) && Decompress(&ofn.lpstrFile))
+  if(CDialog::Open("Load Scene", "UltraEd (*.ultra)", file) && Decompress(file))
   {
-    fileName = CleanFileName(ofn.lpstrFile);
+    fileName = CleanFileName(file.c_str());
 
     mtar_t tar;
     mtar_header_t header;
 
-    mtar_open(&tar, ofn.lpstrFile, "r");
+    mtar_open(&tar, file.c_str(), "r");
     mtar_find(&tar, "scene.json", &header);
 
     char *contents = (char*)calloc(1, header.size + 1);
@@ -160,6 +127,7 @@ bool CFileIO::Load(cJSON **data, string &fileName)
         mtar_read_data(&tar, buffer, header.size);
 
         // Format path and write to library.
+        string rootPath = RootPath();
         sprintf(target, "%s\\%s", rootPath.c_str(), fileName);
         FILE *file = fopen(target, "wb");
         fwrite(buffer, 1, header.size, file);
@@ -173,7 +141,7 @@ bool CFileIO::Load(cJSON **data, string &fileName)
 
     mtar_close(&tar);
     free(contents);
-    remove(ofn.lpstrFile);
+    remove(file.c_str());
 
     // Pass the constructed json object out.
     *data = root;
@@ -225,9 +193,9 @@ FileInfo CFileIO::Import(const char *file)
   return info;
 }
 
-bool CFileIO::Compress(const char *path)
+bool CFileIO::Compress(string path)
 {
-  FILE *file = fopen(path, "rb");
+  FILE *file = fopen(path.c_str(), "rb");
   if(file == NULL) return false;
 
   // Get the total size of the file.
@@ -255,7 +223,7 @@ bool CFileIO::Compress(const char *path)
   memcpy(buffer + sizeof(int), compressed, bytesCompressed);
 
   // Write compressed file back out.
-  file = fopen(path, "wb");
+  file = fopen(path.c_str(), "wb");
   if(file == NULL) return false;
   unsigned int bytesWritten = fwrite(buffer, 1, annotatedSize, file);
   if(bytesWritten != annotatedSize) return false;
@@ -268,9 +236,9 @@ bool CFileIO::Compress(const char *path)
   return true;
 }
 
-bool CFileIO::Decompress(char **path)
+bool CFileIO::Decompress(string &path)
 {
-  FILE *file = fopen(*path, "rb");
+  FILE *file = fopen(path.c_str(), "rb");
   if(file == NULL) return false;
 
   // Get the total size of the file.
@@ -296,21 +264,18 @@ bool CFileIO::Decompress(char **path)
   if(bytesDecompressed == 0) return false;
 
   // Create a temp path to extract the scene file.
-  string pathBuffer(*path);
-  string tempName(tmpnam(NULL));
-  pathBuffer.append(tempName.erase(0,1));
+  path.append(tmpnam(NULL));
+  string::size_type pos = path.find_last_of("\\");
+  if(pos != string::npos) path.erase(pos, 1);
 
   // Write decompressed file back out.
-  file = fopen(pathBuffer.c_str(), "wb");
+  file = fopen(path.c_str(), "wb");
   if(file == NULL) return false;
   unsigned int bytesWritten = fwrite(decompressed, 1, bytesDecompressed, file);
   if(bytesWritten != bytesDecompressed) return false;
   fclose(file);
   free(decompressed);
   free(data);
-
-  // Pass the new path out.
-  *path = strdup(pathBuffer.c_str());
 
   return true;
 }

@@ -24,8 +24,8 @@ public:
 
 private:
   CFileIO() {}
-  static bool Compress(const char *path);
-  static bool Decompress(char **path);
+  static bool Compress(string path);
+  static bool Decompress(string &path);
   static string RootPath();
   static string CleanFileName(const char *fileName);
 };

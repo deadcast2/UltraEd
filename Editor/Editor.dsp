@@ -103,6 +103,10 @@ SOURCE=.\Debug.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Dialog.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Editor.cpp
 # End Source File
 # Begin Source File
@@ -164,6 +168,10 @@ SOURCE=.\Common.h
 # Begin Source File
 
 SOURCE=.\Debug.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Dialog.h
 # End Source File
 # Begin Source File
 
