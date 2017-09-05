@@ -5,7 +5,7 @@
 #include "fastlz.h"
 #include <shlwapi.h>
 
-bool CFileIO::Save(std::vector<CSavable*> savables)
+bool CFileIO::Save(std::vector<CSavable*> savables, std::string &fileName)
 {
   OPENFILENAME ofn;
   char szFile[260];
@@ -32,6 +32,8 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
     {
       sprintf(saveName, "%s.ultra", saveName);
     }
+
+    fileName = CleanFileName(saveName);
 
     // Prepare tar file for writing.
     mtar_t tar;
@@ -106,7 +108,7 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
   return false;
 }
 
-bool CFileIO::Load(cJSON **data)
+bool CFileIO::Load(cJSON **data, std::string &fileName)
 {
   OPENFILENAME ofn;
   char szFile[260];
@@ -127,6 +129,8 @@ bool CFileIO::Load(cJSON **data)
   
   if(GetOpenFileName(&ofn) && Decompress(&ofn.lpstrFile))
   {
+    fileName = CleanFileName(ofn.lpstrFile);
+
     mtar_t tar;
     mtar_header_t header;
 
@@ -319,4 +323,12 @@ std::string CFileIO::RootPath()
     pathString = pathString.substr(0, pathString.find_last_of("\\/"));
     pathString.append("\\Library");
     return pathString;
+}
+
+std::string CFileIO::CleanFileName(const char *fileName)
+{
+  std::string cleanedName(PathFindFileName(fileName));
+  std::string::size_type pos = cleanedName.find('.');
+  if(pos != std::string::npos) cleanedName.erase(pos, std::string::npos);
+  return cleanedName;
 }

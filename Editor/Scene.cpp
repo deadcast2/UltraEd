@@ -68,7 +68,7 @@ void CScene::OnNew()
 {
   // Update the window title.
   HWND parentWnd = GetParent(m_hWnd);
-  SetWindowText(parentWnd, "New Scene - UltraEd v0.1");
+  SetWindowText(parentWnd, "New - UltraEd v0.1");
   
   // Delete any selected objects.
   Delete();
@@ -94,13 +94,23 @@ void CScene::OnSave()
     savables.push_back(&it->second);
   }
 
-  CFileIO::Save(savables);
+  std::string savedName;
+  if(CFileIO::Save(savables, savedName))
+  {
+    HWND parentWnd = GetParent(m_hWnd);
+    savedName.append(" - UltraEd v0.1");
+    SetWindowText(parentWnd, savedName.c_str());
+  }
 }
 
 void CScene::OnLoad()
 {
+  // Clear scene.
+  OnNew();
+
   cJSON *root = NULL;
-  if(CFileIO::Load(&root))
+  std::string loadedName;
+  if(CFileIO::Load(&root, loadedName))
   {
     m_camera.Load(m_device, root);
 
@@ -117,6 +127,10 @@ void CScene::OnLoad()
     }
 
     cJSON_Delete(root);
+
+    HWND parentWnd = GetParent(m_hWnd);
+    loadedName.append(" - UltraEd v0.1");
+    SetWindowText(parentWnd, loadedName.c_str());
   }
 }
 
