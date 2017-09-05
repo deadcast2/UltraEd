@@ -199,7 +199,7 @@ FileInfo CFileIO::Import(const char *file)
 
   if(CreateDirectory(rootPath.c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
   {
-    char *target = (char*)malloc(128);
+    char target[MAX_PATH];
     char guidBuffer[40];
     GUID uniqueIdentifier;
     wchar_t guidWide[40];
