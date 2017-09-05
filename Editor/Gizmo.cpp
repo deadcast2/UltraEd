@@ -47,18 +47,18 @@ D3DXVECTOR3 CGizmo::GetModifyVector()
   return D3DXVECTOR3(0, 0, 0);
 }
 
-void CGizmo::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *matrixStack)
+void CGizmo::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
 {
   UpdateScale();
 
   device->SetMaterial(&m_redMaterial);
-  m_models[m_modifierState * 3 + 0].Render(device, matrixStack);
+  m_models[m_modifierState * 3 + 0].Render(device, stack);
 
   device->SetMaterial(&m_greenMaterial);
-  m_models[m_modifierState * 3 + 1].Render(device, matrixStack);
+  m_models[m_modifierState * 3 + 1].Render(device, stack);
 
   device->SetMaterial(&m_blueMaterial);
-  m_models[m_modifierState * 3 + 2].Render(device, matrixStack);
+  m_models[m_modifierState * 3 + 2].Render(device, stack);
 }
 
 void CGizmo::Release()
@@ -69,25 +69,25 @@ void CGizmo::Release()
   }
 }
 
-BOOL CGizmo::Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
+bool CGizmo::Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
 {
   if(m_models[m_modifierState * 3 + 0].Pick(orig, dir))
   {
     m_state = XAxis;
-    return TRUE;
+    return true;
   }
   else if(m_models[m_modifierState * 3 + 1].Pick(orig, dir))
   {
     m_state = YAxis;
-    return TRUE;
+    return true;
   }
   else if(m_models[m_modifierState * 3 + 2].Pick(orig, dir))
   {
     m_state = ZAxis;
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 void CGizmo::SetPosition(D3DXVECTOR3 position)

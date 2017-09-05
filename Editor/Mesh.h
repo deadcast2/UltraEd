@@ -16,7 +16,7 @@ struct MeshVertex
 class CMesh  
 {
 public:
-  CMesh(aiMatrix4x4 transform, aiMesh*);
+  CMesh(aiMatrix4x4 transform, aiMesh *mesh);
   ~CMesh();
   std::vector<MeshVertex> Vertices();
   

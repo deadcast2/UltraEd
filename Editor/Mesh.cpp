@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-CMesh::CMesh(aiMatrix4x4 transform, aiMesh* mesh)
+CMesh::CMesh(aiMatrix4x4 transform, aiMesh *mesh)
 {
   for(int i = 0; i < mesh->mNumFaces; i++)
   {

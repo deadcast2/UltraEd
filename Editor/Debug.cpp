@@ -56,7 +56,7 @@ void CDebug::_DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to)
   Release();
 }
 
-IDirect3DVertexBuffer8* CDebug::GetBuffer(IDirect3DDevice8* device)
+IDirect3DVertexBuffer8 *CDebug::GetBuffer(IDirect3DDevice8 *device)
 {
   if(m_vertexBuffer == NULL)
   {
@@ -70,7 +70,7 @@ IDirect3DVertexBuffer8* CDebug::GetBuffer(IDirect3DDevice8* device)
       return NULL;
     }
     
-    VOID* pVertices;
+    VOID *pVertices;
     if(FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(MeshVertex),
       (BYTE**)&pVertices, 0)))
     {
@@ -84,9 +84,9 @@ IDirect3DVertexBuffer8* CDebug::GetBuffer(IDirect3DDevice8* device)
   return m_vertexBuffer;
 }
 
-void CDebug::Render(IDirect3DDevice8* device)
+void CDebug::Render(IDirect3DDevice8 *device)
 {
-  IDirect3DVertexBuffer8* buffer = GetBuffer(device);
+  IDirect3DVertexBuffer8 *buffer = GetBuffer(device);
   
   if(buffer != NULL)
   {

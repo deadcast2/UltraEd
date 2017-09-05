@@ -24,7 +24,7 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
   
   if(GetSaveFileName(&ofn))
   {
-    char* saveName = ofn.lpstrFile;
+    char *saveName = ofn.lpstrFile;
 
     // Add the extension if not supplied in the dialog.
     if(strstr(saveName, ".ultra") == NULL)
@@ -37,32 +37,32 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
     mtar_open(&tar, saveName, "w");
     
     // Write the scene JSON data.
-    cJSON* root = cJSON_CreateObject();
-    cJSON* array = cJSON_CreateArray();
+    cJSON *root = cJSON_CreateObject();
+    cJSON *array = cJSON_CreateArray();
     cJSON_AddItemToObject(root, "models", array);
 
     std::vector<CSavable*>::iterator it;
     for(it = savables.begin(); it != savables.end(); ++it)
     {
       Savable current = (*it)->Save();
-      cJSON* object = current.object->child;
+      cJSON *object = current.object->child;
 
       // Add array to hold all attached resources.
-      cJSON* resourceArray = cJSON_CreateArray();
+      cJSON *resourceArray = cJSON_CreateArray();
       cJSON_AddItemToObject(object, "resources", resourceArray);
 
       // Rewrite and archive the attached resources.
-      std::map<char*, char*>::iterator rit;
-      std::map<char*, char*> resources = (*it)->GetResources();
+      std::map<std::string, std::string>::iterator rit;
+      std::map<std::string, std::string> resources = (*it)->GetResources();
       for(rit = resources.begin(); rit != resources.end(); rit++)
       {
-        const char* fileName = PathFindFileName(rit->second);
-        FILE* file = fopen(rit->second, "rb");
+        const char *fileName = PathFindFileName(rit->second.c_str());
+        FILE *file = fopen(rit->second.c_str(), "rb");
 
         if(file == NULL) continue;
 
-        cJSON* item = cJSON_CreateObject();
-        cJSON_AddStringToObject(item, rit->first, fileName);
+        cJSON *item = cJSON_CreateObject();
+        cJSON_AddStringToObject(item, rit->first.c_str(), fileName);
         cJSON_AddItemToArray(resourceArray, item);
         
         // Calculate resource length.
@@ -71,7 +71,7 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
         rewind(file);
 
         // Read all contents of resource into a buffer.
-        char* fileContents = (char*)malloc(fileLength);
+        char *fileContents = (char*)malloc(fileLength);
         fread(fileContents, fileLength, 1, file);
 
         // Write the buffer to the tar archive.
@@ -92,7 +92,7 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
       }
     }
 
-    char* rendered = cJSON_Print(root);
+    const char *rendered = cJSON_Print(root);
     cJSON_Delete(root);
 
     mtar_write_file_header(&tar, "scene.json", strlen(rendered));
@@ -107,7 +107,7 @@ bool CFileIO::Save(std::vector<CSavable*> savables)
   return false;
 }
 
-bool CFileIO::Load(cJSON** data)
+bool CFileIO::Load(cJSON **data)
 {
   OPENFILENAME ofn;
   char szFile[260];
@@ -134,31 +134,31 @@ bool CFileIO::Load(cJSON** data)
     mtar_open(&tar, ofn.lpstrFile, "r");
     mtar_find(&tar, "scene.json", &header);
 
-    char* contents = (char*)calloc(1, header.size + 1);
+    char *contents = (char*)calloc(1, header.size + 1);
     mtar_read_data(&tar, contents, header.size);
-    cJSON* root = cJSON_Parse(contents);
+    cJSON *root = cJSON_Parse(contents);
 
     // Iterate through all models.
-    cJSON* models = cJSON_GetObjectItem(root, "models");
-    cJSON* model = NULL;
+    cJSON *models = cJSON_GetObjectItem(root, "models");
+    cJSON *model = NULL;
     cJSON_ArrayForEach(model, models)
     {
       // Locate each packed model resource.
-      cJSON* resources = cJSON_GetObjectItem(model, "resources");
-      cJSON* resource = NULL;
+      cJSON *resources = cJSON_GetObjectItem(model, "resources");
+      cJSON *resource = NULL;
       cJSON_ArrayForEach(resource, resources)
       {
         char target[128];
-        const char* fileName = resource->child->valuestring;
+        const char *fileName = resource->child->valuestring;
 
         // Locate the resource to extract.
         mtar_find(&tar, fileName, &header);
-        char* buffer = (char*)calloc(1, header.size + 1);
+        char *buffer = (char*)calloc(1, header.size + 1);
         mtar_read_data(&tar, buffer, header.size);
 
         // Format path and write to library.
         sprintf(target, "%s\\%s", rootPath.c_str(), fileName);
-        FILE* file = fopen(target, "wb");
+        FILE *file = fopen(target, "wb");
         fwrite(buffer, 1, header.size, file);
         fclose(file);
         free(buffer);
@@ -181,33 +181,36 @@ bool CFileIO::Load(cJSON** data)
   return false;
 }
 
-FileInfo CFileIO::Import(const char* file)
+FileInfo CFileIO::Import(const char *file)
 {
+  FileInfo info;
   std::string rootPath = RootPath();
 
   int digit;
-  const char* name = PathFindFileName(file);
-  bool isGUID = sscanf(name, "%4x%4x-%4x-%4x-%4x-%4x%4x%4x%c",
+  std::string name(PathFindFileName(file));
+  bool isGUID = sscanf(name.c_str(), "%4x%4x-%4x-%4x-%4x-%4x%4x%4x%c",
     &digit, &digit, &digit, &digit, &digit, &digit, &digit, &digit, &digit) == 8;
 
   // When a GUID then must have already been imported so don't re-import.
   if(isGUID)
   {
-    FileInfo info = { strdup(file), User };
+    info.path = file;
+    info.type = User;
     return info;
   }
 
   if(CreateDirectory(rootPath.c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
   {
-    char* target = (char*)malloc(128);
+    char *target = (char*)malloc(128);
     char guidBuffer[40];
     GUID uniqueIdentifier;
     wchar_t guidWide[40];
 
-    const char* assets = "Assets/";
+    const char *assets = "Assets/";
     if(strncmp(file, assets, strlen(assets)) == 0)
     {
-      FileInfo info = { strdup(file), Editor };
+      info.path = file;
+      info.type = Editor;
       return info;
     }
 
@@ -225,18 +228,20 @@ FileInfo CFileIO::Import(const char* file)
 
     if(CopyFile(file, target, FALSE))
     {
-      FileInfo info = { target, User };
+      info.path = target;
+      info.type = User;
       return info;
     }
   }
 
-  FileInfo info = { strdup(file), Unknown };
+  info.path = file;
+  info.type = Unknown;
   return info;
 }
 
-bool CFileIO::Compress(const char* path)
+bool CFileIO::Compress(const char *path)
 {
-  FILE* file = fopen(path, "rb");
+  FILE *file = fopen(path, "rb");
   if(file == NULL) return false;
 
   // Get the total size of the file.
@@ -245,21 +250,21 @@ bool CFileIO::Compress(const char* path)
   rewind(file);
 
   // Read in entire file.
-  char* data = (char*)malloc(size);
+  char *data = (char*)malloc(size);
   if(data == NULL) return false;
   int bytesRead = fread(data, 1, size, file);
   if(bytesRead != size) return false;
   fclose(file);
 
   // Compressed buffer must be at least 5% larger.
-  char* compressed = (char*)malloc(size + (size * 0.05));
+  char *compressed = (char*)malloc(size + (size * 0.05));
   if(compressed == NULL) return false;
   int bytesCompressed = fastlz_compress(data, size, compressed);
   if(bytesCompressed == 0) return false;
 
   // Annotate compressed data with uncompressed size.
   int annotatedSize = bytesCompressed + sizeof(int);
-  char* buffer = (char*)malloc(annotatedSize);
+  char *buffer = (char*)malloc(annotatedSize);
   memcpy(buffer, &size, sizeof(int));
   memcpy(buffer + sizeof(int), compressed, bytesCompressed);
 
@@ -277,9 +282,9 @@ bool CFileIO::Compress(const char* path)
   return true;
 }
 
-bool CFileIO::Decompress(char** path)
+bool CFileIO::Decompress(char **path)
 {
-  FILE* file = fopen(*path, "rb");
+  FILE *file = fopen(*path, "rb");
   if(file == NULL) return false;
 
   // Get the total size of the file.
@@ -288,7 +293,7 @@ bool CFileIO::Decompress(char** path)
   rewind(file);
 
   // Read in entire file.
-  char* data = (char*)malloc(size);
+  char *data = (char*)malloc(size);
   if(data == NULL) return false;
   int bytesRead = fread(data, 1, size, file);
   if(bytesRead != size) return false;
@@ -299,7 +304,7 @@ bool CFileIO::Decompress(char** path)
   memmove(&uncompressedSize, data, sizeof(int));
   memmove(data, data + sizeof(int), size - sizeof(int));
 
-  char* decompressed = (char*)malloc(uncompressedSize);
+  char *decompressed = (char*)malloc(uncompressedSize);
   if(decompressed == NULL) return false;
   int bytesDecompressed = fastlz_decompress(data, size - sizeof(int), decompressed, uncompressedSize);
   if(bytesDecompressed == 0) return false;

@@ -18,9 +18,9 @@ public:
   bool ToggleSpace();
   void Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model);
   void Reset();
-  BOOL Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
+  bool Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
   void Release();
-  void Render(IDirect3DDevice8* device, ID3DXMatrixStack *matrixStack);
+  void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
   
 private:
   void UpdateScale();

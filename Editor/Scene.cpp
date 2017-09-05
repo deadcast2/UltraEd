@@ -29,19 +29,19 @@ CScene::~CScene()
   if(m_d3d8) m_d3d8->Release();
 }
 
-BOOL CScene::Create(HWND windowHandle) 
+bool CScene::Create(HWND windowHandle) 
 {
   m_hWnd = windowHandle;
   
   if((m_d3d8 = Direct3DCreate8(D3D_SDK_VERSION)) == NULL)
   {
-    return FALSE;
+    return false;
   }
   
   D3DDISPLAYMODE d3ddm;
   if(FAILED(m_d3d8->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddm)))
   {
-    return FALSE;
+    return false;
   }
   
   m_d3dpp.Windowed = TRUE;
@@ -53,7 +53,7 @@ BOOL CScene::Create(HWND windowHandle)
   if(FAILED(m_d3d8->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, windowHandle,
     D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device)))
   {
-    return FALSE;
+    return false;
   }
   
   m_gizmo.SetCamera(&m_camera);
@@ -61,7 +61,7 @@ BOOL CScene::Create(HWND windowHandle)
   // Setup the new scene.
   OnNew();
   
-  return TRUE;
+  return true;
 }
 
 void CScene::OnNew()
@@ -101,14 +101,14 @@ void CScene::OnSave()
 
 void CScene::OnLoad()
 {
-  cJSON* root = NULL;
+  cJSON *root = NULL;
   if(CFileIO::Instance().Load(&root))
   {
     m_camera.Load(m_device, root);
 
     // Create saved models.
-    cJSON* models = cJSON_GetObjectItem(root, "models");
-    cJSON* modelItem = NULL;
+    cJSON *models = cJSON_GetObjectItem(root, "models");
+    cJSON *modelItem = NULL;
     cJSON_ArrayForEach(modelItem, models)
     {
       CModel model;
@@ -183,7 +183,7 @@ void CScene::OnApplyTexture()
   }
 }
 
-BOOL CScene::Pick(POINT mousePoint)
+bool CScene::Pick(POINT mousePoint)
 {
   D3DXVECTOR3 orig, dir;
   ScreenRaycast(mousePoint, &orig, &dir);
@@ -196,12 +196,12 @@ BOOL CScene::Pick(POINT mousePoint)
     if(it->second.Pick(orig, dir))
     {
       m_selectedModelId = it->first;
-      return TRUE;
+      return true;
     }
   }
   
   if(!gizmoSelected) m_selectedModelId = GUID_NULL;
-  return FALSE;
+  return false;
 }
 
 void CScene::Render() 
@@ -215,11 +215,11 @@ void CScene::Render()
   
   if(m_device)
   {
-    ID3DXMatrixStack *matrixStack;
-    if(!SUCCEEDED(D3DXCreateMatrixStack(0, &matrixStack))) return;
-    matrixStack->LoadMatrix(&m_camera.GetViewMatrix());
+    ID3DXMatrixStack *stack;
+    if(!SUCCEEDED(D3DXCreateMatrixStack(0, &stack))) return;
+    stack->LoadMatrix(&m_camera.GetViewMatrix());
     
-    m_device->SetTransform(D3DTS_WORLD, matrixStack->GetTop());
+    m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
     m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(90, 90, 90), 1.0f, 0);
     
     if(!SUCCEEDED(m_device->BeginScene())) return;
@@ -239,7 +239,7 @@ void CScene::Render()
     std::map<GUID, CModel>::iterator it;
     for(it = m_models.begin(); it != m_models.end(); it++)
     {      
-      it->second.Render(m_device, matrixStack);
+      it->second.Render(m_device, stack);
     }
     
     // Draw the gizmo.
@@ -247,7 +247,7 @@ void CScene::Render()
     {
       // Draw the gizmo on "top" of all objects in scene.
       m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
-      m_gizmo.Render(m_device, matrixStack);
+      m_gizmo.Render(m_device, stack);
     }
     
     m_device->EndScene();

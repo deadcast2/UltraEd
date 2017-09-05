@@ -7,7 +7,7 @@ enum FileType { Unknown, User, Editor };
 
 typedef struct
 {
-  char* path;
+  std::string path;
   FileType type;
 } FileInfo;
 
@@ -20,12 +20,12 @@ public:
     return instance;
   }
   bool Save(std::vector<CSavable*> savables);
-  bool Load(cJSON** data);
-  FileInfo Import(const char* file);
+  bool Load(cJSON **data);
+  FileInfo Import(const char *file);
 
 private:
-  bool Compress(const char* path);
-  bool Decompress(char** path);
+  bool Compress(const char *path);
+  bool Decompress(char **path);
   std::string RootPath();
 };
 

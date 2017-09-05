@@ -20,7 +20,7 @@ class CScene
 public:
   CScene();
   ~CScene();
-  BOOL Create(HWND windowHandle);
+  bool Create(HWND windowHandle);
   void Delete();
   void Render();
   void Resize(int width, int height);
@@ -30,7 +30,7 @@ public:
   void OnLoad();
   void OnApplyTexture();
   void OnImportModel();
-  BOOL Pick(POINT mousePoint);
+  bool Pick(POINT mousePoint);
   void ReleaseResources(ModelRelease::Value type);
   void CheckInput(float);
   void ScreenRaycast(POINT screenPoint,
@@ -44,8 +44,8 @@ private:
   D3DMATERIAL8 m_defaultMaterial;
   CGizmo m_gizmo;
   CCamera m_camera;
-  IDirect3DDevice8* m_device;
-  IDirect3D8* m_d3d8;
+  IDirect3DDevice8 *m_device;
+  IDirect3D8 *m_d3d8;
   D3DPRESENT_PARAMETERS m_d3dpp;
   std::map<GUID, CModel> m_models;
   CGrid m_grid;

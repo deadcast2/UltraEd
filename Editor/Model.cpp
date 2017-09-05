@@ -6,7 +6,7 @@ CModel::CModel()
   Init();
 }
 
-CModel::CModel(const char* filePath)
+CModel::CModel(const char *filePath)
 {
   Init();
   Import(filePath);
@@ -30,11 +30,11 @@ void CModel::Init()
   D3DXMatrixIdentity(&m_worldRot);
 }
 
-void CModel::Import(const char* filePath)
+void CModel::Import(const char *filePath)
 {
   Assimp::Importer importer;
   FileInfo info = CFileIO::Instance().Import(filePath);
-  const aiScene* scene = importer.ReadFile(info.path,
+  const aiScene *scene = importer.ReadFile(info.path,
     aiProcess_Triangulate | aiProcess_ConvertToLeftHanded |
     aiProcess_OptimizeMeshes);
   
@@ -50,7 +50,7 @@ void CModel::Import(const char* filePath)
   }
 }
 
-void CModel::Process(aiNode* node, const aiScene* scene)
+void CModel::Process(aiNode *node, const aiScene *scene)
 {
   int i;
   
@@ -67,7 +67,7 @@ void CModel::Process(aiNode* node, const aiScene* scene)
   }
 }
 
-IDirect3DVertexBuffer8* CModel::GetBuffer(IDirect3DDevice8* device)
+IDirect3DVertexBuffer8 *CModel::GetBuffer(IDirect3DDevice8 *device)
 {
   if(m_vertexBuffer == NULL)
   {
@@ -81,7 +81,7 @@ IDirect3DVertexBuffer8* CModel::GetBuffer(IDirect3DDevice8* device)
       return NULL;
     }
     
-    VOID* pVertices;
+    VOID *pVertices;
     if(FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(MeshVertex),
       (BYTE**)&pVertices, 0)))
     {
@@ -100,25 +100,25 @@ std::vector<MeshVertex> CModel::GetVertices()
   return m_vertices;
 }
 
-void CModel::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *matrixStack)
+void CModel::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
 {
-  IDirect3DVertexBuffer8* buffer = GetBuffer(device);
+  IDirect3DVertexBuffer8 *buffer = GetBuffer(device);
   
   if(buffer != NULL)
   {
-    matrixStack->Push();
-    matrixStack->MultMatrixLocal(&GetMatrix());
+    stack->Push();
+    stack->MultMatrixLocal(&GetMatrix());
     
     if(m_texture != NULL) device->SetTexture(0, m_texture);
 
-    device->SetTransform(D3DTS_WORLD, matrixStack->GetTop());
+    device->SetTransform(D3DTS_WORLD, stack->GetTop());
     device->SetStreamSource(0, buffer, sizeof(MeshVertex));
     device->SetVertexShader(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1);
     device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, m_vertices.size() / 3);
 
     device->SetTexture(0, NULL);
     
-    matrixStack->Pop();
+    stack->Pop();
   }
 }
 
@@ -235,7 +235,7 @@ void CModel::SetLocalRotationMatrix(D3DXMATRIX mat)
   m_localRot = mat;
 }
 
-BOOL CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
+bool CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
 {
   std::vector<MeshVertex> vertices = GetVertices();
   
@@ -255,16 +255,16 @@ BOOL CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
     // Check if the pick ray passes through this point.
     if(IntersectTriangle(orig, dir, v0, v1, v2))
     {
-      return TRUE;
+      return true;
     }
   }
 
-  return FALSE;
+  return false;
 }
 
-BOOL CModel::IntersectTriangle(const D3DXVECTOR3& orig,
-                               const D3DXVECTOR3& dir, D3DXVECTOR3& v0,
-                               D3DXVECTOR3& v1, D3DXVECTOR3& v2)
+bool CModel::IntersectTriangle(const D3DXVECTOR3 &orig,
+                               const D3DXVECTOR3 &dir, D3DXVECTOR3 &v0,
+                               D3DXVECTOR3 &v1, D3DXVECTOR3 &v2)
 {
   // Find vectors for two edges sharing vert0
   D3DXVECTOR3 edge1 = v1 - v0;
@@ -277,12 +277,12 @@ BOOL CModel::IntersectTriangle(const D3DXVECTOR3& orig,
   // If determinant is near zero, ray lies in plane of triangle.
   FLOAT det = D3DXVec3Dot(&edge1, &pvec);
   
-  if(det < 0.0001f) return FALSE;
+  if(det < 0.0001f) return false;
   
   // Calculate U parameter and test bounds.
   D3DXVECTOR3 tvec = orig - v0;
   FLOAT u = D3DXVec3Dot(&tvec, &pvec);
-  if(u < 0.0f || u > det) return FALSE;
+  if(u < 0.0f || u > det) return false;
   
   // Prepare to test V parameter.
   D3DXVECTOR3 qvec;
@@ -290,25 +290,24 @@ BOOL CModel::IntersectTriangle(const D3DXVECTOR3& orig,
   
   // Calculate V parameter and test bounds.
   FLOAT v = D3DXVec3Dot(&dir, &qvec);
-  if(v < 0.0f || u + v > det) return FALSE;
+  if(v < 0.0f || u + v > det) return false;
   
-  return TRUE;
+  return true;
 }
 
-BOOL CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
+bool CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
 {
   FileInfo info = CFileIO::Instance().Import(filePath);
 
-  if(FAILED(D3DXCreateTextureFromFile(device, info.path, &m_texture)))
+  if(FAILED(D3DXCreateTextureFromFile(device, info.path.c_str(), &m_texture)))
   {
-    free(info.path);
-    return FALSE;
+    return false;
   }
 
   // Save location of texture for scene saving.
   if(info.type == User) resources["textureDataPath"] = info.path;
 
-  return TRUE;
+  return true;
 }
 
 Savable CModel::Save()
@@ -332,11 +331,11 @@ Savable CModel::Save()
   return savable;
 }
 
-bool CModel::Load(IDirect3DDevice8 *device, cJSON* root)
+bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
 {
-  cJSON* id = cJSON_GetObjectItem(root, "id");
-  cJSON* resources = cJSON_GetObjectItem(root, "resources");
-  cJSON* resource = NULL;
+  cJSON *id = cJSON_GetObjectItem(root, "id");
+  cJSON *resources = cJSON_GetObjectItem(root, "resources");
+  cJSON *resource = NULL;
 
   // Set ID to what was saved.
   GUID guid;
@@ -352,7 +351,7 @@ bool CModel::Load(IDirect3DDevice8 *device, cJSON* root)
   // Load any vertex or texture data.
   cJSON_ArrayForEach(resource, resources)
   {
-    const char* path = resource->child->valuestring;
+    const char *path = resource->child->valuestring;
 
     if(strcmp(resource->child->string, "vertexDataPath") == 0)
     {  

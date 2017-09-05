@@ -13,11 +13,12 @@ public:
   CCamera();
   ~CCamera();
   Savable Save();
-  bool Load(IDirect3DDevice8 *device, cJSON* root);
+  bool Load(IDirect3DDevice8 *device, cJSON *root);
   D3DXVECTOR3 GetPosition();
   D3DXVECTOR3 GetForward();
   D3DXVECTOR3 GetRight();
   D3DXVECTOR3 GetUp();
+  D3DXMATRIX GetViewMatrix();
   void Reset();
   void Fly(float units); // up/down
   void Strafe(float units); // left/right
@@ -25,7 +26,6 @@ public:
   void Pitch(float angle); // rotate on right vector
   void Yaw(float angle); // rotate on up vector
   void Roll(float angle); // rotate on look vector
-  D3DXMATRIX GetViewMatrix();
   
 private:
   D3DXVECTOR3 m_right;

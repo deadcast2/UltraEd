@@ -141,7 +141,7 @@ Savable CCamera::Save()
   return savable;
 }
 
-bool CCamera::Load(IDirect3DDevice8 *device, cJSON* root)
+bool CCamera::Load(IDirect3DDevice8 *device, cJSON *root)
 {
   float x, y, z;
   cJSON *camera = cJSON_GetObjectItemCaseSensitive(root, "camera");

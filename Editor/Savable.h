@@ -14,7 +14,7 @@ struct SavableType
 
 typedef struct
 {
-  cJSON* object;
+  cJSON *object;
   SavableType::Value type;
 } Savable;
 
@@ -22,14 +22,14 @@ class CSavable
 {
 public:
   virtual Savable Save() = 0;
-  virtual bool Load(IDirect3DDevice8 *device, cJSON* root) = 0;
-  std::map<char*, char*> GetResources()
+  virtual bool Load(IDirect3DDevice8 *device, cJSON *root) = 0;
+  std::map<std::string, std::string> GetResources()
   {
     return resources;
   };
 
 protected:
-  std::map<char*, char*> resources;
+  std::map<std::string, std::string> resources;
 };
 
 #endif

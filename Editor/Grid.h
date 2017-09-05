@@ -9,12 +9,12 @@ public:
   CGrid();
   ~CGrid();
   void Release();
-  void Render(IDirect3DDevice8*);
+  void Render(IDirect3DDevice8 *device);
   
 private:
   D3DMATERIAL8 m_material;
-  IDirect3DVertexBuffer8* m_vertexBuffer;
-  IDirect3DVertexBuffer8* GetBuffer(IDirect3DDevice8*);
+  IDirect3DVertexBuffer8 *m_vertexBuffer;
+  IDirect3DVertexBuffer8 *GetBuffer(IDirect3DDevice8 *device);
   std::vector<MeshVertex> m_vertices;
 };
 

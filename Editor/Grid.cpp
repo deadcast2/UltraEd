@@ -43,7 +43,7 @@ CGrid::~CGrid()
 { 
 }
 
-IDirect3DVertexBuffer8* CGrid::GetBuffer(IDirect3DDevice8* device)
+IDirect3DVertexBuffer8 *CGrid::GetBuffer(IDirect3DDevice8 *device)
 {
   if(m_vertexBuffer == NULL)
   {
@@ -71,7 +71,7 @@ IDirect3DVertexBuffer8* CGrid::GetBuffer(IDirect3DDevice8* device)
   return m_vertexBuffer;
 }
 
-void CGrid::Render(IDirect3DDevice8* device)
+void CGrid::Render(IDirect3DDevice8 *device)
 {
   IDirect3DVertexBuffer8* buffer = GetBuffer(device);
   
