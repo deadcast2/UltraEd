@@ -94,13 +94,13 @@ void CScene::OnSave()
     savables.push_back(&it->second);
   }
 
-  CFileIO::Instance().Save(savables);
+  CFileIO::Save(savables);
 }
 
 void CScene::OnLoad()
 {
   cJSON *root = NULL;
-  if(CFileIO::Instance().Load(&root))
+  if(CFileIO::Load(&root))
   {
     m_camera.Load(m_device, root);
 

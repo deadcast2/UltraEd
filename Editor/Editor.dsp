@@ -141,6 +141,10 @@ SOURCE=.\Scene.cpp
 
 SOURCE=.\UltraEd.rc
 # End Source File
+# Begin Source File
+
+SOURCE=.\Util.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -200,6 +204,10 @@ SOURCE=.\Savable.h
 # Begin Source File
 
 SOURCE=.\Scene.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Util.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

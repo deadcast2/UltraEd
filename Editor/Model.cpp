@@ -1,5 +1,6 @@
 #include "Model.h"
 #include "FileIO.h"
+#include "Util.h"
 
 CModel::CModel()
 {
@@ -18,9 +19,7 @@ CModel::~CModel()
 
 void CModel::Init()
 {
-  // Assign the model a unique id.
-  CoCreateGuid(&m_id);
-  
+  m_id = CUtil::NewGuid();
   m_vertexBuffer = 0;
   m_texture = 0;
   m_position = D3DXVECTOR3(0, 0, 0);
@@ -33,7 +32,7 @@ void CModel::Init()
 void CModel::Import(const char *filePath)
 {
   Assimp::Importer importer;
-  FileInfo info = CFileIO::Instance().Import(filePath);
+  FileInfo info = CFileIO::Import(filePath);
   const aiScene *scene = importer.ReadFile(info.path,
     aiProcess_Triangulate | aiProcess_ConvertToLeftHanded |
     aiProcess_OptimizeMeshes);
@@ -290,7 +289,7 @@ bool CModel::IntersectTriangle(const D3DXVECTOR3 &orig,
 
 bool CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
 {
-  FileInfo info = CFileIO::Instance().Import(filePath);
+  FileInfo info = CFileIO::Import(filePath);
 
   if(FAILED(D3DXCreateTextureFromFile(device, info.path.c_str(), &m_texture)))
   {
@@ -305,19 +304,13 @@ bool CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
 
 Savable CModel::Save()
 {
-  char buffer[128];
-  wchar_t guidWide[40];
+  char buffer[LINE_FORMAT_LENGTH];
   cJSON *root = cJSON_CreateObject();
   cJSON *model = cJSON_CreateObject();
+
   cJSON_AddItemToObject(root, "model", model);
 
-  // Convert GUID to string.
-  StringFromGUID2(m_id, guidWide, 40);
-  wcstombs(buffer, guidWide, 40);
-  memmove(buffer, buffer + 1, strlen(buffer));
-  buffer[strlen(buffer) - 1] = '\0';
-
-  cJSON_AddStringToObject(model, "id", buffer);
+  cJSON_AddStringToObject(model, "id", CUtil::GuidToString(m_id).c_str());
 
   sprintf(buffer, "%f %f %f", m_position.x, m_position.y, m_position.z);
   cJSON_AddStringToObject(model, "position", buffer);
@@ -342,16 +335,7 @@ bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
   cJSON *resources = cJSON_GetObjectItem(root, "resources");
   cJSON *resource = NULL;
 
-  // Set ID to what was saved.
-  GUID guid;
-  wchar_t wideString[40];
-  std::string guidString(id->valuestring);
-  guidString = guidString.insert(0, "{").append("}");
-  mbstowcs(wideString, guidString.c_str(), 40);
-  if(IIDFromString(wideString, &guid) == S_OK)
-  {
-    m_id = guid;
-  }
+  m_id = CUtil::StringToGuid(id->valuestring);
 
   cJSON *position = cJSON_GetObjectItem(root, "position");
   sscanf(position->valuestring, "%f %f %f", &x, &y, &z);

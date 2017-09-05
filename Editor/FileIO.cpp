@@ -1,4 +1,5 @@
 #include "FileIO.h"
+#include "Util.h"
 #include "cJSON.h"
 #include "microtar.h"
 #include "fastlz.h"
@@ -184,13 +185,8 @@ FileInfo CFileIO::Import(const char *file)
   FileInfo info;
   std::string rootPath = RootPath();
 
-  int digit;
-  std::string name(PathFindFileName(file));
-  bool isGUID = sscanf(name.c_str(), "%4x%4x-%4x-%4x-%4x-%4x%4x%4x%c",
-    &digit, &digit, &digit, &digit, &digit, &digit, &digit, &digit, &digit) == 8;
-
   // When a GUID then must have already been imported so don't re-import.
-  if(isGUID)
+  if(CUtil::StringToGuid(PathFindFileName(file)) != GUID_NULL)
   {
     info.path = file;
     info.type = User;
@@ -200,9 +196,6 @@ FileInfo CFileIO::Import(const char *file)
   if(CreateDirectory(rootPath.c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
   {
     char target[MAX_PATH];
-    char guidBuffer[40];
-    GUID uniqueIdentifier;
-    wchar_t guidWide[40];
 
     const char *assets = "Assets/";
     if(strncmp(file, assets, strlen(assets)) == 0)
@@ -212,17 +205,8 @@ FileInfo CFileIO::Import(const char *file)
       return info;
     }
 
-    // Create a unique identifier and convert to a char array.
-    CoCreateGuid(&uniqueIdentifier);
-    StringFromGUID2(uniqueIdentifier, guidWide, 40);
-    wcstombs(guidBuffer, guidWide, 40);
-
-    // Remove the first and last curly brace from GUID.
-    memmove(guidBuffer, guidBuffer + 1, strlen(guidBuffer));
-    guidBuffer[strlen(guidBuffer) - 1] = '\0';
-
     // Format new imported path.
-    sprintf(target, "%s\\%s", rootPath.c_str(), guidBuffer);
+    sprintf(target, "%s\\%s", rootPath.c_str(), CUtil::GuidToString(CUtil::NewGuid()).c_str());
 
     if(CopyFile(file, target, FALSE))
     {

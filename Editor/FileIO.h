@@ -1,6 +1,8 @@
 #ifndef _FILE_IO_H_
 #define _FILE_IO_H_
 
+#define LINE_FORMAT_LENGTH 128
+
 #include "Scene.h"
 
 enum FileType { Unknown, User, Editor };
@@ -14,19 +16,15 @@ typedef struct
 class CFileIO
 {
 public:
-  static CFileIO& Instance()
-  {
-    static CFileIO instance;
-    return instance;
-  }
-  bool Save(std::vector<CSavable*> savables);
-  bool Load(cJSON **data);
-  FileInfo Import(const char *file);
+  static bool Save(std::vector<CSavable*> savables);
+  static bool Load(cJSON **data);
+  static FileInfo Import(const char *file);
 
 private:
-  bool Compress(const char *path);
-  bool Decompress(char **path);
-  std::string RootPath();
+  CFileIO() {}
+  static bool Compress(const char *path);
+  static bool Decompress(char **path);
+  static std::string RootPath();
 };
 
 #endif
