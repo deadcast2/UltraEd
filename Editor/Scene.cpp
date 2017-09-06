@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "FileIO.h"
 #include "Dialog.h"
+#include "Util.h"
 
 CScene::CScene()
 {
@@ -68,8 +69,7 @@ bool CScene::Create(HWND windowHandle)
 void CScene::OnNew()
 {
   // Update the window title.
-  HWND parentWnd = GetParent(m_hWnd);
-  SetWindowText(parentWnd, "New - UltraEd v0.1");
+  SetTitle("New");
   
   // Delete any selected objects.
   Delete();
@@ -98,9 +98,7 @@ void CScene::OnSave()
   string savedName;
   if(CFileIO::Save(savables, savedName))
   {
-    HWND parentWnd = GetParent(m_hWnd);
-    savedName.append(" - UltraEd v0.1");
-    SetWindowText(parentWnd, savedName.c_str());
+    SetTitle(savedName);
   }
 }
 
@@ -113,6 +111,7 @@ void CScene::OnLoad()
   string loadedName;
   if(CFileIO::Load(&root, loadedName))
   {
+    SetTitle(loadedName);
     m_camera.Load(m_device, root);
 
     // Create saved models.
@@ -128,10 +127,6 @@ void CScene::OnLoad()
     }
 
     cJSON_Delete(root);
-
-    HWND parentWnd = GetParent(m_hWnd);
-    loadedName.append(" - UltraEd v0.1");
-    SetWindowText(parentWnd, loadedName.c_str());
   }
 }
 
@@ -289,10 +284,10 @@ void CScene::CheckInput(float deltaTime)
     if(GetAsyncKeyState('Q')) m_camera.Roll(4.0f * deltaTime);
     if(GetAsyncKeyState('E')) m_camera.Roll(-4.0f * deltaTime);
     
-    mouseSmoothX = Lerp(deltaTime * smoothingModifier, 
+    mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, 
       mouseSmoothX, mousePoint.x - prevMousePoint.x);
     
-    mouseSmoothY = Lerp(deltaTime * smoothingModifier, 
+    mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, 
       mouseSmoothY, mousePoint.y - prevMousePoint.y);
     
     m_camera.Yaw(mouseSmoothX * mouseSpeedModifier * deltaTime);
@@ -300,10 +295,10 @@ void CScene::CheckInput(float deltaTime)
   }
   else if(GetAsyncKeyState(VK_MBUTTON))
   {
-    mouseSmoothX = Lerp(deltaTime * smoothingModifier, 
+    mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, 
       mouseSmoothX, prevMousePoint.x - mousePoint.x);
     
-    mouseSmoothY = Lerp(deltaTime * smoothingModifier, 
+    mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, 
       mouseSmoothY, mousePoint.y - prevMousePoint.y);
     
     m_camera.Strafe(mouseSmoothX * deltaTime);
@@ -386,5 +381,15 @@ void CScene::Delete()
     model.Release(ModelRelease::AllResources);
     m_models.erase(m_selectedModelId);
     m_selectedModelId = GUID_NULL;
+  }
+}
+
+void CScene::SetTitle(string title)
+{
+  HWND parentWnd = GetParent(m_hWnd);
+  if(parentWnd != NULL)
+  {
+    title.append(" - ").append(APP_NAME);
+    SetWindowText(parentWnd, title.c_str());
   }
 }

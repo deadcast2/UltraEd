@@ -10,10 +10,10 @@ bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
 { 
   string file;
 
-  if(CDialog::Save("Save Scene", "UltraEd (*.ultra)", file))
+  if(CDialog::Save("Save Scene", APP_FILE_FILTER, file))
   {
     // Add the extension if not supplied in the dialog.
-    if(file.find(".ultra") == string::npos) file.append(".ultra");
+    if(file.find(APP_FILE_EXT) == string::npos) file.append(APP_FILE_EXT);
 
     fileName = CleanFileName(file.c_str());
 
@@ -94,7 +94,7 @@ bool CFileIO::Load(cJSON **data, string &fileName)
 {
   string file;
   
-  if(CDialog::Open("Load Scene", "UltraEd (*.ultra)", file) && Decompress(file))
+  if(CDialog::Open("Load Scene", APP_FILE_FILTER, file) && Decompress(file))
   {
     fileName = CleanFileName(file.c_str());
 

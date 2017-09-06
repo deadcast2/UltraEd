@@ -11,6 +11,7 @@ using namespace std;
 class CUtil
 {
 public:
+  static float Lerp(float time, float start, float end);
   static GUID NewGuid();
   static GUID StringToGuid(const char *guid);
   static string GuidToString(GUID guid);

@@ -1,5 +1,10 @@
 #include "Util.h"
 
+float CUtil::Lerp(float time, float start, float end)
+{
+  return (1 - time) * start + time * end;
+}
+
 GUID CUtil::NewGuid()
 {
   GUID guid;

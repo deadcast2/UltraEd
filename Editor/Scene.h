@@ -33,10 +33,12 @@ public:
   bool Pick(POINT mousePoint);
   void ReleaseResources(ModelRelease::Value type);
   void CheckInput(float);
-  void ScreenRaycast(POINT screenPoint,
-    D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
+  void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
   void SetGizmoModifier(GizmoModifierState state);
   bool ToggleMovementSpace();
+
+private:
+  void SetTitle(string title);
   
 private:
   HWND m_hWnd;

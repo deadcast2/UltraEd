@@ -19,7 +19,7 @@
 const int windowWidth = 800;
 const int windowHeight = 600;
 const int mouseWaitPeriod = 250; // milliseconds
-const TCHAR szWindowClass[] = _T("UltraEd");
+const TCHAR szWindowClass[] = APP_NAME;
 const TCHAR szTitle[] = _T("Loading");
 
 HWND parentWindow, toolbarWindow, renderWindow;
