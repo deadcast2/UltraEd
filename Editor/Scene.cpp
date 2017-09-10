@@ -169,18 +169,25 @@ bool CScene::Pick(POINT mousePoint)
 {
   D3DXVECTOR3 orig, dir;
   ScreenRaycast(mousePoint, &orig, &dir);
-  BOOL gizmoSelected = m_gizmo.Select(orig, dir);
+  bool gizmoSelected = m_gizmo.Select(orig, dir);
+  float closestDist = FLT_MAX;
+
+  // When just selecting the gizmo don't check any models.
+  if(gizmoSelected) return true;
   
   // Check all models to see which poly might have been picked.
   for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
   {
-    if(it->second.Pick(orig, dir))
+    // Only choose the closest model to the camera.
+    float pickDist = 0;
+    if(it->second.Pick(orig, dir, &pickDist) && pickDist < closestDist)
     {
+      closestDist = pickDist;
       m_selectedModelId = it->first;
-      return true;
     }
   }
-  
+
+  if(closestDist != FLT_MAX) return true;
   if(!gizmoSelected) m_selectedModelId = GUID_NULL;
   return false;
 }

@@ -233,7 +233,7 @@ void CModel::SetLocalRotationMatrix(D3DXMATRIX mat)
   m_localRot = mat;
 }
 
-bool CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
+bool CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist)
 {
   vector<MeshVertex> vertices = GetVertices();
   
@@ -251,7 +251,7 @@ bool CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
     D3DXVec3TransformCoord(&v2, &v2, &GetMatrix());
     
     // Check if the pick ray passes through this point.
-    if(IntersectTriangle(orig, dir, v0, v1, v2))
+    if(IntersectTriangle(orig, dir, v0, v1, v2, dist))
     {
       return true;
     }
@@ -262,7 +262,7 @@ bool CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
 
 bool CModel::IntersectTriangle(const D3DXVECTOR3 &orig,
                                const D3DXVECTOR3 &dir, D3DXVECTOR3 &v0,
-                               D3DXVECTOR3 &v1, D3DXVECTOR3 &v2)
+                               D3DXVECTOR3 &v1, D3DXVECTOR3 &v2, float *dist)
 {
   // Find vectors for two edges sharing vert0
   D3DXVECTOR3 edge1 = v1 - v0;
@@ -273,13 +273,13 @@ bool CModel::IntersectTriangle(const D3DXVECTOR3 &orig,
   D3DXVec3Cross(&pvec, &dir, &edge2);
   
   // If determinant is near zero, ray lies in plane of triangle.
-  FLOAT det = D3DXVec3Dot(&edge1, &pvec);
+  float det = D3DXVec3Dot(&edge1, &pvec);
   
   if(det < 0.0001f) return false;
   
   // Calculate U parameter and test bounds.
   D3DXVECTOR3 tvec = orig - v0;
-  FLOAT u = D3DXVec3Dot(&tvec, &pvec);
+  float u = D3DXVec3Dot(&tvec, &pvec);
   if(u < 0.0f || u > det) return false;
   
   // Prepare to test V parameter.
@@ -287,8 +287,10 @@ bool CModel::IntersectTriangle(const D3DXVECTOR3 &orig,
   D3DXVec3Cross(&qvec, &tvec, &edge1);
   
   // Calculate V parameter and test bounds.
-  FLOAT v = D3DXVec3Dot(&dir, &qvec);
+  float v = D3DXVec3Dot(&dir, &qvec);
   if(v < 0.0f || u + v > det) return false;
+
+  *dist = D3DXVec3Dot(&edge2, &qvec) * (1.0f / det);
   
   return true;
 }

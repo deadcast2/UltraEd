@@ -71,17 +71,19 @@ void CGizmo::Release()
 
 bool CGizmo::Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir)
 {
-  if(m_models[m_modifierState * 3 + 0].Pick(orig, dir))
+  float dist = 0;
+
+  if(m_models[m_modifierState * 3 + 0].Pick(orig, dir, &dist))
   {
     m_state = XAxis;
     return true;
   }
-  else if(m_models[m_modifierState * 3 + 1].Pick(orig, dir))
+  else if(m_models[m_modifierState * 3 + 1].Pick(orig, dir, &dist))
   {
     m_state = YAxis;
     return true;
   }
-  else if(m_models[m_modifierState * 3 + 2].Pick(orig, dir))
+  else if(m_models[m_modifierState * 3 + 2].Pick(orig, dir, &dist))
   {
     m_state = ZAxis;
     return true;

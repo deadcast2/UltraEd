@@ -52,7 +52,7 @@ public:
   void Release(ModelRelease::Value type);
   void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
   vector<MeshVertex> GetVertices();
-  bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
+  bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist);
 
 private:
   void Init();
@@ -64,7 +64,7 @@ private:
   void Process(aiNode *node, const aiScene *scene);
   IDirect3DVertexBuffer8 *GetBuffer(IDirect3DDevice8 *device);
   bool IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir,
-    D3DXVECTOR3 &v0, D3DXVECTOR3 &v1, D3DXVECTOR3 &v2);
+    D3DXVECTOR3 &v0, D3DXVECTOR3 &v1, D3DXVECTOR3 &v2, float *dist);
   vector<MeshVertex> m_vertices;
   D3DXVECTOR3 m_position;
   D3DXVECTOR3 m_scale;
