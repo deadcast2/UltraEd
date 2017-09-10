@@ -31,14 +31,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
   switch(message)
   {
   case WM_KEYDOWN:
-  {
-    switch(LOWORD(wParam))
     {
-    case VK_DELETE:
-      scene.Delete();
-      break;
+      switch(LOWORD(wParam))
+      {
+      case VK_DELETE:
+        scene.Delete();
+        break;
+      }
     }
-  }
   case WM_COMMAND:
     {
       switch(LOWORD(wParam))
@@ -65,6 +65,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case ID_TOOL_APPLYTEXTURE:
         scene.OnApplyTexture();
         break;
+      case ID_RENDER_SOLID:
+        {
+          HMENU menu = GetMenu(hWnd);
+          if(menu != NULL)
+          {
+            bool toggled = scene.ToggleFillMode();
+            CheckMenuItem(menu, wParam, toggled ? MF_CHECKED : MF_UNCHECKED);
+          }
+          break;
+        }
       case ID_MOVEMENT_WORLDSPACE:
         {
           HMENU menu = GetMenu(hWnd);

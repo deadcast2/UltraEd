@@ -64,14 +64,18 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Exit",                        ID_FILE_EXIT
     END
+    POPUP "Space"
+    BEGIN
+        MENUITEM "World",                       ID_MOVEMENT_WORLDSPACE
+        , CHECKED
+    END
+    POPUP "Render"
+    BEGIN
+        MENUITEM "Solid",                       ID_RENDER_SOLID, CHECKED
+    END
     POPUP "Tools"
     BEGIN
         MENUITEM "Apply Texture",               ID_TOOL_APPLYTEXTURE
-    END
-    POPUP "Movement"
-    BEGIN
-        MENUITEM "World Space",                 ID_MOVEMENT_WORLDSPACE
-        , CHECKED
     END
 END
 

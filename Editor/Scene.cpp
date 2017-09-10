@@ -9,6 +9,7 @@ CScene::CScene()
   m_selectedModelId = GUID_NULL;
   m_d3d8 = 0;
   m_device = 0;
+  m_fillMode = D3DFILL_SOLID;
   
   ZeroMemory(&m_defaultMaterial, sizeof(D3DMATERIAL8));
   m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
@@ -207,6 +208,7 @@ void CScene::Render()
     m_device->SetLight(0, &m_worldLight);
     m_device->LightEnable(0, TRUE);
     m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
+    m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
     
     // Draw the grid.
     m_grid.Render(m_device);
@@ -360,6 +362,18 @@ void CScene::SetGizmoModifier(GizmoModifierState state)
 bool CScene::ToggleMovementSpace()
 {
   return m_gizmo.ToggleSpace();
+}
+
+bool CScene::ToggleFillMode()
+{
+  if(m_fillMode == D3DFILL_SOLID)
+  {
+    m_fillMode = D3DFILL_WIREFRAME;
+    return false;
+  }
+
+  m_fillMode = D3DFILL_SOLID;
+  return true;
 }
 
 void CScene::ReleaseResources(ModelRelease::Value type)

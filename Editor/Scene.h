@@ -36,6 +36,7 @@ public:
   void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
   void SetGizmoModifier(GizmoModifierState state);
   bool ToggleMovementSpace();
+  bool ToggleFillMode();
 
 private:
   void SetTitle(string title);
@@ -44,6 +45,7 @@ private:
   HWND m_hWnd;
   D3DLIGHT8 m_worldLight;
   D3DMATERIAL8 m_defaultMaterial;
+  D3DFILLMODE m_fillMode;
   CGizmo m_gizmo;
   CCamera m_camera;
   IDirect3DDevice8 *m_device;
