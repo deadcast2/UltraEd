@@ -398,6 +398,20 @@ void CScene::Delete()
   }
 }
 
+void CScene::Duplicate()
+{
+  if(m_selectedModelId != GUID_NULL)
+  {
+    CModel model = m_models[m_selectedModelId];
+
+    // Copy texture if present on model.
+    string tex = model.GetResources()["textureDataPath"];
+    model.LoadTexture(m_device, tex.c_str());
+
+    m_models[model.GetId()] = model;
+  }
+}
+
 void CScene::SetTitle(string title)
 {
   HWND parentWnd = GetParent(m_hWnd);

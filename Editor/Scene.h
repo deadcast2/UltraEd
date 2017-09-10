@@ -22,6 +22,7 @@ public:
   ~CScene();
   bool Create(HWND windowHandle);
   void Delete();
+  void Duplicate();
   void Render();
   void Resize(int width, int height);
   void OnMouseWheel(short zDelta);

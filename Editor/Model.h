@@ -22,6 +22,13 @@ class CModel : public CSavable
 public:
   CModel();
   CModel(const char *filePath);
+  CModel(const CModel &model)
+  {
+    *this = model;
+    m_vertexBuffer = 0;
+    m_texture = 0;
+    ResetId();
+  }
   ~CModel();
   Savable Save();
   bool Load(IDirect3DDevice8 *device, cJSON *root);
@@ -33,6 +40,7 @@ public:
   void Scale(D3DXVECTOR3 position);
   void Rotate(FLOAT angle, D3DXVECTOR3 dir);
   GUID GetId();
+  void ResetId();
   D3DXVECTOR3 GetPosition();
   void SetPosition(D3DXVECTOR3 position);
   void SetRotation(D3DXVECTOR3 rotation);

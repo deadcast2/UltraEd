@@ -19,7 +19,8 @@ CModel::~CModel()
 
 void CModel::Init()
 {
-  m_id = CUtil::NewGuid();
+  ResetId();
+
   m_vertexBuffer = 0;
   m_texture = 0;
   m_position = D3DXVECTOR3(0, 0, 0);
@@ -141,6 +142,11 @@ void CModel::Release(ModelRelease::Value type)
 GUID CModel::GetId()
 {
   return m_id;
+}
+
+void CModel::ResetId()
+{
+  m_id = CUtil::NewGuid();
 }
 
 D3DXVECTOR3 CModel::GetPosition()

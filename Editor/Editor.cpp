@@ -15,6 +15,7 @@
 #define IDM_TOOLBAR_ROTATE 5001
 #define IDM_TOOLBAR_SCALE 5002
 #define IDM_MENU_DELETE_OBJECT 9001
+#define IDM_MENU_DUPLICATE_OBJECT 9002
 
 const int windowWidth = 800;
 const int windowHeight = 600;
@@ -97,6 +98,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case IDM_MENU_DELETE_OBJECT:
         scene.Delete();
         break;
+      case IDM_MENU_DUPLICATE_OBJECT:
+        scene.Duplicate();
+        break;
       }
       break;
     }
@@ -127,7 +131,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
           ClientToScreen(hWnd, &point);
           HMENU menu = CreatePopupMenu();
-          AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete Object"));
+          AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete"));
+          AppendMenu(menu, MF_STRING, IDM_MENU_DUPLICATE_OBJECT, _T("Duplicate"));
           TrackPopupMenu(menu, TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
           DestroyMenu(menu);
         }
