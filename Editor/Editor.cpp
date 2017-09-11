@@ -38,6 +38,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case VK_DELETE:
         scene.Delete();
         break;
+      case 'D':
+        if(GetKeyState(VK_CONTROL) & 0x8000) scene.Duplicate();
+        break;
       }
     }
   case WM_COMMAND:
