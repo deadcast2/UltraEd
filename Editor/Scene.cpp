@@ -16,6 +16,12 @@ CScene::CScene()
   m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
   m_defaultMaterial.Diffuse.b = m_defaultMaterial.Ambient.b = 1.0f;
   m_defaultMaterial.Diffuse.a = m_defaultMaterial.Ambient.a = 1.0f;
+
+  ZeroMemory(&m_selectedMaterial, sizeof(D3DMATERIAL8));
+  m_selectedMaterial.Ambient.r = m_selectedMaterial.Emissive.r = 0.0f;
+  m_selectedMaterial.Ambient.g = m_selectedMaterial.Emissive.g = 1.0f;
+  m_selectedMaterial.Ambient.b = m_selectedMaterial.Emissive.b = 0.0f;
+  m_selectedMaterial.Ambient.a = m_selectedMaterial.Emissive.a = 1.0f;
   
   ZeroMemory(&m_worldLight, sizeof(D3DLIGHT8));
   m_worldLight.Type = D3DLIGHT_DIRECTIONAL;
@@ -226,17 +232,21 @@ void CScene::Render()
     m_device->SetMaterial(&m_defaultMaterial);
     m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
     for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
-    {      
+    {
       it->second.Render(m_device, stack);
     }
-    m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
     
-    // Draw the gizmo.
     if(m_selectedModelId != GUID_NULL)
     {
       // Draw the gizmo on "top" of all objects in scene.
+      m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
       m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
       m_gizmo.Render(m_device, stack);
+
+      // Highlight the selected model.
+      m_device->SetMaterial(&m_selectedMaterial);
+      m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+      m_models[m_selectedModelId].Render(m_device, stack);
     }
     
     m_device->EndScene();
