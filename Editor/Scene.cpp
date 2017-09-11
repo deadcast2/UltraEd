@@ -215,7 +215,6 @@ void CScene::Render()
     m_device->SetLight(0, &m_worldLight);
     m_device->LightEnable(0, TRUE);
     m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
-    m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
     
     // Draw the grid.
     m_grid.Render(m_device);
@@ -223,13 +222,14 @@ void CScene::Render()
     // Draw any debug lines.
     CDebug::Instance().Render(m_device);
     
+    // Render all models with selected fill mode.
     m_device->SetMaterial(&m_defaultMaterial);
-    
-    // Render all models.
+    m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
     for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
     {      
       it->second.Render(m_device, stack);
     }
+    m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
     
     // Draw the gizmo.
     if(m_selectedModelId != GUID_NULL)
