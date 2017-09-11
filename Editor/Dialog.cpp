@@ -12,7 +12,7 @@ bool CDialog::Open(const char *title, const char *filter, string &file)
   ofn.lpstrFile = szFile;
   ofn.lpstrFile[0] = '\0';
   ofn.nMaxFile = sizeof(szFile);
-  ofn.lpstrFilter = filter;;
+  ofn.lpstrFilter = filter;
   ofn.nFilterIndex = 1;
   ofn.lpstrTitle = title;
   ofn.nMaxFileTitle = 0;
