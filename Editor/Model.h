@@ -22,13 +22,7 @@ class CModel : public CSavable
 public:
   CModel();
   CModel(const char *filePath);
-  CModel(const CModel &model)
-  {
-    *this = model;
-    m_vertexBuffer = 0;
-    m_texture = 0;
-    ResetId();
-  }
+  CModel(const CModel &model);
   ~CModel();
   Savable Save();
   bool Load(IDirect3DDevice8 *device, cJSON *root);

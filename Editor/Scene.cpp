@@ -77,16 +77,8 @@ void CScene::OnNew()
 {
   // Update the window title.
   SetTitle("New");
-  
-  // Delete any selected objects.
-  Delete();
-  
-  // Release all models.
-  for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
-  {
-    it->second.Release(ModelRelease::AllResources);
-  }
-  
+  m_selectedModelId = GUID_NULL;
+  ReleaseResources(ModelRelease::AllResources);
   m_models.clear();
   m_camera.Reset();
 }
@@ -408,8 +400,7 @@ void CScene::Delete()
 {
   if(m_selectedModelId != GUID_NULL)
   {
-    CModel model = m_models[m_selectedModelId];
-    model.Release(ModelRelease::AllResources);
+    m_models[m_selectedModelId].Release(ModelRelease::AllResources);
     m_models.erase(m_selectedModelId);
     m_selectedModelId = GUID_NULL;
   }

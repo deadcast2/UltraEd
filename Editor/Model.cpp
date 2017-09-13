@@ -7,6 +7,14 @@ CModel::CModel()
   Init();
 }
 
+CModel::CModel(const CModel &model)
+{
+  *this = model;
+  m_vertexBuffer = 0;
+  m_texture = 0;
+  ResetId();
+}
+
 CModel::CModel(const char *filePath)
 {
   Init();
@@ -20,12 +28,12 @@ CModel::~CModel()
 void CModel::Init()
 {
   ResetId();
-
+  
   m_vertexBuffer = 0;
   m_texture = 0;
   m_position = D3DXVECTOR3(0, 0, 0);
   m_scale = D3DXVECTOR3(1, 1, 1);
-
+  
   D3DXMatrixIdentity(&m_localRot);
   D3DXMatrixIdentity(&m_worldRot);
 }
@@ -43,7 +51,7 @@ void CModel::Import(const char *filePath)
   {
     resources["vertexDataPath"] = info.path;
   }
-
+  
   if(scene)
   {
     Process(scene->mRootNode, scene);
@@ -110,12 +118,12 @@ void CModel::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
     stack->MultMatrixLocal(&GetMatrix());
     
     if(m_texture != NULL) device->SetTexture(0, m_texture);
-
+    
     device->SetTransform(D3DTS_WORLD, stack->GetTop());
     device->SetStreamSource(0, buffer, sizeof(MeshVertex));
     device->SetVertexShader(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1);
     device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, m_vertices.size() / 3);
-
+    
     device->SetTexture(0, NULL);
     
     stack->Pop();
@@ -129,9 +137,9 @@ void CModel::Release(ModelRelease::Value type)
     m_vertexBuffer->Release();
     m_vertexBuffer = 0;
   }
-
+  
   if(type == ModelRelease::VertexBufferOnly) return;
-
+  
   if(m_texture != NULL)
   {
     m_texture->Release();
@@ -256,7 +264,7 @@ bool CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist)
       return true;
     }
   }
-
+  
   return false;
 }
 
@@ -289,7 +297,7 @@ bool CModel::IntersectTriangle(const D3DXVECTOR3 &orig,
   // Calculate V parameter and test bounds.
   float v = D3DXVec3Dot(&dir, &qvec);
   if(v < 0.0f || u + v > det) return false;
-
+  
   *dist = D3DXVec3Dot(&edge2, &qvec) * (1.0f / det);
   
   return true;
@@ -298,15 +306,15 @@ bool CModel::IntersectTriangle(const D3DXVECTOR3 &orig,
 bool CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
 {
   FileInfo info = CFileIO::Import(filePath);
-
+  
   if(FAILED(D3DXCreateTextureFromFile(device, info.path.c_str(), &m_texture)))
   {
     return false;
   }
-
+  
   // Save location of texture for scene saving.
   if(info.type == User) resources["textureDataPath"] = info.path;
-
+  
   return true;
 }
 
@@ -315,24 +323,24 @@ Savable CModel::Save()
   char buffer[LINE_FORMAT_LENGTH];
   cJSON *root = cJSON_CreateObject();
   cJSON *model = cJSON_CreateObject();
-
+  
   cJSON_AddItemToObject(root, "model", model);
-
+  
   cJSON_AddStringToObject(model, "id", CUtil::GuidToString(m_id).c_str());
-
+  
   sprintf(buffer, "%f %f %f", m_position.x, m_position.y, m_position.z);
   cJSON_AddStringToObject(model, "position", buffer);
-
+  
   sprintf(buffer, "%f %f %f", m_scale.x, m_scale.y, m_scale.z);
   cJSON_AddStringToObject(model, "scale", buffer);
-
+  
   D3DXQUATERNION quat;
   D3DXQuaternionRotationMatrix(&quat, &m_worldRot);
   sprintf(buffer, "%f %f %f %f", quat.x, quat.y, quat.z, quat.w);
   cJSON_AddStringToObject(model, "rotation", buffer);
-
+  
   Savable savable = { root, SavableType::Model };
-
+  
   return savable;
 }
 
@@ -342,17 +350,17 @@ bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
   cJSON *id = cJSON_GetObjectItem(root, "id");
   cJSON *resources = cJSON_GetObjectItem(root, "resources");
   cJSON *resource = NULL;
-
+  
   m_id = CUtil::StringToGuid(id->valuestring);
-
+  
   cJSON *position = cJSON_GetObjectItem(root, "position");
   sscanf(position->valuestring, "%f %f %f", &x, &y, &z);
   m_position = D3DXVECTOR3(x, y, z);
-
+  
   cJSON *scale = cJSON_GetObjectItem(root, "scale");
   sscanf(scale->valuestring, "%f %f %f", &x, &y, &z);
   m_scale = D3DXVECTOR3(x, y, z);
-
+  
   cJSON *rotation = cJSON_GetObjectItem(root, "rotation");
   sscanf(rotation->valuestring, "%f %f %f %f", &x, &y, &z, &w);
   D3DXMatrixRotationQuaternion(&m_worldRot, &D3DXQUATERNION(x, y, z, w));
@@ -361,7 +369,7 @@ bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
   cJSON_ArrayForEach(resource, resources)
   {
     const char *path = resource->child->valuestring;
-
+    
     if(strcmp(resource->child->string, "vertexDataPath") == 0)
     {  
       Import(path);
@@ -371,6 +379,6 @@ bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
       LoadTexture(device, path);
     }
   }
-
+  
   return true;
 }
