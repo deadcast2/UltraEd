@@ -40,6 +40,7 @@ public:
   void ReleaseResources(ModelRelease::Value type);
   void CheckInput(float);
   void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
+  void SetCameraView(CameraView::Value view);
   void SetGizmoModifier(GizmoModifierState state);
   CCamera *GetActiveCamera();
   bool ToggleMovementSpace();

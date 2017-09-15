@@ -367,6 +367,11 @@ void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *
   D3DXVec3Normalize(dir, &(v2 - v1));
 }
 
+void CScene::SetCameraView(CameraView::Value view)
+{
+  m_activeCameraView = view;
+}
+
 void CScene::SetGizmoModifier(GizmoModifierState state)
 {
   m_gizmo.SetModifier(state);
