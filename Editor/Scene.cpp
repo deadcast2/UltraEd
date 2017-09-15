@@ -389,6 +389,7 @@ void CScene::ReleaseResources(ModelRelease::Value type)
 {
   m_grid.Release();
   m_gizmo.Release();
+  CDebug::Instance().Release();
   
   for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
   {
