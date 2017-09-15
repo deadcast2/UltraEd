@@ -47,10 +47,14 @@ D3DXVECTOR3 CGizmo::GetModifyVector()
   return D3DXVECTOR3(0, 0, 0);
 }
 
-void CGizmo::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
+void CGizmo::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack, CCamera *camera)
 {
-  UpdateScale();
+  // Scale the size of the gizmo based on the camera distance.
+  D3DXVECTOR3 distance = m_models[0].GetPosition() - camera->GetPosition();
+  float length = D3DXVec3Length(&distance) * 0.2f;
+  SetScale(D3DXVECTOR3(length, length, length));
 
+  // Render all gizmo handles.
   device->SetMaterial(&m_redMaterial);
   m_models[m_modifierState * 3 + 0].Render(device, stack);
 
@@ -165,11 +169,11 @@ void CGizmo::SetupRotateHandles()
   m_models[8].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
 }
 
-void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
+void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model, CCamera *camera)
 {
   D3DXVECTOR3 targetDir = D3DXVECTOR3(0, 0, 0);
   D3DXVECTOR3 v0, v1, v2, intersectPoint;
-  D3DXVECTOR3 look = model->GetPosition() - m_camera->GetPosition();
+  D3DXVECTOR3 look = model->GetPosition() - camera->GetPosition();
   D3DXVec3Normalize(&look, &look);
 
   // Store current selected model.
@@ -276,22 +280,6 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model)
 void CGizmo::Reset()
 {
   m_updateStartPoint = D3DXVECTOR3(-999, -999, -999);
-}
-
-void CGizmo::SetCamera(CCamera *camera)
-{
-  m_camera = camera;
-}
-
-void CGizmo::UpdateScale()
-{
-  // Scale the size of the gizmo based on the camera distance.
-  if(m_camera != NULL)
-  {
-    D3DXVECTOR3 distance = m_models[0].GetPosition() - m_camera->GetPosition();
-    FLOAT length = D3DXVec3Length(&distance) * 0.2;
-    SetScale(D3DXVECTOR3(length, length, length));
-  }
 }
 
 bool CGizmo::ToggleSpace()

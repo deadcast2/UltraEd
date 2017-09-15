@@ -65,8 +65,6 @@ bool CScene::Create(HWND windowHandle)
     return false;
   }
   
-  m_gizmo.SetCamera(&m_camera);
-  
   // Setup the new scene.
   OnNew();
   
@@ -80,13 +78,16 @@ void CScene::OnNew()
   m_selectedModelId = GUID_NULL;
   ReleaseResources(ModelRelease::AllResources);
   m_models.clear();
-  m_camera.Reset();
+
+  for(int i = 0; i < 4; i++) m_cameras[i].Reset();
 }
 
 void CScene::OnSave()
 {
   vector<CSavable*> savables;
-  savables.push_back(&m_camera);
+
+  // Save all editor cameras.
+  for(int i = 0; i < 4; i++) savables.push_back(&m_cameras[i]);
 
   // Save all of the models in the scene.
   for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
@@ -111,7 +112,15 @@ void CScene::OnLoad()
   if(CFileIO::Load(&root, loadedName))
   {
     SetTitle(loadedName);
-    m_camera.Load(m_device, root);
+
+    // Restore editor cameras.
+    int count = 0;
+    cJSON *cameras = cJSON_GetObjectItem(root, "cameras");
+    cJSON *cameraItem = NULL;
+    cJSON_ArrayForEach(cameraItem, cameras)
+    {
+      m_cameras[count++].Load(m_device, cameraItem);
+    }
 
     // Create saved models.
     cJSON *models = cJSON_GetObjectItem(root, "models");
@@ -203,7 +212,7 @@ void CScene::Render()
   {
     ID3DXMatrixStack *stack;
     if(!SUCCEEDED(D3DXCreateMatrixStack(0, &stack))) return;
-    stack->LoadMatrix(&m_camera.GetViewMatrix());
+    stack->LoadMatrix(&GetActiveCamera()->GetViewMatrix());
     
     m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
     m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(90, 90, 90), 1.0f, 0);
@@ -233,7 +242,7 @@ void CScene::Render()
       // Draw the gizmo on "top" of all objects in scene.
       m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
       m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
-      m_gizmo.Render(m_device, stack);
+      m_gizmo.Render(m_device, stack, GetActiveCamera());
 
       // Highlight the selected model.
       m_device->SetMaterial(&m_selectedMaterial);
@@ -269,6 +278,7 @@ void CScene::CheckInput(float deltaTime)
   POINT mousePoint;
   GetCursorPos(&mousePoint);
   ScreenToClient(m_hWnd, &mousePoint);
+  CCamera *camera = GetActiveCamera();
   
   static POINT prevMousePoint = mousePoint;
   const float smoothingModifier = 18.0f;
@@ -282,18 +292,18 @@ void CScene::CheckInput(float deltaTime)
   {
     D3DXVECTOR3 rayOrigin, rayDir;
     ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
-    m_gizmo.Update(rayOrigin, rayDir, &m_models[m_selectedModelId]);
+    m_gizmo.Update(rayOrigin, rayDir, &m_models[m_selectedModelId], GetActiveCamera());
   }
   else if(GetAsyncKeyState(VK_RBUTTON))
   {
-    if(GetAsyncKeyState('W')) m_camera.Walk(4.0f * deltaTime);
-    if(GetAsyncKeyState('S')) m_camera.Walk(-4.0f * deltaTime);
+    if(GetAsyncKeyState('W')) camera->Walk(4.0f * deltaTime);
+    if(GetAsyncKeyState('S')) camera->Walk(-4.0f * deltaTime);
     
-    if(GetAsyncKeyState('A')) m_camera.Strafe(-4.0f * deltaTime);
-    if(GetAsyncKeyState('D')) m_camera.Strafe(4.0f * deltaTime);
+    if(GetAsyncKeyState('A')) camera->Strafe(-4.0f * deltaTime);
+    if(GetAsyncKeyState('D')) camera->Strafe(4.0f * deltaTime);
     
-    if(GetAsyncKeyState('Q')) m_camera.Roll(4.0f * deltaTime);
-    if(GetAsyncKeyState('E')) m_camera.Roll(-4.0f * deltaTime);
+    if(GetAsyncKeyState('Q')) camera->Roll(4.0f * deltaTime);
+    if(GetAsyncKeyState('E')) camera->Roll(-4.0f * deltaTime);
     
     mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, 
       mouseSmoothX, mousePoint.x - prevMousePoint.x);
@@ -301,8 +311,8 @@ void CScene::CheckInput(float deltaTime)
     mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, 
       mouseSmoothY, mousePoint.y - prevMousePoint.y);
     
-    m_camera.Yaw(mouseSmoothX * mouseSpeedModifier * deltaTime);
-    m_camera.Pitch(mouseSmoothY * mouseSpeedModifier * deltaTime);
+    camera->Yaw(mouseSmoothX * mouseSpeedModifier * deltaTime);
+    camera->Pitch(mouseSmoothY * mouseSpeedModifier * deltaTime);
   }
   else if(GetAsyncKeyState(VK_MBUTTON))
   {
@@ -312,8 +322,8 @@ void CScene::CheckInput(float deltaTime)
     mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, 
       mouseSmoothY, mousePoint.y - prevMousePoint.y);
     
-    m_camera.Strafe(mouseSmoothX * deltaTime);
-    m_camera.Fly(mouseSmoothY * deltaTime);
+    camera->Strafe(mouseSmoothX * deltaTime);
+    camera->Fly(mouseSmoothY * deltaTime);
   }
   else
   {
@@ -329,11 +339,13 @@ void CScene::CheckInput(float deltaTime)
 
 void CScene::OnMouseWheel(short zDelta) 
 {
-  m_camera.Walk(zDelta * 0.005f);
+  GetActiveCamera()->Walk(zDelta * 0.005f);
 }
 
 void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir)
 {
+  CCamera *camera = GetActiveCamera();
+
   D3DVIEWPORT8 viewport;
   m_device->GetViewport(&viewport);
 
@@ -345,11 +357,11 @@ void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *
 
   D3DXVECTOR3 v1;
   D3DXVECTOR3 start = D3DXVECTOR3(screenPoint.x, screenPoint.y, 0);
-  D3DXVec3Unproject(&v1, &start, &viewport, &matProj, &m_camera.GetViewMatrix(), &matWorld);
+  D3DXVec3Unproject(&v1, &start, &viewport, &matProj, &camera->GetViewMatrix(), &matWorld);
 
   D3DXVECTOR3 v2;
   D3DXVECTOR3 end = D3DXVECTOR3(screenPoint.x, screenPoint.y, 1);
-  D3DXVec3Unproject(&v2, &end, &viewport, &matProj, &m_camera.GetViewMatrix(), &matWorld);
+  D3DXVec3Unproject(&v2, &end, &viewport, &matProj, &camera->GetViewMatrix(), &matWorld);
 
   *origin = v1;
   D3DXVec3Normalize(dir, &(v2 - v1));
@@ -358,6 +370,11 @@ void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *
 void CScene::SetGizmoModifier(GizmoModifierState state)
 {
   m_gizmo.SetModifier(state);
+}
+
+CCamera *CScene::GetActiveCamera()
+{
+  return &m_cameras[m_activeCameraView];
 }
 
 bool CScene::ToggleMovementSpace()

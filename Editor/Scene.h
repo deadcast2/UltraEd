@@ -15,6 +15,11 @@
 #include "Grid.h"
 #include "Model.h"
 
+struct CameraView
+{
+  enum Value { Perspective, Top, Left, Front };
+};
+
 class CScene
 {
 public:
@@ -36,6 +41,7 @@ public:
   void CheckInput(float);
   void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
   void SetGizmoModifier(GizmoModifierState state);
+  CCamera *GetActiveCamera();
   bool ToggleMovementSpace();
   bool ToggleFillMode();
 
@@ -49,7 +55,7 @@ private:
   D3DMATERIAL8 m_selectedMaterial;
   D3DFILLMODE m_fillMode;
   CGizmo m_gizmo;
-  CCamera m_camera;
+  CCamera m_cameras[4];
   IDirect3DDevice8 *m_device;
   IDirect3D8 *m_d3d8;
   D3DPRESENT_PARAMETERS m_d3dpp;
@@ -57,6 +63,7 @@ private:
   CGrid m_grid;
   GUID m_selectedModelId;
   float mouseSmoothX, mouseSmoothY;
+  CameraView::Value m_activeCameraView;
 };
 
 #endif

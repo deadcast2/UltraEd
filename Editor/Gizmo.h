@@ -13,17 +13,15 @@ class CGizmo
 public:
   CGizmo();
   ~CGizmo();
-  void SetCamera(CCamera *camera);
   void SetModifier(GizmoModifierState state);
   bool ToggleSpace();
-  void Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model);
+  void Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model, CCamera *camera);
   void Reset();
   bool Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
   void Release();
-  void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
+  void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack, CCamera *camera);
   
 private:
-  void UpdateScale();
   void SetPosition(D3DXVECTOR3 position);
   void SetScale(D3DXVECTOR3 scale);
   D3DXVECTOR3 GetModifyVector();
@@ -44,7 +42,6 @@ private:
   D3DXVECTOR3 m_xAxisRot;
   D3DXVECTOR3 m_yAxisRot;
   D3DXVECTOR3 m_zAxisRot;
-  CCamera *m_camera;
   bool m_worldSpaceToggled;
 };
 

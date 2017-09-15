@@ -23,8 +23,12 @@ bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
     
     // Write the scene JSON data.
     cJSON *root = cJSON_CreateObject();
-    cJSON *array = cJSON_CreateArray();
-    cJSON_AddItemToObject(root, "models", array);
+
+    cJSON *cameraArray = cJSON_CreateArray();
+    cJSON_AddItemToObject(root, "cameras", cameraArray);
+
+    cJSON *modelArray = cJSON_CreateArray();
+    cJSON_AddItemToObject(root, "models", modelArray);
 
     for(vector<CSavable*>::iterator it = savables.begin(); it != savables.end(); ++it)
     {
@@ -65,13 +69,13 @@ bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
         free(fileContents);
       }
 
-      if(current.type == SavableType::Editor)
+      if(current.type == SavableType::Camera)
       {
-        cJSON_AddItemToObject(root, object->string, object);
+        cJSON_AddItemToArray(cameraArray, object);
       }
       else if(current.type == SavableType::Model)
       {
-        cJSON_AddItemToArray(array, object);
+        cJSON_AddItemToArray(modelArray, object);
       }
     }
 

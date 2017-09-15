@@ -137,28 +137,27 @@ Savable CCamera::Save()
   sprintf(buffer, "%f %f %f", m_up.x, m_up.y, m_up.z);
   cJSON_AddStringToObject(camera, "up", buffer);
 
-  Savable savable = { root, SavableType::Editor };
+  Savable savable = { root, SavableType::Camera };
   return savable;
 }
 
 bool CCamera::Load(IDirect3DDevice8 *device, cJSON *root)
 {
   float x, y, z;
-  cJSON *camera = cJSON_GetObjectItem(root, "camera");
  
-  cJSON *position = cJSON_GetObjectItem(camera, "position");
+  cJSON *position = cJSON_GetObjectItem(root, "position");
   sscanf(position->valuestring, "%f %f %f", &x, &y, &z);
   m_pos = D3DXVECTOR3(x, y, z);
 
-  cJSON *forward = cJSON_GetObjectItem(camera, "forward");
+  cJSON *forward = cJSON_GetObjectItem(root, "forward");
   sscanf(forward->valuestring, "%f %f %f", &x, &y, &z);
   m_forward = D3DXVECTOR3(x, y, z);
 
-  cJSON *right = cJSON_GetObjectItem(camera, "right");
+  cJSON *right = cJSON_GetObjectItem(root, "right");
   sscanf(right->valuestring, "%f %f %f", &x, &y, &z);
   m_right = D3DXVECTOR3(x, y, z);
 
-  cJSON *up = cJSON_GetObjectItem(camera, "up");
+  cJSON *up = cJSON_GetObjectItem(root, "up");
   sscanf(up->valuestring, "%f %f %f", &x, &y, &z);
   m_up = D3DXVECTOR3(x, y, z);
 
