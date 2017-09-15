@@ -334,33 +334,25 @@ void CScene::OnMouseWheel(short zDelta)
 
 void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir)
 {
+  D3DVIEWPORT8 viewport;
+  m_device->GetViewport(&viewport);
+
   D3DXMATRIX matProj;
   m_device->GetTransform(D3DTS_PROJECTION, &matProj);
-  
-  RECT clientRect;
-  GetClientRect(m_hWnd, &clientRect);
-  int width = clientRect.right - clientRect.left;
-  int height = clientRect.bottom - clientRect.top;
-  
-  // Compute the vector of the pick ray in screen space.
-  D3DXVECTOR3 v;
-  v.x = (((2.0f * screenPoint.x) / width) - 1) / matProj._11;
-  v.y = -(((2.0f * screenPoint.y) / height) - 1) / matProj._22;
-  v.z = 1.0f;
-  
-  // Get the camera inverse view matrix.
-  D3DXMATRIX m;
-  D3DXMatrixInverse(&m, NULL, &m_camera.GetViewMatrix());
-  
-  // Transform the screen space pick ray into 3D space.
-  (*dir).x = v.x * m._11 + v.y * m._21 + v.z * m._31;
-  (*dir).y = v.x * m._12 + v.y * m._22 + v.z * m._32;
-  (*dir).z = v.x * m._13 + v.y * m._23 + v.z * m._33;
-  
-  // Center of screen.
-  (*origin).x = m._41;
-  (*origin).y = m._42;
-  (*origin).z = m._43;
+
+  D3DXMATRIX matWorld;
+  D3DXMatrixIdentity(&matWorld);
+
+  D3DXVECTOR3 v1;
+  D3DXVECTOR3 start = D3DXVECTOR3(screenPoint.x, screenPoint.y, 0);
+  D3DXVec3Unproject(&v1, &start, &viewport, &matProj, &m_camera.GetViewMatrix(), &matWorld);
+
+  D3DXVECTOR3 v2;
+  D3DXVECTOR3 end = D3DXVECTOR3(screenPoint.x, screenPoint.y, 1);
+  D3DXVec3Unproject(&v2, &end, &viewport, &matProj, &m_camera.GetViewMatrix(), &matWorld);
+
+  *origin = v1;
+  D3DXVec3Normalize(dir, &(v2 - v1));
 }
 
 void CScene::SetGizmoModifier(GizmoModifierState state)
