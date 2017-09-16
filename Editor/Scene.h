@@ -47,10 +47,10 @@ public:
   bool ToggleFillMode();
 
 private:
+  HWND GetWndHandle();
   void SetTitle(string title);
   
 private:
-  HWND m_hWnd;
   D3DLIGHT8 m_worldLight;
   D3DMATERIAL8 m_defaultMaterial;
   D3DMATERIAL8 m_selectedMaterial;

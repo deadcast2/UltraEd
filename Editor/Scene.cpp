@@ -40,8 +40,6 @@ CScene::~CScene()
 
 bool CScene::Create(HWND windowHandle) 
 {
-  m_hWnd = windowHandle;
-  
   if((m_d3d8 = Direct3DCreate8(D3D_SDK_VERSION)) == NULL)
   {
     return false;
@@ -157,7 +155,7 @@ void CScene::OnApplyTexture()
 
   if(m_selectedModelId == GUID_NULL)
   {
-    MessageBox(m_hWnd, "An object must be selected first.", "Error", MB_OK);
+    MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
     return;
   }
   
@@ -167,7 +165,7 @@ void CScene::OnApplyTexture()
   {
     if(!m_models[m_selectedModelId].LoadTexture(m_device, file.c_str()))
     {
-      MessageBox(m_hWnd, "Texture could not be loaded.", "Error", MB_OK);
+      MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
     }
   }
 }
@@ -277,7 +275,7 @@ void CScene::CheckInput(float deltaTime)
 {
   POINT mousePoint;
   GetCursorPos(&mousePoint);
-  ScreenToClient(m_hWnd, &mousePoint);
+  ScreenToClient(GetWndHandle(), &mousePoint);
   CCamera *camera = GetActiveCamera();
   
   static POINT prevMousePoint = mousePoint;
@@ -435,9 +433,16 @@ void CScene::Duplicate()
   }
 }
 
+HWND CScene::GetWndHandle()
+{
+  D3DDEVICE_CREATION_PARAMETERS params;
+  m_device->GetCreationParameters(&params);
+  return params.hFocusWindow;
+}
+
 void CScene::SetTitle(string title)
 {
-  HWND parentWnd = GetParent(m_hWnd);
+  HWND parentWnd = GetParent(GetWndHandle());
   if(parentWnd != NULL)
   {
     title.append(" - ").append(APP_NAME);
