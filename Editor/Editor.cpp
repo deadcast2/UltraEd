@@ -313,7 +313,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 1;
   }
   
-  MSG msg;
+  MSG msg = {0};
   while(WM_QUIT != msg.message)
   {
     if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
