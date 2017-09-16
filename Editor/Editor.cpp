@@ -165,7 +165,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         // Resize the child windows and the scene.
         MoveWindow(toolbarWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
         MoveWindow(renderWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
-        scene.Resize(LOWORD(lParam), HIWORD(lParam));
+        scene.Resize();
       }
       break;
     }
@@ -303,17 +303,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     MessageBox(NULL, "Could not create render child window.", "Error", NULL);
     return 1;
   }
-  
+
   ShowWindow(renderWindow, nCmdShow);
-  UpdateWindow(renderWindow);
-  
+
   if(!scene.Create(renderWindow))
   {
+    MessageBox(NULL, "Could not create Direct3D device.", "Error", NULL);
     return 1;
   }
-  
-  // Trigger the scene resize calculation.
-  SendMessage(parentWindow, WM_SIZE, 0, MAKELPARAM(windowWidth, windowHeight));
   
   MSG msg;
   while(WM_QUIT != msg.message)

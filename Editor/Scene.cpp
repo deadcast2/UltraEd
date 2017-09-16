@@ -65,6 +65,7 @@ bool CScene::Create(HWND windowHandle)
   
   // Setup the new scene.
   OnNew();
+  Resize();
   
   return true;
 }
@@ -197,6 +198,25 @@ bool CScene::Pick(POINT mousePoint)
   return false;
 }
 
+void CScene::Resize() 
+{
+  RECT rect;
+  GetClientRect(GetWndHandle(), &rect);
+
+  float aspect = (float)rect.right / (float)rect.bottom;
+  float fov = 3.14f / 2.0f;
+  
+  D3DXMATRIX m;
+  D3DXMatrixPerspectiveFovLH(&m, fov, aspect, 0.1f, 1000.0f);
+  
+  if(m_device)
+  {
+    ReleaseResources(ModelRelease::VertexBufferOnly);
+    m_device->Reset(&m_d3dpp);
+    m_device->SetTransform(D3DTS_PROJECTION, &m);
+  }
+}
+
 void CScene::Render() 
 {
   // Calculate the frame rendering speed.
@@ -237,15 +257,15 @@ void CScene::Render()
     
     if(m_selectedModelId != GUID_NULL)
     {
-      // Draw the gizmo on "top" of all objects in scene.
-      m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-      m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
-      m_gizmo.Render(m_device, stack, GetActiveCamera());
-
       // Highlight the selected model.
       m_device->SetMaterial(&m_selectedMaterial);
       m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
       m_models[m_selectedModelId].Render(m_device, stack);
+
+      // Draw the gizmo on "top" of all objects in scene.
+      m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+      m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
+      m_gizmo.Render(m_device, stack, GetActiveCamera());
     }
     
     m_device->EndScene();
@@ -253,22 +273,6 @@ void CScene::Render()
   }
   
   lastTime = currentTime;
-}
-
-void CScene::Resize(int width, int height) 
-{
-  float aspect = (float)width / (float)height;
-  float fov = 3.14f / 2.0f;
-  
-  D3DXMATRIX m;
-  D3DXMatrixPerspectiveFovLH(&m, fov, aspect, 0.1f, 1000.0f);
-  
-  if(m_device)
-  {
-    ReleaseResources(ModelRelease::VertexBufferOnly);
-    m_device->Reset(&m_d3dpp);
-    m_device->SetTransform(D3DTS_PROJECTION, &m);
-  }
 }
 
 void CScene::CheckInput(float deltaTime)
@@ -436,8 +440,11 @@ void CScene::Duplicate()
 HWND CScene::GetWndHandle()
 {
   D3DDEVICE_CREATION_PARAMETERS params;
-  m_device->GetCreationParameters(&params);
-  return params.hFocusWindow;
+  if(m_device && SUCCEEDED(m_device->GetCreationParameters(&params)))
+  {
+    return params.hFocusWindow;
+  }
+  return NULL;
 }
 
 void CScene::SetTitle(string title)

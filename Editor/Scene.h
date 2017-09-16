@@ -29,7 +29,7 @@ public:
   void Delete();
   void Duplicate();
   void Render();
-  void Resize(int width, int height);
+  void Resize();
   void OnMouseWheel(short zDelta);
   void OnNew();
   void OnSave();
