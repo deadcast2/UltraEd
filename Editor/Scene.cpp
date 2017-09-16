@@ -102,13 +102,11 @@ void CScene::OnSave()
 
 void CScene::OnLoad()
 {
-  // Clear scene.
-  OnNew();
-
   cJSON *root = NULL;
   string loadedName;
   if(CFileIO::Load(&root, loadedName))
   {
+    OnNew();
     SetTitle(loadedName);
 
     // Restore editor cameras.
@@ -295,8 +293,8 @@ void CScene::CheckInput(float deltaTime)
   CCamera *camera = GetActiveCamera();
   
   static POINT prevMousePoint = mousePoint;
-  const float smoothingModifier = 18.0f;
-  const float mouseSpeedModifier = 0.5f;
+  const float smoothingModifier = 16.0f;
+  const float mouseSpeedModifier = 0.55f;
   
   if(GetAsyncKeyState('1')) m_gizmo.SetModifier(Translate);
   if(GetAsyncKeyState('2')) m_gizmo.SetModifier(Scale);
