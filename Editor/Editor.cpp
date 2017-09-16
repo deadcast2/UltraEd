@@ -212,6 +212,7 @@ HWND CreateToolbar(HWND hWnd, HINSTANCE hInst)
 
   tbrButtons[3].fsState   = TBSTATE_ENABLED;
   tbrButtons[3].fsStyle   = TBSTYLE_SEP;
+  tbrButtons[3].iBitmap   = 0;
 
   tbrButtons[4].idCommand = IDM_TOOLBAR_VIEW_PERSPECTIVE;
   tbrButtons[4].fsState   = TBSTATE_ENABLED;
