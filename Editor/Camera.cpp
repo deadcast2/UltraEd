@@ -14,7 +14,7 @@ void CCamera::Reset()
   m_right = D3DXVECTOR3(1, 0, 0);
   m_up = D3DXVECTOR3(0, 1, 0);
   m_forward = D3DXVECTOR3(0, 0, 1);
-  m_pos = D3DXVECTOR3(0, 2, -6);
+  m_pos = D3DXVECTOR3(0, 0, 0);
 }
 
 D3DXMATRIX CCamera::GetViewMatrix()

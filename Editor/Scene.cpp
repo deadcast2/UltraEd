@@ -77,8 +77,7 @@ void CScene::OnNew()
   m_selectedModelId = GUID_NULL;
   ReleaseResources(ModelRelease::AllResources);
   m_models.clear();
-
-  for(int i = 0; i < 4; i++) m_cameras[i].Reset();
+  ResetCameras();
 }
 
 void CScene::OnSave()
@@ -200,21 +199,34 @@ bool CScene::Pick(POINT mousePoint)
 
 void CScene::Resize() 
 {
-  RECT rect;
-  GetClientRect(GetWndHandle(), &rect);
-
-  float aspect = (float)rect.right / (float)rect.bottom;
-  float fov = 3.14f / 2.0f;
-  
-  D3DXMATRIX m;
-  D3DXMatrixPerspectiveFovLH(&m, fov, aspect, 0.1f, 1000.0f);
-  
   if(m_device)
   {
     ReleaseResources(ModelRelease::VertexBufferOnly);
     m_device->Reset(&m_d3dpp);
-    m_device->SetTransform(D3DTS_PROJECTION, &m);
+    UpdateViewMatrix();
   }
+}
+
+void CScene::UpdateViewMatrix()
+{
+  D3DXMATRIX viewMat;
+  if(m_activeCameraView == CameraView::Perspective)
+  {
+    RECT rect;
+    GetClientRect(GetWndHandle(), &rect);
+
+    float aspect = (float)rect.right / (float)rect.bottom;
+    float fov = 3.14f / 2.0f;
+  
+    D3DXMatrixPerspectiveFovLH(&viewMat, fov, aspect, 0.1f, 1000.0f);
+  }
+  else
+  {
+    float size = D3DXVec3Length(&GetActiveCamera()->GetPosition());
+    D3DXMatrixOrthoLH(&viewMat, size, size, 0.1f, 1000.0f);
+  }
+
+  m_device->SetTransform(D3DTS_PROJECTION, &viewMat);
 }
 
 void CScene::Render() 
@@ -284,7 +296,7 @@ void CScene::CheckInput(float deltaTime)
   
   static POINT prevMousePoint = mousePoint;
   const float smoothingModifier = 18.0f;
-  const float mouseSpeedModifier = 0.55f;
+  const float mouseSpeedModifier = 0.5f;
   
   if(GetAsyncKeyState('1')) m_gizmo.SetModifier(Translate);
   if(GetAsyncKeyState('2')) m_gizmo.SetModifier(Scale);
@@ -296,7 +308,7 @@ void CScene::CheckInput(float deltaTime)
     ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
     m_gizmo.Update(rayOrigin, rayDir, &m_models[m_selectedModelId], GetActiveCamera());
   }
-  else if(GetAsyncKeyState(VK_RBUTTON))
+  else if(GetAsyncKeyState(VK_RBUTTON) && m_activeCameraView == CameraView::Perspective)
   {
     if(GetAsyncKeyState('W')) camera->Walk(4.0f * deltaTime);
     if(GetAsyncKeyState('S')) camera->Walk(-4.0f * deltaTime);
@@ -342,6 +354,7 @@ void CScene::CheckInput(float deltaTime)
 void CScene::OnMouseWheel(short zDelta) 
 {
   GetActiveCamera()->Walk(zDelta * 0.005f);
+  UpdateViewMatrix();
 }
 
 void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir)
@@ -372,6 +385,7 @@ void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *
 void CScene::SetCameraView(CameraView::Value view)
 {
   m_activeCameraView = view;
+  UpdateViewMatrix();
 }
 
 void CScene::SetGizmoModifier(GizmoModifierState state)
@@ -445,6 +459,33 @@ HWND CScene::GetWndHandle()
     return params.hFocusWindow;
   }
   return NULL;
+}
+
+void CScene::ResetCameras()
+{
+  for(int i = 0; i < 4; i++) 
+  {
+    m_cameras[i].Reset();
+    switch(i)
+    {
+    case CameraView::Perspective:
+      m_cameras[i].Fly(2);
+      m_cameras[i].Walk(-5);
+      break;
+    case CameraView::Top:
+      m_cameras[i].Fly(12);
+      m_cameras[i].Pitch(D3DX_PI / 2);
+      break;
+    case CameraView::Left:
+      m_cameras[i].Yaw(D3DX_PI / 2);
+      m_cameras[i].Walk(-12);
+      break;
+    case CameraView::Front:
+      m_cameras[i].Yaw(D3DX_PI);
+      m_cameras[i].Walk(-12);
+      break;
+    }
+  }
 }
 
 void CScene::SetTitle(string title)

@@ -49,6 +49,8 @@ public:
 private:
   HWND GetWndHandle();
   void SetTitle(string title);
+  void UpdateViewMatrix();
+  void ResetCameras();
   
 private:
   D3DLIGHT8 m_worldLight;
