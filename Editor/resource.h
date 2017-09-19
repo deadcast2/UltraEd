@@ -13,13 +13,14 @@
 #define ID_FILE_SAVESCENE               40006
 #define ID_FILE_LOADSCENE               40007
 #define ID_RENDER_SOLID                 40008
+#define ID_FILE_BUILDROM                40009
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        104
-#define _APS_NEXT_COMMAND_VALUE         40009
+#define _APS_NEXT_COMMAND_VALUE         40010
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

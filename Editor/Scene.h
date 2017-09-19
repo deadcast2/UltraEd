@@ -36,6 +36,7 @@ public:
   void OnLoad();
   void OnApplyTexture();
   void OnImportModel();
+  void OnBuildROM();
   bool Pick(POINT mousePoint);
   void ReleaseResources(ModelRelease::Value type);
   void CheckInput(float);

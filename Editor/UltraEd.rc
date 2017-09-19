@@ -62,6 +62,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Import Model",                ID_FILE_IMPORTMODEL
         MENUITEM SEPARATOR
+        MENUITEM "Build ROM",                   ID_FILE_BUILDROM
+        MENUITEM SEPARATOR
         MENUITEM "Exit",                        ID_FILE_EXIT
     END
     POPUP "Space"

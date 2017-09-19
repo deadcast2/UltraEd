@@ -70,6 +70,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case ID_FILE_IMPORTMODEL:
         scene.OnImportModel();
         break;
+      case ID_FILE_BUILDROM:
+        scene.OnBuildROM();
+        break;
       case ID_TOOL_APPLYTEXTURE:
         scene.OnApplyTexture();
         break;

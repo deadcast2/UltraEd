@@ -147,6 +147,12 @@ void CScene::OnImportModel()
   }
 }
 
+void CScene::OnBuildROM()
+{
+  SetEnvironmentVariable("ROOT", "C:\\n64sdk\\ultra");
+  system("cd ..\\Engine && build.bat");
+}
+
 void CScene::OnApplyTexture()
 { 
   string file;
