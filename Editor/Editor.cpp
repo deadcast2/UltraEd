@@ -31,6 +31,22 @@ HWND parentWindow, toolbarWindow, renderWindow;
 CScene scene;
 DWORD mouseClickTick = 0;
 
+BOOL CALLBACK SettingsProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam) 
+{ 
+  switch (message) 
+  { 
+  case WM_COMMAND: 
+    switch (LOWORD(wParam)) 
+    { 
+    case IDOK: 
+    case IDCANCEL: 
+      EndDialog(hWndDlg, wParam); 
+      return TRUE; 
+    } 
+  } 
+  return FALSE; 
+} 
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   switch(message)
@@ -63,6 +79,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
       case ID_FILE_LOADSCENE:
         scene.OnLoad();
+        break;
+      case ID_FILE_SETTINGS:
+        DialogBox(NULL, MAKEINTRESOURCE(IDD_SETTINGS), hWnd, (DLGPROC)SettingsProc);
         break;
       case ID_FILE_EXIT:
         PostQuitMessage(0);
@@ -212,29 +231,29 @@ HWND CreateToolbar(HWND hWnd, HINSTANCE hInst)
   tbrButtons[2].fsStyle   = TBSTYLE_BUTTON;
   tbrButtons[2].iBitmap   = 2;
   tbrButtons[2].iString   = (INT_PTR)L"Scale";
-
+  
   tbrButtons[3].fsState   = TBSTATE_ENABLED;
   tbrButtons[3].fsStyle   = TBSTYLE_SEP;
   tbrButtons[3].iBitmap   = 0;
-
+  
   tbrButtons[4].idCommand = IDM_TOOLBAR_VIEW_PERSPECTIVE;
   tbrButtons[4].fsState   = TBSTATE_ENABLED;
   tbrButtons[4].fsStyle   = TBSTYLE_BUTTON;
   tbrButtons[4].iBitmap   = 3;
   tbrButtons[4].iString   = (INT_PTR)L"Persp.";
-
+  
   tbrButtons[5].idCommand = IDM_TOOLBAR_VIEW_TOP;
   tbrButtons[5].fsState   = TBSTATE_ENABLED;
   tbrButtons[5].fsStyle   = TBSTYLE_BUTTON;
   tbrButtons[5].iBitmap   = 4;
   tbrButtons[5].iString   = (INT_PTR)L"Top";
-
+  
   tbrButtons[6].idCommand = IDM_TOOLBAR_VIEW_LEFT;
   tbrButtons[6].fsState   = TBSTATE_ENABLED;
   tbrButtons[6].fsStyle   = TBSTYLE_BUTTON;
   tbrButtons[6].iBitmap   = 5;
   tbrButtons[6].iString   = (INT_PTR)L"Left";
-
+  
   tbrButtons[7].idCommand = IDM_TOOLBAR_VIEW_FRONT;
   tbrButtons[7].fsState   = TBSTATE_ENABLED;
   tbrButtons[7].fsStyle   = TBSTYLE_BUTTON;
@@ -294,7 +313,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     MessageBox(NULL, "Could not create toolbar.", "Error", NULL);
     return 1;
   }
-
+  
   ShowWindow(parentWindow, nCmdShow);
   UpdateWindow(parentWindow);
   
@@ -307,9 +326,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     MessageBox(NULL, "Could not create render child window.", "Error", NULL);
     return 1;
   }
-
+  
   ShowWindow(renderWindow, nCmdShow);
-
+  
   if(!scene.Create(renderWindow))
   {
     MessageBox(NULL, "Could not create Direct3D device.", "Error", NULL);
