@@ -6,6 +6,8 @@
 #define IDI_MAIN_ICON                   102
 #define IDB_TOOLBAR                     103
 #define IDD_SETTINGS                    104
+#define IDC_EDIT_N64_SDK_PATH           1000
+#define IDC_BUTTON1                     1001
 #define ID_FILE_IMPORTMODEL             40001
 #define ID_TOOL_APPLYTEXTURE            40002
 #define ID_MOVEMENT_WORLDSPACE          40003
@@ -23,7 +25,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        105
 #define _APS_NEXT_COMMAND_VALUE         40011
-#define _APS_NEXT_CONTROL_VALUE         1000
+#define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

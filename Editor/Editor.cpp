@@ -34,11 +34,47 @@ DWORD mouseClickTick = 0;
 BOOL CALLBACK SettingsProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam) 
 { 
   switch (message) 
-  { 
+  {
+  case WM_INITDIALOG:
+    {
+      HKEY key;
+      if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\UltraEd", 0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS)
+      {
+        char buffer[256];
+        DWORD bufferSize = sizeof(buffer);
+        if(RegQueryValueEx(key, "N64 SDK Path", NULL, NULL, (LPBYTE)buffer, &bufferSize) == ERROR_SUCCESS)
+        {
+          SetDlgItemText(hWndDlg, IDC_EDIT_N64_SDK_PATH, buffer);
+        }
+
+        RegCloseKey(key);
+      }
+    }
+    break;
   case WM_COMMAND: 
     switch (LOWORD(wParam)) 
-    { 
-    case IDOK: 
+    {
+    case IDOK:
+      {
+        HKEY key;
+        if(RegCreateKeyEx(HKEY_LOCAL_MACHINE, "Software\\UltraEd", 0, NULL,
+          REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &key, NULL) == ERROR_SUCCESS)
+        {
+          char buffer[256];
+          HWND edit = GetDlgItem(hWndDlg, IDC_EDIT_N64_SDK_PATH);
+          int length = GetWindowText(edit, buffer, 256);
+          if(RegSetValueEx(key, "N64 SDK Path", 0, REG_SZ, (const BYTE*)buffer, length) != ERROR_SUCCESS)
+          {
+            MessageBox(hWndDlg, "Unable to save path to registry.", "Error", MB_OK);
+          }
+          
+          RegCloseKey(key);
+        }
+        else
+        {
+          MessageBox(hWndDlg, "Unable to create registry key.", "Error", MB_OK);
+        }
+      }
     case IDCANCEL: 
       EndDialog(hWndDlg, wParam); 
       return TRUE; 
