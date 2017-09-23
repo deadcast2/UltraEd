@@ -144,6 +144,10 @@ SOURCE=.\Scene.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Settings.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\UltraEd.rc
 # End Source File
 # Begin Source File
@@ -213,6 +217,10 @@ SOURCE=.\Savable.h
 # Begin Source File
 
 SOURCE=.\Scene.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Settings.h
 # End Source File
 # Begin Source File
 

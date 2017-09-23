@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "Settings.h"
 #include "FileIO.h"
 #include "Dialog.h"
 #include "Util.h"
@@ -149,8 +150,12 @@ void CScene::OnImportModel()
 
 void CScene::OnBuildROM()
 {
-  SetEnvironmentVariable("ROOT", "C:\\n64sdk\\ultra");
-  system("cd ..\\Engine && build.bat");
+  string sdkPath;
+  if(CSettings::Get("N64 SDK Path", sdkPath))
+  {
+    SetEnvironmentVariable("ROOT", sdkPath.c_str());
+    system("cd ..\\Engine && build.bat");
+  }
 }
 
 void CScene::OnApplyTexture()
