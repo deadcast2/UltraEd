@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <tchar.h>
+#include <shlobj.h>
 #include "resource.h"
 #include "Scene.h"
 #include "Settings.h"
@@ -48,6 +49,26 @@ BOOL CALLBACK SettingsProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lPa
   case WM_COMMAND: 
     switch (LOWORD(wParam)) 
     {
+    case IDC_N64_SDK_PATH_BROWSE:
+      {
+        char pathBuffer[MAX_PATH];
+        BROWSEINFO browseInfo = {
+          hWndDlg,
+          NULL,
+          pathBuffer,
+          "Select the N64 SDK folder",
+          0,
+          NULL,
+          0,
+          0
+        };
+        LPITEMIDLIST folderId = SHBrowseForFolder(&browseInfo);
+        if(folderId && SHGetPathFromIDList(folderId, pathBuffer))
+        {
+          SetDlgItemText(hWndDlg, IDC_EDIT_N64_SDK_PATH, pathBuffer);
+        }
+      }
+      break;
     case IDOK:
       {
         char buffer[256];
@@ -55,7 +76,7 @@ BOOL CALLBACK SettingsProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lPa
         GetWindowText(edit, buffer, 256);
         if(!CSettings::Set("N64 SDK Path", buffer))
         {
-          MessageBox(hWndDlg, "Unable to save key to registry.", "Error", MB_OK);
+          MessageBox(hWndDlg, "Unable to save N64 SDK path.", "Error", MB_OK);
         }
       }
     case IDCANCEL: 

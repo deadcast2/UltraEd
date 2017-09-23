@@ -7,7 +7,7 @@
 #define IDB_TOOLBAR                     103
 #define IDD_SETTINGS                    104
 #define IDC_EDIT_N64_SDK_PATH           1000
-#define IDC_BUTTON1                     1001
+#define IDC_N64_SDK_PATH_BROWSE         1001
 #define ID_FILE_IMPORTMODEL             40001
 #define ID_TOOL_APPLYTEXTURE            40002
 #define ID_MOVEMENT_WORLDSPACE          40003
