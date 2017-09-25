@@ -151,7 +151,15 @@ void CScene::OnImportModel()
 
 void CScene::OnBuildROM()
 {
-  CBuild::Start();
+  vector<CModel*> models;
+
+  // Gather all of the models in the scene.
+  for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+  {
+    models.push_back(&it->second);
+  }
+
+  CBuild::Start(models);
 }
 
 void CScene::OnApplyTexture()

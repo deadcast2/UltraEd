@@ -15,6 +15,7 @@ public:
   static GUID NewGuid();
   static GUID StringToGuid(const char *guid);
   static string GuidToString(GUID guid);
+  static string RootPath();
 
 private:
   CUtil() {};

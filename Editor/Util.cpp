@@ -41,3 +41,13 @@ string CUtil::GuidToString(GUID guid)
   return string(guidBuffer);
 }
 
+string CUtil::RootPath()
+{
+    char pathBuffer[MAX_PATH];
+    GetModuleFileName(NULL, pathBuffer, MAX_PATH);
+    string pathString(pathBuffer);
+    pathString = pathString.substr(0, pathString.find_last_of("\\/"));
+    pathString.append("\\Library");
+    return pathString;
+}
+

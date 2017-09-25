@@ -1,7 +1,34 @@
 #include "build.h"
+#include "util.h"
 
-bool CBuild::Start()
+bool CBuild::Start(vector<CModel*> models)
 {
+  for(vector<CModel*>::iterator it = models.begin(); it != models.end(); ++it)
+  {
+    int i = 0;
+    string id = CUtil::GuidToString((*it)->GetId());
+    id.insert(0, CUtil::RootPath().append("\\"));
+    id.append(".rom.sos");
+    FILE *file = fopen(id.c_str(), "w");
+    
+    vector<MeshVertex> vertices = (*it)->GetVertices();
+
+    fprintf(file, "%i\n", vertices.size());
+
+    for(i = 0; i < vertices.size(); i++)
+    {
+      MeshVertex vert = vertices[i];
+      fprintf(file, "%f %f %f %f %f\n", 
+        vert.position.x,
+        vert.position.y,
+        vert.position.z,
+        vert.tu,
+        vert.tv);
+    }
+
+    fclose(file);
+  }
+
   return Compile();
 }
 

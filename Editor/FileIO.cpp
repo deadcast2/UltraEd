@@ -131,7 +131,7 @@ bool CFileIO::Load(cJSON **data, string &fileName)
         mtar_read_data(&tar, buffer, header.size);
 
         // Format path and write to library.
-        string rootPath = RootPath();
+        string rootPath = CUtil::RootPath();
         sprintf(target, "%s\\%s", rootPath.c_str(), fileName);
         FILE *file = fopen(target, "wb");
         fwrite(buffer, 1, header.size, file);
@@ -159,7 +159,7 @@ bool CFileIO::Load(cJSON **data, string &fileName)
 FileInfo CFileIO::Import(const char *file)
 {
   FileInfo info;
-  string rootPath = RootPath();
+  string rootPath = CUtil::RootPath();
 
   // When a GUID then must have already been imported so don't re-import.
   if(CUtil::StringToGuid(PathFindFileName(file)) != GUID_NULL)
@@ -282,16 +282,6 @@ bool CFileIO::Decompress(string &path)
   free(data);
 
   return true;
-}
-
-string CFileIO::RootPath()
-{
-    char pathBuffer[MAX_PATH];
-    GetModuleFileName(NULL, pathBuffer, MAX_PATH);
-    string pathString(pathBuffer);
-    pathString = pathString.substr(0, pathString.find_last_of("\\/"));
-    pathString.append("\\Library");
-    return pathString;
 }
 
 string CFileIO::CleanFileName(const char *fileName)
