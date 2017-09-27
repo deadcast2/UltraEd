@@ -1,3 +1,11 @@
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_SIMD
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#include "stb_image.h"
+#include "stb_image_resize.h"
+#include "stb_image_write.h"
 #include "build.h"
 #include "util.h"
 
@@ -5,11 +13,13 @@ bool CBuild::Start(vector<CModel*> models)
 {
   for(vector<CModel*>::iterator it = models.begin(); it != models.end(); ++it)
   {
+    // Save mesh information.
     int i = 0;
     string id = CUtil::GuidToString((*it)->GetId());
     id.insert(0, CUtil::RootPath().append("\\"));
     id.append(".rom.sos");
     FILE *file = fopen(id.c_str(), "w");
+    if(file == NULL) return false;
     
     vector<MeshVertex> vertices = (*it)->GetVertices();
 
@@ -27,6 +37,27 @@ bool CBuild::Start(vector<CModel*> models)
     }
 
     fclose(file);
+
+    // Save texture data.
+    map<string, string> resources = (*it)->GetResources();
+    if(resources.count("textureDataPath"))
+    {
+      // Load the set texture and resize to required dimensions.
+      string path = resources["textureDataPath"];
+      int width, height, channels;
+      unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+      if(data)
+      {
+        // Force 32 x 32 texture for now.
+        if(stbir_resize_uint8(data, width, height, 0, data, 32, 32, 0, channels))
+        {
+          path.append(".rom.png");
+          stbi_write_png(path.c_str(), 32, 32, 4, data, 0);
+        }
+
+        stbi_image_free(data);
+      }
+    }
   }
 
   return Compile();

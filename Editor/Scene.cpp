@@ -159,7 +159,10 @@ void CScene::OnBuildROM()
     models.push_back(&it->second);
   }
 
-  CBuild::Start(models);
+  if(!CBuild::Start(models))
+  {
+    MessageBox(NULL, "Something went wrong trying to build.", "Error", MB_OK);
+  }
 }
 
 void CScene::OnApplyTexture()
