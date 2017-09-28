@@ -1,7 +1,12 @@
 Debug/
 Release/
 Library/
+Player/Config
+Player/Logs
 *.plg
 *.ncb
 *.aps
 *.opt
+*.out
+*.o
+*.n64

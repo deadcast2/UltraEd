@@ -149,7 +149,7 @@ void CScene::OnImportModel()
   }
 }
 
-void CScene::OnBuildROM()
+void CScene::OnBuildROM(bool run)
 {
   vector<CModel*> models;
 
@@ -159,9 +159,20 @@ void CScene::OnBuildROM()
     models.push_back(&it->second);
   }
 
-  if(!CBuild::Start(models))
+  if(CBuild::Start(models))
   {
-    MessageBox(NULL, "Something went wrong trying to build.", "Error", MB_OK);
+    if(run)
+    {
+      CBuild::Run();
+    }
+    else
+    {
+      MessageBox(NULL, "The ROM has been successfully built!", "Success", MB_OK);
+    }
+  }
+  else
+  {
+    MessageBox(NULL, "The ROM build has failed. Make sure the correct N64 SDK path was specified.", "Error", MB_OK);
   }
 }
 

@@ -16,6 +16,7 @@ class CBuild
 {
 public:
   static bool Start(vector<CModel*> models);
+  static bool Run();
 
 private:
   static bool Compile();
