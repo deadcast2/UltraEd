@@ -51,3 +51,15 @@ string CUtil::RootPath()
     return pathString;
 }
 
+string CUtil::NewResourceName(int count)
+{
+  char alpha = 'A';
+  string name("UER_");
+  for(int i = 0; i < count; i++)
+  {
+    alpha++;
+  }
+  name += alpha;
+  return name;
+}
+
