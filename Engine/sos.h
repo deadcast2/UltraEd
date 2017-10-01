@@ -17,31 +17,21 @@ struct transform {
 };
 
 struct sos_model {
-    struct mesh *meshes;
-    int mesh_count;
-    unsigned short *texture;
-    struct vector3 *position;
-    struct vector3 *rotation;
-    struct vector3 *scale;
-    struct transform transform;
-};
-
-struct vector2 {
-    double x, y;
+  struct mesh *mesh;
+  unsigned short *texture;
+  struct vector3 *position;
+  struct vector3 *rotation;
+  struct vector3 *scale;
+  struct transform transform;
 };
 
 struct vector3 {
-    double x, y, z, s, t;
+  double x, y, z;
 };
 
 struct mesh {
-    struct vector3 *vertices;
-    struct vector2 *uvs;
-    int *indices;
-    int poly_count;
-
-    // What the RSP gets sent.
-    Vtx *processed_vertices;
+  int vertex_count;
+  Vtx *vertices;
 };
 
 #endif
