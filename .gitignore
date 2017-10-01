@@ -3,6 +3,8 @@ Release/
 Library/
 Player/Config
 Player/Logs
+Engine/segments.h
+Engine/spec
 *.plg
 *.ncb
 *.aps
