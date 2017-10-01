@@ -150,6 +150,11 @@ bool CBuild::Start(vector<CModel*> models)
       modelInits.append("SegmentRomEnd");
     }
 
+    // Add transform data.
+    char vectorBuffer[128];
+    D3DXVECTOR3 position = (*it)->GetPosition();
+    sprintf(vectorBuffer, ", %lf, %lf, %lf", position.x, position.y, position.z);
+    modelInits.append(vectorBuffer);
     modelInits.append(");\n");
   }
 

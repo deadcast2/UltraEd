@@ -27,7 +27,8 @@ unsigned short* image_24_to_16(const unsigned char* data,
 }
 
 struct sos_model *load_sos_model(void *data_start, void *data_end,
-                                 void *texture_start, void *texture_end) {
+                                 void *texture_start, void *texture_end,
+                                 double positionX, double positionY, double positionZ) {
   unsigned char data_buffer[200000];
   unsigned char texture_buffer[20000];
   char *line;
@@ -72,9 +73,9 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
     new_model->mesh->vertices[i].v.cn[3] = 0;
   }
 
-  new_model->position->x = 0;
-  new_model->position->y = -1;
-  new_model->position->z = -5;
+  new_model->position->x = positionX;
+  new_model->position->y = positionY;
+  new_model->position->z = -positionZ;
   new_model->scale->x = 0.001;
   new_model->scale->y = 0.001;
   new_model->scale->z = 0.001;
