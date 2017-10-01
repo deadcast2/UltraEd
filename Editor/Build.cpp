@@ -32,10 +32,16 @@ bool CBuild::Start(vector<CModel*> models)
   const char *specIncludeStart = "\nbeginwave"
     "\n\tname \"main\""
     "\n\tinclude \"code\"";
-
   const char *specIncludeEnd = "\nendwave";
 
+  string modelLoadStart("\nvoid _UER_Load() {");
+  const char *modelLoadEnd = "}";
+
+  const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
+  const char *drawEnd = "}";
+
   string specSegments, specIncludes, romSegments;
+  string modelInits, modelDraws;
   int loopCount = 0;
 
   for(vector<CModel*>::iterator it = models.begin(); it != models.end(); ++it)
@@ -74,15 +80,31 @@ bool CBuild::Start(vector<CModel*> models)
     specSegments.append("\"\n\tflags RAW\n\tinclude \"");
     specSegments.append(id);
     specSegments.append("\"\nendseg\n");
+    
     specIncludes.append("\n\tinclude \"");
     specIncludes.append(modelName);
     specIncludes.append("\"");
+    
     romSegments.append("extern u8 _");
     romSegments.append(modelName);
     romSegments.append("SegmentRomStart[];\n");
     romSegments.append("extern u8 _");
     romSegments.append(modelName);
     romSegments.append("SegmentRomEnd[];\n");
+
+    char countBuffer[10];
+    itoa(loopCount-1, countBuffer, 10);
+    modelInits.append("\n\t_UER_Models[");
+    modelInits.append(countBuffer);
+    modelInits.append("] = (struct sos_model*)load_sos_model(_");
+    modelInits.append(modelName);
+    modelInits.append("SegmentRomStart, _");
+    modelInits.append(modelName);
+    modelInits.append("SegmentRomEnd");
+
+    modelDraws.append("\n\tsos_draw(_UER_Models[");
+    modelDraws.append(countBuffer);
+    modelDraws.append("], display_list);\n");
     
     // Save texture data.
     map<string, string> resources = (*it)->GetResources();
@@ -120,8 +142,23 @@ bool CBuild::Start(vector<CModel*> models)
       romSegments.append("extern u8 _");
       romSegments.append(textureName);
       romSegments.append("SegmentRomEnd[];\n");
+
+      modelInits.append(", _");
+      modelInits.append(textureName);
+      modelInits.append("SegmentRomStart, _");
+      modelInits.append(textureName);
+      modelInits.append("SegmentRomEnd");
     }
+
+    modelInits.append(");\n");
   }
+
+  char countBuffer[10];
+  itoa(loopCount, countBuffer, 10);
+  string modelArray("struct sos_model *_UER_Models[");
+  modelArray.append(countBuffer);
+  modelArray.append("];\n");
+  modelLoadStart.insert(0, modelArray);
 
   char buffer[MAX_PATH];
   if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
@@ -142,6 +179,19 @@ bool CBuild::Start(vector<CModel*> models)
     file = fopen(segmentsPath.c_str(), "w");
     if(file == NULL) return false;
     fwrite(romSegments.c_str(), 1, romSegments.size(), file);
+    fclose(file);
+
+    string modelInitsPath(buffer);
+    modelInitsPath.append("\\..\\..\\Engine\\models.h");
+    file = fopen(modelInitsPath.c_str(), "w");
+    if(file == NULL) return false;
+    fwrite(modelLoadStart.c_str(), 1, modelLoadStart.size(), file);
+    fwrite(modelInits.c_str(), 1, modelInits.size(), file);
+    fwrite(modelLoadEnd, 1, strlen(modelLoadEnd), file);
+
+    fwrite(drawStart, 1, strlen(drawStart), file);
+    fwrite(modelDraws.c_str(), 1, modelDraws.size(), file);
+    fwrite(drawEnd, 1, strlen(drawEnd), file);
     fclose(file);
   }
   

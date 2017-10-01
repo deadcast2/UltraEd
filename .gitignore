@@ -4,6 +4,7 @@ Library/
 Player/Config
 Player/Logs
 Engine/segments.h
+Engine/models.h
 Engine/spec
 *.plg
 *.ncb

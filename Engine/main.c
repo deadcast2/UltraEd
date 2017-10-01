@@ -2,6 +2,7 @@
 #include <math.h>
 #include "sos.h"
 #include "segments.h"
+#include "models.h"
 
 #define GFX_GLIST_LEN 2048
 
@@ -10,7 +11,6 @@ Gfx *glistp;
 Gfx gfx_glist[GFX_GLIST_LEN];
 struct transform world;
 u16 perspNormal;
-struct sos_model *models[1];
 
 static Vp viewPort = {
   SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
@@ -81,7 +81,7 @@ void createDisplayList() {
   
   setup_world_matrix(&glistp);
   
-  sos_draw(models[0], &glistp);
+  _UER_Draw(&glistp);
   
   gDPFullSync(glistp++);
   gSPEndDisplayList(glistp++);
@@ -102,28 +102,11 @@ int initHeapMemory() {
   return 0;
 }
 
-void load_models() {
-  models[0] = (struct sos_model*)load_sos_model(
-    _UER_A_MSegmentRomStart, _UER_A_MSegmentRomEnd,
-    _UER_A_TSegmentRomStart, _UER_A_TSegmentRomEnd
-    );
-  
-  models[0]->position->x = 0;
-  models[0]->position->y = -1;
-  models[0]->position->z = -5;
-  models[0]->scale->x = 0.001;
-  models[0]->scale->y = 0.001;
-  models[0]->scale->z = 0.001;
-  models[0]->rotation->x = 0;
-  models[0]->rotation->y = 0;
-  models[0]->rotation->z = 0;
-}
-
 void mainproc() {
   nuGfxInit();
   
   if(initHeapMemory() > -1) {
-    load_models();
+    _UER_Load();
   }
   
   while(1) {

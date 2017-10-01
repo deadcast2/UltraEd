@@ -71,6 +71,16 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
     new_model->mesh->vertices[i].v.cn[2] = 0;
     new_model->mesh->vertices[i].v.cn[3] = 0;
   }
+
+  new_model->position->x = 0;
+  new_model->position->y = -1;
+  new_model->position->z = -5;
+  new_model->scale->x = 0.001;
+  new_model->scale->y = 0.001;
+  new_model->scale->z = 0.001;
+  new_model->rotation->x = 0;
+  new_model->rotation->y = 0;
+  new_model->rotation->z = 0;
   
   // Load in the png texture data.
   png = upng_new_from_bytes(texture_buffer, texture_size);
