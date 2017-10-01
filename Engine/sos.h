@@ -31,7 +31,7 @@ struct vector2 {
 };
 
 struct vector3 {
-    double x, y, z;
+    double x, y, z, s, t;
 };
 
 struct mesh {

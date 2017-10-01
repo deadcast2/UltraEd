@@ -42,38 +42,42 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
     rom_2_ram(texture_start, texture_buffer, texture_size);
 
     // Read how many meshes the model contains.
-    line = (char*)strtok(data_buffer, "\n");
-    sscanf(line, "%i", &mesh_count);
+    //line = (char*)strtok(data_buffer, "\n");
+    //sscanf(line, "%i", &mesh_count);
 
     new_model = (struct sos_model*)malloc(sizeof(struct sos_model));
-    new_model->mesh_count = mesh_count;
-    new_model->meshes = (struct mesh*)malloc(mesh_count * sizeof(struct mesh));
+    new_model->mesh_count = 1;
+    new_model->meshes = (struct mesh*)malloc(1 * sizeof(struct mesh));
     new_model->position = (struct vector3*)malloc(sizeof(struct vector3));
     new_model->rotation = (struct vector3*)malloc(sizeof(struct vector3));
     new_model->scale = (struct vector3*)malloc(sizeof(struct vector3));
 
-    for(i = 0; i < mesh_count; i++) {
+    for(i = 0; i < 1; i++) {
         int vertex_count = 0, uv_count = 0, poly_count = 0;
 
         // Read how many vertices for this mesh.
-        line = (char*)strtok(NULL, "\n");
+        line = (char*)strtok(data_buffer, "\n");
         sscanf(line, "%i", &vertex_count);
         new_model->meshes[i].vertices = (struct vector3*)malloc(vertex_count
                                             * sizeof(struct vector3));
+        new_model->meshes[i].poly_count = vertex_count;
 
         // Gather all of the X, Y, and Z vertex info.
         for(j = 0; j < vertex_count; j++) {
-            double x, y, z;
+            double x, y, z, s, t;
             line = (char*)strtok(NULL, "\n");
-            sscanf(line, "%lf %lf %lf", &x, &y, &z);
+            sscanf(line, "%lf %lf %lf %lf %lf", &x, &y, &z, &s, &t);
 
             new_model->meshes[i].vertices[j].x = x;
             new_model->meshes[i].vertices[j].y = y;
             new_model->meshes[i].vertices[j].z = z;
+            new_model->meshes[i].vertices[j].s = s;
+            // Invert the y coordinate so it's not upside down.
+            new_model->meshes[i].vertices[j].t = 1.0 - t;
         }
 
         // Read how many UVs for the model.
-        line = (char*)strtok(NULL, "\n");
+        /*line = (char*)strtok(NULL, "\n");
         sscanf(line, "%i", &uv_count);
         new_model->meshes[i].uvs = (struct vector2*)malloc(uv_count
                                         * sizeof(struct vector2));
@@ -87,8 +91,9 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
             new_model->meshes[i].uvs[j].x = s;
             // Invert the y coordinate so it's not upside down.
             new_model->meshes[i].uvs[j].y = 1.0 - t;
-        }
+        }*/
 
+        /*
         // Finally read all of the faces to construct.
         line = (char*)strtok(NULL, "\n");
         sscanf(line, "%d", &poly_count);
@@ -104,27 +109,31 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
             new_model->meshes[i].indices[j * 3] = v1;
             new_model->meshes[i].indices[j * 3 + 1] = v2;
             new_model->meshes[i].indices[j * 3 + 2] = v3;
-        }
+        }*/
 
         // Post process the triangle information to get it in
         // a suitable, chunked format for the RSP.
-        new_model->meshes[i].processed_vertices = (Vtx*)malloc(3 * poly_count * sizeof(Vtx));
-        for(j = 0; j < poly_count; j++) {
-            struct vector3 vertex1 = new_model->meshes[i].vertices[new_model->meshes[i].indices[j * 3]];
+        new_model->meshes[i].processed_vertices = (Vtx*)malloc(vertex_count * sizeof(Vtx));
+        for(j = 0; j < vertex_count; j++) {
+            /*struct vector3 vertex1 = new_model->meshes[i].vertices[new_model->meshes[i].indices[j * 3]];
             struct vector3 vertex2 = new_model->meshes[i].vertices[new_model->meshes[i].indices[j * 3 + 1]];
             struct vector3 vertex3 = new_model->meshes[i].vertices[new_model->meshes[i].indices[j * 3 + 2]];
+            */
 
-            new_model->meshes[i].processed_vertices[j * 3].v.ob[0] = vertex1.x * 1000;
-            new_model->meshes[i].processed_vertices[j * 3].v.ob[1] = vertex1.y * 1000;
-            new_model->meshes[i].processed_vertices[j * 3].v.ob[2] = vertex1.z * 1000;
-            new_model->meshes[i].processed_vertices[j * 3].v.flag = 0;
-            new_model->meshes[i].processed_vertices[j * 3].v.tc[0] = (int)(new_model->meshes[i].uvs[j * 3].x*32*2) << 5;
-            new_model->meshes[i].processed_vertices[j * 3].v.tc[1] = (int)(new_model->meshes[i].uvs[j * 3].y*32*2) << 5;
-            new_model->meshes[i].processed_vertices[j * 3].v.cn[0] = 0;
-            new_model->meshes[i].processed_vertices[j * 3].v.cn[1] = 0;
-            new_model->meshes[i].processed_vertices[j * 3].v.cn[2] = 0;
-            new_model->meshes[i].processed_vertices[j * 3].v.cn[3] = 0;
+            struct vector3 vertex = new_model->meshes[i].vertices[j];
 
+            new_model->meshes[i].processed_vertices[j].v.ob[0] = vertex.x * 1000;
+            new_model->meshes[i].processed_vertices[j].v.ob[1] = vertex.y * 1000;
+            new_model->meshes[i].processed_vertices[j].v.ob[2] = vertex.z * 1000;
+            new_model->meshes[i].processed_vertices[j].v.flag = 0;
+            new_model->meshes[i].processed_vertices[j].v.tc[0] = (int)(vertex.s*32*2) << 5;
+            new_model->meshes[i].processed_vertices[j].v.tc[1] = (int)(vertex.t*32*2) << 5;
+            new_model->meshes[i].processed_vertices[j].v.cn[0] = 0;
+            new_model->meshes[i].processed_vertices[j].v.cn[1] = 0;
+            new_model->meshes[i].processed_vertices[j].v.cn[2] = 0;
+            new_model->meshes[i].processed_vertices[j].v.cn[3] = 0;
+
+            /*
             new_model->meshes[i].processed_vertices[j * 3 + 1].v.ob[0] = vertex2.x * 1000;
             new_model->meshes[i].processed_vertices[j * 3 + 1].v.ob[1] = vertex2.y * 1000;
             new_model->meshes[i].processed_vertices[j * 3 + 1].v.ob[2] = vertex2.z * 1000;
@@ -146,6 +155,7 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
             new_model->meshes[i].processed_vertices[j * 3 + 2].v.cn[1] = 0;
             new_model->meshes[i].processed_vertices[j * 3 + 2].v.cn[2] = 0;
             new_model->meshes[i].processed_vertices[j * 3 + 2].v.cn[3] = 0;
+            */
         }
     }
 
@@ -209,8 +219,8 @@ void sos_draw(struct sos_model *model, Gfx **display_list) {
         G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
     // Draw the triangles.
-    for(i = 0; i < model->mesh_count; i++) {
-        int remaining_vertices = model->meshes[i].poly_count * 3;
+    for(i = 0; i < 1; i++) {
+        int remaining_vertices = model->meshes[i].poly_count;
         int offset = 0;
 
         // Send vertex data in batches of 30.

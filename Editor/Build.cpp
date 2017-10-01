@@ -35,7 +35,7 @@ bool CBuild::Start(vector<CModel*> models)
 
   const char *specIncludeEnd = "\nendwave";
 
-  string specSegments, specIncludes;
+  string specSegments, specIncludes, romSegments;
   int loopCount = 0;
 
   for(vector<CModel*>::iterator it = models.begin(); it != models.end(); ++it)
@@ -77,6 +77,12 @@ bool CBuild::Start(vector<CModel*> models)
     specIncludes.append("\n\tinclude \"");
     specIncludes.append(modelName);
     specIncludes.append("\"");
+    romSegments.append("extern u8 _");
+    romSegments.append(modelName);
+    romSegments.append("SegmentRomStart[];\n");
+    romSegments.append("extern u8 _");
+    romSegments.append(modelName);
+    romSegments.append("SegmentRomEnd[];\n");
     
     // Save texture data.
     map<string, string> resources = (*it)->GetResources();
@@ -85,14 +91,14 @@ bool CBuild::Start(vector<CModel*> models)
       // Load the set texture and resize to required dimensions.
       string path = resources["textureDataPath"];
       int width, height, channels;
-      unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+      unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 3);
       if(data)
       {
         // Force 32 x 32 texture for now.
-        if(stbir_resize_uint8(data, width, height, 0, data, 32, 32, 0, channels))
+        if(stbir_resize_uint8(data, width, height, 0, data, 32, 32, 0, 3))
         {
           path.append(".rom.png");
-          stbi_write_png(path.c_str(), 32, 32, 4, data, 0);
+          stbi_write_png(path.c_str(), 32, 32, 3, data, 0);
         }
         
         stbi_image_free(data);
@@ -108,6 +114,12 @@ bool CBuild::Start(vector<CModel*> models)
       specIncludes.append("\n\tinclude \"");
       specIncludes.append(textureName);
       specIncludes.append("\"");
+      romSegments.append("extern u8 _");
+      romSegments.append(textureName);
+      romSegments.append("SegmentRomStart[];\n");
+      romSegments.append("extern u8 _");
+      romSegments.append(textureName);
+      romSegments.append("SegmentRomEnd[];\n");
     }
   }
 
@@ -123,6 +135,13 @@ bool CBuild::Start(vector<CModel*> models)
     fwrite(specIncludeStart, 1, strlen(specIncludeStart), file);
     fwrite(specIncludes.c_str(), 1, specIncludes.size(), file);
     fwrite(specIncludeEnd, 1, strlen(specIncludeEnd), file);
+    fclose(file);
+
+    string segmentsPath(buffer);
+    segmentsPath.append("\\..\\..\\Engine\\segments.h");
+    file = fopen(segmentsPath.c_str(), "w");
+    if(file == NULL) return false;
+    fwrite(romSegments.c_str(), 1, romSegments.size(), file);
     fclose(file);
   }
   

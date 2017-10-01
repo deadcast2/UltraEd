@@ -118,8 +118,8 @@ int initHeapMemory() {
 
 void load_models() {
     models[0] = (struct sos_model*)load_sos_model(
-        _starmodelSegmentRomStart, _starmodelSegmentRomEnd,
-        _startextureSegmentRomStart, _startextureSegmentRomEnd
+        _UER_A_MSegmentRomStart, _UER_A_MSegmentRomEnd,
+        _UER_A_TSegmentRomStart, _UER_A_TSegmentRomEnd
     );
 
     models[0]->position->x = 0;
