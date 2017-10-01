@@ -72,8 +72,7 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
             new_model->meshes[i].vertices[j].y = y;
             new_model->meshes[i].vertices[j].z = z;
             new_model->meshes[i].vertices[j].s = s;
-            // Invert the y coordinate so it's not upside down.
-            new_model->meshes[i].vertices[j].t = 1.0 - t;
+            new_model->meshes[i].vertices[j].t = t;
         }
 
         // Read how many UVs for the model.
@@ -122,12 +121,12 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
 
             struct vector3 vertex = new_model->meshes[i].vertices[j];
 
-            new_model->meshes[i].processed_vertices[j].v.ob[0] = vertex.x * 1000;
-            new_model->meshes[i].processed_vertices[j].v.ob[1] = vertex.y * 1000;
-            new_model->meshes[i].processed_vertices[j].v.ob[2] = vertex.z * 1000;
+            new_model->meshes[i].processed_vertices[j].v.ob[0] = (int)(vertex.x * 1000);
+            new_model->meshes[i].processed_vertices[j].v.ob[1] = (int)(vertex.y * 1000);
+            new_model->meshes[i].processed_vertices[j].v.ob[2] = (int)(vertex.z * 1000);
             new_model->meshes[i].processed_vertices[j].v.flag = 0;
-            new_model->meshes[i].processed_vertices[j].v.tc[0] = (int)(vertex.s*32*2) << 5;
-            new_model->meshes[i].processed_vertices[j].v.tc[1] = (int)(vertex.t*32*2) << 5;
+            new_model->meshes[i].processed_vertices[j].v.tc[0] = (int)(vertex.s * 32) << 5;
+            new_model->meshes[i].processed_vertices[j].v.tc[1] = (int)(vertex.t * 32) << 5;
             new_model->meshes[i].processed_vertices[j].v.cn[0] = 0;
             new_model->meshes[i].processed_vertices[j].v.cn[1] = 0;
             new_model->meshes[i].processed_vertices[j].v.cn[2] = 0;
@@ -214,7 +213,7 @@ void sos_draw(struct sos_model *model, Gfx **display_list) {
     gDPSetTextureFilter((*display_list)++, G_TF_BILERP);
     gDPSetCombineMode((*display_list)++, G_CC_BLENDRGBA, G_CC_BLENDRGBA);
     gDPSetTexturePersp((*display_list)++, G_TP_PERSP);
-    gSPTexture((*display_list)++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
+    gSPTexture((*display_list)++, 0xffff, 0xffff, 0, G_TX_RENDERTILE, G_ON);
     gDPLoadTextureBlock((*display_list)++, model->texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
         G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 

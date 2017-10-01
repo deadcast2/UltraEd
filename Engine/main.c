@@ -13,7 +13,7 @@ Gfx *glistp;
 Gfx gfx_glist[GFX_GLIST_LEN];
 u32 time_start = 0, time_end = 0;
 struct transform world;
-u16 *perspNormal;
+u16 perspNormal;
 struct sos_model *models[1];
 
 static Vp viewPort = {
@@ -63,11 +63,13 @@ void clearFramBuffer() {
 
 void setup_world_matrix(Gfx **display_list) {
     guPerspective(&world.projection,
-        perspNormal,
+        &perspNormal,
         60.0F, SCREEN_WD / SCREEN_HT,
-        10.0F, 100.0F, 1.0F);
+        1.0F, 1000.0F, 1.0F);
 
-    guTranslate(&world.translation, 0, 1.5, -55);
+    guTranslate(&world.translation, 0, 0, 0);
+
+    gSPPerspNormalize((*display_list)++, perspNormal);
 
     gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.projection),
         G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -123,11 +125,11 @@ void load_models() {
     );
 
     models[0]->position->x = 0;
-    models[0]->position->y = 0;
-    models[0]->position->z = 0;
-    models[0]->scale->x = 0.006;
-    models[0]->scale->y = 0.006;
-    models[0]->scale->z = 0.006;
+    models[0]->position->y = -1;
+    models[0]->position->z = -5;
+    models[0]->scale->x = 0.001;
+    models[0]->scale->y = 0.001;
+    models[0]->scale->z = 0.001;
     models[0]->rotation->x = 0;
     models[0]->rotation->y = 0;
     models[0]->rotation->z = 0;
