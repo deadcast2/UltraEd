@@ -11,16 +11,15 @@ struct transform {
   Mtx projection;
   Mtx translation;
   Mtx scale;
-  Mtx rotation_x;
-  Mtx rotation_y;
-  Mtx rotation_z;
+  Mtx rotation;
 };
 
 struct sos_model {
   struct mesh *mesh;
   unsigned short *texture;
+  float rotationAngle;
   struct vector3 *position;
-  struct vector3 *rotation;
+  struct vector3 *rotationAxis;
   struct vector3 *scale;
   struct transform transform;
 };

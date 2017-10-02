@@ -28,7 +28,8 @@ unsigned short* image_24_to_16(const unsigned char* data,
 
 struct sos_model *load_sos_model(void *data_start, void *data_end,
                                  void *texture_start, void *texture_end,
-                                 double positionX, double positionY, double positionZ) {
+                                 double positionX, double positionY, double positionZ,
+                                 double rotX, double rotY, double rotZ, double angle) {
   unsigned char data_buffer[200000];
   unsigned char texture_buffer[20000];
   char *line;
@@ -46,7 +47,7 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
   new_model = (struct sos_model*)malloc(sizeof(struct sos_model));
   new_model->mesh = (struct mesh*)malloc(sizeof(struct mesh));
   new_model->position = (struct vector3*)malloc(sizeof(struct vector3));
-  new_model->rotation = (struct vector3*)malloc(sizeof(struct vector3));
+  new_model->rotationAxis = (struct vector3*)malloc(sizeof(struct vector3));
   new_model->scale = (struct vector3*)malloc(sizeof(struct vector3));
   
   // Read how many vertices for this mesh.
@@ -63,7 +64,7 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
     
     new_model->mesh->vertices[i].v.ob[0] = x * 1000;
     new_model->mesh->vertices[i].v.ob[1] = y * 1000;
-    new_model->mesh->vertices[i].v.ob[2] = z * 1000;
+    new_model->mesh->vertices[i].v.ob[2] = -z * 1000;
     new_model->mesh->vertices[i].v.flag = 0;
     new_model->mesh->vertices[i].v.tc[0] = (int)(s * 32) << 5;
     new_model->mesh->vertices[i].v.tc[1] = (int)(t * 32) << 5;
@@ -79,10 +80,11 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
   new_model->scale->x = 0.001;
   new_model->scale->y = 0.001;
   new_model->scale->z = 0.001;
-  new_model->rotation->x = 0;
-  new_model->rotation->y = 0;
-  new_model->rotation->z = 0;
-  
+  new_model->rotationAxis->x = rotX;
+  new_model->rotationAxis->y = rotY;
+  new_model->rotationAxis->z = -rotZ;
+  new_model->rotationAngle = -angle;
+
   // Load in the png texture data.
   png = upng_new_from_bytes(texture_buffer, texture_size);
   if (png != NULL) {
@@ -107,11 +109,8 @@ void sos_draw(struct sos_model *model, Gfx **display_list) {
   guTranslate(&model->transform.translation, model->position->x,
     model->position->y, model->position->z);
   
-  guRotate(&model->transform.rotation_x, model->rotation->x, 1.0F, 0.0F, 0.0F);
-  
-  guRotate(&model->transform.rotation_y, model->rotation->y, 0.0F, 1.0F, 0.0F);
-  
-  guRotate(&model->transform.rotation_z, model->rotation->z, 0.0F, 0.0F, 1.0F);
+  guRotate(&model->transform.rotation, model->rotationAngle, 
+    model->rotationAxis->x, model->rotationAxis->y, model->rotationAxis->z);
   
   guScale(&model->transform.scale, model->scale->x,
     model->scale->y, model->scale->z);
@@ -119,13 +118,7 @@ void sos_draw(struct sos_model *model, Gfx **display_list) {
   gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&model->transform.translation),
     G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
   
-  gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&model->transform.rotation_x),
-    G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
-  
-  gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&model->transform.rotation_y),
-    G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
-  
-  gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&model->transform.rotation_z),
+  gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&model->transform.rotation),
     G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
   
   gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&model->transform.scale),
@@ -136,7 +129,7 @@ void sos_draw(struct sos_model *model, Gfx **display_list) {
   gDPSetCycleType((*display_list)++, G_CYC_1CYCLE);
   gDPSetRenderMode((*display_list)++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
   gSPClearGeometryMode((*display_list)++, 0xFFFFFFFF);
-  gSPSetGeometryMode((*display_list)++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER | G_CULL_BACK);
+  gSPSetGeometryMode((*display_list)++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER | G_CULL_FRONT);
   gDPSetTextureFilter((*display_list)++, G_TF_BILERP);
   gDPSetCombineMode((*display_list)++, G_CC_BLENDRGBA, G_CC_BLENDRGBA);
   gDPSetTexturePersp((*display_list)++, G_TP_PERSP);

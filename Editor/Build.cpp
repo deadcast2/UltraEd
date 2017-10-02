@@ -153,7 +153,12 @@ bool CBuild::Start(vector<CModel*> models)
     // Add transform data.
     char vectorBuffer[128];
     D3DXVECTOR3 position = (*it)->GetPosition();
-    sprintf(vectorBuffer, ", %lf, %lf, %lf", position.x, position.y, position.z);
+    D3DXVECTOR3 axis;
+    float angle;
+    (*it)->GetAxisAngle(&axis, &angle);
+    sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+      position.x, position.y, position.z,
+      axis.x, axis.y, axis.z, angle * (180/D3DX_PI));
     modelInits.append(vectorBuffer);
     modelInits.append(");\n");
   }

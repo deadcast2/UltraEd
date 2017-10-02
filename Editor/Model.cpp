@@ -203,6 +203,13 @@ D3DXVECTOR3 CModel::GetUp()
   return up;
 }
 
+void CModel::GetAxisAngle(D3DXVECTOR3 *axis, float *angle)
+{
+  D3DXQUATERNION quat;
+  D3DXQuaternionRotationMatrix(&quat, &m_worldRot);
+  D3DXQuaternionToAxisAngle(&quat, axis, angle);
+}
+
 void CModel::Move(D3DXVECTOR3 position)
 {
   m_position += position;

@@ -43,6 +43,7 @@ public:
   D3DXVECTOR3 GetRight();
   D3DXVECTOR3 GetForward();
   D3DXVECTOR3 GetUp();
+  void GetAxisAngle(D3DXVECTOR3 *axis, float *angle);
   void Release(ModelRelease::Value type);
   void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
   vector<MeshVertex> GetVertices();
