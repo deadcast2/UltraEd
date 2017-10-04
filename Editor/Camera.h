@@ -4,8 +4,12 @@
 #include <string>
 #include "cJSON.h"
 #include "Savable.h"
-
 #include <d3dx8.h>
+
+struct CameraView
+{
+  enum Value { Perspective, Top, Left, Front };
+};
 
 class CCamera : public CSavable
 {
@@ -19,6 +23,8 @@ public:
   D3DXVECTOR3 GetRight();
   D3DXVECTOR3 GetUp();
   D3DXMATRIX GetViewMatrix();
+  void SetView(CameraView::Value view);
+  CameraView::Value GetView();
   void Reset();
   void Fly(float units); // up/down
   void Strafe(float units); // left/right
@@ -32,6 +38,7 @@ private:
   D3DXVECTOR3 m_up;
   D3DXVECTOR3 m_forward;
   D3DXVECTOR3 m_pos;
+  CameraView::Value m_view;
 };
 
 #endif

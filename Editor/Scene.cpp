@@ -243,14 +243,14 @@ void CScene::UpdateViewMatrix()
     GetClientRect(GetWndHandle(), &rect);
 
     float aspect = (float)rect.right / (float)rect.bottom;
-    float fov = 3.14f / 2.0f;
+    float fov = D3DX_PI / 2.0f;
   
     D3DXMatrixPerspectiveFovLH(&viewMat, fov, aspect, 0.1f, 1000.0f);
   }
   else
   {
     float size = D3DXVec3Length(&GetActiveCamera()->GetPosition());
-    D3DXMatrixOrthoLH(&viewMat, size, size, 0.1f, 1000.0f);
+    D3DXMatrixOrthoLH(&viewMat, size, size, -1000.0f, 1000.0f);
   }
 
   m_device->SetTransform(D3DTS_PROJECTION, &viewMat);
@@ -498,18 +498,22 @@ void CScene::ResetCameras()
     case CameraView::Perspective:
       m_cameras[i].Fly(2);
       m_cameras[i].Walk(-5);
+      m_cameras[i].SetView(CameraView::Perspective);
       break;
     case CameraView::Top:
       m_cameras[i].Fly(12);
       m_cameras[i].Pitch(D3DX_PI / 2);
+      m_cameras[i].SetView(CameraView::Top);
       break;
     case CameraView::Left:
       m_cameras[i].Yaw(D3DX_PI / 2);
       m_cameras[i].Walk(-12);
+      m_cameras[i].SetView(CameraView::Left);
       break;
     case CameraView::Front:
       m_cameras[i].Yaw(D3DX_PI);
       m_cameras[i].Walk(-12);
+      m_cameras[i].SetView(CameraView::Front);
       break;
     }
   }

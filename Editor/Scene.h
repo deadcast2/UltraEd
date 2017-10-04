@@ -15,11 +15,6 @@
 #include "Grid.h"
 #include "Model.h"
 
-struct CameraView
-{
-  enum Value { Perspective, Top, Left, Front };
-};
-
 class CScene
 {
 public:

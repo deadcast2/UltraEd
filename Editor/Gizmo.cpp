@@ -51,7 +51,8 @@ void CGizmo::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack, CCamera *
 {
   // Scale the size of the gizmo based on the camera distance.
   D3DXVECTOR3 distance = m_models[0].GetPosition() - camera->GetPosition();
-  float length = D3DXVec3Length(&distance) * 0.2f;
+  float scaleFactor = camera->GetView() == CameraView::Perspective ? 0.2f : 0.1f;
+  float length = D3DXVec3Length(&distance) * scaleFactor;
   SetScale(D3DXVECTOR3(length, length, length));
 
   // Render all gizmo handles.
@@ -106,6 +107,11 @@ void CGizmo::SetPosition(D3DXVECTOR3 position)
 
 void CGizmo::SetScale(D3DXVECTOR3 scale)
 {
+  // Can't scale lower than one.
+  scale.x = scale.x < 1 ? 1 : scale.x;
+  scale.y = scale.y < 1 ? 1 : scale.y;
+  scale.z = scale.z < 1 ? 1 : scale.z;
+
   for(int i = 0; i < 9; i++)
   {
     m_models[i].SetScale(scale);

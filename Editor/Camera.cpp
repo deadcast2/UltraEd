@@ -118,6 +118,16 @@ D3DXVECTOR3 CCamera::GetUp()
   return m_up;
 }
 
+void CCamera::SetView(CameraView::Value view)
+{
+  m_view = view;
+}
+
+CameraView::Value CCamera::GetView()
+{
+  return m_view;
+}
+
 Savable CCamera::Save()
 {
   char buffer[128];
