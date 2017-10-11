@@ -119,11 +119,11 @@ void CModel::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
     
     if(m_texture != NULL) device->SetTexture(0, m_texture);
     
+    device->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
     device->SetTransform(D3DTS_WORLD, stack->GetTop());
     device->SetStreamSource(0, buffer, sizeof(MeshVertex));
     device->SetVertexShader(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1);
     device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, m_vertices.size() / 3);
-    
     device->SetTexture(0, NULL);
     
     stack->Pop();
