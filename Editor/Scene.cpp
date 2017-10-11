@@ -197,6 +197,17 @@ void CScene::OnApplyTexture()
   }
 }
 
+void CScene::OnSplit()
+{
+  if(m_selectedModelId == GUID_NULL)
+  {
+    MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
+    return;
+  }
+
+  m_models[m_selectedModelId].Split();
+}
+
 bool CScene::Pick(POINT mousePoint)
 {
   D3DXVECTOR3 orig, dir;

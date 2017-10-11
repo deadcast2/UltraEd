@@ -389,3 +389,8 @@ bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
   
   return true;
 }
+
+void CModel::Split()
+{
+  // TODO
+}

@@ -32,6 +32,7 @@ public:
   void OnApplyTexture();
   void OnImportModel();
   void OnBuildROM(bool run);
+  void OnSplit();
   bool Pick(POINT mousePoint);
   void ReleaseResources(ModelRelease::Value type);
   void CheckInput(float);

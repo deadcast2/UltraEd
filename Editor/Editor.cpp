@@ -135,6 +135,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case ID_TOOL_APPLYTEXTURE:
         scene.OnApplyTexture();
         break;
+      case ID_TOOL_SPLIT:
+        scene.OnSplit();
+        break;
       case ID_TOOL_SETTINGS:
         DialogBox(NULL, MAKEINTRESOURCE(IDD_SETTINGS), hWnd, (DLGPROC)SettingsProc);
         break;
