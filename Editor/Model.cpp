@@ -392,5 +392,41 @@ bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
 
 void CModel::Split()
 {
-  // TODO
+  vector<MeshVertex> vertices = GetVertices();
+  
+  for(int j = 0; j < vertices.size() / 3; j++)
+  {
+    MeshVertex v1 = vertices[3 * j + 0];
+    MeshVertex v2 = vertices[3 * j + 1];
+    MeshVertex v3 = vertices[3 * j + 2];
+    
+    CDebug::Log("v1 quad %i\n", DetermineUVQuad(v1.tu, v1.tv));
+    CDebug::Log("v2 quad %i\n", DetermineUVQuad(v2.tu, v2.tv));
+    CDebug::Log("v3 quad %i\n", DetermineUVQuad(v3.tu, v3.tv));
+  }
+}
+
+int CModel::DetermineUVQuad(float u, float v)
+{
+  if((u >= 0 && u <= 0.5) && (v >= 0 && v <= 0.5))
+  {
+    return 1;
+  }
+
+  if((u > 0.5 && u <= 1) && (v >= 0 && v <= 0.5))
+  {
+    return 2;
+  }
+
+  if((u >= 0 && u <= 0.5) && (v > 0.5 && v <= 1))
+  {
+    return 3;
+  }
+
+  if((u > 0.5 && u <= 1) && (v > 0.5 && v <= 1))
+  {
+    return 4;
+  }
+
+  return 0;
 }

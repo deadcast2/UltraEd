@@ -53,6 +53,7 @@ public:
 private:
   void Init();
   void Import(const char *filePath);
+  int DetermineUVQuad(float u, float v);
   
 private:
   GUID m_id;

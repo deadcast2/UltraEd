@@ -74,6 +74,9 @@ struct sos_model *load_sos_model(void *data_start, void *data_end,
     new_model->mesh->vertices[i].v.cn[3] = 0;
   }
 
+  // Entire axis can't be zero or it won't render.
+  if(rotX == 0.0 && rotY == 0.0 && rotZ == 0) rotZ = 1;
+
   new_model->position->x = positionX;
   new_model->position->y = positionY;
   new_model->position->z = -positionZ;
