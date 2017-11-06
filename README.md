@@ -22,7 +22,7 @@ To compile the source on Win XP download this dependency pack I put together: ht
 10. Add camera object
 11. Add audio import
 12. Add audio object
-13. Write bake process for scene objects
+13. ~~Write bake process for scene objects~~
 14. Write bake process for special objects
 15. Write bake process for textures
 16. Write bake process for audio
@@ -35,3 +35,6 @@ To compile the source on Win XP download this dependency pack I put together: ht
 23. ~~Add object deletion from keyboard and mouse~~
 24. ~~Refactor string GUID creation to a utility function.~~
 25. ~~Consolidate code to show common dialogs for files.~~
+26. Add multi object select support.
+27. Add a logger to track all errors.
+28. Fix Project64 window from showing in background.
