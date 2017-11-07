@@ -61,7 +61,7 @@ private:
   D3DPRESENT_PARAMETERS m_d3dpp;
   map<GUID, CModel> m_models;
   CGrid m_grid;
-  GUID m_selectedModelId;
+  vector<GUID> selectedModelIds;
   float mouseSmoothX, mouseSmoothY;
   CameraView::Value m_activeCameraView;
 };

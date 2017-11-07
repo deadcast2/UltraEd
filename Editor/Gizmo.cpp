@@ -3,23 +3,16 @@
 
 CGizmo::CGizmo()
 {
-  // Default state.
   m_modifierState = Translate;
-
   m_xAxisRot = D3DXVECTOR3(0, -D3DX_PI / 2, 0);
   m_yAxisRot = D3DXVECTOR3(D3DX_PI / 2, 0, 0);
   m_zAxisRot = D3DXVECTOR3(0, D3DX_PI, 0);
   m_worldSpaceToggled = TRUE;
-  m_selectedModel = NULL;
   
   SetupMaterials();
-  
   SetupTransHandles();
-  
   SetupScaleHandles();
-
   SetupRotateHandles();
-  
   Reset();
 }
 
@@ -175,25 +168,22 @@ void CGizmo::SetupRotateHandles()
   m_models[8].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
 }
 
-void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model, CCamera *camera)
+void CGizmo::Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *currentModel, CModel *selectedModel)
 {
   D3DXVECTOR3 targetDir = D3DXVECTOR3(0, 0, 0);
   D3DXVECTOR3 v0, v1, v2, intersectPoint;
-  D3DXVECTOR3 look = model->GetPosition() - camera->GetPosition();
+  D3DXVECTOR3 look = selectedModel->GetPosition() - camera->GetPosition();
   D3DXVec3Normalize(&look, &look);
-
-  // Store current selected model.
-  m_selectedModel = model;
 
   // Determine orientation fo plane to produce depending on selected axis.
   if(m_state == XAxis)
   {
-    D3DXVECTOR3 right = m_worldSpaceToggled ? D3DXVECTOR3(1, 0, 0) : model->GetRight();
+    D3DXVECTOR3 right = m_worldSpaceToggled ? D3DXVECTOR3(1, 0, 0) : selectedModel->GetRight();
     D3DXVECTOR3 up;
     D3DXVec3Cross(&up, &right, &look);
     D3DXVec3Cross(&look, &right, &up);
 
-    v0 = model->GetPosition();
+    v0 = selectedModel->GetPosition();
     v1 = v0 + right;
     v2 = v0 + up;
 
@@ -201,12 +191,12 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model, CCamera *c
   }
   else if(m_state == YAxis)
   {
-    D3DXVECTOR3 up =  m_worldSpaceToggled ? D3DXVECTOR3(0, 1, 0) : model->GetUp();
+    D3DXVECTOR3 up =  m_worldSpaceToggled ? D3DXVECTOR3(0, 1, 0) : selectedModel->GetUp();
     D3DXVECTOR3 right;
     D3DXVec3Cross(&right, &up, &look);
     D3DXVec3Cross(&look, &up, &right);
 
-    v0 = model->GetPosition();
+    v0 = selectedModel->GetPosition();
     v1 = v0 + right;
     v2 = v0 + up;
 
@@ -214,12 +204,12 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model, CCamera *c
   }
   else if(m_state == ZAxis)
   {
-    D3DXVECTOR3 forward =  m_worldSpaceToggled ? D3DXVECTOR3(0, 0, 1) : model->GetForward();
+    D3DXVECTOR3 forward =  m_worldSpaceToggled ? D3DXVECTOR3(0, 0, 1) : selectedModel->GetForward();
     D3DXVECTOR3 up;
     D3DXVec3Cross(&up, &forward, &look);
     D3DXVec3Cross(&look, &forward, &up);
 
-    v0 = model->GetPosition();
+    v0 = selectedModel->GetPosition();
     v1 = v0 + forward;
     v2 = v0 + up;
 
@@ -230,8 +220,7 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model, CCamera *c
   D3DXPlaneFromPoints(&testPlane, &v0, &v1, &v2);
   D3DXVECTOR3 rayEnd = orig + (dir * 1000);
   
-  if(D3DXPlaneIntersectLine(&intersectPoint, &testPlane,
-    &orig, &rayEnd) != NULL)
+  if(D3DXPlaneIntersectLine(&intersectPoint, &testPlane, &orig, &rayEnd) != NULL)
   {
     if(m_updateStartPoint == D3DXVECTOR3(-999, -999, -999))
     {
@@ -254,33 +243,33 @@ void CGizmo::Update(D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *model, CCamera *c
     
     if(m_modifierState == Translate)
     {
-      model->Move(targetDir * (moveDist * modifier));
+      CDebug::Log("%f %f %f\n", m_updateStartPoint.x, m_updateStartPoint.y, m_updateStartPoint.z);
+      currentModel->Move(targetDir * (moveDist * modifier));
     }
     else if(m_modifierState == Scale)
     {
-      model->Scale(targetDir * (moveDist * modifier));
+      currentModel->Scale(targetDir * (moveDist * modifier));
     }
     else
     {
-      model->Rotate(moveDist * modifier, targetDir);
-      
+      currentModel->Rotate(moveDist * modifier, targetDir);
+    
       if(!m_worldSpaceToggled)
       {
         // Keep gizmo in-sync with the model's rotation.
         for(int i = 0; i < 3; i++)
         {
-          m_models[i * 3 + 0].SetLocalRotationMatrix(model->GetRotationMatrix());
-          m_models[i * 3 + 1].SetLocalRotationMatrix(model->GetRotationMatrix());
-          m_models[i * 3 + 2].SetLocalRotationMatrix(model->GetRotationMatrix());
+          m_models[i * 3 + 0].SetLocalRotationMatrix(currentModel->GetRotationMatrix());
+          m_models[i * 3 + 1].SetLocalRotationMatrix(currentModel->GetRotationMatrix());
+          m_models[i * 3 + 2].SetLocalRotationMatrix(currentModel->GetRotationMatrix());
         }
       }
     }
     
-    m_updateStartPoint = intersectPoint;
+    if(selectedModel == currentModel) m_updateStartPoint = intersectPoint;
   }
   
-  // Update position of gizmo.
-  SetPosition(model->GetPosition());
+  SetPosition(selectedModel->GetPosition());
 }
 
 void CGizmo::Reset()
@@ -288,22 +277,19 @@ void CGizmo::Reset()
   m_updateStartPoint = D3DXVECTOR3(-999, -999, -999);
 }
 
-bool CGizmo::ToggleSpace()
+bool CGizmo::ToggleSpace(CModel *model)
 {
   m_worldSpaceToggled = !m_worldSpaceToggled;
 
-  if(m_selectedModel != NULL)
-  {
-    D3DXMATRIX identity;
-    D3DXMatrixIdentity(&identity);
-    D3DXMATRIX mat = m_worldSpaceToggled ? identity : m_selectedModel->GetRotationMatrix();
+  D3DXMATRIX identity;
+  D3DXMatrixIdentity(&identity);
+  D3DXMATRIX mat = m_worldSpaceToggled ? identity : model->GetRotationMatrix();
 
-    for(int i = 0; i < 3; i++)
-    {
-      m_models[i * 3 + 0].SetLocalRotationMatrix(mat);
-      m_models[i * 3 + 1].SetLocalRotationMatrix(mat);
-      m_models[i * 3 + 2].SetLocalRotationMatrix(mat);
-    }
+  for(int i = 0; i < 3; i++)
+  {
+    m_models[i * 3 + 0].SetLocalRotationMatrix(mat);
+    m_models[i * 3 + 1].SetLocalRotationMatrix(mat);
+    m_models[i * 3 + 2].SetLocalRotationMatrix(mat);
   }
 
   return m_worldSpaceToggled;

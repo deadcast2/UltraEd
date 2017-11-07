@@ -8,7 +8,6 @@
 CScene::CScene()
 {
   ZeroMemory(&m_d3dpp, sizeof(m_d3dpp));
-  m_selectedModelId = GUID_NULL;
   m_d3d8 = 0;
   m_device = 0;
   m_fillMode = D3DFILL_SOLID;
@@ -76,7 +75,7 @@ void CScene::OnNew()
 {
   // Update the window title.
   SetTitle("New");
-  m_selectedModelId = GUID_NULL;
+  selectedModelIds.clear();
   ReleaseResources(ModelRelease::AllResources);
   m_models.clear();
   ResetCameras();
@@ -180,32 +179,38 @@ void CScene::OnApplyTexture()
 { 
   string file;
 
-  if(m_selectedModelId == GUID_NULL)
+  if(selectedModelIds.empty())
   {
     MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
     return;
   }
   
-  if(CDialog::Open("Select a texture",
-    "BMP (*.bmp)\0*.bmp\0JPEG (*.jpg)\0"
-    "*.jpg\0PNG (*.png)\0*.png\0TGA (*.tga)\0*.tga", file))
+  for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); it++)
   {
-    if(!m_models[m_selectedModelId].LoadTexture(m_device, file.c_str()))
+    if(CDialog::Open("Select a texture",
+      "BMP (*.bmp)\0*.bmp\0JPEG (*.jpg)\0"
+      "*.jpg\0PNG (*.png)\0*.png\0TGA (*.tga)\0*.tga", file))
     {
-      MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
+      if(!m_models[*it].LoadTexture(m_device, file.c_str()))
+      {
+        MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
+      }
     }
   }
 }
 
 void CScene::OnSplit()
 {
-  if(m_selectedModelId == GUID_NULL)
+  if(selectedModelIds.empty())
   {
     MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
     return;
   }
 
-  m_models[m_selectedModelId].Split();
+  for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); it++)
+  {
+    m_models[*it].Split();
+  }
 }
 
 bool CScene::Pick(POINT mousePoint)
@@ -226,12 +231,31 @@ bool CScene::Pick(POINT mousePoint)
     if(it->second.Pick(orig, dir, &pickDist) && pickDist < closestDist)
     {
       closestDist = pickDist;
-      m_selectedModelId = it->first;
+      vector<GUID>::iterator found = find(selectedModelIds.begin(), selectedModelIds.end(), it->first);
+      if(found == selectedModelIds.end())
+      {
+        if(!GetAsyncKeyState(VK_SHIFT)) selectedModelIds.clear();
+        selectedModelIds.push_back(it->first);
+      }
+      else
+      {
+        // Shift clicking an already selected model so unselect it.
+        if(GetAsyncKeyState(VK_SHIFT) & 0x8000)
+        {
+          selectedModelIds.erase(found);
+        }
+        else
+        {
+          // Unselected everything and only select what was clicked.
+          selectedModelIds.clear();
+          selectedModelIds.push_back(it->first);
+        }
+      }
     }
   }
 
   if(closestDist != FLT_MAX) return true;
-  if(!gizmoSelected) m_selectedModelId = GUID_NULL;
+  if(!gizmoSelected) selectedModelIds.clear();
   return false;
 }
 
@@ -305,12 +329,15 @@ void CScene::Render()
       it->second.Render(m_device, stack);
     }
     
-    if(m_selectedModelId != GUID_NULL)
+    if(!selectedModelIds.empty())
     {
       // Highlight the selected model.
       m_device->SetMaterial(&m_selectedMaterial);
       m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-      m_models[m_selectedModelId].Render(m_device, stack);
+      for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); ++it)
+      {
+        m_models[*it].Render(m_device, stack);
+      }
 
       // Draw the gizmo on "top" of all objects in scene.
       m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
@@ -340,11 +367,15 @@ void CScene::CheckInput(float deltaTime)
   if(GetAsyncKeyState('2')) m_gizmo.SetModifier(Scale);
   if(GetAsyncKeyState('3')) m_gizmo.SetModifier(Rotate);
   
-  if(GetAsyncKeyState(VK_LBUTTON) && m_selectedModelId != GUID_NULL)
+  if(GetAsyncKeyState(VK_LBUTTON) && !selectedModelIds.empty())
   {
     D3DXVECTOR3 rayOrigin, rayDir;
     ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
-    m_gizmo.Update(rayOrigin, rayDir, &m_models[m_selectedModelId], GetActiveCamera());
+    GUID lastSelectedModelId = selectedModelIds.back();
+    for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); ++it)
+    {
+      m_gizmo.Update(GetActiveCamera(), rayOrigin, rayDir, &m_models[*it], &m_models[lastSelectedModelId]);
+    }
   }
   else if(GetAsyncKeyState(VK_RBUTTON) && m_activeCameraView == CameraView::Perspective)
   {
@@ -438,7 +469,11 @@ CCamera *CScene::GetActiveCamera()
 
 bool CScene::ToggleMovementSpace()
 {
-  return m_gizmo.ToggleSpace();
+  if(!selectedModelIds.empty())
+  {
+    return m_gizmo.ToggleSpace(&m_models[selectedModelIds.back()]);
+  }
+  return false;
 }
 
 bool CScene::ToggleFillMode()
@@ -467,25 +502,27 @@ void CScene::ReleaseResources(ModelRelease::Value type)
 
 void CScene::Delete()
 {
-  if(m_selectedModelId != GUID_NULL)
+  if(!selectedModelIds.empty())
   {
-    m_models[m_selectedModelId].Release(ModelRelease::AllResources);
-    m_models.erase(m_selectedModelId);
-    m_selectedModelId = GUID_NULL;
+    for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); ++it)
+    {
+      m_models[*it].Release(ModelRelease::AllResources);
+    }
+    selectedModelIds.clear();
   }
 }
 
 void CScene::Duplicate()
 {
-  if(m_selectedModelId != GUID_NULL)
+  if(!selectedModelIds.empty())
   {
-    CModel model = m_models[m_selectedModelId];
-
-    // Copy texture if present on model.
-    string tex = model.GetResources()["textureDataPath"];
-    model.LoadTexture(m_device, tex.c_str());
-
-    m_models[model.GetId()] = model;
+    for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); ++it)
+    {
+      CModel model = m_models[*it];
+      string tex = model.GetResources()["textureDataPath"];
+      model.LoadTexture(m_device, tex.c_str());
+      m_models[model.GetId()] = model;
+    }
   }
 }
 
