@@ -507,6 +507,7 @@ void CScene::Delete()
     for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); ++it)
     {
       m_models[*it].Release(ModelRelease::AllResources);
+      m_models.erase(*it);
     }
     selectedModelIds.clear();
   }
