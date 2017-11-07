@@ -8,6 +8,10 @@
 
 To compile the source on Win XP download this dependency pack I put together: http://www.mediafire.com/file/ozha9c7kmhg8ik3/UltraEdDeps.zip. It contains SP3 for WinXP, SP6 for VS 6.0 and DirectX 8.1 SDK.
 
+### Notes
+
+The reason why UltraEd only runs on Windows XP/NT is due to the ROM build process. I rely upon the N64 SDK to do the final ROM construction. I realize I could still build an editor for a modern OS and then only build the ROM on XP/NT but I wanted the editor to feel sort of like Unity 3D. Everything within one environment! :)
+
 ### Todo
 
 1. ~~Add object translation gizmo~~
@@ -22,7 +26,7 @@ To compile the source on Win XP download this dependency pack I put together: ht
 10. Add camera object
 11. Add audio import
 12. Add audio object
-13. Write bake process for scene objects
+13. ~~Write bake process for scene objects~~
 14. Write bake process for special objects
 15. Write bake process for textures
 16. Write bake process for audio
@@ -35,3 +39,6 @@ To compile the source on Win XP download this dependency pack I put together: ht
 23. ~~Add object deletion from keyboard and mouse~~
 24. ~~Refactor string GUID creation to a utility function.~~
 25. ~~Consolidate code to show common dialogs for files.~~
+26. Add multi object select support.
+27. Add a logger to track all errors.
+28. Fix Project64 window from showing in background.
