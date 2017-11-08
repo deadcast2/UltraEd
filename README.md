@@ -39,6 +39,6 @@ The reason why UltraEd only runs on Windows XP/NT is due to the ROM build proces
 23. ~~Add object deletion from keyboard and mouse~~
 24. ~~Refactor string GUID creation to a utility function.~~
 25. ~~Consolidate code to show common dialogs for files.~~
-26. Add multi object select support.
+26. ~~Add multi object select support.~~
 27. Add a logger to track all errors.
 28. Fix Project64 window from showing in background.
