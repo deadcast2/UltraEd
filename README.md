@@ -2,6 +2,8 @@
 
 ## A level editor/game engine for the Nintendo 64 (WIP)
 
+![alt editor](https://i.imgur.com/etDiBGp.gif)
+
 ---
 
 ### Setup
