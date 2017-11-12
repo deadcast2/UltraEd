@@ -243,7 +243,6 @@ void CGizmo::Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *
     
     if(m_modifierState == Translate)
     {
-      CDebug::Log("%f %f %f\n", m_updateStartPoint.x, m_updateStartPoint.y, m_updateStartPoint.z);
       currentModel->Move(targetDir * (moveDist * modifier));
     }
     else if(m_modifierState == Scale)
