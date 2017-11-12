@@ -42,6 +42,7 @@ public:
   CCamera *GetActiveCamera();
   bool ToggleMovementSpace();
   bool ToggleFillMode();
+  bool ToggleSnapToGrid();
 
 private:
   HWND GetWndHandle();

@@ -1,3 +1,4 @@
+#include "Common.h"
 #include "Gizmo.h"
 #include "Debug.h"
 
@@ -8,6 +9,7 @@ CGizmo::CGizmo()
   m_yAxisRot = D3DXVECTOR3(D3DX_PI / 2, 0, 0);
   m_zAxisRot = D3DXVECTOR3(0, D3DX_PI, 0);
   m_worldSpaceToggled = TRUE;
+  snapToGridToggled = false;
   
   SetupMaterials();
   SetupTransHandles();
@@ -231,19 +233,34 @@ void CGizmo::Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *
     D3DXVECTOR3 normMouseDir;
     D3DXVec3Normalize(&normMouseDir, &mouseDir);
     FLOAT moveDist = D3DXVec3Length(&mouseDir);
+    const float snapSize = 0.5f;
+    const float epsilon = 0.1f;
+    bool shouldSnap = fabs((moveDist > snapSize ? snapSize : moveDist) - snapSize) < epsilon;
 
     // Clamp the dot product between -1, 1 to not cause a undefined result.
     FLOAT dot = D3DXVec3Dot(&targetDir, &normMouseDir);
     dot = dot < -1.0f ? -1.0f : dot > 1.0f ? 1.0f : dot;
-
     FLOAT angle = acosf(dot);
 
     // Only allow movement when mouse following axis.
     FLOAT modifier = 1.0f - (angle/(D3DX_PI/2));
+    int sign = modifier < 0 ? -1 : 1;
     
     if(m_modifierState == Translate)
     {
-      currentModel->Move(targetDir * (moveDist * modifier));
+      if(shouldSnap && snapToGridToggled)
+      {
+        
+        D3DXVECTOR3 newPos = currentModel->GetPosition();
+        newPos.x = round(newPos.x * (1 / snapSize)) / (1 / snapSize);
+        newPos.y = round(newPos.y * (1 / snapSize)) / (1 / snapSize);
+        newPos.z = round(newPos.z * (1 / snapSize)) / (1 / snapSize);
+        currentModel->SetPosition(newPos + (targetDir * snapSize * sign));
+      }
+      else if(!snapToGridToggled)
+      {
+        currentModel->Move(targetDir * (moveDist * modifier));
+      }
     }
     else if(m_modifierState == Scale)
     {
@@ -265,7 +282,13 @@ void CGizmo::Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *
       }
     }
     
-    if(selectedModel == currentModel) m_updateStartPoint = intersectPoint;
+    if(selectedModel == currentModel) 
+    {
+      if(shouldSnap || !snapToGridToggled) 
+      {
+        m_updateStartPoint = intersectPoint;
+      }
+    }
   }
   
   SetPosition(selectedModel->GetPosition());
@@ -292,4 +315,10 @@ bool CGizmo::ToggleSpace(CModel *model)
   }
 
   return m_worldSpaceToggled;
+}
+
+bool CGizmo::ToggleSnapping()
+{
+  snapToGridToggled = !snapToGridToggled;
+  return snapToGridToggled;
 }

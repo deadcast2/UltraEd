@@ -15,6 +15,7 @@ public:
   ~CGizmo();
   void SetModifier(GizmoModifierState state);
   bool ToggleSpace(CModel *model);
+  bool ToggleSnapping();
   void Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *currentModel, CModel *selectedModel);
   void Reset();
   bool Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
@@ -42,6 +43,7 @@ private:
   D3DXVECTOR3 m_yAxisRot;
   D3DXVECTOR3 m_zAxisRot;
   bool m_worldSpaceToggled;
+  bool snapToGridToggled;
 };
 
 #endif

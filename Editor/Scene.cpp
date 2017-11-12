@@ -577,3 +577,8 @@ void CScene::SetTitle(string title)
     SetWindowText(parentWnd, title.c_str());
   }
 }
+
+bool CScene::ToggleSnapToGrid()
+{
+  return m_gizmo.ToggleSnapping();
+}

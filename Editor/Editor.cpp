@@ -161,6 +161,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           }
           break;
         }
+      case ID_SPACE_SNAPTOGRID:
+        {
+          HMENU menu = GetMenu(hWnd);
+          if(menu != NULL)
+          {
+            bool toggled = scene.ToggleSnapToGrid();
+            CheckMenuItem(menu, wParam, toggled ? MF_CHECKED : MF_UNCHECKED);
+          }
+          break;
+        }
       case IDM_TOOLBAR_TRANSLATE:
         scene.SetGizmoModifier(Translate);
         break;
