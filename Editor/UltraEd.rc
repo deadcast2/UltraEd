@@ -80,7 +80,6 @@ BEGIN
     BEGIN
         MENUITEM "Apply Texture",               ID_TOOL_APPLYTEXTURE
         MENUITEM "Settings",                    ID_TOOL_SETTINGS
-        MENUITEM "Split",                       ID_TOOL_SPLIT
     END
 END
 

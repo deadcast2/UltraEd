@@ -199,20 +199,6 @@ void CScene::OnApplyTexture()
   }
 }
 
-void CScene::OnSplit()
-{
-  if(selectedModelIds.empty())
-  {
-    MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
-    return;
-  }
-
-  for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); it++)
-  {
-    m_models[*it].Split();
-  }
-}
-
 bool CScene::Pick(POINT mousePoint)
 {
   D3DXVECTOR3 orig, dir;

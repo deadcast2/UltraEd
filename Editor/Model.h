@@ -48,12 +48,10 @@ public:
   void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
   vector<MeshVertex> GetVertices();
   bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist);
-  void Split();
 
 private:
   void Init();
   void Import(const char *filePath);
-  int DetermineUVQuad(float u, float v);
   
 private:
   GUID m_id;
