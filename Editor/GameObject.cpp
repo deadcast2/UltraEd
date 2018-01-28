@@ -340,6 +340,9 @@ Savable CGameObject::Save()
   cJSON_AddItemToObject(root, "gameObject", gameObject);
   
   cJSON_AddStringToObject(gameObject, "id", CUtil::GuidToString(m_id).c_str());
+
+  sprintf(buffer, "%i", (int)m_type);
+  cJSON_AddStringToObject(gameObject, "type", buffer);
   
   sprintf(buffer, "%f %f %f", m_position.x, m_position.y, m_position.z);
   cJSON_AddStringToObject(gameObject, "position", buffer);
@@ -358,12 +361,17 @@ Savable CGameObject::Save()
 
 bool CGameObject::Load(IDirect3DDevice8 *device, cJSON *root)
 {
+  int typeValue;
   float x, y, z, w;
   cJSON *id = cJSON_GetObjectItem(root, "id");
+  cJSON *type = cJSON_GetObjectItem(root, "type");
   cJSON *resources = cJSON_GetObjectItem(root, "resources");
   cJSON *resource = NULL;
   
   m_id = CUtil::StringToGuid(id->valuestring);
+
+  sscanf(type->valuestring, "%i", &typeValue);
+  m_type = (GameObjectType::Value)typeValue;
   
   cJSON *position = cJSON_GetObjectItem(root, "position");
   sscanf(position->valuestring, "%f %f %f", &x, &y, &z);
