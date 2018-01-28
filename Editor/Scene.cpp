@@ -34,7 +34,7 @@ CScene::CScene()
 
 CScene::~CScene()
 {
-  ReleaseResources(ModelRelease::AllResources);
+  ReleaseResources(GameObjectRelease::AllResources);
   if(m_device) m_device->Release();
   if(m_d3d8) m_d3d8->Release();
 }
@@ -73,11 +73,10 @@ bool CScene::Create(HWND windowHandle)
 
 void CScene::OnNew()
 {
-  // Update the window title.
   SetTitle("New");
-  selectedModelIds.clear();
-  ReleaseResources(ModelRelease::AllResources);
-  m_models.clear();
+  selectedGameObjectIds.clear();
+  ReleaseResources(GameObjectRelease::AllResources);
+  m_gameObjects.clear();
   ResetCameras();
 }
 
@@ -88,8 +87,8 @@ void CScene::OnSave()
   // Save all editor cameras.
   for(int i = 0; i < 4; i++) savables.push_back(&m_cameras[i]);
 
-  // Save all of the models in the scene.
-  for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+  // Save all of the game objects in the scene.
+  for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
   {
     savables.push_back(&it->second);
   }
@@ -119,15 +118,15 @@ void CScene::OnLoad()
       m_cameras[count++].Load(m_device, cameraItem);
     }
 
-    // Create saved models.
-    cJSON *models = cJSON_GetObjectItem(root, "models");
-    cJSON *modelItem = NULL;
-    cJSON_ArrayForEach(modelItem, models)
+    // Create saved game objects.
+    cJSON *gameObjects = cJSON_GetObjectItem(root, "gameObjects");
+    cJSON *gameObjectItem = NULL;
+    cJSON_ArrayForEach(gameObjectItem, gameObjects)
     {
-      CModel model;
-      if(model.Load(m_device, modelItem))
+      CGameObject gameObject;
+      if(gameObject.Load(m_device, gameObjectItem))
       {
-        m_models[model.GetId()] = model;
+        m_gameObjects[gameObject.GetId()] = gameObject;
       }
     }
 
@@ -143,22 +142,22 @@ void CScene::OnImportModel()
     "Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
     "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj", file))
   {
-    CModel model = CModel(file.c_str());
-    m_models[model.GetId()] = model;
+    CGameObject gameObject = CGameObject(file.c_str());
+    m_gameObjects[gameObject.GetId()] = gameObject;
   }
 }
 
 void CScene::OnBuildROM(bool run)
 {
-  vector<CModel*> models;
+  vector<CGameObject*> gameObjects;
 
-  // Gather all of the models in the scene.
-  for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+  // Gather all of the game objects in the scene.
+  for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
   {
-    models.push_back(&it->second);
+    gameObjects.push_back(&it->second);
   }
 
-  if(CBuild::Start(models))
+  if(CBuild::Start(gameObjects))
   {
     if(run)
     {
@@ -179,19 +178,19 @@ void CScene::OnApplyTexture()
 { 
   string file;
 
-  if(selectedModelIds.empty())
+  if(selectedGameObjectIds.empty())
   {
     MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
     return;
   }
   
-  for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); it++)
+  for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); it++)
   {
     if(CDialog::Open("Select a texture",
       "BMP (*.bmp)\0*.bmp\0JPEG (*.jpg)\0"
       "*.jpg\0PNG (*.png)\0*.png\0TGA (*.tga)\0*.tga", file))
     {
-      if(!m_models[*it].LoadTexture(m_device, file.c_str()))
+      if(!m_gameObjects[*it].LoadTexture(m_device, file.c_str()))
       {
         MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
       }
@@ -206,42 +205,42 @@ bool CScene::Pick(POINT mousePoint)
   bool gizmoSelected = m_gizmo.Select(orig, dir);
   float closestDist = FLT_MAX;
 
-  // When just selecting the gizmo don't check any models.
+  // When just selecting the gizmo don't check any game objects.
   if(gizmoSelected) return true;
   
-  // Check all models to see which poly might have been picked.
-  for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+  // Check all game objects to see which poly might have been picked.
+  for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
   {
-    // Only choose the closest model to the camera.
+    // Only choose the closest game object to the camera.
     float pickDist = 0;
     if(it->second.Pick(orig, dir, &pickDist) && pickDist < closestDist)
     {
       closestDist = pickDist;
-      vector<GUID>::iterator found = find(selectedModelIds.begin(), selectedModelIds.end(), it->first);
-      if(found == selectedModelIds.end())
+      vector<GUID>::iterator found = find(selectedGameObjectIds.begin(), selectedGameObjectIds.end(), it->first);
+      if(found == selectedGameObjectIds.end())
       {
-        if(!GetAsyncKeyState(VK_SHIFT)) selectedModelIds.clear();
-        selectedModelIds.push_back(it->first);
+        if(!GetAsyncKeyState(VK_SHIFT)) selectedGameObjectIds.clear();
+        selectedGameObjectIds.push_back(it->first);
       }
       else
       {
-        // Shift clicking an already selected model so unselect it.
+        // Shift clicking an already selected game object so unselect it.
         if(GetAsyncKeyState(VK_SHIFT) & 0x8000)
         {
-          selectedModelIds.erase(found);
+          selectedGameObjectIds.erase(found);
         }
         else
         {
           // Unselected everything and only select what was clicked.
-          selectedModelIds.clear();
-          selectedModelIds.push_back(it->first);
+          selectedGameObjectIds.clear();
+          selectedGameObjectIds.push_back(it->first);
         }
       }
     }
   }
 
   if(closestDist != FLT_MAX) return true;
-  if(!gizmoSelected) selectedModelIds.clear();
+  if(!gizmoSelected) selectedGameObjectIds.clear();
   return false;
 }
 
@@ -249,7 +248,7 @@ void CScene::Resize()
 {
   if(m_device)
   {
-    ReleaseResources(ModelRelease::VertexBufferOnly);
+    ReleaseResources(GameObjectRelease::VertexBufferOnly);
     m_device->Reset(&m_d3dpp);
     UpdateViewMatrix();
   }
@@ -307,22 +306,22 @@ void CScene::Render()
     // Draw any debug lines.
     CDebug::Instance().Render(m_device);
     
-    // Render all models with selected fill mode.
+    // Render all game objects with selected fill mode.
     m_device->SetMaterial(&m_defaultMaterial);
     m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
-    for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+    for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
     {
       it->second.Render(m_device, stack);
     }
     
-    if(!selectedModelIds.empty())
+    if(!selectedGameObjectIds.empty())
     {
-      // Highlight the selected model.
+      // Highlight the selected game object.
       m_device->SetMaterial(&m_selectedMaterial);
       m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-      for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); ++it)
+      for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
       {
-        m_models[*it].Render(m_device, stack);
+        m_gameObjects[*it].Render(m_device, stack);
       }
 
       // Draw the gizmo on "top" of all objects in scene.
@@ -353,14 +352,14 @@ void CScene::CheckInput(float deltaTime)
   if(GetAsyncKeyState('2')) m_gizmo.SetModifier(Scale);
   if(GetAsyncKeyState('3')) m_gizmo.SetModifier(Rotate);
   
-  if(GetAsyncKeyState(VK_LBUTTON) && !selectedModelIds.empty())
+  if(GetAsyncKeyState(VK_LBUTTON) && !selectedGameObjectIds.empty())
   {
     D3DXVECTOR3 rayOrigin, rayDir;
     ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
-    GUID lastSelectedModelId = selectedModelIds.back();
-    for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); ++it)
+    GUID lastSelectedGameObjectId = selectedGameObjectIds.back();
+    for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
     {
-      m_gizmo.Update(GetActiveCamera(), rayOrigin, rayDir, &m_models[*it], &m_models[lastSelectedModelId]);
+      m_gizmo.Update(GetActiveCamera(), rayOrigin, rayDir, &m_gameObjects[*it], &m_gameObjects[lastSelectedGameObjectId]);
     }
   }
   else if(GetAsyncKeyState(VK_RBUTTON) && m_activeCameraView == CameraView::Perspective)
@@ -455,9 +454,9 @@ CCamera *CScene::GetActiveCamera()
 
 bool CScene::ToggleMovementSpace()
 {
-  if(!selectedModelIds.empty())
+  if(!selectedGameObjectIds.empty())
   {
-    return m_gizmo.ToggleSpace(&m_models[selectedModelIds.back()]);
+    return m_gizmo.ToggleSpace(&m_gameObjects[selectedGameObjectIds.back()]);
   }
   return false;
 }
@@ -474,13 +473,13 @@ bool CScene::ToggleFillMode()
   return true;
 }
 
-void CScene::ReleaseResources(ModelRelease::Value type)
+void CScene::ReleaseResources(GameObjectRelease::Value type)
 {
   m_grid.Release();
   m_gizmo.Release();
   CDebug::Instance().Release();
   
-  for(map<GUID, CModel>::iterator it = m_models.begin(); it != m_models.end(); ++it)
+  for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
   {
     it->second.Release(type);
   }
@@ -488,27 +487,27 @@ void CScene::ReleaseResources(ModelRelease::Value type)
 
 void CScene::Delete()
 {
-  if(!selectedModelIds.empty())
+  if(!selectedGameObjectIds.empty())
   {
-    for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); ++it)
+    for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
     {
-      m_models[*it].Release(ModelRelease::AllResources);
-      m_models.erase(*it);
+      m_gameObjects[*it].Release(GameObjectRelease::AllResources);
+      m_gameObjects.erase(*it);
     }
-    selectedModelIds.clear();
+    selectedGameObjectIds.clear();
   }
 }
 
 void CScene::Duplicate()
 {
-  if(!selectedModelIds.empty())
+  if(!selectedGameObjectIds.empty())
   {
-    for(vector<GUID>::iterator it = selectedModelIds.begin(); it != selectedModelIds.end(); ++it)
+    for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
     {
-      CModel model = m_models[*it];
-      string tex = model.GetResources()["textureDataPath"];
-      model.LoadTexture(m_device, tex.c_str());
-      m_models[model.GetId()] = model;
+      CGameObject gameObject = m_gameObjects[*it];
+      string tex = gameObject.GetResources()["textureDataPath"];
+      gameObject.LoadTexture(m_device, tex.c_str());
+      m_gameObjects[gameObject.GetId()] = gameObject;
     }
   }
 }

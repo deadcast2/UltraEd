@@ -13,7 +13,7 @@
 #include "Debug.h"
 #include "Gizmo.h"
 #include "Grid.h"
-#include "Model.h"
+#include "GameObject.h"
 
 class CScene
 {
@@ -33,7 +33,7 @@ public:
   void OnImportModel();
   void OnBuildROM(bool run);
   bool Pick(POINT mousePoint);
-  void ReleaseResources(ModelRelease::Value type);
+  void ReleaseResources(GameObjectRelease::Value type);
   void CheckInput(float);
   void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
   void SetCameraView(CameraView::Value view);
@@ -59,9 +59,9 @@ private:
   IDirect3DDevice8 *m_device;
   IDirect3D8 *m_d3d8;
   D3DPRESENT_PARAMETERS m_d3dpp;
-  map<GUID, CModel> m_models;
+  map<GUID, CGameObject> m_gameObjects;
   CGrid m_grid;
-  vector<GUID> selectedModelIds;
+  vector<GUID> selectedGameObjectIds;
   float mouseSmoothX, mouseSmoothY;
   CameraView::Value m_activeCameraView;
 };

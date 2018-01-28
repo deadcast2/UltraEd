@@ -27,8 +27,8 @@ bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
     cJSON *cameraArray = cJSON_CreateArray();
     cJSON_AddItemToObject(root, "cameras", cameraArray);
 
-    cJSON *modelArray = cJSON_CreateArray();
-    cJSON_AddItemToObject(root, "models", modelArray);
+    cJSON *gameObjectArray = cJSON_CreateArray();
+    cJSON_AddItemToObject(root, "gameObjects", gameObjectArray);
 
     for(vector<CSavable*>::iterator it = savables.begin(); it != savables.end(); ++it)
     {
@@ -73,9 +73,9 @@ bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
       {
         cJSON_AddItemToArray(cameraArray, object);
       }
-      else if(current.type == SavableType::Model)
+      else if(current.type == SavableType::GameObject)
       {
-        cJSON_AddItemToArray(modelArray, object);
+        cJSON_AddItemToArray(gameObjectArray, object);
       }
     }
 
@@ -112,13 +112,13 @@ bool CFileIO::Load(cJSON **data, string &fileName)
     mtar_read_data(&tar, contents, header.size);
     cJSON *root = cJSON_Parse(contents);
 
-    // Iterate through all models.
-    cJSON *models = cJSON_GetObjectItem(root, "models");
-    cJSON *model = NULL;
-    cJSON_ArrayForEach(model, models)
+    // Iterate through all game objects.
+    cJSON *gameObjects = cJSON_GetObjectItem(root, "gameObjects");
+    cJSON *gameObject = NULL;
+    cJSON_ArrayForEach(gameObject, gameObjects)
     {
-      // Locate each packed model resource.
-      cJSON *resources = cJSON_GetObjectItem(model, "resources");
+      // Locate each packed game object resource.
+      cJSON *resources = cJSON_GetObjectItem(gameObject, "resources");
       cJSON *resource = NULL;
       cJSON_ArrayForEach(resource, resources)
       {

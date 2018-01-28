@@ -2,7 +2,7 @@
 #define _GIZMO_H_
 
 #include "Camera.h"
-#include "Model.h"
+#include "GameObject.h"
 
 enum GizmoState { XAxis, YAxis, ZAxis };
 
@@ -14,9 +14,9 @@ public:
   CGizmo();
   ~CGizmo();
   void SetModifier(GizmoModifierState state);
-  bool ToggleSpace(CModel *model);
+  bool ToggleSpace(CGameObject *gameObject);
   bool ToggleSnapping();
-  void Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CModel *currentModel, CModel *selectedModel);
+  void Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CGameObject *currentGameObject, CGameObject *selectedGameObject);
   void Reset();
   bool Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
   void Release();
@@ -35,7 +35,7 @@ private:
   D3DMATERIAL8 m_redMaterial;
   D3DMATERIAL8 m_greenMaterial;
   D3DMATERIAL8 m_blueMaterial;
-  CModel m_models[9];
+  CGameObject m_gameObjects[9];
   GizmoState m_state;
   GizmoModifierState m_modifierState;
   D3DXVECTOR3 m_updateStartPoint;

@@ -124,6 +124,10 @@ SOURCE=.\FileIO.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\GameObject.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Gizmo.cpp
 # End Source File
 # Begin Source File
@@ -137,10 +141,6 @@ SOURCE=.\Mesh.cpp
 # Begin Source File
 
 SOURCE=.\microtar.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\Model.cpp
 # End Source File
 # Begin Source File
 
@@ -196,6 +196,10 @@ SOURCE=.\FileIO.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\GameObject.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Gizmo.h
 # End Source File
 # Begin Source File
@@ -209,10 +213,6 @@ SOURCE=.\Mesh.h
 # Begin Source File
 
 SOURCE=.\microtar.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Model.h
 # End Source File
 # Begin Source File
 

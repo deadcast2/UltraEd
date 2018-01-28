@@ -1,5 +1,5 @@
-#ifndef _MODEL_H_
-#define _MODEL_H_
+#ifndef _GAMEOBJECT_H_
+#define _GAMEOBJECT_H_
 
 #pragma warning(disable: 4786)
 
@@ -12,18 +12,23 @@
 
 using namespace std;
 
-struct ModelRelease
+struct GameObjectType
+{
+  enum Value { Model, Camera };
+};
+
+struct GameObjectRelease
 {
   enum Value { AllResources, VertexBufferOnly };
 };
 
-class CModel : public CSavable
+class CGameObject : public CSavable
 {
 public:
-  CModel();
-  CModel(const char *filePath);
-  CModel(const CModel &model);
-  ~CModel();
+  CGameObject();
+  CGameObject(const char *filePath);
+  CGameObject(const CGameObject &gameObject);
+  ~CGameObject();
   Savable Save();
   bool Load(IDirect3DDevice8 *device, cJSON *root);
   bool LoadTexture(IDirect3DDevice8 *device, const char *filePath);
@@ -44,7 +49,7 @@ public:
   D3DXVECTOR3 GetForward();
   D3DXVECTOR3 GetUp();
   void GetAxisAngle(D3DXVECTOR3 *axis, float *angle);
-  void Release(ModelRelease::Value type);
+  void Release(GameObjectRelease::Value type);
   void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
   vector<MeshVertex> GetVertices();
   bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist);

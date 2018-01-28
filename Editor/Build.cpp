@@ -9,7 +9,7 @@
 #include "build.h"
 #include "util.h"
 
-bool CBuild::Start(vector<CModel*> models)
+bool CBuild::Start(vector<CGameObject*> gameObjects)
 {
   const char *specHeader = "#include <nusys.h>\n\n"
     "beginseg"
@@ -44,7 +44,7 @@ bool CBuild::Start(vector<CModel*> models)
   string modelInits, modelDraws;
   int loopCount = 0;
 
-  for(vector<CModel*>::iterator it = models.begin(); it != models.end(); ++it)
+  for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
   {
     string newResName = CUtil::NewResourceName(loopCount++);
 

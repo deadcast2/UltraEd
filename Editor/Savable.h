@@ -11,7 +11,7 @@ using namespace std;
 
 struct SavableType
 {
-  enum Value { Camera, Model };
+  enum Value { Camera, GameObject };
 };
 
 typedef struct

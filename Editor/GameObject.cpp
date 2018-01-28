@@ -1,31 +1,31 @@
-#include "Model.h"
+#include "GameObject.h"
 #include "FileIO.h"
 #include "Util.h"
 
-CModel::CModel()
+CGameObject::CGameObject()
 {
   Init();
 }
 
-CModel::CModel(const CModel &model)
+CGameObject::CGameObject(const CGameObject &gameObject)
 {
-  *this = model;
+  *this = gameObject;
   m_vertexBuffer = 0;
   m_texture = 0;
   ResetId();
 }
 
-CModel::CModel(const char *filePath)
+CGameObject::CGameObject(const char *filePath)
 {
   Init();
   Import(filePath);
 }
 
-CModel::~CModel()
+CGameObject::~CGameObject()
 {
 }
 
-void CModel::Init()
+void CGameObject::Init()
 {
   ResetId();
   
@@ -38,7 +38,7 @@ void CModel::Init()
   D3DXMatrixIdentity(&m_worldRot);
 }
 
-void CModel::Import(const char *filePath)
+void CGameObject::Import(const char *filePath)
 {
   Assimp::Importer importer;
   FileInfo info = CFileIO::Import(filePath);
@@ -58,7 +58,7 @@ void CModel::Import(const char *filePath)
   }
 }
 
-void CModel::Process(aiNode *node, const aiScene *scene)
+void CGameObject::Process(aiNode *node, const aiScene *scene)
 {
   int i;
   
@@ -75,7 +75,7 @@ void CModel::Process(aiNode *node, const aiScene *scene)
   }
 }
 
-IDirect3DVertexBuffer8 *CModel::GetBuffer(IDirect3DDevice8 *device)
+IDirect3DVertexBuffer8 *CGameObject::GetBuffer(IDirect3DDevice8 *device)
 {
   if(m_vertexBuffer == NULL)
   {
@@ -103,12 +103,12 @@ IDirect3DVertexBuffer8 *CModel::GetBuffer(IDirect3DDevice8 *device)
   return m_vertexBuffer;
 }
 
-vector<MeshVertex> CModel::GetVertices()
+vector<MeshVertex> CGameObject::GetVertices()
 {
   return m_vertices;
 }
 
-void CModel::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
+void CGameObject::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
 {
   IDirect3DVertexBuffer8 *buffer = GetBuffer(device);
   
@@ -130,7 +130,7 @@ void CModel::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
   }
 }
 
-void CModel::Release(ModelRelease::Value type)
+void CGameObject::Release(GameObjectRelease::Value type)
 {
   if(m_vertexBuffer != NULL)
   {
@@ -138,7 +138,7 @@ void CModel::Release(ModelRelease::Value type)
     m_vertexBuffer = 0;
   }
   
-  if(type == ModelRelease::VertexBufferOnly) return;
+  if(type == GameObjectRelease::VertexBufferOnly) return;
   
   if(m_texture != NULL)
   {
@@ -147,87 +147,87 @@ void CModel::Release(ModelRelease::Value type)
   }
 }
 
-GUID CModel::GetId()
+GUID CGameObject::GetId()
 {
   return m_id;
 }
 
-void CModel::ResetId()
+void CGameObject::ResetId()
 {
   m_id = CUtil::NewGuid();
 }
 
-D3DXVECTOR3 CModel::GetPosition()
+D3DXVECTOR3 CGameObject::GetPosition()
 {
   return m_position;
 }
 
-void CModel::SetPosition(D3DXVECTOR3 position)
+void CGameObject::SetPosition(D3DXVECTOR3 position)
 {
   m_position = position;
 }
 
-void CModel::SetRotation(D3DXVECTOR3 rotation)
+void CGameObject::SetRotation(D3DXVECTOR3 rotation)
 {
   D3DXMatrixRotationYawPitchRoll(&m_worldRot, rotation.y, rotation.x, rotation.z);
 }
 
-D3DXVECTOR3 CModel::GetScale()
+D3DXVECTOR3 CGameObject::GetScale()
 {
   return m_scale;
 }
 
-void CModel::SetScale(D3DXVECTOR3 scale)
+void CGameObject::SetScale(D3DXVECTOR3 scale)
 {
   m_scale = scale;
 }
 
-D3DXVECTOR3 CModel::GetRight()
+D3DXVECTOR3 CGameObject::GetRight()
 {
   D3DXVECTOR3 right = D3DXVECTOR3(1, 0, 0);
   D3DXVec3TransformCoord(&right, &right, &GetRotationMatrix());
   return right;
 }
 
-D3DXVECTOR3 CModel::GetForward()
+D3DXVECTOR3 CGameObject::GetForward()
 {
   D3DXVECTOR3 forward = D3DXVECTOR3(0, 0, 1);
   D3DXVec3TransformCoord(&forward, &forward, &GetRotationMatrix());
   return forward;
 }
 
-D3DXVECTOR3 CModel::GetUp()
+D3DXVECTOR3 CGameObject::GetUp()
 {
   D3DXVECTOR3 up = D3DXVECTOR3(0, 1, 0);
   D3DXVec3TransformCoord(&up, &up, &GetRotationMatrix());
   return up;
 }
 
-void CModel::GetAxisAngle(D3DXVECTOR3 *axis, float *angle)
+void CGameObject::GetAxisAngle(D3DXVECTOR3 *axis, float *angle)
 {
   D3DXQUATERNION quat;
   D3DXQuaternionRotationMatrix(&quat, &m_worldRot);
   D3DXQuaternionToAxisAngle(&quat, axis, angle);
 }
 
-void CModel::Move(D3DXVECTOR3 position)
+void CGameObject::Move(D3DXVECTOR3 position)
 {
   m_position += position;
 }
 
-void CModel::Scale(D3DXVECTOR3 position)
+void CGameObject::Scale(D3DXVECTOR3 position)
 {
   m_scale += position;
 }
 
-void CModel::Rotate(FLOAT angle, D3DXVECTOR3 dir)
+void CGameObject::Rotate(FLOAT angle, D3DXVECTOR3 dir)
 {
   D3DXMATRIX newWorld;
   D3DXMatrixRotationAxis(&newWorld, &dir, angle);
   m_worldRot *= newWorld;
 }
 
-D3DXMATRIX CModel::GetMatrix()
+D3DXMATRIX CGameObject::GetMatrix()
 {
   D3DXMATRIX translation;
   D3DXMatrixTranslation(&translation, m_position.x, m_position.y, m_position.z);
@@ -238,29 +238,29 @@ D3DXMATRIX CModel::GetMatrix()
   return scale * m_worldRot * m_localRot * translation;
 }
 
-D3DXMATRIX CModel::GetRotationMatrix()
+D3DXMATRIX CGameObject::GetRotationMatrix()
 {  
   return m_worldRot;
 }
 
-void CModel::SetLocalRotationMatrix(D3DXMATRIX mat)
+void CGameObject::SetLocalRotationMatrix(D3DXMATRIX mat)
 {
   m_localRot = mat;
 }
 
-bool CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist)
+bool CGameObject::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist)
 {
   vector<MeshVertex> vertices = GetVertices();
   
-  // Test all faces in this model.
+  // Test all faces in this game object.
   for(int j = 0; j < vertices.size() / 3; j++)
   {
     D3DXVECTOR3 v0 = vertices[3 * j + 0].position;
     D3DXVECTOR3 v1 = vertices[3 * j + 1].position;
     D3DXVECTOR3 v2 = vertices[3 * j + 2].position;
     
-    // Transform the local vert positions based of the models
-    // local matrix so when the model is moved around we can still click it.
+    // Transform the local vert positions based of the game object's
+    // local matrix so when the game object is moved around we can still click it.
     D3DXVec3TransformCoord(&v0, &v0, &GetMatrix());
     D3DXVec3TransformCoord(&v1, &v1, &GetMatrix());
     D3DXVec3TransformCoord(&v2, &v2, &GetMatrix());
@@ -275,7 +275,7 @@ bool CModel::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist)
   return false;
 }
 
-bool CModel::IntersectTriangle(const D3DXVECTOR3 &orig,
+bool CGameObject::IntersectTriangle(const D3DXVECTOR3 &orig,
                                const D3DXVECTOR3 &dir, D3DXVECTOR3 &v0,
                                D3DXVECTOR3 &v1, D3DXVECTOR3 &v2, float *dist)
 {
@@ -310,7 +310,7 @@ bool CModel::IntersectTriangle(const D3DXVECTOR3 &orig,
   return true;
 }
 
-bool CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
+bool CGameObject::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
 {
   FileInfo info = CFileIO::Import(filePath);
   
@@ -325,33 +325,32 @@ bool CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
   return true;
 }
 
-Savable CModel::Save()
+Savable CGameObject::Save()
 {
   char buffer[LINE_FORMAT_LENGTH];
   cJSON *root = cJSON_CreateObject();
-  cJSON *model = cJSON_CreateObject();
+  cJSON *gameObject = cJSON_CreateObject();
   
-  cJSON_AddItemToObject(root, "model", model);
+  cJSON_AddItemToObject(root, "gameObject", gameObject);
   
-  cJSON_AddStringToObject(model, "id", CUtil::GuidToString(m_id).c_str());
+  cJSON_AddStringToObject(gameObject, "id", CUtil::GuidToString(m_id).c_str());
   
   sprintf(buffer, "%f %f %f", m_position.x, m_position.y, m_position.z);
-  cJSON_AddStringToObject(model, "position", buffer);
+  cJSON_AddStringToObject(gameObject, "position", buffer);
   
   sprintf(buffer, "%f %f %f", m_scale.x, m_scale.y, m_scale.z);
-  cJSON_AddStringToObject(model, "scale", buffer);
+  cJSON_AddStringToObject(gameObject, "scale", buffer);
   
   D3DXQUATERNION quat;
   D3DXQuaternionRotationMatrix(&quat, &m_worldRot);
   sprintf(buffer, "%f %f %f %f", quat.x, quat.y, quat.z, quat.w);
-  cJSON_AddStringToObject(model, "rotation", buffer);
+  cJSON_AddStringToObject(gameObject, "rotation", buffer);
   
-  Savable savable = { root, SavableType::Model };
-  
+  Savable savable = { root, SavableType::GameObject };
   return savable;
 }
 
-bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
+bool CGameObject::Load(IDirect3DDevice8 *device, cJSON *root)
 {
   float x, y, z, w;
   cJSON *id = cJSON_GetObjectItem(root, "id");
