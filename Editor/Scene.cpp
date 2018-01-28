@@ -142,7 +142,7 @@ void CScene::OnImportModel()
     "Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
     "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj", file))
   {
-    CGameObject gameObject = CGameObject(file.c_str());
+    CGameObject gameObject = CGameObject(file.c_str(), GameObjectType::Model);
     m_gameObjects[gameObject.GetId()] = gameObject;
   }
 }

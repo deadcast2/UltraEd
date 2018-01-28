@@ -15,10 +15,11 @@ CGameObject::CGameObject(const CGameObject &gameObject)
   ResetId();
 }
 
-CGameObject::CGameObject(const char *filePath)
+CGameObject::CGameObject(const char *filePath, GameObjectType::Value type)
 {
   Init();
   Import(filePath);
+  m_type = type;
 }
 
 CGameObject::~CGameObject()
@@ -155,6 +156,11 @@ GUID CGameObject::GetId()
 void CGameObject::ResetId()
 {
   m_id = CUtil::NewGuid();
+}
+
+GameObjectType::Value CGameObject::GetType()
+{
+  return m_type;
 }
 
 D3DXVECTOR3 CGameObject::GetPosition()

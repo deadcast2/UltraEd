@@ -26,7 +26,7 @@ class CGameObject : public CSavable
 {
 public:
   CGameObject();
-  CGameObject(const char *filePath);
+  CGameObject(const char *filePath, GameObjectType::Value type);
   CGameObject(const CGameObject &gameObject);
   ~CGameObject();
   Savable Save();
@@ -39,6 +39,7 @@ public:
   void Scale(D3DXVECTOR3 position);
   void Rotate(FLOAT angle, D3DXVECTOR3 dir);
   GUID GetId();
+  GameObjectType::Value GetType();
   void ResetId();
   D3DXVECTOR3 GetPosition();
   void SetPosition(D3DXVECTOR3 position);
@@ -60,6 +61,7 @@ private:
   
 private:
   GUID m_id;
+  GameObjectType::Value m_type;
   IDirect3DVertexBuffer8 *m_vertexBuffer;
   void Process(aiNode *node, const aiScene *scene);
   IDirect3DVertexBuffer8 *GetBuffer(IDirect3DDevice8 *device);
