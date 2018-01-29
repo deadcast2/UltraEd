@@ -17,17 +17,19 @@
 #define ID_FILE_LOADSCENE               40007
 #define ID_RENDER_SOLID                 40008
 #define ID_FILE_BUILDROM                40009
-#define ID_TOOL_SETTINGS                40010
 #define ID_FILE_BUILDROM_AND_RUN        40011
-#define ID_TOOL_SPLIT                   40012
-#define ID_SPACE_SNAPTOGRID             40013
+#define ID_MOVEMENT_SNAPTOGRID          40013
+#define ID_ADD_CAMERA                   40014
+#define ID_ADD_MODEL                    40015
+#define ID_ADD_TEXTURE                  40016
+#define ID_FILE_SETTINGS                40017
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        105
-#define _APS_NEXT_COMMAND_VALUE         40014
+#define _APS_NEXT_COMMAND_VALUE         40018
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

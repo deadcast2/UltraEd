@@ -108,8 +108,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       switch(LOWORD(wParam))
       {
       case ID_FILE_NEWSCENE:
-        if(MessageBox(hWnd, "All scene data will be erased.",
-          "Are you sure?", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+        if(MessageBox(hWnd, "All scene data will be erased.", "Are you sure?", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
         {
           scene.OnNew();
         }
@@ -123,20 +122,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case ID_FILE_EXIT:
         PostQuitMessage(0);
         break;
-      case ID_FILE_IMPORTMODEL:
-        scene.OnImportModel();
-        break;
       case ID_FILE_BUILDROM:
         scene.OnBuildROM(false);
         break;
       case ID_FILE_BUILDROM_AND_RUN:
         scene.OnBuildROM(true);
         break;
-      case ID_TOOL_APPLYTEXTURE:
-        scene.OnApplyTexture();
-        break;
-      case ID_TOOL_SETTINGS:
+      case ID_FILE_SETTINGS:
         DialogBox(NULL, MAKEINTRESOURCE(IDD_SETTINGS), hWnd, (DLGPROC)SettingsProc);
+        break;
+      case ID_ADD_MODEL:
+        scene.OnImportModel();
+        break;
+      case ID_ADD_TEXTURE:
+        scene.OnApplyTexture();
         break;
       case ID_RENDER_SOLID:
         {
@@ -158,7 +157,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           }
           break;
         }
-      case ID_SPACE_SNAPTOGRID:
+      case ID_MOVEMENT_SNAPTOGRID:
         {
           HMENU menu = GetMenu(hWnd);
           if(menu != NULL)
@@ -325,8 +324,7 @@ HWND CreateToolbar(HWND hWnd, HINSTANCE hInst)
     sizeof(TBBUTTON));
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                   LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
   WNDCLASSEX wcex;
   wcex.cbSize = sizeof(WNDCLASSEX);

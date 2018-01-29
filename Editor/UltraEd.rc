@@ -57,29 +57,30 @@ BEGIN
     POPUP "File"
     BEGIN
         MENUITEM "New Scene",                   ID_FILE_NEWSCENE
-        MENUITEM "Save Scene",                  ID_FILE_SAVESCENE
+        MENUITEM "Save Scene As...",            ID_FILE_SAVESCENE
         MENUITEM "Load Scene",                  ID_FILE_LOADSCENE
         MENUITEM SEPARATOR
-        MENUITEM "Import Model",                ID_FILE_IMPORTMODEL
         MENUITEM "Build ROM",                   ID_FILE_BUILDROM
         MENUITEM "Build ROM && Run",            ID_FILE_BUILDROM_AND_RUN
         MENUITEM SEPARATOR
+        MENUITEM "Settings",                    ID_FILE_SETTINGS
         MENUITEM "Exit",                        ID_FILE_EXIT
     END
-    POPUP "Space"
+    POPUP "Add"
     BEGIN
-        MENUITEM "World",                       ID_MOVEMENT_WORLDSPACE
-        , CHECKED
-        MENUITEM "Snap to Grid",                ID_SPACE_SNAPTOGRID
+        MENUITEM "Camera",                      ID_ADD_CAMERA
+        MENUITEM "Model",                       ID_ADD_MODEL
+        MENUITEM "Texture",                     ID_ADD_TEXTURE
     END
     POPUP "Render"
     BEGIN
         MENUITEM "Solid",                       ID_RENDER_SOLID, CHECKED
     END
-    POPUP "Tools"
+    POPUP "Movement"
     BEGIN
-        MENUITEM "Apply Texture",               ID_TOOL_APPLYTEXTURE
-        MENUITEM "Settings",                    ID_TOOL_SETTINGS
+        MENUITEM "World",                       ID_MOVEMENT_WORLDSPACE
+        , CHECKED
+        MENUITEM "Snap to Grid",                ID_MOVEMENT_SNAPTOGRID
     END
 END
 
