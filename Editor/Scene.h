@@ -29,6 +29,7 @@ public:
   void OnNew();
   void OnSave();
   void OnLoad();
+  void OnAddCamera();
   void OnApplyTexture();
   void OnImportModel();
   void OnBuildROM(bool run);

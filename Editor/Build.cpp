@@ -96,7 +96,15 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
     itoa(loopCount-1, countBuffer, 10);
     modelInits.append("\n\t_UER_Models[");
     modelInits.append(countBuffer);
-    modelInits.append("] = (struct sos_model*)load_sos_model(_");
+
+    map<string, string> resources = (*it)->GetResources();
+    if(resources.count("textureDataPath"))
+    {
+      modelInits.append("] = (struct sos_model*)load_sos_model_with_texture(_");
+    } else {
+      modelInits.append("] = (struct sos_model*)load_sos_model(_");
+    }
+
     modelInits.append(modelName);
     modelInits.append("SegmentRomStart, _");
     modelInits.append(modelName);
@@ -107,7 +115,6 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
     modelDraws.append("], display_list);\n");
     
     // Save texture data.
-    map<string, string> resources = (*it)->GetResources();
     if(resources.count("textureDataPath"))
     {
       // Load the set texture and resize to required dimensions.

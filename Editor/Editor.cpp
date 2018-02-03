@@ -131,6 +131,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case ID_FILE_SETTINGS:
         DialogBox(NULL, MAKEINTRESOURCE(IDD_SETTINGS), hWnd, (DLGPROC)SettingsProc);
         break;
+      case ID_ADD_CAMERA:
+        scene.OnAddCamera();
+        break;
       case ID_ADD_MODEL:
         scene.OnImportModel();
         break;

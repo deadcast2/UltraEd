@@ -567,3 +567,9 @@ bool CScene::ToggleSnapToGrid()
 {
   return m_gizmo.ToggleSnapping();
 }
+
+void CScene::OnAddCamera()
+{
+  CGameObject gameObject = CGameObject("assets/frustum.dae", GameObjectType::Camera);
+  m_gameObjects[gameObject.GetId()] = gameObject;
+}

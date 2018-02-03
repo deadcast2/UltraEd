@@ -27,6 +27,12 @@ unsigned short* image_24_to_16(const unsigned char* data,
 }
 
 struct sos_model *load_sos_model(void *data_start, void *data_end,
+                                 double positionX, double positionY, double positionZ,
+                                 double rotX, double rotY, double rotZ, double angle) {
+  return load_sos_model_with_texture(data_start, data_end, NULL, NULL, positionX, positionY, positionZ, rotX, rotY, rotZ, angle);
+}
+
+struct sos_model *load_sos_model_with_texture(void *data_start, void *data_end,
                                  void *texture_start, void *texture_end,
                                  double positionX, double positionY, double positionZ,
                                  double rotX, double rotY, double rotZ, double angle) {
@@ -133,12 +139,15 @@ void sos_draw(struct sos_model *model, Gfx **display_list) {
   gDPSetRenderMode((*display_list)++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
   gSPClearGeometryMode((*display_list)++, 0xFFFFFFFF);
   gSPSetGeometryMode((*display_list)++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER | G_CULL_FRONT);
-  gDPSetTextureFilter((*display_list)++, G_TF_BILERP);
-  gDPSetCombineMode((*display_list)++, G_CC_BLENDRGBA, G_CC_BLENDRGBA);
-  gDPSetTexturePersp((*display_list)++, G_TP_PERSP);
-  gSPTexture((*display_list)++, 0xffff, 0xffff, 0, G_TX_RENDERTILE, G_ON);
-  gDPLoadTextureBlock((*display_list)++, model->texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
-    G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+  
+  if(model->texture != NULL) {
+    gDPSetTextureFilter((*display_list)++, G_TF_BILERP);
+    gDPSetCombineMode((*display_list)++, G_CC_BLENDRGBA, G_CC_BLENDRGBA);
+    gDPSetTexturePersp((*display_list)++, G_TP_PERSP);
+    gSPTexture((*display_list)++, 0xffff, 0xffff, 0, G_TX_RENDERTILE, G_ON);
+    gDPLoadTextureBlock((*display_list)++, model->texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
+      G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+  }
   
   // Send vertex data in batches of 30.
   while(remaining_vertices >= 30) {
