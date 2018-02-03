@@ -78,7 +78,7 @@ BEGIN
     END
     POPUP "Movement"
     BEGIN
-        MENUITEM "World",                       ID_MOVEMENT_WORLDSPACE
+        MENUITEM "World Space",                 ID_MOVEMENT_WORLDSPACE
         , CHECKED
         MENUITEM "Snap to Grid",                ID_MOVEMENT_SNAPTOGRID
     END
