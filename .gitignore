@@ -5,6 +5,7 @@ Player/Config
 Player/Logs
 Engine/segments.h
 Engine/models.h
+Engine/cameras.h
 Engine/spec
 *.plg
 *.ncb

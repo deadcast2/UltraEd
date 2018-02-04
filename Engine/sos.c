@@ -81,7 +81,7 @@ struct sos_model *load_sos_model_with_texture(void *data_start, void *data_end,
   }
 
   // Entire axis can't be zero or it won't render.
-  if(rotX == 0.0 && rotY == 0.0 && rotZ == 0) rotZ = 1;
+  if(rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
 
   new_model->position->x = positionX;
   new_model->position->y = positionY;

@@ -3,6 +3,7 @@
 #include "sos.h"
 #include "segments.h"
 #include "models.h"
+#include "cameras.h"
 
 #define GFX_GLIST_LEN 2048
 
@@ -57,35 +58,40 @@ void clearFramBuffer() {
   gDPPipeSync(glistp++);
 }
 
+void set_camera_transform(double positionX, double positionY, double positionZ,
+                          double rotX, double rotY, double rotZ, double angle) {
+  // Entire axis can't be zero or it won't render.
+  if(rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
+  guTranslate(&world.translation, -positionX, -positionY, positionZ);
+  guRotate(&world.rotation, angle, rotX, rotY, -rotZ);
+}
+
 void setup_world_matrix(Gfx **display_list) {
   guPerspective(&world.projection,
     &perspNormal,
-    60.0F, SCREEN_WD / SCREEN_HT,
+    80.0F, SCREEN_WD / SCREEN_HT,
     1.0F, 1000.0F, 1.0F);
-  
-  guTranslate(&world.translation, 0, 0, 0);
   
   gSPPerspNormalize((*display_list)++, perspNormal);
   
   gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.projection),
     G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+
+  gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.rotation),
+    G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
   
   gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.translation),
-    G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH); 
 }
 
 void createDisplayList() {
   glistp = gfx_glist;
   rcpInit();
   clearFramBuffer();
-  
   setup_world_matrix(&glistp);
-  
   _UER_Draw(&glistp);
-  
   gDPFullSync(glistp++);
   gSPEndDisplayList(glistp++);
-  
   nuGfxTaskStart(gfx_glist, (s32)(glistp - gfx_glist) * sizeof(Gfx),
     NU_GFX_UCODE_F3DEX, NU_SC_SWAPBUFFER);
 }
@@ -98,7 +104,6 @@ int initHeapMemory() {
   if(InitHeap(mem_heep, sizeof(mem_heep)) == -1) {
     return -1;
   }
-  
   return 0;
 }
 
@@ -107,6 +112,7 @@ void mainproc() {
   
   if(initHeapMemory() > -1) {
     _UER_Load();
+    _UER_Camera();
   }
   
   while(1) {
