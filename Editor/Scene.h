@@ -15,6 +15,11 @@
 #include "Grid.h"
 #include "GameObject.h"
 
+struct BuildFlag
+{
+  enum Value { _, Run, Load };
+};
+
 class CScene
 {
 public:
@@ -32,7 +37,7 @@ public:
   void OnAddCamera();
   void OnApplyTexture();
   void OnImportModel();
-  void OnBuildROM(bool run);
+  void OnBuildROM(BuildFlag::Value flag);
   bool Pick(POINT mousePoint);
   void ReleaseResources(GameObjectRelease::Value type);
   void CheckInput(float);

@@ -62,6 +62,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Build ROM",                   ID_FILE_BUILDROM
         MENUITEM "Build ROM && Run",            ID_FILE_BUILDROM_AND_RUN
+        MENUITEM "Build ROM && Load",           ID_FILE_BUILDROM_AND_LOAD
         MENUITEM SEPARATOR
         MENUITEM "Settings",                    ID_FILE_SETTINGS
         MENUITEM "Exit",                        ID_FILE_EXIT

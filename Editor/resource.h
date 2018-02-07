@@ -23,13 +23,14 @@
 #define ID_ADD_MODEL                    40015
 #define ID_ADD_TEXTURE                  40016
 #define ID_FILE_SETTINGS                40017
+#define ID_FILE_BUILDROM_AND_LOAD       40018
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        105
-#define _APS_NEXT_COMMAND_VALUE         40018
+#define _APS_NEXT_COMMAND_VALUE         40019
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

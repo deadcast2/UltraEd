@@ -78,7 +78,7 @@ void setup_world_matrix(Gfx **display_list) {
     G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
 
   gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.rotation),
-    G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+    G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
   
   gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.translation),
     G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH); 

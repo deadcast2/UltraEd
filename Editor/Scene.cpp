@@ -147,7 +147,7 @@ void CScene::OnImportModel()
   }
 }
 
-void CScene::OnBuildROM(bool run)
+void CScene::OnBuildROM(BuildFlag::Value flag)
 {
   vector<CGameObject*> gameObjects;
 
@@ -159,9 +159,20 @@ void CScene::OnBuildROM(bool run)
 
   if(CBuild::Start(gameObjects))
   {
-    if(run)
+    if(flag & BuildFlag::Run)
     {
       CBuild::Run();
+    }
+    else if(flag & BuildFlag::Load)
+    {
+      if(CBuild::Load())
+      {
+        MessageBox(NULL, "The ROM has been successfully loaded to the cart!", "Success", MB_OK);
+      }
+      else
+      {
+        MessageBox(NULL, "Could not load ROM onto cart. Make sure your cart is connected via USB.", "Error", MB_OK);
+      }
     }
     else
     {

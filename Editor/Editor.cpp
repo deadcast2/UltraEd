@@ -123,10 +123,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         break;
       case ID_FILE_BUILDROM:
-        scene.OnBuildROM(false);
+        scene.OnBuildROM(BuildFlag::_);
         break;
       case ID_FILE_BUILDROM_AND_RUN:
-        scene.OnBuildROM(true);
+        scene.OnBuildROM(BuildFlag::Run);
+        break;
+      case ID_FILE_BUILDROM_AND_LOAD:
+        scene.OnBuildROM(BuildFlag::Load);
         break;
       case ID_FILE_SETTINGS:
         DialogBox(NULL, MAKEINTRESOURCE(IDD_SETTINGS), hWnd, (DLGPROC)SettingsProc);

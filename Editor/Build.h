@@ -17,6 +17,7 @@ class CBuild
 public:
   static bool Start(vector<CGameObject*> gameObjects);
   static bool Run();
+  static bool Load();
 
 private:
   static bool Compile();
