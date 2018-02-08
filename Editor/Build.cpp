@@ -166,10 +166,12 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
       D3DXVECTOR3 position = (*it)->GetPosition();
       D3DXVECTOR3 axis;
       float angle;
+      D3DXVECTOR3 scale = (*it)->GetScale();
       (*it)->GetAxisAngle(&axis, &angle);
-      sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+      sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
         position.x, position.y, position.z,
-        axis.x, axis.y, axis.z, angle * (180/D3DX_PI));
+        axis.x, axis.y, axis.z, angle * (180/D3DX_PI),
+        scale.x, scale.y, scale.z);
       modelInits.append(vectorBuffer);
       modelInits.append(");\n");
     } else {

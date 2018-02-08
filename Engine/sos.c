@@ -28,14 +28,17 @@ unsigned short* image_24_to_16(const unsigned char* data,
 
 struct sos_model *load_sos_model(void *data_start, void *data_end,
                                  double positionX, double positionY, double positionZ,
-                                 double rotX, double rotY, double rotZ, double angle) {
-  return load_sos_model_with_texture(data_start, data_end, NULL, NULL, positionX, positionY, positionZ, rotX, rotY, rotZ, angle);
+                                 double rotX, double rotY, double rotZ, double angle,
+                                 double scaleX, double scaleY, double scaleZ) {
+  return load_sos_model_with_texture(data_start, data_end, 
+    NULL, NULL, positionX, positionY, positionZ, rotX, rotY, rotZ, angle, scaleX, scaleY, scaleZ);
 }
 
 struct sos_model *load_sos_model_with_texture(void *data_start, void *data_end,
                                  void *texture_start, void *texture_end,
                                  double positionX, double positionY, double positionZ,
-                                 double rotX, double rotY, double rotZ, double angle) {
+                                 double rotX, double rotY, double rotZ, double angle,
+                                 double scaleX, double scaleY, double scaleZ) {
   unsigned char data_buffer[200000];
   unsigned char texture_buffer[20000];
   char *line;
@@ -86,9 +89,9 @@ struct sos_model *load_sos_model_with_texture(void *data_start, void *data_end,
   new_model->position->x = positionX;
   new_model->position->y = positionY;
   new_model->position->z = -positionZ;
-  new_model->scale->x = 0.001;
-  new_model->scale->y = 0.001;
-  new_model->scale->z = 0.001;
+  new_model->scale->x = scaleX * 0.001;
+  new_model->scale->y = scaleY * 0.001;
+  new_model->scale->z = scaleZ * 0.001;
   new_model->rotationAxis->x = rotX;
   new_model->rotationAxis->y = rotY;
   new_model->rotationAxis->z = -rotZ;
