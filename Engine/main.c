@@ -70,7 +70,7 @@ void setup_world_matrix(Gfx **display_list) {
   guPerspective(&world.projection,
     &perspNormal,
     80.0F, SCREEN_WD / SCREEN_HT,
-    1.0F, 1000.0F, 1.0F);
+    0.1F, 1000.0F, 1.0F);
   
   gSPPerspNormalize((*display_list)++, perspNormal);
   
