@@ -520,6 +520,11 @@ void CScene::Duplicate()
   }
 }
 
+void CScene::ModifyScript()
+{
+  // TODO
+}
+
 HWND CScene::GetWndHandle()
 {
   D3DDEVICE_CREATION_PARAMETERS params;

@@ -73,6 +73,7 @@ private:
   D3DXMATRIX m_localRot;
   D3DXMATRIX m_worldRot;
   LPDIRECT3DTEXTURE8 m_texture;
+  string m_script;
 };
 
 #endif

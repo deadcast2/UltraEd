@@ -12,6 +12,8 @@
 #include "resource.h"
 #include "Scene.h"
 #include "Settings.h"
+#include "Scintilla.h"
+#include "SciLexer.h"
 
 #define IDM_TOOLBAR_TRANSLATE 5000
 #define IDM_TOOLBAR_ROTATE 5001
@@ -22,6 +24,7 @@
 #define IDM_TOOLBAR_VIEW_FRONT 5006
 #define IDM_MENU_DELETE_OBJECT 9001
 #define IDM_MENU_DUPLICATE_OBJECT 9002
+#define IDM_MENU_MODIFY_SCRIPT_OBJECT 9003
 
 const int windowWidth = 800;
 const int windowHeight = 600;
@@ -84,6 +87,40 @@ BOOL CALLBACK SettingsProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lPa
       return TRUE; 
     } 
   } 
+  return FALSE; 
+}
+
+BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam) 
+{ 
+  switch (message) 
+  {
+  case WM_INITDIALOG:
+    {
+      RECT rc;
+      GetClientRect(hWndDlg, &rc);
+      HWND editor = CreateWindow(
+        "Scintilla",
+        "Source",
+        WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
+        0, 15,
+        rc.right - 15, rc.bottom - 60,
+        hWndDlg,
+        0,
+        0,
+        0);
+      ShowWindow(editor, SW_SHOW);
+      SetFocus(editor);
+    }
+    break;
+  case WM_COMMAND: 
+    switch (LOWORD(wParam)) 
+    {
+    case IDC_SCRIPT_EDITOR_SAVE_CHANGES:
+    case IDC_SCRIPT_EDITOR_CLOSE_AND_CANCEL: 
+      EndDialog(hWndDlg, wParam); 
+      return TRUE; 
+    } 
+  }
   return FALSE; 
 } 
 
@@ -200,6 +237,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case IDM_MENU_DUPLICATE_OBJECT:
         scene.Duplicate();
         break;
+      case IDM_MENU_MODIFY_SCRIPT_OBJECT:
+        DialogBox(NULL, MAKEINTRESOURCE(IDD_SCRIPT_EDITOR), hWnd, (DLGPROC)ScriptEditorProc);
+        break;
       }
       break;
     }
@@ -232,6 +272,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           HMENU menu = CreatePopupMenu();
           AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete"));
           AppendMenu(menu, MF_STRING, IDM_MENU_DUPLICATE_OBJECT, _T("Duplicate"));
+          AppendMenu(menu, MF_STRING, IDM_MENU_MODIFY_SCRIPT_OBJECT, _T("Modify Script"));
           TrackPopupMenu(menu, TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
           DestroyMenu(menu);
         }
@@ -332,6 +373,12 @@ HWND CreateToolbar(HWND hWnd, HINSTANCE hInst)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+  if(LoadLibrary("SciLexer.dll") == NULL)
+  {
+    MessageBox(NULL, "Could not load SciLexer.dll", "Error", NULL);
+    return 1;
+  }
+  
   WNDCLASSEX wcex;
   wcex.cbSize = sizeof(WNDCLASSEX);
   wcex.style = CS_HREDRAW | CS_VREDRAW;

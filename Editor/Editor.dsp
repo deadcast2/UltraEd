@@ -148,6 +148,10 @@ SOURCE=.\Scene.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Scintilla.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Settings.cpp
 # End Source File
 # Begin Source File

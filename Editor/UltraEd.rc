@@ -119,6 +119,17 @@ BEGIN
     PUSHBUTTON      "Browse",IDC_N64_SDK_PATH_BROWSE,175,18,50,14
 END
 
+IDD_SCRIPT_EDITOR DIALOG DISCARDABLE  0, 0, 400, 269
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Modify Script"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Save Changes",IDC_SCRIPT_EDITOR_SAVE_CHANGES,7,248,75,
+                    14
+    PUSHBUTTON      "Close && Cancel",IDC_SCRIPT_EDITOR_CLOSE_AND_CANCEL,87,
+                    248,75,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -134,6 +145,14 @@ BEGIN
         RIGHTMARGIN, 231
         TOPMARGIN, 7
         BOTTOMMARGIN, 70
+    END
+
+    IDD_SCRIPT_EDITOR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 393
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 262
     END
 END
 #endif    // APSTUDIO_INVOKED
