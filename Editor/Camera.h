@@ -31,7 +31,6 @@ public:
   void Walk(float units); // forward/backward
   void Pitch(float angle); // rotate on right vector
   void Yaw(float angle); // rotate on up vector
-  void Roll(float angle); // rotate on look vector
   
 private:
   D3DXVECTOR3 m_right;

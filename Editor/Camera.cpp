@@ -73,16 +73,6 @@ void CCamera::Yaw(float angle)
   D3DXVec3TransformCoord(&m_forward, &m_forward, &T);
 }
 
-void CCamera::Roll(float angle)
-{
-  D3DXMATRIX T;
-  D3DXMatrixRotationAxis(&T, &m_forward, angle);
-  
-  // rotate _up and _right around _look vector
-  D3DXVec3TransformCoord(&m_right, &m_right, &T);
-  D3DXVec3TransformCoord(&m_up, &m_up, &T);
-}
-
 void CCamera::Walk(float units)
 {
   m_pos += m_forward * units;

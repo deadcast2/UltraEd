@@ -381,9 +381,6 @@ void CScene::CheckInput(float deltaTime)
     if(GetAsyncKeyState('A')) camera->Strafe(-4.0f * deltaTime);
     if(GetAsyncKeyState('D')) camera->Strafe(4.0f * deltaTime);
     
-    if(GetAsyncKeyState('Q')) camera->Roll(4.0f * deltaTime);
-    if(GetAsyncKeyState('E')) camera->Roll(-4.0f * deltaTime);
-    
     mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, 
       mouseSmoothX, mousePoint.x - prevMousePoint.x);
     
