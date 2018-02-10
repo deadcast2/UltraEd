@@ -32,7 +32,7 @@ const int mouseWaitPeriod = 250; // milliseconds
 const TCHAR szWindowClass[] = APP_NAME;
 const TCHAR szTitle[] = _T("Loading");
 
-HWND parentWindow, toolbarWindow, renderWindow;
+HWND parentWindow, toolbarWindow, renderWindow, scriptEditorWindow;
 CScene scene;
 DWORD mouseClickTick = 0;
 
@@ -98,25 +98,37 @@ BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM
     {
       RECT rc;
       GetClientRect(hWndDlg, &rc);
-      HWND editor = CreateWindow(
-        "Scintilla",
-        "Source",
-        WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
-        0, 15,
-        rc.right - 15, rc.bottom - 60,
-        hWndDlg,
-        0,
-        0,
-        0);
-      ShowWindow(editor, SW_SHOW);
-      SetFocus(editor);
+      if(scriptEditorWindow == NULL)
+      {
+        scriptEditorWindow = CreateWindow(
+          "Scintilla",
+          "Source",
+          WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
+          0, 15,
+          rc.right - 15, rc.bottom - 60,
+          hWndDlg,
+          0,
+          0,
+          0);
+      }
+      ShowWindow(scriptEditorWindow, SW_SHOW);
+      SetFocus(scriptEditorWindow);
     }
     break;
   case WM_COMMAND: 
     switch (LOWORD(wParam)) 
     {
     case IDC_SCRIPT_EDITOR_SAVE_CHANGES:
-    case IDC_SCRIPT_EDITOR_CLOSE_AND_CANCEL: 
+      {
+        HRESULT length = SendMessage(scriptEditorWindow, SCI_GETLENGTH, 0, 0) + 1;
+        char *buffer = (char*)malloc(sizeof(char) * length);
+        SendMessage(scriptEditorWindow, SCI_GETTEXT, length, reinterpret_cast<LPARAM>(buffer));
+        MessageBox(hWndDlg, buffer, "You Typed", MB_OK);
+        free(buffer);
+        return TRUE;
+      }
+    case IDC_SCRIPT_EDITOR_CLOSE_AND_CANCEL:
+    case IDCANCEL:
       EndDialog(hWndDlg, wParam); 
       return TRUE; 
     } 
