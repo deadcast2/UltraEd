@@ -34,6 +34,7 @@ void CGameObject::Init()
   m_texture = 0;
   m_position = D3DXVECTOR3(0, 0, 0);
   m_scale = D3DXVECTOR3(1, 1, 1);
+  m_script = string("void Update()\n{\n\n}");
   
   D3DXMatrixIdentity(&m_localRot);
   D3DXMatrixIdentity(&m_worldRot);
@@ -354,6 +355,8 @@ Savable CGameObject::Save()
   D3DXQuaternionRotationMatrix(&quat, &m_worldRot);
   sprintf(buffer, "%f %f %f %f", quat.x, quat.y, quat.z, quat.w);
   cJSON_AddStringToObject(gameObject, "rotation", buffer);
+
+  cJSON_AddStringToObject(gameObject, "script", m_script.c_str());
   
   Savable savable = { root, SavableType::GameObject };
   return savable;
@@ -384,6 +387,9 @@ bool CGameObject::Load(IDirect3DDevice8 *device, cJSON *root)
   cJSON *rotation = cJSON_GetObjectItem(root, "rotation");
   sscanf(rotation->valuestring, "%f %f %f %f", &x, &y, &z, &w);
   D3DXMatrixRotationQuaternion(&m_worldRot, &D3DXQUATERNION(x, y, z, w));
+
+  cJSON *script = cJSON_GetObjectItem(root, "script");
+  m_script = script->valuestring;
   
   // Load any vertex or texture data.
   cJSON_ArrayForEach(resource, resources)
@@ -401,4 +407,14 @@ bool CGameObject::Load(IDirect3DDevice8 *device, cJSON *root)
   }
   
   return true;
+}
+
+void CGameObject::SetScript(string script)
+{
+  m_script = script;
+}
+
+string CGameObject::GetScript()
+{
+  return m_script;
 }

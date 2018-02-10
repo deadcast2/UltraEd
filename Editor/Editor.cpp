@@ -102,8 +102,8 @@ BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM
         "Scintilla",
         "Source",
         WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
-        0, 15,
-        rc.right - 15, rc.bottom - 60,
+        0, 0,
+        rc.right, rc.bottom - 50,
         hWndDlg,
         0,
         0,
@@ -111,6 +111,7 @@ BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM
       SendMessage(scriptEditorWindow, SCI_SETLEXER, SCLEX_CPP, 0);
       SendMessage(scriptEditorWindow, SCI_STYLESETSIZE, STYLE_DEFAULT, 12);
 		  SendMessage(scriptEditorWindow, SCI_STYLESETFONT, STYLE_DEFAULT, reinterpret_cast<LPARAM>("Verdana"));
+      SendMessage(scriptEditorWindow, SCI_SETTEXT, 0, reinterpret_cast<LPARAM>(scene.GetScript().c_str()));
       ShowWindow(scriptEditorWindow, SW_SHOW);
       SetFocus(scriptEditorWindow);
     }
@@ -123,11 +124,11 @@ BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM
         HRESULT length = SendMessage(scriptEditorWindow, SCI_GETLENGTH, 0, 0) + 1;
         char *buffer = (char*)malloc(sizeof(char) * length);
         SendMessage(scriptEditorWindow, SCI_GETTEXT, length, reinterpret_cast<LPARAM>(buffer));
-        MessageBox(hWndDlg, buffer, "You Typed", MB_OK);
+        scene.SetScript(string(buffer));
         free(buffer);
+        SendMessage(hWndDlg, WM_COMMAND, IDCANCEL, 0);
         return TRUE;
       }
-    case IDC_SCRIPT_EDITOR_CLOSE_AND_CANCEL:
     case IDCANCEL:
       EndDialog(hWndDlg, wParam); 
       return TRUE; 

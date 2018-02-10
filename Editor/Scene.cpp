@@ -520,9 +520,21 @@ void CScene::Duplicate()
   }
 }
 
-void CScene::ModifyScript()
+void CScene::SetScript(string script)
 {
-  // TODO
+  if(!selectedGameObjectIds.empty())
+  {
+    m_gameObjects[selectedGameObjectIds[0]].SetScript(script);
+  }
+}
+
+string CScene::GetScript()
+{
+  if(!selectedGameObjectIds.empty())
+  {
+    return m_gameObjects[selectedGameObjectIds[0]].GetScript();
+  }
+  return string("");
 }
 
 HWND CScene::GetWndHandle()

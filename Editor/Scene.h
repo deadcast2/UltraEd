@@ -28,7 +28,8 @@ public:
   bool Create(HWND windowHandle);
   void Delete();
   void Duplicate();
-  void ModifyScript();
+  void SetScript(string script);
+  string GetScript();
   void Render();
   void Resize();
   void OnMouseWheel(short zDelta);

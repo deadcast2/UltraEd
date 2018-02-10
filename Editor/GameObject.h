@@ -54,6 +54,8 @@ public:
   void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
   vector<MeshVertex> GetVertices();
   bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist);
+  void SetScript(string script);
+  string GetScript();
 
 private:
   void Init();

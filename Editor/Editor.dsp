@@ -148,10 +148,6 @@ SOURCE=.\Scene.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Scintilla.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Settings.cpp
 # End Source File
 # Begin Source File
@@ -229,6 +225,14 @@ SOURCE=.\Savable.h
 # Begin Source File
 
 SOURCE=.\Scene.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SciLexer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Scintilla.h
 # End Source File
 # Begin Source File
 
