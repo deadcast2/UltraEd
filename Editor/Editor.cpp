@@ -98,19 +98,19 @@ BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM
     {
       RECT rc;
       GetClientRect(hWndDlg, &rc);
-      if(scriptEditorWindow == NULL)
-      {
-        scriptEditorWindow = CreateWindow(
-          "Scintilla",
-          "Source",
-          WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
-          0, 15,
-          rc.right - 15, rc.bottom - 60,
-          hWndDlg,
-          0,
-          0,
-          0);
-      }
+      scriptEditorWindow = CreateWindow(
+        "Scintilla",
+        "Source",
+        WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
+        0, 15,
+        rc.right - 15, rc.bottom - 60,
+        hWndDlg,
+        0,
+        0,
+        0);
+      SendMessage(scriptEditorWindow, SCI_SETLEXER, SCLEX_CPP, 0);
+      SendMessage(scriptEditorWindow, SCI_STYLESETSIZE, STYLE_DEFAULT, 12);
+		  SendMessage(scriptEditorWindow, SCI_STYLESETFONT, STYLE_DEFAULT, reinterpret_cast<LPARAM>("Verdana"));
       ShowWindow(scriptEditorWindow, SW_SHOW);
       SetFocus(scriptEditorWindow);
     }
@@ -131,7 +131,7 @@ BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM
     case IDCANCEL:
       EndDialog(hWndDlg, wParam); 
       return TRUE; 
-    } 
+    }
   }
   return FALSE; 
 } 
