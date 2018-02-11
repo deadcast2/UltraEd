@@ -30,6 +30,8 @@ CScene::CScene()
   m_worldLight.Diffuse.g = 1.0f;
   m_worldLight.Diffuse.b = 1.0f;
   m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
+
+  m_cameraObject = CGameObject("Assets/camera.dae", GameObjectType::Camera);
 }
 
 CScene::~CScene()
@@ -595,6 +597,6 @@ bool CScene::ToggleSnapToGrid()
 
 void CScene::OnAddCamera()
 {
-  CGameObject gameObject = CGameObject("assets/camera.dae", GameObjectType::Camera);
-  m_gameObjects[gameObject.GetId()] = gameObject;
+  CGameObject newCamera = m_cameraObject;
+  m_gameObjects[newCamera.GetId()] = newCamera;
 }

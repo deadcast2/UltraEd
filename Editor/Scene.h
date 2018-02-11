@@ -72,6 +72,7 @@ private:
   vector<GUID> selectedGameObjectIds;
   float mouseSmoothX, mouseSmoothY;
   CameraView::Value m_activeCameraView;
+  CGameObject m_cameraObject;
 };
 
 #endif
