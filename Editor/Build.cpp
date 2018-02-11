@@ -43,14 +43,40 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
   const char *drawEnd = "}";
 
+  string scriptStartStart("void _UER_Start() {");
+  const char *scriptStartEnd = "}";
+
+  string scriptUpdateStart("\n\nvoid _UER_Update() {");
+  const char *scriptUpdateEnd = "}";
+
   string specSegments, specIncludes, romSegments;
-  string modelInits, modelDraws, cameras;
+  string modelInits, modelDraws, cameras, scripts;
+  char countBuffer[10];
   int loopCount = 0;
 
   for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
   {
     if((*it)->GetType() == GameObjectType::Model) {
       string newResName = CUtil::NewResourceName(loopCount++);
+
+      string script = (*it)->GetScript();
+      char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
+
+      itoa(loopCount-1, countBuffer, 10);
+      string gameObjectRef("_UER_Models[");
+      gameObjectRef.append(countBuffer).append("]->");
+      result = CUtil::ReplaceString(result, "gameObject->", gameObjectRef.c_str());
+      scripts.append(result).append("\n\n");
+
+      if(scripts.find(string(newResName).append("start(")) != string::npos)
+      {
+        scriptStartStart.append("\n\t").append(newResName).append("start();\n");
+      }
+      if(scripts.find(string(newResName).append("update(")) != string::npos)
+      {
+        scriptUpdateStart.append("\n\t").append(newResName).append("update();\n");
+      }
+      free(result);
 
       // Save mesh information.
       int i = 0;
@@ -96,7 +122,6 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
       romSegments.append(modelName);
       romSegments.append("SegmentRomEnd[];\n");
 
-      char countBuffer[10];
       itoa(loopCount-1, countBuffer, 10);
       modelInits.append("\n\t_UER_Models[");
       modelInits.append(countBuffer);
@@ -190,7 +215,6 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
     }
   }
 
-  char countBuffer[10];
   itoa(loopCount, countBuffer, 10);
   string modelArray("struct sos_model *_UER_Models[");
   modelArray.append(countBuffer);
@@ -237,6 +261,17 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
     fwrite(cameraSetStart.c_str(), 1, cameraSetStart.size(), file);
     fwrite(cameras.c_str(), 1, cameras.size(), file);
     fwrite(cameraSetEnd, 1, strlen(cameraSetEnd), file);
+    fclose(file);
+
+    string scriptsPath(buffer);
+    scriptsPath.append("\\..\\..\\Engine\\scripts.h");
+    file = fopen(scriptsPath.c_str(), "w");
+    if(file == NULL) return false;
+    fwrite(scripts.c_str(), 1, scripts.size(), file);
+    fwrite(scriptStartStart.c_str(), 1, scriptStartStart.size(), file);
+    fwrite(scriptStartEnd, 1, strlen(scriptStartEnd), file);
+    fwrite(scriptUpdateStart.c_str(), 1, scriptUpdateStart.size(), file);
+    fwrite(scriptUpdateEnd, 1, strlen(scriptUpdateEnd), file);
     fclose(file);
   }
   

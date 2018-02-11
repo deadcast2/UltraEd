@@ -34,7 +34,7 @@ void CGameObject::Init()
   m_texture = 0;
   m_position = D3DXVECTOR3(0, 0, 0);
   m_scale = D3DXVECTOR3(1, 1, 1);
-  m_script = string("void Update()\n{\n\n}");
+  m_script = string("void @start()\n{\n\n}\n\nvoid @update()\n{\n\n}");
   
   D3DXMatrixIdentity(&m_localRot);
   D3DXMatrixIdentity(&m_worldRot);

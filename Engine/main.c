@@ -4,6 +4,7 @@
 #include "segments.h"
 #include "models.h"
 #include "cameras.h"
+#include "scripts.h"
 
 #define GFX_GLIST_LEN 2048
 
@@ -113,10 +114,12 @@ void mainproc() {
   if(initHeapMemory() > -1) {
     _UER_Load();
     _UER_Camera();
+    _UER_Start();
   }
   
   while(1) {
     nuGfxFuncSet((NUGfxFunc)gfxCallback);
     nuGfxDisplayOn();
+    _UER_Update();
   }
 }

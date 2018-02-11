@@ -17,6 +17,7 @@ public:
   static string GuidToString(GUID guid);
   static string RootPath();
   static string NewResourceName(int count);
+  static char *ReplaceString(const char *str, const char *from, const char *to);
 
 private:
   CUtil() {};
