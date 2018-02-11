@@ -49,6 +49,9 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   string scriptUpdateStart("\n\nvoid _UER_Update() {");
   const char *scriptUpdateEnd = "}";
 
+  string inputStart("\n\nvoid _UER_Input(NUContData gamepads[4]) {");
+  const char *inputEnd = "}";
+
   string specSegments, specIncludes, romSegments;
   string modelInits, modelDraws, cameras, scripts;
   char countBuffer[10];
@@ -75,6 +78,10 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
       if(scripts.find(string(newResName).append("update(")) != string::npos)
       {
         scriptUpdateStart.append("\n\t").append(newResName).append("update();\n");
+      }
+      if(scripts.find(string(newResName).append("input(")) != string::npos)
+      {
+        inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
       }
       free(result);
 
@@ -272,6 +279,8 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
     fwrite(scriptStartEnd, 1, strlen(scriptStartEnd), file);
     fwrite(scriptUpdateStart.c_str(), 1, scriptUpdateStart.size(), file);
     fwrite(scriptUpdateEnd, 1, strlen(scriptUpdateEnd), file);
+    fwrite(inputStart.c_str(), 1, inputStart.size(), file);
+    fwrite(inputEnd, 1, strlen(inputEnd), file);
     fclose(file);
   }
   

@@ -13,35 +13,41 @@ Gfx *glistp;
 Gfx gfx_glist[GFX_GLIST_LEN];
 struct transform world;
 u16 perspNormal;
+NUContData contdata[4];
 
-static Vp viewPort = {
+static Vp viewPort = 
+{
   SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
-    SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
+  SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
 };
 
-Gfx rspState[] = {
+Gfx rspState[] = 
+{
   gsSPViewport(&viewPort),
-    gsSPClearGeometryMode(0xFFFFFFFF),
-    gsSPSetGeometryMode(G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH | G_CULL_BACK),
-    gsSPTexture(0, 0, 0, 0, G_OFF),
-    gsSPEndDisplayList()
+  gsSPClearGeometryMode(0xFFFFFFFF),
+  gsSPSetGeometryMode(G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH | G_CULL_BACK),
+  gsSPTexture(0, 0, 0, 0, G_OFF),
+  gsSPEndDisplayList()
 };
 
-Gfx rdpState[] = {
+Gfx rdpState[] = 
+{
   gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
-    gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
-    gsDPSetScissor(G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT),
-    gsDPSetColorDither(G_CD_BAYER),
-    gsSPEndDisplayList()
+  gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
+  gsDPSetScissor(G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT),
+  gsDPSetColorDither(G_CD_BAYER),
+  gsSPEndDisplayList()
 };
 
-void rcpInit() {
+void rcpInit() 
+{
   gSPSegment(glistp++, 0, 0x0);
   gSPDisplayList(glistp++, OS_K0_TO_PHYSICAL(rspState));
   gSPDisplayList(glistp++, OS_K0_TO_PHYSICAL(rdpState));
 }
 
-void clearFramBuffer() {
+void clearFramBuffer() 
+{
   gDPSetDepthImage(glistp++, OS_K0_TO_PHYSICAL(nuGfxZBuffer));
   gDPSetCycleType(glistp++, G_CYC_FILL);
   gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD,
@@ -60,14 +66,16 @@ void clearFramBuffer() {
 }
 
 void set_camera_transform(double positionX, double positionY, double positionZ,
-                          double rotX, double rotY, double rotZ, double angle) {
+                          double rotX, double rotY, double rotZ, double angle) 
+{
   // Entire axis can't be zero or it won't render.
   if(rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
   guTranslate(&world.translation, -positionX, -positionY, positionZ);
   guRotate(&world.rotation, angle, rotX, rotY, -rotZ);
 }
 
-void setup_world_matrix(Gfx **display_list) {
+void setup_world_matrix(Gfx **display_list) 
+{
   guPerspective(&world.projection,
     &perspNormal,
     80.0F, SCREEN_WD / SCREEN_HT,
@@ -77,7 +85,7 @@ void setup_world_matrix(Gfx **display_list) {
   
   gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.projection),
     G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-
+  
   gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.rotation),
     G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
   
@@ -85,7 +93,8 @@ void setup_world_matrix(Gfx **display_list) {
     G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH); 
 }
 
-void createDisplayList() {
+void createDisplayList() 
+{
   glistp = gfx_glist;
   rcpInit();
   clearFramBuffer();
@@ -97,29 +106,43 @@ void createDisplayList() {
     NU_GFX_UCODE_F3DEX, NU_SC_SWAPBUFFER);
 }
 
-void gfxCallback(int pendingGfx) {
+void checkInputs()
+{
+  nuContDataGetEx(contdata, 0);
+  _UER_Input(contdata);
+}
+
+void gfxCallback(int pendingGfx) 
+{
+  checkInputs();
+  _UER_Update();
   if(pendingGfx < 1) createDisplayList();
 }
 
-int initHeapMemory() {
-  if(InitHeap(mem_heep, sizeof(mem_heep)) == -1) {
+int initHeapMemory() 
+{
+  if(InitHeap(mem_heep, sizeof(mem_heep)) == -1) 
+  {
     return -1;
   }
   return 0;
 }
 
-void mainproc() {
+void mainproc()
+{
   nuGfxInit();
+  nuContInit();
   
-  if(initHeapMemory() > -1) {
+  if(initHeapMemory() > -1)
+  {
     _UER_Load();
     _UER_Camera();
     _UER_Start();
   }
   
-  while(1) {
+  while(1)
+  {
     nuGfxFuncSet((NUGfxFunc)gfxCallback);
     nuGfxDisplayOn();
-    _UER_Update();
   }
 }
