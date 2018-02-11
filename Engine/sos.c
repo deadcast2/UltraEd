@@ -58,6 +58,7 @@ struct sos_model *load_sos_model_with_texture(void *data_start, void *data_end,
   new_model->position = (struct vector3*)malloc(sizeof(struct vector3));
   new_model->rotationAxis = (struct vector3*)malloc(sizeof(struct vector3));
   new_model->scale = (struct vector3*)malloc(sizeof(struct vector3));
+  new_model->visible = 1;
   
   // Read how many vertices for this mesh.
   line = (char*)strtok(data_buffer, "\n");
@@ -117,6 +118,8 @@ void sos_draw(struct sos_model *model, Gfx **display_list) {
   int i;
   int remaining_vertices = model->mesh->vertex_count;
   int offset = 0;
+
+  if(!model->visible) return;
   
   guTranslate(&model->transform.translation, model->position->x,
     model->position->y, model->position->z);

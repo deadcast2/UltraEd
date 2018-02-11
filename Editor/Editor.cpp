@@ -110,7 +110,7 @@ BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM
         0,
         0);
       SendMessage(scriptEditorWindow, SCI_SETLEXER, SCLEX_CPP, 0);
-      SendMessage(scriptEditorWindow, SCI_STYLESETSIZE, STYLE_DEFAULT, 12);
+      SendMessage(scriptEditorWindow, SCI_STYLESETSIZE, STYLE_DEFAULT, 10);
 		  SendMessage(scriptEditorWindow, SCI_STYLESETFONT, STYLE_DEFAULT, reinterpret_cast<LPARAM>("Verdana"));
       SendMessage(scriptEditorWindow, SCI_SETTEXT, 0, reinterpret_cast<LPARAM>(scene.GetScript().c_str()));
       ShowWindow(scriptEditorWindow, SW_SHOW);

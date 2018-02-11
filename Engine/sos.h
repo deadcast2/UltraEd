@@ -18,6 +18,7 @@ struct sos_model {
   struct mesh *mesh;
   unsigned short *texture;
   float rotationAngle;
+  int visible;
   struct vector3 *position;
   struct vector3 *rotationAxis;
   struct vector3 *scale;
