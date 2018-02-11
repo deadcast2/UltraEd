@@ -25,6 +25,7 @@
 #define IDM_MENU_DELETE_OBJECT 9001
 #define IDM_MENU_DUPLICATE_OBJECT 9002
 #define IDM_MENU_MODIFY_SCRIPT_OBJECT 9003
+#define IDM_MENU_ADD_TEXTURE 9004
 
 const int windowWidth = 800;
 const int windowHeight = 600;
@@ -253,6 +254,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case IDM_MENU_MODIFY_SCRIPT_OBJECT:
         DialogBox(NULL, MAKEINTRESOURCE(IDD_SCRIPT_EDITOR), hWnd, (DLGPROC)ScriptEditorProc);
         break;
+      case IDM_MENU_ADD_TEXTURE:
+        scene.OnApplyTexture();
+        break;
       }
       break;
     }
@@ -283,9 +287,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
           ClientToScreen(hWnd, &point);
           HMENU menu = CreatePopupMenu();
+          AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
+          AppendMenu(menu, MF_STRING, IDM_MENU_MODIFY_SCRIPT_OBJECT, _T("Modify Script"));
           AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete"));
           AppendMenu(menu, MF_STRING, IDM_MENU_DUPLICATE_OBJECT, _T("Duplicate"));
-          AppendMenu(menu, MF_STRING, IDM_MENU_MODIFY_SCRIPT_OBJECT, _T("Modify Script"));
           TrackPopupMenu(menu, TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
           DestroyMenu(menu);
         }

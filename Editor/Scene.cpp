@@ -198,8 +198,8 @@ void CScene::OnApplyTexture()
   for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); it++)
   {
     if(CDialog::Open("Select a texture",
-      "BMP (*.bmp)\0*.bmp\0JPEG (*.jpg)\0"
-      "*.jpg\0PNG (*.png)\0*.png\0TGA (*.tga)\0*.tga", file))
+      "PNG (*.png)\0*.png\0JPEG (*.jpg)\0"
+      "*.jpg\0BMP (*.bmp)\0*.bmp\0TGA (*.tga)\0*.tga", file))
     {
       if(!m_gameObjects[*it].LoadTexture(m_device, file.c_str()))
       {
@@ -360,8 +360,8 @@ void CScene::CheckInput(float deltaTime)
   const float mouseSpeedModifier = 0.55f;
   
   if(GetAsyncKeyState('1')) m_gizmo.SetModifier(Translate);
-  if(GetAsyncKeyState('2')) m_gizmo.SetModifier(Scale);
-  if(GetAsyncKeyState('3')) m_gizmo.SetModifier(Rotate);
+  if(GetAsyncKeyState('2')) m_gizmo.SetModifier(Rotate);
+  if(GetAsyncKeyState('3')) m_gizmo.SetModifier(Scale);
   
   if(GetAsyncKeyState(VK_LBUTTON) && !selectedGameObjectIds.empty())
   {
