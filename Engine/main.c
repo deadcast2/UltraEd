@@ -14,6 +14,7 @@ Gfx gfx_glist[GFX_GLIST_LEN];
 struct transform world;
 u16 perspNormal;
 NUContData contdata[4];
+int currentCamera = 0;
 
 static Vp viewPort = 
 {
@@ -65,15 +66,6 @@ void clearFramBuffer()
   gDPPipeSync(glistp++);
 }
 
-void set_camera_transform(double positionX, double positionY, double positionZ,
-                          double rotX, double rotY, double rotZ, double angle) 
-{
-  // Entire axis can't be zero or it won't render.
-  if(rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
-  guTranslate(&world.translation, -positionX, -positionY, positionZ);
-  guRotate(&world.rotation, angle, rotX, rotY, -rotZ);
-}
-
 void setup_world_matrix(Gfx **display_list) 
 {
   guPerspective(&world.projection,
@@ -112,9 +104,17 @@ void checkInputs()
   _UER_Input(contdata);
 }
 
+void updateCamera() 
+{
+  struct sos_model *camera = _UER_Cameras[currentCamera];
+  guTranslate(&world.translation, -camera->position->x, -camera->position->y, camera->position->z);
+  guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis->x, camera->rotationAxis->y, -camera->rotationAxis->z);
+}
+
 void gfxCallback(int pendingGfx) 
 {
   checkInputs();
+  updateCamera();
   _UER_Update();
   if(pendingGfx < 1) createDisplayList();
 }

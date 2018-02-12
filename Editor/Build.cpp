@@ -55,22 +55,21 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   string specSegments, specIncludes, romSegments;
   string modelInits, modelDraws, cameras, scripts;
   char countBuffer[10];
-  int loopCount = 0;
+  int loopCount = 0, cameraCount = 0;
 
   for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
   {
-    if((*it)->GetType() == GameObjectType::Model) {
-      string newResName = CUtil::NewResourceName(loopCount++);
-
-      string script = (*it)->GetScript();
-      char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
-
+    string newResName = CUtil::NewResourceName(loopCount++);
+    string script = (*it)->GetScript();
+    char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
+    
+    if((*it)->GetType() == GameObjectType::Model)
+    {
       itoa(loopCount-1, countBuffer, 10);
       string gameObjectRef("_UER_Models[");
       gameObjectRef.append(countBuffer).append("]->");
       result = CUtil::ReplaceString(result, "gameObject->", gameObjectRef.c_str());
       scripts.append(result).append("\n\n");
-
       if(scripts.find(string(newResName).append("start(")) != string::npos)
       {
         scriptStartStart.append("\n\t").append(newResName).append("start();\n");
@@ -207,8 +206,27 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
       modelInits.append(vectorBuffer);
       modelInits.append(");\n");
     } else {
-      // Camera then for now.
-      cameras.append("\n\tset_camera_transform(");
+      itoa(cameraCount, countBuffer, 10);
+      cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");
+      
+      string gameObjectRef("_UER_Cameras[");
+      gameObjectRef.append(countBuffer).append("]->");
+      result = CUtil::ReplaceString(result, "gameObject->", gameObjectRef.c_str());
+      scripts.append(result).append("\n\n");
+      if(scripts.find(string(newResName).append("start(")) != string::npos)
+      {
+        scriptStartStart.append("\n\t").append(newResName).append("start();\n");
+      }
+      if(scripts.find(string(newResName).append("update(")) != string::npos)
+      {
+        scriptUpdateStart.append("\n\t").append(newResName).append("update();\n");
+      }
+      if(scripts.find(string(newResName).append("input(")) != string::npos)
+      {
+        inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
+      }
+      free(result);
+
       char vectorBuffer[128];
       D3DXVECTOR3 position = (*it)->GetPosition();
       D3DXVECTOR3 axis;
@@ -219,6 +237,7 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
         axis.x, axis.y, axis.z, angle * (180/D3DX_PI));
       cameras.append(vectorBuffer);
       cameras.append(");\n");
+      cameraCount++;
     }
   }
 
@@ -227,6 +246,12 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   modelArray.append(countBuffer);
   modelArray.append("];\n");
   modelLoadStart.insert(0, modelArray);
+
+  itoa(cameraCount, countBuffer, 10);
+  string cameraArray("struct sos_model *_UER_Cameras[");
+  cameraArray.append(countBuffer);
+  cameraArray.append("];\n");
+  cameraSetStart.insert(0, cameraArray);
 
   char buffer[MAX_PATH];
   if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)

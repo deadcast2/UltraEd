@@ -180,3 +180,24 @@ void sos_draw(struct sos_model *model, Gfx **display_list) {
   
   gSPPopMatrix((*display_list)++, G_MTX_MODELVIEW);
 }
+
+struct sos_model *create_camera(double positionX, double positionY, double positionZ,
+                double rotX, double rotY, double rotZ, double angle) 
+{
+  struct sos_model *camera;
+  camera = (struct sos_model*)malloc(sizeof(struct sos_model));
+  camera->position = (struct vector3*)malloc(sizeof(struct vector3));
+  camera->rotationAxis = (struct vector3*)malloc(sizeof(struct vector3));
+  camera->visible = 1;
+
+  if(rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
+  camera->position->x = positionX;
+  camera->position->y = positionY;
+  camera->position->z = positionZ;
+  camera->rotationAxis->x = rotX;
+  camera->rotationAxis->y = rotY;
+  camera->rotationAxis->z = rotZ;
+  camera->rotationAngle = angle;
+
+  return camera;
+}
