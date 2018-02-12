@@ -1,0 +1,1 @@
+#define VECTOR3(X, Y, Z) &(struct vector3) { X, Y, Z }
