@@ -4,7 +4,8 @@
 #include "segments.h"
 #include "models.h"
 #include "cameras.h"
-#include "macros.h"
+#include "hashtable.h"
+#include "utilities.h"
 #include "scripts.h"
 
 #define GFX_GLIST_LEN 2048
