@@ -146,6 +146,9 @@ void CScene::OnImportModel()
   {
     CGameObject gameObject = CGameObject(file.c_str(), GameObjectType::Model);
     m_gameObjects[gameObject.GetId()] = gameObject;
+    char buffer[1024];
+    sprintf(buffer, "GameObject %d", m_gameObjects.size());
+    m_gameObjects[gameObject.GetId()].SetName(string(buffer));
   }
 }
 

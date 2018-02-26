@@ -159,6 +159,16 @@ void CGameObject::ResetId()
   m_id = CUtil::NewGuid();
 }
 
+string CGameObject::GetName()
+{
+  return m_name;
+}
+
+void CGameObject::SetName(string name)
+{
+  m_name = name;
+}
+
 GameObjectType::Value CGameObject::GetType()
 {
   return m_type;
@@ -342,6 +352,8 @@ Savable CGameObject::Save()
   
   cJSON_AddStringToObject(gameObject, "id", CUtil::GuidToString(m_id).c_str());
 
+  cJSON_AddStringToObject(gameObject, "name", m_name.c_str());
+
   sprintf(buffer, "%i", (int)m_type);
   cJSON_AddStringToObject(gameObject, "type", buffer);
   
@@ -367,11 +379,13 @@ bool CGameObject::Load(IDirect3DDevice8 *device, cJSON *root)
   int typeValue;
   float x, y, z, w;
   cJSON *id = cJSON_GetObjectItem(root, "id");
+  cJSON *name = cJSON_GetObjectItem(root, "name");
   cJSON *type = cJSON_GetObjectItem(root, "type");
   cJSON *resources = cJSON_GetObjectItem(root, "resources");
   cJSON *resource = NULL;
   
   m_id = CUtil::StringToGuid(id->valuestring);
+  m_name = name->valuestring;
 
   sscanf(type->valuestring, "%i", &typeValue);
   m_type = (GameObjectType::Value)typeValue;

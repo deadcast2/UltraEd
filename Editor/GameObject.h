@@ -39,6 +39,8 @@ public:
   void Scale(D3DXVECTOR3 position);
   void Rotate(FLOAT angle, D3DXVECTOR3 dir);
   GUID GetId();
+  string GetName();
+  void SetName(string name);
   GameObjectType::Value GetType();
   void ResetId();
   D3DXVECTOR3 GetPosition();
@@ -63,6 +65,7 @@ private:
   
 private:
   GUID m_id;
+  string m_name;
   GameObjectType::Value m_type;
   IDirect3DVertexBuffer8 *m_vertexBuffer;
   void Process(aiNode *node, const aiScene *scene);
