@@ -1,20 +1,20 @@
 #ifndef _HASHTABLE_H_
 #define _HASHTABLE_H_
 
-#define HASHSIZE 1000
+#define HASHSIZE 100
 
 struct nlist
 {
   struct nlist *next;
   char *name;
-  struct sos_model *gameObject;
+  unsigned int gameObjectIndex;
 };
 
 static struct nlist *hashtable[HASHSIZE];
 
 unsigned hash(char *s)
 {
-  unsigned hashval;
+  unsigned int hashval;
   for(hashval = 0; *s != '\0'; s++)
   {
     hashval = *s + 31 * hashval;
@@ -35,10 +35,10 @@ struct nlist *lookup(char *s)
   return NULL;
 }
 
-struct nlist *insert(char *name, struct sos_model *gameObject)
+struct nlist *insert(char *name, unsigned int index)
 {
   struct nlist *np;
-  unsigned hashval;
+  unsigned int hashval;
   if((np = lookup(name)) == NULL)
   {
     np = (struct nlist*)malloc(sizeof(*np));
@@ -47,12 +47,8 @@ struct nlist *insert(char *name, struct sos_model *gameObject)
     np->next = hashtable[hashval];
     hashtable[hashval] = np;
   }
-  else
-  {
-    free((void*)np->gameObject);
-  }
 
-  if((np->gameObject = gameObject) == NULL) return NULL;
+  np->gameObjectIndex = index;
   
   return np;
 }

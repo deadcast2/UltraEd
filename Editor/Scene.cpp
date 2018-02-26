@@ -602,4 +602,7 @@ void CScene::OnAddCamera()
 {
   CGameObject newCamera = m_cameraObject;
   m_gameObjects[newCamera.GetId()] = newCamera;
+  char buffer[1024];
+  sprintf(buffer, "Camera %d", m_gameObjects.size());
+  m_gameObjects[newCamera.GetId()].SetName(string(buffer));
 }

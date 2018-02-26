@@ -40,6 +40,9 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   string cameraSetStart("void _UER_Camera() {");
   const char *cameraSetEnd = "}";
 
+  string mappingsStart("void _UER_Mappings() {");
+  const char *mappingsEnd = "\n}";
+
   const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
   const char *drawEnd = "}";
 
@@ -62,6 +65,10 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
     string newResName = CUtil::NewResourceName(loopCount++);
     string script = (*it)->GetScript();
     char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
+
+    // Setup name object mapping.
+    itoa(loopCount-1, countBuffer, 10);
+    mappingsStart.append("\n\tinsert(\"").append((*it)->GetName()).append("\", ").append(countBuffer).append(");");
     
     if((*it)->GetType() == GameObjectType::Model)
     {
@@ -306,6 +313,14 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
     fwrite(scriptUpdateEnd, 1, strlen(scriptUpdateEnd), file);
     fwrite(inputStart.c_str(), 1, inputStart.size(), file);
     fwrite(inputEnd, 1, strlen(inputEnd), file);
+    fclose(file);
+
+    string mappingsPath(buffer);
+    mappingsPath.append("\\..\\..\\Engine\\mappings.h");
+    file = fopen(mappingsPath.c_str(), "w");
+    if(file == NULL) return false;
+    fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file);
+    fwrite(mappingsEnd, 1, strlen(mappingsEnd), file);
     fclose(file);
   }
   

@@ -7,6 +7,7 @@ Engine/segments.h
 Engine/models.h
 Engine/cameras.h
 Engine/scripts.h
+Engine/mappings.h
 Engine/spec
 *.plg
 *.ncb

@@ -3,6 +3,7 @@
 #include "sos.h"
 #include "segments.h"
 #include "models.h"
+#include "mappings.h"
 #include "cameras.h"
 #include "hashtable.h"
 #include "utilities.h"
@@ -138,6 +139,7 @@ void mainproc()
   if(initHeapMemory() > -1)
   {
     _UER_Load();
+    _UER_Mappings();
     _UER_Camera();
     _UER_Start();
   }

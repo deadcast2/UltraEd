@@ -9,7 +9,7 @@ struct sos_model *FindGameObjectByName(const char *name)
 {
   struct nlist *np = lookup(name);
   if(np == NULL) return NULL;
-  return np->gameObject;
+  return _UER_Models[np->gameObjectIndex];
 }
 
 #endif
