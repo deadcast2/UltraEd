@@ -30,8 +30,6 @@ CScene::CScene()
   m_worldLight.Diffuse.g = 1.0f;
   m_worldLight.Diffuse.b = 1.0f;
   m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
-
-  m_cameraObject = CGameObject("Assets/camera.dae", GameObjectType::Camera);
 }
 
 CScene::~CScene()
@@ -327,6 +325,10 @@ void CScene::Render()
     m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
     for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
     {
+      if(it->second.GetType() != GameObjectType::Model)
+      {
+        // Figure out how to billboard the object.
+      }
       it->second.Render(m_device, stack);
     }
     
@@ -600,7 +602,7 @@ bool CScene::ToggleSnapToGrid()
 
 void CScene::OnAddCamera()
 {
-  CGameObject newCamera = m_cameraObject;
+  CGameObject newCamera = CGameObject(GameObjectType::Camera);
   m_gameObjects[newCamera.GetId()] = newCamera;
   char buffer[1024];
   sprintf(buffer, "Camera %d", m_gameObjects.size());

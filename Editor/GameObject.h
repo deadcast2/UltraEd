@@ -26,6 +26,7 @@ class CGameObject : public CSavable
 {
 public:
   CGameObject();
+  CGameObject(GameObjectType::Value type);
   CGameObject(const char *filePath, GameObjectType::Value type);
   CGameObject(const CGameObject &gameObject);
   ~CGameObject();
