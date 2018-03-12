@@ -21,22 +21,22 @@ CGameObject::CGameObject(GameObjectType::Value type)
   m_type = type;
   
   MeshVertex v1;
-  v1.position = D3DXVECTOR3(m_position.x, m_position.y, m_position.z);
+  v1.position = D3DXVECTOR3(m_position.x - 0.5, m_position.y - 0.5, m_position.z);
     
   MeshVertex v2;
-  v2.position = D3DXVECTOR3(m_position.x + 1, m_position.y, m_position.z);
+  v2.position = D3DXVECTOR3(m_position.x - 0.5, m_position.y + 0.5, m_position.z);
 
   MeshVertex v3;
-  v3.position = D3DXVECTOR3(m_position.x, m_position.y, m_position.z + 1);
+  v3.position = D3DXVECTOR3(m_position.x + 0.5, m_position.y + 0.5, m_position.z);
 
   MeshVertex v4;
-  v4.position = D3DXVECTOR3(m_position.x + 1, m_position.y, m_position.z + 1);
+  v4.position = D3DXVECTOR3(m_position.x + 0.5, m_position.y - 0.5, m_position.z);
     
   m_vertices.push_back(v1);
+  m_vertices.push_back(v2);
   m_vertices.push_back(v3);
-  m_vertices.push_back(v2);
 
-  m_vertices.push_back(v2);
+  m_vertices.push_back(v1);
   m_vertices.push_back(v3);
   m_vertices.push_back(v4);
 }

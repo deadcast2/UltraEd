@@ -327,7 +327,23 @@ void CScene::Render()
     {
       if(it->second.GetType() != GameObjectType::Model)
       {
-        // Figure out how to billboard the object.
+        D3DXMATRIX mat;
+        D3DXMatrixIdentity(&mat);
+        D3DXMATRIX cameraViewMat = GetActiveCamera()->GetViewMatrix();
+        
+        mat(0, 0) = cameraViewMat(0, 0);
+        mat(0, 1) = cameraViewMat(1, 0);
+        mat(0, 2) = cameraViewMat(2, 0);
+
+        mat(1, 0) = cameraViewMat(0, 1);
+        mat(1, 1) = cameraViewMat(1, 1);
+        mat(1, 2) = cameraViewMat(2, 1);
+
+        mat(2, 0) = cameraViewMat(0, 2);
+        mat(2, 1) = cameraViewMat(1, 2);
+        mat(2, 2) = cameraViewMat(2, 2);
+
+        it->second.SetLocalRotationMatrix(mat);
       }
       it->second.Render(m_device, stack);
     }
