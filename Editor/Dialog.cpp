@@ -17,7 +17,7 @@ bool CDialog::Open(const char *title, const char *filter, string &file)
   ofn.lpstrTitle = title;
   ofn.nMaxFileTitle = 0;
   ofn.lpstrInitialDir = NULL;
-  ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+  ofn.Flags = OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
   
   if(GetOpenFileName(&ofn))
   {
@@ -44,7 +44,7 @@ bool CDialog::Save(const char *title, const char *filter, string &file)
   ofn.lpstrTitle = title;
   ofn.nMaxFileTitle = 0;
   ofn.lpstrInitialDir = NULL;
-  ofn.Flags = OFN_OVERWRITEPROMPT;
+  ofn.Flags = OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT;
   
   if(GetSaveFileName(&ofn))
   {

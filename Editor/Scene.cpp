@@ -204,6 +204,7 @@ void CScene::OnApplyTexture()
       "PNG (*.png)\0*.png\0JPEG (*.jpg)\0"
       "*.jpg\0BMP (*.bmp)\0*.bmp\0TGA (*.tga)\0*.tga", file))
     {
+      if(m_gameObjects[*it].GetType() != GameObjectType::Model) continue;
       if(!m_gameObjects[*it].LoadTexture(m_device, file.c_str()))
       {
         MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
@@ -307,47 +308,48 @@ void CScene::Render()
     
     m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
     m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(90, 90, 90), 1.0f, 0);
+    m_device->SetLight(0, &m_worldLight);
+    m_device->LightEnable(0, TRUE);
     
     if(!SUCCEEDED(m_device->BeginScene())) return;
     
-    m_device->SetLight(0, &m_worldLight);
-    m_device->LightEnable(0, TRUE);
-    m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
-    
-    // Draw the grid.
     m_grid.Render(m_device);
-    
-    // Draw any debug lines.
     CDebug::Instance().Render(m_device);
     
     // Render all game objects with selected fill mode.
     m_device->SetMaterial(&m_defaultMaterial);
+    m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
     m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
+    m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+    m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+    m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
     for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
     {
+      // When not a model then billboard the object.
       if(it->second.GetType() != GameObjectType::Model)
       {
         D3DXMATRIX mat;
         D3DXMatrixIdentity(&mat);
-        D3DXMATRIX cameraViewMat = GetActiveCamera()->GetViewMatrix();
-        
+        D3DXMATRIX cameraViewMat = GetActiveCamera()->GetViewMatrix();     
         mat(0, 0) = cameraViewMat(0, 0);
         mat(0, 1) = cameraViewMat(1, 0);
         mat(0, 2) = cameraViewMat(2, 0);
-
         mat(1, 0) = cameraViewMat(0, 1);
         mat(1, 1) = cameraViewMat(1, 1);
         mat(1, 2) = cameraViewMat(2, 1);
-
         mat(2, 0) = cameraViewMat(0, 2);
         mat(2, 1) = cameraViewMat(1, 2);
         mat(2, 2) = cameraViewMat(2, 2);
-
         it->second.SetLocalRotationMatrix(mat);
       }
+
       it->second.Render(m_device, stack);
     }
-    
+
+    // Need to disable here to not mess with the wireframe rendering.
+    m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+
     if(!selectedGameObjectIds.empty())
     {
       // Highlight the selected game object.
@@ -618,9 +620,10 @@ bool CScene::ToggleSnapToGrid()
 
 void CScene::OnAddCamera()
 {
-  CGameObject newCamera = CGameObject(GameObjectType::Camera);
-  m_gameObjects[newCamera.GetId()] = newCamera;
   char buffer[1024];
-  sprintf(buffer, "Camera %d", m_gameObjects.size());
+  CGameObject newCamera = CGameObject(GameObjectType::Camera);
+  newCamera.LoadTexture(m_device, "Assets/camera.png");
+  m_gameObjects[newCamera.GetId()] = newCamera;
   m_gameObjects[newCamera.GetId()].SetName(string(buffer));
+  sprintf(buffer, "Camera %d", m_gameObjects.size());
 }
