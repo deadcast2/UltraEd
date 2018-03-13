@@ -1,6 +1,6 @@
 ![alt logo](https://s3.amazonaws.com/kittypizza/ultraed.png)
 
-## A level editor/game engine for the Nintendo 64 (WIP)
+## A level editor/game engine for the Nintendo 64
 
 ![alt editor](https://i.imgur.com/etDiBGp.gif)
 
