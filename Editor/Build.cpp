@@ -8,6 +8,7 @@
 #include "stb_image_write.h"
 #include "build.h"
 #include "util.h"
+#include "debug.h"
 
 bool CBuild::Start(vector<CGameObject*> gameObjects)
 {
@@ -90,6 +91,20 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
         inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
       }
       free(result);
+
+      // Construct collision data
+      int collisionLoopCount = loopCount - 1;
+      vector<CGameObject*>::iterator citStart = gameObjects.begin();
+      // Make sure offset doesn't go out of bounds.
+      if(loopCount < gameObjects.size())
+      {
+        citStart += loopCount; // offset       
+        for(; citStart != gameObjects.end(); ++citStart)
+        {
+          int currentGOIndex = loopCount - 1;       
+          CDebug::Log("checkCollision(%i, %i)\n", currentGOIndex, ++collisionLoopCount);
+        }
+      }
 
       // Save mesh information.
       int i = 0;
