@@ -131,24 +131,10 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
     
       fclose(file);
 
+      // Write out the segments.
       string modelName(newResName);
       modelName.append("_M");
-      specSegments.append("\nbeginseg\n\tname \"");
-      specSegments.append(modelName);
-      specSegments.append("\"\n\tflags RAW\n\tinclude \"");
-      specSegments.append(id);
-      specSegments.append("\"\nendseg\n");
-    
-      specIncludes.append("\n\tinclude \"");
-      specIncludes.append(modelName);
-      specIncludes.append("\"");
-    
-      romSegments.append("extern u8 _");
-      romSegments.append(modelName);
-      romSegments.append("SegmentRomStart[];\n");
-      romSegments.append("extern u8 _");
-      romSegments.append(modelName);
-      romSegments.append("SegmentRomEnd[];\n");
+      AppendSegment(id, modelName, &specSegments, &specIncludes, &romSegments);
 
       itoa(loopCount-1, countBuffer, 10);
       modelInits.append("\n\t_UER_Models[");
@@ -340,6 +326,27 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   }
   
   return Compile();
+}
+
+bool CBuild::AppendSegment(string objectId, string modelName, string *specSegments, string *specIncludes, string *romSegments)
+{
+  specSegments->append("\nbeginseg\n\tname \"");
+  specSegments->append(modelName);
+  specSegments->append("\"\n\tflags RAW\n\tinclude \"");
+  specSegments->append(objectId);
+  specSegments->append("\"\nendseg\n");
+
+  specIncludes->append("\n\tinclude \"");
+  specIncludes->append(modelName);
+  specIncludes->append("\"");
+
+  romSegments->append("extern u8 _");
+  romSegments->append(modelName);
+  romSegments->append("SegmentRomStart[];\n");
+  romSegments->append("extern u8 _");
+  romSegments->append(modelName);
+  romSegments->append("SegmentRomEnd[];\n");
+  return true;
 }
 
 bool CBuild::Run()
