@@ -111,25 +111,7 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
       string id = CUtil::GuidToString((*it)->GetId());
       id.insert(0, CUtil::RootPath().append("\\"));
       id.append(".rom.sos");
-      FILE *file = fopen(id.c_str(), "w");
-      if(file == NULL) return false;
-    
-      vector<MeshVertex> vertices = (*it)->GetVertices();
-    
-      fprintf(file, "%i\n", vertices.size());
-    
-      for(i = 0; i < vertices.size(); i++)
-      {
-        MeshVertex vert = vertices[i];
-        fprintf(file, "%f %f %f %f %f\n", 
-          vert.position.x,
-          vert.position.y,
-          vert.position.z,
-          vert.tu,
-          vert.tv);
-      }
-    
-      fclose(file);
+      if(!SaveMeshDataToFile(id, *it)) return false;;
 
       // Write out the segments.
       string modelName(newResName);
@@ -326,6 +308,28 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   }
   
   return Compile();
+}
+
+bool CBuild::SaveMeshDataToFile(string fileName, CGameObject *gameObject)
+{
+  FILE *file = fopen(fileName.c_str(), "w");
+  if(file == NULL) return false;
+
+  vector<MeshVertex> vertices = gameObject->GetVertices();
+  fprintf(file, "%i\n", vertices.size());
+  for(int i = 0; i < vertices.size(); i++)
+  {
+    MeshVertex vert = vertices[i];
+    fprintf(file, "%f %f %f %f %f\n", 
+      vert.position.x,
+      vert.position.y,
+      vert.position.z,
+      vert.tu,
+      vert.tv);
+  }
+
+  fclose(file);
+  return true;
 }
 
 bool CBuild::AppendSegment(string objectId, string modelName, string *specSegments, string *specIncludes, string *romSegments)

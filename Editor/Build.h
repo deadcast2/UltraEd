@@ -21,6 +21,7 @@ public:
 
 private:
   static bool Compile();
+  static bool SaveMeshDataToFile(string fileName, CGameObject *gameObject);
   static bool AppendSegment(string objectId, string modelName, string *specSegments, string *specIncludes, string *romSegments);
 };
 
