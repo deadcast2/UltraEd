@@ -18,6 +18,7 @@ public:
   static bool Start(vector<CGameObject*> gameObjects);
   static bool Run();
   static bool Load();
+  static bool WriteSpecFile(vector<CGameObject*> gameObjects);
 
 private:
   static bool Compile();

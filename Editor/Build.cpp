@@ -10,8 +10,9 @@
 #include "util.h"
 #include "debug.h"
 
-bool CBuild::Start(vector<CGameObject*> gameObjects)
+bool CBuild::WriteSpecFile(vector<CGameObject*> gameObjects)
 {
+  string specSegments, specIncludes;
   const char *specHeader = "#include <nusys.h>\n\n"
     "beginseg"
     "\n\tname \"code\""
@@ -29,11 +30,91 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
     "\n\tinclude \"$(ROOT)\\usr\\lib\\PR\\gspF3DLX2.Rej.fifo.o\""
 	  "\n\tinclude \"$(ROOT)\\usr\\lib\\PR\\gspS2DEX2.fifo.o\""
     "\nendseg\n";
-
   const char *specIncludeStart = "\nbeginwave"
     "\n\tname \"main\""
     "\n\tinclude \"code\"";
   const char *specIncludeEnd = "\nendwave";
+
+  int loopCount = 0;
+
+  for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+  {
+    string newResName = CUtil::NewResourceName(loopCount++);
+
+    if((*it)->GetType() != GameObjectType::Model) continue;
+
+    string id = CUtil::GuidToString((*it)->GetId());
+    id.insert(0, CUtil::RootPath().append("\\"));
+    id.append(".rom.sos");
+
+    string modelName(newResName);
+    modelName.append("_M");
+
+    specSegments.append("\nbeginseg\n\tname \"");
+    specSegments.append(modelName);
+    specSegments.append("\"\n\tflags RAW\n\tinclude \"");
+    specSegments.append(id);
+    specSegments.append("\"\nendseg\n");
+  
+    specIncludes.append("\n\tinclude \"");
+    specIncludes.append(modelName);
+    specIncludes.append("\"");
+
+    map<string, string> resources = (*it)->GetResources();
+    if(resources.count("textureDataPath"))
+    {
+      // Load the set texture and resize to required dimensions.
+      string path = resources["textureDataPath"];
+      int width, height, channels;
+      unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 3);
+      if(data)
+      {
+        // Force 32 x 32 texture for now.
+        if(stbir_resize_uint8(data, width, height, 0, data, 32, 32, 0, 3))
+        {
+          path.append(".rom.png");
+          stbi_write_png(path.c_str(), 32, 32, 3, data, 0);
+        }
+      
+        stbi_image_free(data);
+      }
+
+      string textureName(newResName);
+      textureName.append("_T");
+
+      specSegments.append("\nbeginseg\n\tname \"");
+      specSegments.append(textureName);
+      specSegments.append("\"\n\tflags RAW\n\tinclude \"");
+      specSegments.append(path);
+      specSegments.append("\"\nendseg\n");
+
+      specIncludes.append("\n\tinclude \"");
+      specIncludes.append(textureName);
+      specIncludes.append("\"");
+    }
+  }
+
+  char buffer[MAX_PATH];
+  if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
+  {
+    string specPath(buffer);
+    specPath.append("\\..\\..\\Engine\\spec");
+    FILE *file = fopen(specPath.c_str(), "w");
+    if(file == NULL) return false;
+    fwrite(specHeader, 1, strlen(specHeader), file);
+    fwrite(specSegments.c_str(), 1, specSegments.size(), file);
+    fwrite(specIncludeStart, 1, strlen(specIncludeStart), file);
+    fwrite(specIncludes.c_str(), 1, specIncludes.size(), file);
+    fwrite(specIncludeEnd, 1, strlen(specIncludeEnd), file);
+    fclose(file);
+  }
+
+  return true;
+}
+
+bool CBuild::Start(vector<CGameObject*> gameObjects)
+{
+  WriteSpecFile(gameObjects);
 
   string modelLoadStart("\nvoid _UER_Load() {");
   const char *modelLoadEnd = "}";
@@ -56,7 +137,7 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   string inputStart("\n\nvoid _UER_Input(NUContData gamepads[4]) {");
   const char *inputEnd = "}";
 
-  string specSegments, specIncludes, romSegments;
+  string romSegments;
   string modelInits, modelDraws, cameras, scripts;
   char countBuffer[10];
   int loopCount = 0, cameraCount = 0;
@@ -133,15 +214,6 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
 
       string modelName(newResName);
       modelName.append("_M");
-      specSegments.append("\nbeginseg\n\tname \"");
-      specSegments.append(modelName);
-      specSegments.append("\"\n\tflags RAW\n\tinclude \"");
-      specSegments.append(id);
-      specSegments.append("\"\nendseg\n");
-    
-      specIncludes.append("\n\tinclude \"");
-      specIncludes.append(modelName);
-      specIncludes.append("\"");
     
       romSegments.append("extern u8 _");
       romSegments.append(modelName);
@@ -192,14 +264,7 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
 
         string textureName(newResName);
         textureName.append("_T");
-        specSegments.append("\nbeginseg\n\tname \"");
-        specSegments.append(textureName);
-        specSegments.append("\"\n\tflags RAW\n\tinclude \"");
-        specSegments.append(path);
-        specSegments.append("\"\nendseg\n");
-        specIncludes.append("\n\tinclude \"");
-        specIncludes.append(textureName);
-        specIncludes.append("\"");
+        
         romSegments.append("extern u8 _");
         romSegments.append(textureName);
         romSegments.append("SegmentRomStart[];\n");
@@ -278,20 +343,9 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   char buffer[MAX_PATH];
   if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
   {
-    string specPath(buffer);
-    specPath.append("\\..\\..\\Engine\\spec");
-    FILE *file = fopen(specPath.c_str(), "w");
-    if(file == NULL) return false;
-    fwrite(specHeader, 1, strlen(specHeader), file);
-    fwrite(specSegments.c_str(), 1, specSegments.size(), file);
-    fwrite(specIncludeStart, 1, strlen(specIncludeStart), file);
-    fwrite(specIncludes.c_str(), 1, specIncludes.size(), file);
-    fwrite(specIncludeEnd, 1, strlen(specIncludeEnd), file);
-    fclose(file);
-
     string segmentsPath(buffer);
     segmentsPath.append("\\..\\..\\Engine\\segments.h");
-    file = fopen(segmentsPath.c_str(), "w");
+    FILE *file = fopen(segmentsPath.c_str(), "w");
     if(file == NULL) return false;
     fwrite(romSegments.c_str(), 1, romSegments.size(), file);
     fclose(file);
@@ -433,7 +487,7 @@ bool CBuild::Compile()
       currDir.append("\\..\\..\\Engine");
       
       // Start the build with no window.
-      CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
+      CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, currDir.c_str(), &si, &pi);
       WaitForSingleObject(pi.hProcess, INFINITE);
       GetExitCodeProcess(pi.hProcess, &exitCode);
       CloseHandle(pi.hProcess);
