@@ -344,27 +344,6 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
           vert.tv);
       }   
       fclose(file);
-
-      map<string, string> resources = (*it)->GetResources();  
-      // Save texture data.
-      if(resources.count("textureDataPath"))
-      {
-        // Load the set texture and resize to required dimensions.
-        string path = resources["textureDataPath"];
-        int width, height, channels;
-        unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 3);
-        if(data)
-        {
-          // Force 32 x 32 texture for now.
-          if(stbir_resize_uint8(data, width, height, 0, data, 32, 32, 0, 3))
-          {
-            path.append(".rom.png");
-            stbi_write_png(path.c_str(), 32, 32, 3, data, 0);
-          }
-        
-          stbi_image_free(data);
-        }
-      }
     } else {
       itoa(cameraCount, countBuffer, 10);
       cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");
