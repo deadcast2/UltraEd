@@ -36,7 +36,6 @@ bool CBuild::WriteSpecFile(vector<CGameObject*> gameObjects)
   const char *specIncludeEnd = "\nendwave";
 
   int loopCount = 0;
-
   for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
   {
     string newResName = CUtil::NewResourceName(loopCount++);
@@ -112,9 +111,74 @@ bool CBuild::WriteSpecFile(vector<CGameObject*> gameObjects)
   return true;
 }
 
+bool CBuild::WriteSegmentsFile(vector<CGameObject*> gameObjects)
+{
+  string romSegments;
+  int loopCount = 0;
+  for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+  {
+    string newResName = CUtil::NewResourceName(loopCount++);
+
+    if((*it)->GetType() != GameObjectType::Model) continue;
+
+    string modelName(newResName);
+    modelName.append("_M");
+    
+    romSegments.append("extern u8 _");
+    romSegments.append(modelName);
+    romSegments.append("SegmentRomStart[];\n");
+    romSegments.append("extern u8 _");
+    romSegments.append(modelName);
+    romSegments.append("SegmentRomEnd[];\n");
+
+    map<string, string> resources = (*it)->GetResources();
+    if(resources.count("textureDataPath"))
+    {
+      // Load the set texture and resize to required dimensions.
+      string path = resources["textureDataPath"];
+      int width, height, channels;
+      unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 3);
+      if(data)
+      {
+        // Force 32 x 32 texture for now.
+        if(stbir_resize_uint8(data, width, height, 0, data, 32, 32, 0, 3))
+        {
+          path.append(".rom.png");
+          stbi_write_png(path.c_str(), 32, 32, 3, data, 0);
+        }
+      
+        stbi_image_free(data);
+      }
+
+      string textureName(newResName);
+      textureName.append("_T");
+      
+      romSegments.append("extern u8 _");
+      romSegments.append(textureName);
+      romSegments.append("SegmentRomStart[];\n");
+      romSegments.append("extern u8 _");
+      romSegments.append(textureName);
+      romSegments.append("SegmentRomEnd[];\n");
+    }
+  }
+
+  char buffer[MAX_PATH];
+  if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
+  {
+    string segmentsPath(buffer);
+    segmentsPath.append("\\..\\..\\Engine\\segments.h");
+    FILE *file = fopen(segmentsPath.c_str(), "w");
+    if(file == NULL) return false;
+    fwrite(romSegments.c_str(), 1, romSegments.size(), file);
+    fclose(file);
+  }
+  return true;
+}
+
 bool CBuild::Start(vector<CGameObject*> gameObjects)
 {
   WriteSpecFile(gameObjects);
+  WriteSegmentsFile(gameObjects);
 
   string modelLoadStart("\nvoid _UER_Load() {");
   const char *modelLoadEnd = "}";
@@ -137,7 +201,6 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   string inputStart("\n\nvoid _UER_Input(NUContData gamepads[4]) {");
   const char *inputEnd = "}";
 
-  string romSegments;
   string modelInits, modelDraws, cameras, scripts;
   char countBuffer[10];
   int loopCount = 0, cameraCount = 0;
@@ -214,13 +277,6 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
 
       string modelName(newResName);
       modelName.append("_M");
-    
-      romSegments.append("extern u8 _");
-      romSegments.append(modelName);
-      romSegments.append("SegmentRomStart[];\n");
-      romSegments.append("extern u8 _");
-      romSegments.append(modelName);
-      romSegments.append("SegmentRomEnd[];\n");
 
       itoa(loopCount-1, countBuffer, 10);
       modelInits.append("\n\t_UER_Models[");
@@ -264,13 +320,6 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
 
         string textureName(newResName);
         textureName.append("_T");
-        
-        romSegments.append("extern u8 _");
-        romSegments.append(textureName);
-        romSegments.append("SegmentRomStart[];\n");
-        romSegments.append("extern u8 _");
-        romSegments.append(textureName);
-        romSegments.append("SegmentRomEnd[];\n");
 
         modelInits.append(", _");
         modelInits.append(textureName);
@@ -343,16 +392,9 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   char buffer[MAX_PATH];
   if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
   {
-    string segmentsPath(buffer);
-    segmentsPath.append("\\..\\..\\Engine\\segments.h");
-    FILE *file = fopen(segmentsPath.c_str(), "w");
-    if(file == NULL) return false;
-    fwrite(romSegments.c_str(), 1, romSegments.size(), file);
-    fclose(file);
-
     string modelInitsPath(buffer);
     modelInitsPath.append("\\..\\..\\Engine\\models.h");
-    file = fopen(modelInitsPath.c_str(), "w");
+    FILE *file = fopen(modelInitsPath.c_str(), "w");
     if(file == NULL) return false;
     fwrite(modelLoadStart.c_str(), 1, modelLoadStart.size(), file);
     fwrite(modelInits.c_str(), 1, modelInits.size(), file);
