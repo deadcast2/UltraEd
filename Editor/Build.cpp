@@ -106,9 +106,9 @@ bool CBuild::WriteSpecFile(vector<CGameObject*> gameObjects)
     fwrite(specIncludes.c_str(), 1, specIncludes.size(), file);
     fwrite(specIncludeEnd, 1, strlen(specIncludeEnd), file);
     fclose(file);
+    return true;
   }
-
-  return true;
+  return false;
 }
 
 bool CBuild::WriteSegmentsFile(vector<CGameObject*> gameObjects)
@@ -134,22 +134,6 @@ bool CBuild::WriteSegmentsFile(vector<CGameObject*> gameObjects)
     map<string, string> resources = (*it)->GetResources();
     if(resources.count("textureDataPath"))
     {
-      // Load the set texture and resize to required dimensions.
-      string path = resources["textureDataPath"];
-      int width, height, channels;
-      unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 3);
-      if(data)
-      {
-        // Force 32 x 32 texture for now.
-        if(stbir_resize_uint8(data, width, height, 0, data, 32, 32, 0, 3))
-        {
-          path.append(".rom.png");
-          stbi_write_png(path.c_str(), 32, 32, 3, data, 0);
-        }
-      
-        stbi_image_free(data);
-      }
-
       string textureName(newResName);
       textureName.append("_T");
       
@@ -171,26 +155,113 @@ bool CBuild::WriteSegmentsFile(vector<CGameObject*> gameObjects)
     if(file == NULL) return false;
     fwrite(romSegments.c_str(), 1, romSegments.size(), file);
     fclose(file);
+    return true;
   }
-  return true;
+  return false;
+}
+
+bool CBuild::WriteModelsFile(vector<CGameObject*> gameObjects)
+{
+  string modelLoadStart("\nvoid _UER_Load() {");
+  const char *modelLoadEnd = "}";
+  const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
+  const char *drawEnd = "}";
+  string modelInits, modelDraws;
+  int loopCount = 0;
+  char countBuffer[10];
+  for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+  {
+    string newResName = CUtil::NewResourceName(loopCount++);
+
+    if((*it)->GetType() != GameObjectType::Model) continue;
+
+    string modelName(newResName);
+    modelName.append("_M");
+
+    itoa(loopCount-1, countBuffer, 10);
+    modelInits.append("\n\t_UER_Models[");
+    modelInits.append(countBuffer);
+
+    map<string, string> resources = (*it)->GetResources();
+    if(resources.count("textureDataPath"))
+    {
+      modelInits.append("] = (struct sos_model*)load_sos_model_with_texture(_");
+    } else {
+      modelInits.append("] = (struct sos_model*)load_sos_model(_");
+    }
+
+    modelInits.append(modelName);
+    modelInits.append("SegmentRomStart, _");
+    modelInits.append(modelName);
+    modelInits.append("SegmentRomEnd");
+
+    modelDraws.append("\n\tsos_draw(_UER_Models[");
+    modelDraws.append(countBuffer);
+    modelDraws.append("], display_list);\n");
+  
+    if(resources.count("textureDataPath"))
+    {
+      string textureName(newResName);
+      textureName.append("_T");
+
+      modelInits.append(", _");
+      modelInits.append(textureName);
+      modelInits.append("SegmentRomStart, _");
+      modelInits.append(textureName);
+      modelInits.append("SegmentRomEnd");
+    }
+
+    // Add transform data.
+    char vectorBuffer[128];
+    D3DXVECTOR3 position = (*it)->GetPosition();
+    D3DXVECTOR3 axis;
+    float angle;
+    D3DXVECTOR3 scale = (*it)->GetScale();
+    (*it)->GetAxisAngle(&axis, &angle);
+    sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+      position.x, position.y, position.z,
+      axis.x, axis.y, axis.z, angle * (180/D3DX_PI),
+      scale.x, scale.y, scale.z);
+    modelInits.append(vectorBuffer);
+    modelInits.append(");\n");
+  }
+
+  itoa(loopCount, countBuffer, 10);
+  string modelArray("struct sos_model *_UER_Models[");
+  modelArray.append(countBuffer);
+  modelArray.append("];\n");
+  modelLoadStart.insert(0, modelArray);
+
+  char buffer[MAX_PATH];
+  if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
+  {
+    string modelInitsPath(buffer);
+    modelInitsPath.append("\\..\\..\\Engine\\models.h");
+    FILE *file = fopen(modelInitsPath.c_str(), "w");
+    if(file == NULL) return false;
+    fwrite(modelLoadStart.c_str(), 1, modelLoadStart.size(), file);
+    fwrite(modelInits.c_str(), 1, modelInits.size(), file);
+    fwrite(modelLoadEnd, 1, strlen(modelLoadEnd), file);
+    fwrite(drawStart, 1, strlen(drawStart), file);
+    fwrite(modelDraws.c_str(), 1, modelDraws.size(), file);
+    fwrite(drawEnd, 1, strlen(drawEnd), file);
+    fclose(file);
+    return true;
+  }
+  return false;
 }
 
 bool CBuild::Start(vector<CGameObject*> gameObjects)
 {
   WriteSpecFile(gameObjects);
   WriteSegmentsFile(gameObjects);
-
-  string modelLoadStart("\nvoid _UER_Load() {");
-  const char *modelLoadEnd = "}";
+  WriteModelsFile(gameObjects);
 
   string cameraSetStart("void _UER_Camera() {");
   const char *cameraSetEnd = "}";
 
   string mappingsStart("void _UER_Mappings() {");
   const char *mappingsEnd = "\n}";
-
-  const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
-  const char *drawEnd = "}";
 
   string scriptStartStart("void _UER_Start() {");
   const char *scriptStartEnd = "}";
@@ -201,9 +272,9 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   string inputStart("\n\nvoid _UER_Input(NUContData gamepads[4]) {");
   const char *inputEnd = "}";
 
-  string modelInits, modelDraws, cameras, scripts;
-  char countBuffer[10];
+  string cameras, scripts;
   int loopCount = 0, cameraCount = 0;
+  char countBuffer[10];
 
   for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
   {
@@ -271,34 +342,10 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
           vert.position.z,
           vert.tu,
           vert.tv);
-      }
-    
+      }   
       fclose(file);
 
-      string modelName(newResName);
-      modelName.append("_M");
-
-      itoa(loopCount-1, countBuffer, 10);
-      modelInits.append("\n\t_UER_Models[");
-      modelInits.append(countBuffer);
-
-      map<string, string> resources = (*it)->GetResources();
-      if(resources.count("textureDataPath"))
-      {
-        modelInits.append("] = (struct sos_model*)load_sos_model_with_texture(_");
-      } else {
-        modelInits.append("] = (struct sos_model*)load_sos_model(_");
-      }
-
-      modelInits.append(modelName);
-      modelInits.append("SegmentRomStart, _");
-      modelInits.append(modelName);
-      modelInits.append("SegmentRomEnd");
-
-      modelDraws.append("\n\tsos_draw(_UER_Models[");
-      modelDraws.append(countBuffer);
-      modelDraws.append("], display_list);\n");
-    
+      map<string, string> resources = (*it)->GetResources();  
       // Save texture data.
       if(resources.count("textureDataPath"))
       {
@@ -317,30 +364,7 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
         
           stbi_image_free(data);
         }
-
-        string textureName(newResName);
-        textureName.append("_T");
-
-        modelInits.append(", _");
-        modelInits.append(textureName);
-        modelInits.append("SegmentRomStart, _");
-        modelInits.append(textureName);
-        modelInits.append("SegmentRomEnd");
       }
-
-      // Add transform data.
-      char vectorBuffer[128];
-      D3DXVECTOR3 position = (*it)->GetPosition();
-      D3DXVECTOR3 axis;
-      float angle;
-      D3DXVECTOR3 scale = (*it)->GetScale();
-      (*it)->GetAxisAngle(&axis, &angle);
-      sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
-        position.x, position.y, position.z,
-        axis.x, axis.y, axis.z, angle * (180/D3DX_PI),
-        scale.x, scale.y, scale.z);
-      modelInits.append(vectorBuffer);
-      modelInits.append(");\n");
     } else {
       itoa(cameraCount, countBuffer, 10);
       cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");
@@ -377,12 +401,6 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
     }
   }
 
-  itoa(loopCount, countBuffer, 10);
-  string modelArray("struct sos_model *_UER_Models[");
-  modelArray.append(countBuffer);
-  modelArray.append("];\n");
-  modelLoadStart.insert(0, modelArray);
-
   itoa(cameraCount, countBuffer, 10);
   string cameraArray("struct sos_model *_UER_Cameras[");
   cameraArray.append(countBuffer);
@@ -392,21 +410,9 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
   char buffer[MAX_PATH];
   if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
   {
-    string modelInitsPath(buffer);
-    modelInitsPath.append("\\..\\..\\Engine\\models.h");
-    FILE *file = fopen(modelInitsPath.c_str(), "w");
-    if(file == NULL) return false;
-    fwrite(modelLoadStart.c_str(), 1, modelLoadStart.size(), file);
-    fwrite(modelInits.c_str(), 1, modelInits.size(), file);
-    fwrite(modelLoadEnd, 1, strlen(modelLoadEnd), file);
-    fwrite(drawStart, 1, strlen(drawStart), file);
-    fwrite(modelDraws.c_str(), 1, modelDraws.size(), file);
-    fwrite(drawEnd, 1, strlen(drawEnd), file);
-    fclose(file);
-
     string camerasPath(buffer);
     camerasPath.append("\\..\\..\\Engine\\cameras.h");
-    file = fopen(camerasPath.c_str(), "w");
+    FILE *file = fopen(camerasPath.c_str(), "w");
     if(file == NULL) return false;
     fwrite(cameraSetStart.c_str(), 1, cameraSetStart.size(), file);
     fwrite(cameras.c_str(), 1, cameras.size(), file);

@@ -20,6 +20,7 @@ public:
   static bool Load();
   static bool WriteSpecFile(vector<CGameObject*> gameObjects);
   static bool WriteSegmentsFile(vector<CGameObject*> gameObjects);
+  static bool WriteModelsFile(vector<CGameObject*> gameObjects);
 
 private:
   static bool Compile();
