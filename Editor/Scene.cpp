@@ -624,6 +624,6 @@ void CScene::OnAddCamera()
   CGameObject newCamera = CGameObject(GameObjectType::Camera);
   newCamera.LoadTexture(m_device, "Assets/camera.png");
   m_gameObjects[newCamera.GetId()] = newCamera;
-  m_gameObjects[newCamera.GetId()].SetName(string(buffer));
   sprintf(buffer, "Camera %d", m_gameObjects.size());
+  m_gameObjects[newCamera.GetId()].SetName(string(buffer));
 }
