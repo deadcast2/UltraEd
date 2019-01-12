@@ -138,7 +138,7 @@ void CScene::OnImportModel()
 {
   string file;
   if(CDialog::Open("Add Model", 
-    "3D Studio (*.3ds)\0*.3ds\0Autodesk (*.fbx)\0*.fbx\0"
+    "3D Studio (*.3ds)\0*.3ds\0Blender (*.blend)\0*.blend\0Autodesk (*.fbx)\0*.fbx\0"
     "Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
     "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj", file))
   {
@@ -624,6 +624,6 @@ void CScene::OnAddCamera()
   CGameObject newCamera = CGameObject(GameObjectType::Camera);
   newCamera.LoadTexture(m_device, "Assets/camera.png");
   m_gameObjects[newCamera.GetId()] = newCamera;
-  m_gameObjects[newCamera.GetId()].SetName(string(buffer));
   sprintf(buffer, "Camera %d", m_gameObjects.size());
+  m_gameObjects[newCamera.GetId()].SetName(string(buffer));
 }
