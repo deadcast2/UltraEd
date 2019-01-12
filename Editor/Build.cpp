@@ -341,47 +341,33 @@ bool CBuild::WriteScriptsFile(vector<CGameObject*> gameObjects)
 	{
 		string newResName = CUtil::NewResourceName(loopCount++);
 		string script = (*it)->GetScript();
+		string gameObjectRef;
 		char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
 		itoa(loopCount-1, countBuffer, 10);
 
 		if((*it)->GetType() == GameObjectType::Model)
 		{
-			string gameObjectRef("_UER_Models[");
-			gameObjectRef.append(countBuffer).append("]->");
-			result = CUtil::ReplaceString(result, "gameObject->", gameObjectRef.c_str());
-			scripts.append(result).append("\n\n");
-			if(scripts.find(string(newResName).append("start(")) != string::npos)
-			{
-				scriptStartStart.append("\n\t").append(newResName).append("start();\n");
-			}
-			if(scripts.find(string(newResName).append("update(")) != string::npos)
-			{
-				scriptUpdateStart.append("\n\t").append(newResName).append("update();\n");
-			}
-			if(scripts.find(string(newResName).append("input(")) != string::npos)
-			{
-				inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
-			}
-			free(result);			
+			gameObjectRef.append("_UER_Models[");						
 		} else {   
-			string gameObjectRef("_UER_Cameras[");
-			gameObjectRef.append(countBuffer).append("]->");
-			result = CUtil::ReplaceString(result, "gameObject->", gameObjectRef.c_str());
-			scripts.append(result).append("\n\n");
-			if(scripts.find(string(newResName).append("start(")) != string::npos)
-			{
-				scriptStartStart.append("\n\t").append(newResName).append("start();\n");
-			}
-			if(scripts.find(string(newResName).append("update(")) != string::npos)
-			{
-				scriptUpdateStart.append("\n\t").append(newResName).append("update();\n");
-			}
-			if(scripts.find(string(newResName).append("input(")) != string::npos)
-			{
-				inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
-			}
-			free(result);			
+			gameObjectRef.append("_UER_Cameras[");						
 		}
+
+		gameObjectRef.append(countBuffer).append("]->");
+		result = CUtil::ReplaceString(result, "gameObject->", gameObjectRef.c_str());
+		scripts.append(result).append("\n\n");
+		if(scripts.find(string(newResName).append("start(")) != string::npos)
+		{
+			scriptStartStart.append("\n\t").append(newResName).append("start();\n");
+		}
+		if(scripts.find(string(newResName).append("update(")) != string::npos)
+		{
+			scriptUpdateStart.append("\n\t").append(newResName).append("update();\n");
+		}
+		if(scripts.find(string(newResName).append("input(")) != string::npos)
+		{
+			inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
+		}
+		free(result);
 	}
 
 	char buffer[MAX_PATH];
