@@ -22,6 +22,8 @@ public:
   static bool WriteSegmentsFile(vector<CGameObject*> gameObjects);
   static bool WriteModelsFile(vector<CGameObject*> gameObjects);
   static bool WriteCamerasFile(vector<CGameObject*> gameObjects);
+  static bool WriteScriptsFile(vector<CGameObject*> gameObjects);
+  static bool WriteMappingsFile(vector<CGameObject*> gameObjects);
 
 private:
   static bool Compile();

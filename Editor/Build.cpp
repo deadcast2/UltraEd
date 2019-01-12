@@ -301,16 +301,8 @@ bool CBuild::WriteCamerasFile(vector<CGameObject*> gameObjects)
 	return false;
 }
 
-bool CBuild::Start(vector<CGameObject*> gameObjects)
+bool CBuild::WriteScriptsFile(vector<CGameObject*> gameObjects)
 {
-	WriteSpecFile(gameObjects);
-	WriteSegmentsFile(gameObjects);
-	WriteModelsFile(gameObjects);
-	WriteCamerasFile(gameObjects);
-		
-	string mappingsStart("void _UER_Mappings() {");
-	const char *mappingsEnd = "\n}";
-	
 	string scriptStartStart("void _UER_Start() {");
 	const char *scriptStartEnd = "}";
 	
@@ -321,22 +313,18 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
 	const char *inputEnd = "}";
 	
 	string scripts;
-	int loopCount = 0;
 	char countBuffer[10];
+	int loopCount = 0;
 	
 	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
 		string newResName = CUtil::NewResourceName(loopCount++);
 		string script = (*it)->GetScript();
 		char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
-		
-		// Setup name object mapping.
 		itoa(loopCount-1, countBuffer, 10);
-		mappingsStart.append("\n\tinsert(\"").append((*it)->GetName()).append("\", ").append(countBuffer).append(");");
-		
+
 		if((*it)->GetType() == GameObjectType::Model)
 		{
-			itoa(loopCount-1, countBuffer, 10);
 			string gameObjectRef("_UER_Models[");
 			gameObjectRef.append(countBuffer).append("]->");
 			result = CUtil::ReplaceString(result, "gameObject->", gameObjectRef.c_str());
@@ -353,8 +341,91 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
 			{
 				inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
 			}
-			free(result);
-			
+			free(result);			
+		} else {   
+			string gameObjectRef("_UER_Cameras[");
+			gameObjectRef.append(countBuffer).append("]->");
+			result = CUtil::ReplaceString(result, "gameObject->", gameObjectRef.c_str());
+			scripts.append(result).append("\n\n");
+			if(scripts.find(string(newResName).append("start(")) != string::npos)
+			{
+				scriptStartStart.append("\n\t").append(newResName).append("start();\n");
+			}
+			if(scripts.find(string(newResName).append("update(")) != string::npos)
+			{
+				scriptUpdateStart.append("\n\t").append(newResName).append("update();\n");
+			}
+			if(scripts.find(string(newResName).append("input(")) != string::npos)
+			{
+				inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
+			}
+			free(result);			
+		}
+	}
+
+	char buffer[MAX_PATH];
+	if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
+	{
+		string scriptsPath(buffer);
+		scriptsPath.append("\\..\\..\\Engine\\scripts.h");
+		FILE *file = fopen(scriptsPath.c_str(), "w");
+		if(file == NULL) return false;
+		fwrite(scripts.c_str(), 1, scripts.size(), file);
+		fwrite(scriptStartStart.c_str(), 1, scriptStartStart.size(), file);
+		fwrite(scriptStartEnd, 1, strlen(scriptStartEnd), file);
+		fwrite(scriptUpdateStart.c_str(), 1, scriptUpdateStart.size(), file);
+		fwrite(scriptUpdateEnd, 1, strlen(scriptUpdateEnd), file);
+		fwrite(inputStart.c_str(), 1, inputStart.size(), file);
+		fwrite(inputEnd, 1, strlen(inputEnd), file);
+		fclose(file);
+		return true;
+	}
+	return false;
+}
+
+bool CBuild::WriteMappingsFile(vector<CGameObject*> gameObjects)
+{
+	string mappingsStart("void _UER_Mappings() {");
+	const char *mappingsEnd = "\n}";
+		
+	int loopCount = 0;
+	char countBuffer[10];
+	
+	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+	{	
+		itoa(loopCount-1, countBuffer, 10);
+		mappingsStart.append("\n\tinsert(\"").append((*it)->GetName()).append("\", ").append(countBuffer).append(");");		
+	}
+	
+	char buffer[MAX_PATH];
+	if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
+	{		
+		string mappingsPath(buffer);
+		mappingsPath.append("\\..\\..\\Engine\\mappings.h");
+		FILE *file = fopen(mappingsPath.c_str(), "w");
+		if(file == NULL) return false;
+		fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file);
+		fwrite(mappingsEnd, 1, strlen(mappingsEnd), file);
+		fclose(file);
+		return true;
+	}
+	return false;
+}
+
+bool CBuild::Start(vector<CGameObject*> gameObjects)
+{
+	WriteSpecFile(gameObjects);
+	WriteSegmentsFile(gameObjects);
+	WriteModelsFile(gameObjects);
+	WriteCamerasFile(gameObjects);
+	WriteScriptsFile(gameObjects);
+	WriteMappingsFile(gameObjects);
+
+	int loopCount = 0;	
+	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+	{	
+		if((*it)->GetType() == GameObjectType::Model)
+		{			
 			// Construct collision data
 			int collisionLoopCount = loopCount - 1;
 			vector<CGameObject*>::iterator citStart = gameObjects.begin();
@@ -392,50 +463,7 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
 					vert.tv);
 			}   
 			fclose(file);
-		} else {   
-			string gameObjectRef("_UER_Cameras[");
-			gameObjectRef.append(countBuffer).append("]->");
-			result = CUtil::ReplaceString(result, "gameObject->", gameObjectRef.c_str());
-			scripts.append(result).append("\n\n");
-			if(scripts.find(string(newResName).append("start(")) != string::npos)
-			{
-				scriptStartStart.append("\n\t").append(newResName).append("start();\n");
-			}
-			if(scripts.find(string(newResName).append("update(")) != string::npos)
-			{
-				scriptUpdateStart.append("\n\t").append(newResName).append("update();\n");
-			}
-			if(scripts.find(string(newResName).append("input(")) != string::npos)
-			{
-				inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
-			}
-			free(result);			
 		}
-	}
-	
-	char buffer[MAX_PATH];
-	if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
-	{
-		string scriptsPath(buffer);
-		scriptsPath.append("\\..\\..\\Engine\\scripts.h");
-		FILE *file = fopen(scriptsPath.c_str(), "w");
-		if(file == NULL) return false;
-		fwrite(scripts.c_str(), 1, scripts.size(), file);
-		fwrite(scriptStartStart.c_str(), 1, scriptStartStart.size(), file);
-		fwrite(scriptStartEnd, 1, strlen(scriptStartEnd), file);
-		fwrite(scriptUpdateStart.c_str(), 1, scriptUpdateStart.size(), file);
-		fwrite(scriptUpdateEnd, 1, strlen(scriptUpdateEnd), file);
-		fwrite(inputStart.c_str(), 1, inputStart.size(), file);
-		fwrite(inputEnd, 1, strlen(inputEnd), file);
-		fclose(file);
-		
-		string mappingsPath(buffer);
-		mappingsPath.append("\\..\\..\\Engine\\mappings.h");
-		file = fopen(mappingsPath.c_str(), "w");
-		if(file == NULL) return false;
-		fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file);
-		fwrite(mappingsEnd, 1, strlen(mappingsEnd), file);
-		fclose(file);
 	}
 	
 	return Compile();
