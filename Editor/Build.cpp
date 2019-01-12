@@ -224,6 +224,27 @@ bool CBuild::WriteModelsFile(vector<CGameObject*> gameObjects)
 			scale.x, scale.y, scale.z);
 		modelInits.append(vectorBuffer);
 		modelInits.append(");\n");
+
+		// Write out mesh data.
+		int i = 0;
+		vector<MeshVertex> vertices = (*it)->GetVertices();
+		string id = CUtil::GuidToString((*it)->GetId());
+		id.insert(0, CUtil::RootPath().append("\\"));
+		id.append(".rom.sos");
+		FILE *file = fopen(id.c_str(), "w");
+		if(file == NULL) return false;					
+		fprintf(file, "%i\n", vertices.size());		
+		for(i = 0; i < vertices.size(); i++)
+		{
+			MeshVertex vert = vertices[i];
+			fprintf(file, "%f %f %f %f %f\n", 
+				vert.position.x,
+				vert.position.y,
+				vert.position.z,
+				vert.tu,
+				vert.tv);
+		}   
+		fclose(file);
 	}
 	
 	itoa(loopCount, countBuffer, 10);
@@ -412,6 +433,30 @@ bool CBuild::WriteMappingsFile(vector<CGameObject*> gameObjects)
 	return false;
 }
 
+bool CBuild::WriteCollisionsFile(vector<CGameObject*> gameObjects)
+{
+	int loopCount = 0;	
+	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+	{	
+		if((*it)->GetType() != GameObjectType::Model) continue;
+			
+		int collisionLoopCount = loopCount - 1;
+		vector<CGameObject*>::iterator citStart = gameObjects.begin();
+
+		// Make sure offset doesn't go out of bounds.
+		if(loopCount < gameObjects.size())
+		{
+			citStart += loopCount; // offset       
+			for(; citStart != gameObjects.end(); ++citStart)
+			{
+				int currentGOIndex = loopCount - 1;       
+				CDebug::Log("checkCollision(%i, %i)\n", currentGOIndex, ++collisionLoopCount);
+			}
+		}		
+	}
+	return true;
+}
+
 bool CBuild::Start(vector<CGameObject*> gameObjects)
 {
 	WriteSpecFile(gameObjects);
@@ -420,52 +465,7 @@ bool CBuild::Start(vector<CGameObject*> gameObjects)
 	WriteCamerasFile(gameObjects);
 	WriteScriptsFile(gameObjects);
 	WriteMappingsFile(gameObjects);
-
-	int loopCount = 0;	
-	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
-	{	
-		if((*it)->GetType() == GameObjectType::Model)
-		{			
-			// Construct collision data
-			int collisionLoopCount = loopCount - 1;
-			vector<CGameObject*>::iterator citStart = gameObjects.begin();
-			// Make sure offset doesn't go out of bounds.
-			if(loopCount < gameObjects.size())
-			{
-				citStart += loopCount; // offset       
-				for(; citStart != gameObjects.end(); ++citStart)
-				{
-					int currentGOIndex = loopCount - 1;       
-					CDebug::Log("checkCollision(%i, %i)\n", currentGOIndex, ++collisionLoopCount);
-				}
-			}
-			
-			// Save mesh information.
-			int i = 0;
-			string id = CUtil::GuidToString((*it)->GetId());
-			id.insert(0, CUtil::RootPath().append("\\"));
-			id.append(".rom.sos");
-			FILE *file = fopen(id.c_str(), "w");
-			if(file == NULL) return false;
-			
-			vector<MeshVertex> vertices = (*it)->GetVertices();
-			
-			fprintf(file, "%i\n", vertices.size());
-			
-			for(i = 0; i < vertices.size(); i++)
-			{
-				MeshVertex vert = vertices[i];
-				fprintf(file, "%f %f %f %f %f\n", 
-					vert.position.x,
-					vert.position.y,
-					vert.position.z,
-					vert.tu,
-					vert.tv);
-			}   
-			fclose(file);
-		}
-	}
-	
+	WriteCollisionsFile(gameObjects);	
 	return Compile();
 }
 
@@ -560,7 +560,7 @@ bool CBuild::Compile()
 			currDir.append("\\..\\..\\Engine");
 			
 			// Start the build with no window.
-			CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, currDir.c_str(), &si, &pi);
+			CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
 			WaitForSingleObject(pi.hProcess, INFINITE);
 			GetExitCodeProcess(pi.hProcess, &exitCode);
 			CloseHandle(pi.hProcess);
