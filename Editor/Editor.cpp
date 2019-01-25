@@ -3,6 +3,10 @@
 // Enable mouse wheel scrolling.
 #define _WIN32_WINDOWS 0x0501
 
+#pragma comment(lib, "deps/DXSDK/lib/d3dx8.lib")
+#pragma comment(lib, "deps/DXSDK/lib/d3d8.lib")
+#pragma comment(lib, "deps/Assimp/lib/x86/assimp.lib")
+
 #include <windows.h>
 #include <commctrl.h>
 #include <stdlib.h>

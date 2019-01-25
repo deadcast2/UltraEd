@@ -4,7 +4,7 @@
 #pragma warning(disable: 4786)
 
 #include <map>
-#include <d3d8.h>
+#include "deps/DXSDK/include/d3d8.h"
 #include "cJSON.h"
 
 using namespace std;

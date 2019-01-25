@@ -1,10 +1,10 @@
 #ifndef _MESH_H_
 #define _MESH_H_
 
-#include <d3dx8.h>
+#include "deps/DXSDK/include/d3dx8.h"
 #include <vector>
-#include <assimp/scene.h>
-#include <assimp/cimport.h>
+#include "deps/Assimp/include/assimp/scene.h"
+#include "deps/Assimp/include/assimp/cimport.h"
 
 using namespace std;
 

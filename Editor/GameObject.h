@@ -3,9 +3,9 @@
 
 #pragma warning(disable: 4786)
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "deps/Assimp/include/assimp/Importer.hpp"
+#include "deps/Assimp/include/assimp/scene.h"
+#include "deps/Assimp/include/assimp/postprocess.h"
 #include <vector>
 #include "Mesh.h"
 #include "Savable.h"

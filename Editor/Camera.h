@@ -4,7 +4,7 @@
 #include <string>
 #include "cJSON.h"
 #include "Savable.h"
-#include <d3dx8.h>
+#include "deps/DXSDK/include/d3dx8.h"
 
 struct CameraView
 {
