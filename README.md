@@ -1,18 +1,16 @@
-![alt logo](https://s3.amazonaws.com/kittypizza/ultraed.png)
+<img src="https://s3.amazonaws.com/kittypizza/ultraed.png" width="350">
 
-## A level editor/game engine for the Nintendo 64 
+## A WIP level editor/game engine for the Nintendo 64 
 
-![alt editor](https://i.imgur.com/etDiBGp.gif)
-
----
+<img src="https://i.imgur.com/etDiBGp.gif" width="600">
 
 ### Setup
 
-To compile the source on Win XP download this dependency pack I put together: http://www.mediafire.com/file/ozha9c7kmhg8ik3/UltraEdDeps.zip. It contains SP3 for WinXP, SP6 for VS 6.0 and DirectX 8.1 SDK.
+I've greatly reduced the setup requirements so all you need is Windows XP x86/x64 and Visual Studio 6. For convenience I put together a package with SP3 and other goodies like Git. http://www.mediafire.com/file/ozha9c7kmhg8ik3/UltraEdDeps.zip. Once your environment is setup, just pull down the repo, install the Microsoft Visual C++ 2008 Redistributable located in Editor/deps and then open the editor project file in Visual Studio. You should then be able to compile and run the editor!
 
 ### Notes
 
-The reason why UltraEd only runs on Windows XP/NT is due to the ROM build process. I rely upon the N64 SDK to do the final ROM construction. I realize I could still build an editor for a modern OS and then only build the ROM on XP/NT but I wanted the editor to feel sort of like Unity 3D. Everything within one environment! :)
+The reason why UltraEd only runs on Windows XP/NT is due to the ROM build process. I rely upon the N64 SDK to do the final ROM construction which utilizes old 16-bit executables. I realize I could still build an editor for a modern OS and then only build the ROM on XP/NT but I wanted the editor to feel *sort of like* Unity 3D. Everything within one environment! :)
 
 ### Donations
 
