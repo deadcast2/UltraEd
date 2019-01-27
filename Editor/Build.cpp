@@ -282,7 +282,7 @@ bool CBuild::WriteCamerasFile(vector<CGameObject*> gameObjects)
 	
 	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
-		if((*it)->GetType() == GameObjectType::Camera)
+		if((*it)->GetType() == GameObjectType::EditorCamera)
 		{
 			itoa(cameraCount, countBuffer, 10);
 			cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");

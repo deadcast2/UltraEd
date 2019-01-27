@@ -16,44 +16,6 @@ CGameObject::CGameObject(const CGameObject &gameObject)
   ResetId();
 }
 
-CGameObject::CGameObject(GameObjectType::Value type)
-{
-  Init();
-  m_type = type;
-  
-  MeshVertex v1;
-  v1.position = D3DXVECTOR3(m_position.x - 0.5, m_position.y - 0.5, m_position.z);
-  v1.tu = 1;
-  v1.tv = 1;
-  v1.normal = D3DXVECTOR3(0, 0, -1);
-    
-  MeshVertex v2;
-  v2.position = D3DXVECTOR3(m_position.x - 0.5, m_position.y + 0.5, m_position.z);
-  v2.tu = 1;
-  v2.tv = 0;
-  v2.normal = D3DXVECTOR3(0, 0, -1);
-
-  MeshVertex v3;
-  v3.position = D3DXVECTOR3(m_position.x + 0.5, m_position.y + 0.5, m_position.z);
-  v3.tu = 0;
-  v3.tv = 0;
-  v3.normal = D3DXVECTOR3(0, 0, -1);
-  
-  MeshVertex v4;
-  v4.position = D3DXVECTOR3(m_position.x + 0.5, m_position.y - 0.5, m_position.z);
-  v4.tu = 0;
-  v4.tv = 1;
-  v4.normal = D3DXVECTOR3(0, 0, -1);
-
-  m_vertices.push_back(v1);
-  m_vertices.push_back(v2);
-  m_vertices.push_back(v3);
-
-  m_vertices.push_back(v1);
-  m_vertices.push_back(v3);
-  m_vertices.push_back(v4);
-}
-
 CGameObject::CGameObject(const char *filePath, GameObjectType::Value type)
 {
   Init();

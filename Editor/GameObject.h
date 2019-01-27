@@ -14,7 +14,7 @@ using namespace std;
 
 struct GameObjectType
 {
-  enum Value { Model, Camera };
+  enum Value { Model, EditorCamera };
 };
 
 struct GameObjectRelease
@@ -26,7 +26,6 @@ class CGameObject : public CSavable
 {
 public:
   CGameObject();
-  CGameObject(GameObjectType::Value type);
   CGameObject(const char *filePath, GameObjectType::Value type);
   CGameObject(const CGameObject &gameObject);
   ~CGameObject();

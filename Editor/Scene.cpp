@@ -30,6 +30,8 @@ CScene::CScene()
   m_worldLight.Diffuse.g = 1.0f;
   m_worldLight.Diffuse.b = 1.0f;
   m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
+
+  m_cameraEditorObject = CGameObject("Assets/camera.dae", GameObjectType::EditorCamera);
 }
 
 CScene::~CScene()
@@ -320,35 +322,11 @@ void CScene::Render()
     m_device->SetMaterial(&m_defaultMaterial);
     m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
     m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
-    m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-    m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-    m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
     for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
     {
-      // When not a model then billboard the object.
-      if(it->second.GetType() != GameObjectType::Model)
-      {
-        D3DXMATRIX mat;
-        D3DXMatrixIdentity(&mat);
-        D3DXMATRIX cameraViewMat = GetActiveCamera()->GetViewMatrix();     
-        mat(0, 0) = cameraViewMat(0, 0);
-        mat(0, 1) = cameraViewMat(1, 0);
-        mat(0, 2) = cameraViewMat(2, 0);
-        mat(1, 0) = cameraViewMat(0, 1);
-        mat(1, 1) = cameraViewMat(1, 1);
-        mat(1, 2) = cameraViewMat(2, 1);
-        mat(2, 0) = cameraViewMat(0, 2);
-        mat(2, 1) = cameraViewMat(1, 2);
-        mat(2, 2) = cameraViewMat(2, 2);
-        it->second.SetLocalRotationMatrix(mat);
-      }
-
       it->second.Render(m_device, stack);
     }
-
-    // Need to disable here to not mess with the wireframe rendering.
-    m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 
     if(!selectedGameObjectIds.empty())
     {
@@ -621,8 +599,7 @@ bool CScene::ToggleSnapToGrid()
 void CScene::OnAddCamera()
 {
   char buffer[1024];
-  CGameObject newCamera = CGameObject(GameObjectType::Camera);
-  newCamera.LoadTexture(m_device, "Assets/camera.png");
+  CGameObject newCamera = m_cameraEditorObject;
   m_gameObjects[newCamera.GetId()] = newCamera;
   sprintf(buffer, "Camera %d", m_gameObjects.size());
   m_gameObjects[newCamera.GetId()].SetName(string(buffer));
