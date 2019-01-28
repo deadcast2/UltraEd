@@ -38,10 +38,9 @@ bool CBuild::WriteSpecFile(vector<CGameObject*> gameObjects)
 	int loopCount = 0;
 	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
-		string newResName = CUtil::NewResourceName(loopCount++);
-		
 		if((*it)->GetType() != GameObjectType::Model) continue;
-		
+
+		string newResName = CUtil::NewResourceName(loopCount++);
 		string id = CUtil::GuidToString((*it)->GetId());
 		id.insert(0, CUtil::RootPath().append("\\"));
 		id.append(".rom.sos");
@@ -117,10 +116,9 @@ bool CBuild::WriteSegmentsFile(vector<CGameObject*> gameObjects)
 	int loopCount = 0;
 	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
-		string newResName = CUtil::NewResourceName(loopCount++);
-		
 		if((*it)->GetType() != GameObjectType::Model) continue;
-		
+
+		string newResName = CUtil::NewResourceName(loopCount++);
 		string modelName(newResName);
 		modelName.append("_M");
 		
@@ -171,10 +169,9 @@ bool CBuild::WriteModelsFile(vector<CGameObject*> gameObjects)
 	char countBuffer[10];
 	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
-		string newResName = CUtil::NewResourceName(loopCount++);
-		
 		if((*it)->GetType() != GameObjectType::Model) continue;
-		
+
+		string newResName = CUtil::NewResourceName(loopCount++);
 		string modelName(newResName);
 		modelName.append("_M");
 		
@@ -282,22 +279,20 @@ bool CBuild::WriteCamerasFile(vector<CGameObject*> gameObjects)
 	
 	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
-		if((*it)->GetType() == GameObjectType::EditorCamera)
-		{
-			itoa(cameraCount, countBuffer, 10);
-			cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");
-			
-			char vectorBuffer[128];
-			D3DXVECTOR3 position = (*it)->GetPosition();
-			D3DXVECTOR3 axis;
-			float angle;
-			(*it)->GetAxisAngle(&axis, &angle);
-			sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf", position.x, position.y, position.z,
-				axis.x, axis.y, axis.z, angle * (180/D3DX_PI));
-			cameras.append(vectorBuffer);
-			cameras.append(");\n");
-			cameraCount++;
-		}
+		if((*it)->GetType() != GameObjectType::EditorCamera) continue;
+		
+		itoa(cameraCount++, countBuffer, 10);
+		cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");
+		
+		char vectorBuffer[128];
+		D3DXVECTOR3 position = (*it)->GetPosition();
+		D3DXVECTOR3 axis;
+		float angle;
+		(*it)->GetAxisAngle(&axis, &angle);
+		sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf", position.x, position.y, position.z,
+			axis.x, axis.y, axis.z, angle * (180/D3DX_PI));
+		cameras.append(vectorBuffer);
+		cameras.append(");\n");		
 	}
 	
 	itoa(cameraCount, countBuffer, 10);
@@ -400,7 +395,7 @@ bool CBuild::WriteMappingsFile(vector<CGameObject*> gameObjects)
 	
 	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{	
-		itoa(loopCount-1, countBuffer, 10);
+		itoa(loopCount++, countBuffer, 10);
 		mappingsStart.append("\n\tinsert(\"").append((*it)->GetName()).append("\", ").append(countBuffer).append(");");		
 	}
 	
