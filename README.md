@@ -17,3 +17,9 @@ The reason why UltraEd only runs on Windows XP/NT is due to the ROM build proces
 If you would like... you can donate to UltraEd's development! Give any amount. Even $0.00 lol! ^_^
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R25G2EARP89AL)
+
+### Currently Working On... (1/31/19)
+
+1. Improving ROM build process. Will be VERY simple once completed.
+2. Adding a simple, non-spatial partioned sphere-based collision detection system.
+3. Fixing script output to have correct object indexes for cameras and gameobjects.
