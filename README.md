@@ -1,4 +1,4 @@
-<img src="https://s3.amazonaws.com/kittypizza/ultraed.png" width="350">
+<img src="https://s3.amazonaws.com/kittypizza/ultraed.png" width="550">
 
 ## A WIP level editor/game engine for the Nintendo 64 
 
@@ -6,7 +6,7 @@
 
 ### Setup
 
-I've greatly reduced the setup requirements so all you need is Windows XP x86/x64 and Visual Studio 6. For convenience I put together a package with SP3 and other goodies like Git. http://www.mediafire.com/file/ozha9c7kmhg8ik3/UltraEdDeps.zip. Once your environment is setup, just pull down the repo, install the Microsoft Visual C++ 2008 Redistributable located in Editor/deps and then open the editor project file in Visual Studio. You should then be able to compile and run the editor!
+I've greatly reduced the setup requirements so all you need is Windows XP x86/x64 and Visual Studio 6. For convenience I put together a package with SP3 and other goodies like Git. http://www.mediafire.com/file/ozha9c7kmhg8ik3/UltraEdDeps.zip. Once your environment is setup just pull down the repo, <b>install the Microsoft Visual C++ 2008 and OpenAL redistributables</b> located in Editor/deps and then open the editor project file in Visual Studio. You should then be able to compile and run the editor!
 
 ### Notes
 
