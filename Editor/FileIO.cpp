@@ -291,3 +291,97 @@ string CFileIO::CleanFileName(const char *fileName)
   if(pos != string::npos) cleanedName.erase(pos, string::npos);
   return cleanedName;
 }
+
+bool CFileIO::Pack(const char *path)
+{
+	mtar_t tar;
+	string output(path);
+	output.append(".bin");
+
+    mtar_open(&tar, output.c_str(), "w");	
+	TarifyFile(&tar, path);
+	
+	mtar_finalize(&tar);
+	mtar_close(&tar);
+	return Compress(output.c_str());
+}
+
+bool CFileIO::Unpack(const char *path)
+{
+	string decompressPath(path);
+	if(Decompress(decompressPath))
+	{
+		mtar_t tar;
+		mtar_header_t header;
+		mtar_open(&tar, decompressPath.c_str(), "r");
+		while (mtar_read_header(&tar, &header) == MTAR_ESUCCESS)
+		{
+			char *buffer = (char*)calloc(1, header.size + 1);
+			mtar_read_data(&tar, buffer, header.size);
+
+			string newFolder(header.name);
+			string::size_type pos = newFolder.find_last_of("\\");
+			if(pos != string::npos) newFolder.erase(pos, string::npos);
+		
+			// TODO
+			/*if(CreateDirectory(newFolder.c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
+			{
+				FILE *file = fopen(header.name, "wb");
+				fwrite(buffer, 1, header.size, file);
+				fclose(file);
+			}*/
+
+			free(buffer);
+			mtar_next(&tar);
+		}
+		mtar_close(&tar);
+		remove(decompressPath.c_str());
+		return true;
+	}
+	return false;
+}
+
+void CFileIO::TarifyFile(mtar_t *tar, const char *file)
+{
+	string wildPath(file);
+	wildPath.append("\\*");
+	WIN32_FIND_DATA findData;
+	HANDLE hFind = FindFirstFile(wildPath.c_str(), &findData);
+	if(hFind == INVALID_HANDLE_VALUE) return;
+
+	while(FindNextFile(hFind, &findData) != 0)
+	{
+		if(strcmp(findData.cFileName, "..") == 0) continue;
+
+		if(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			string nextFolder(file);
+			nextFolder.append("\\").append(findData.cFileName);
+			TarifyFile(tar, nextFolder.c_str());
+		} 
+		else
+		{
+			string completeFilePath(file);
+			completeFilePath.append("\\").append(findData.cFileName);
+			FILE *hFile = fopen(completeFilePath.c_str(), "rb");
+			if(hFile == NULL) continue;
+
+			// Calculate resource length.
+			fseek(hFile, 0, SEEK_END);
+			long fileLength = ftell(hFile);
+			rewind(hFile);
+
+			// Read all contents of resource into a buffer.
+			char *fileContents = (char*)malloc(fileLength);
+			fread(fileContents, fileLength, 1, hFile);
+
+			// Write the buffer to the tar archive.
+			mtar_write_file_header(tar, completeFilePath.c_str(), fileLength);
+			mtar_write_data(tar, fileContents, fileLength);
+			fclose(hFile);
+			free(fileContents);
+		}
+	}
+
+	FindClose(hFind);
+}

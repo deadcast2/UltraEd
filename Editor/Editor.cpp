@@ -18,6 +18,7 @@
 #include "Settings.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
+#include "FileIO.h"
 
 #define IDM_TOOLBAR_TRANSLATE 5000
 #define IDM_TOOLBAR_ROTATE 5001
@@ -460,7 +461,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     MessageBox(NULL, "Could not create Direct3D device.", "Error", NULL);
     return 1;
   }
-  
+
+  // TODO
+  //CFileIO::Pack("c:\\n64sdk");
+  //CFileIO::Unpack("c:\\n64sdk.bin");
+
   MSG msg = {0};
   while(WM_QUIT != msg.message)
   {
