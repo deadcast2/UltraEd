@@ -502,7 +502,7 @@ bool CBuild::Load()
 		currDir.append("\\..\\..\\Player\\USB");
 		
 		// Start the USB loader with no window.
-		CreateProcess(NULL, "cmd /c 64drive_usb.exe -l ..\\..\\Engine\\main.n64", NULL, NULL, FALSE,
+		CreateProcess(NULL, "cmd /c 64drive_usb.exe -l ..\\..\\Engine\\main.n64 -c 6102", NULL, NULL, FALSE,
 			CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
 		
 		WaitForSingleObject(pi.hProcess, INFINITE);
