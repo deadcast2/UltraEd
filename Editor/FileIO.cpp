@@ -322,14 +322,14 @@ bool CFileIO::Unpack(const char *path)
 			string newFolder(header.name);
 			string::size_type pos = newFolder.find_last_of("\\");
 			if(pos != string::npos) newFolder.erase(pos, string::npos);
-		
-			// TODO
-			/*if(CreateDirectory(newFolder.c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
+
+			CreateDirectoryRecursively(newFolder.c_str());		
+			if(PathFileExists(newFolder.c_str()))
 			{
 				FILE *file = fopen(header.name, "wb");
 				fwrite(buffer, 1, header.size, file);
 				fclose(file);
-			}*/
+			}
 
 			free(buffer);
 			mtar_next(&tar);
@@ -384,4 +384,22 @@ void CFileIO::TarifyFile(mtar_t *tar, const char *file)
 	}
 
 	FindClose(hFind);
+}
+
+void CFileIO::CreateDirectoryRecursively(const char *path)
+{
+	vector<string> folders = CUtil::SplitString(path, '\\');
+	string currentPath;
+
+	// Walk up path creating each folder as we go deeper.
+	for(vector<string>::iterator it = folders.begin(); it != folders.end(); ++it)
+	{
+		currentPath.append(*it).append("\\");
+		
+		// Skip the root since will be a drive letter.
+		if(it != folders.begin())
+		{
+			CreateDirectory(currentPath.c_str(), NULL);
+		}
+	}
 }

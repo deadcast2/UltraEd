@@ -31,6 +31,7 @@ private:
   static bool Decompress(string &path);
   static string CleanFileName(const char *fileName);
   static void TarifyFile(mtar_t *tar, const char *file);
+  static void CreateDirectoryRecursively(const char *path);
 };
 
 #endif

@@ -1,8 +1,12 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 
+#pragma warning(disable: 4786)
+
 #include <rpc.h>
 #include <string>
+#include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -18,6 +22,7 @@ public:
   static string RootPath();
   static string NewResourceName(int count);
   static char *ReplaceString(const char *str, const char *from, const char *to);
+  static vector<string> SplitString(const char *str, const char delimiter);
 
 private:
   CUtil() {};
