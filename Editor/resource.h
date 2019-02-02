@@ -25,6 +25,7 @@
 #define ID_ADD_MODEL                    40015
 #define ID_ADD_TEXTURE                  40016
 #define ID_FILE_SETTINGS                40017
+#define ID_INSTALL_BUILD_TOOLS          40017
 #define ID_FILE_BUILDROM_AND_LOAD       40018
 
 // Next default values for new objects

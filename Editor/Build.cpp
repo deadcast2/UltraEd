@@ -518,37 +518,33 @@ bool CBuild::Load()
 
 bool CBuild::Compile()
 {
-	string sdkPath;
-	if(CSettings::Get("N64 SDK Path", sdkPath))
+	// Set the root env variable for the N64 build tools.
+	SetEnvironmentVariable("ROOT", "..\\Engine\\n64sdk\\ultra");
+	
+	// Get the path to where the program is running.
+	char buffer[MAX_PATH];
+	if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
 	{
-		// Set the root env variable for the N64 build tools.
-		SetEnvironmentVariable("ROOT", sdkPath.c_str());
+		DWORD exitCode;
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
 		
-		// Get the path to where the program is running.
-		char buffer[MAX_PATH];
-		if(GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
-		{
-			DWORD exitCode;
-			STARTUPINFO si;
-			PROCESS_INFORMATION pi;
-			
-			ZeroMemory(&si, sizeof(si));
-			si.cb = sizeof(si);
-			ZeroMemory(&pi, sizeof(pi));
-			
-			// Format the path to execute the ROM build.
-			string currDir(buffer);
-			currDir.append("\\..\\..\\Engine");
-			
-			// Start the build with no window.
-			CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
-			WaitForSingleObject(pi.hProcess, INFINITE);
-			GetExitCodeProcess(pi.hProcess, &exitCode);
-			CloseHandle(pi.hProcess);
-			CloseHandle(pi.hThread);
-			
-			return exitCode == 0;
-		}
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+		ZeroMemory(&pi, sizeof(pi));
+		
+		// Format the path to execute the ROM build.
+		string currDir(buffer);
+		currDir.append("\\..\\..\\Engine");
+		
+		// Start the build with no window.
+		CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
+		WaitForSingleObject(pi.hProcess, INFINITE);
+		GetExitCodeProcess(pi.hProcess, &exitCode);
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+		
+		return exitCode == 0;
 	}
 	
 	return false;

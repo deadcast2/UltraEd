@@ -18,6 +18,7 @@
 #include "Settings.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
+#include "FileIO.h"
 
 #define IDM_TOOLBAR_TRANSLATE 5000
 #define IDM_TOOLBAR_ROTATE 5001
@@ -40,60 +41,6 @@ const TCHAR szTitle[] = _T("Loading");
 HWND parentWindow, toolbarWindow, renderWindow, scriptEditorWindow;
 CScene scene;
 DWORD mouseClickTick = 0;
-
-BOOL CALLBACK SettingsProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam) 
-{ 
-  switch (message) 
-  {
-  case WM_INITDIALOG:
-    {
-      string sdkPath;
-      if(CSettings::Get("N64 SDK Path", sdkPath))
-      {
-        SetDlgItemText(hWndDlg, IDC_EDIT_N64_SDK_PATH, sdkPath.c_str());
-      }
-    }
-    break;
-  case WM_COMMAND: 
-    switch (LOWORD(wParam)) 
-    {
-    case IDC_N64_SDK_PATH_BROWSE:
-      {
-        char pathBuffer[MAX_PATH];
-        BROWSEINFO browseInfo = {
-          hWndDlg,
-          NULL,
-          pathBuffer,
-          "Select the N64 SDK folder",
-          0,
-          NULL,
-          0,
-          0
-        };
-        LPITEMIDLIST folderId = SHBrowseForFolder(&browseInfo);
-        if(folderId && SHGetPathFromIDList(folderId, pathBuffer))
-        {
-          SetDlgItemText(hWndDlg, IDC_EDIT_N64_SDK_PATH, pathBuffer);
-        }
-      }
-      break;
-    case IDOK:
-      {
-        char buffer[256];
-        HWND edit = GetDlgItem(hWndDlg, IDC_EDIT_N64_SDK_PATH);
-        GetWindowText(edit, buffer, 256);
-        if(!CSettings::Set("N64 SDK Path", buffer))
-        {
-          MessageBox(hWndDlg, "Unable to save N64 SDK path.", "Error", MB_OK);
-        }
-      }
-    case IDCANCEL: 
-      EndDialog(hWndDlg, wParam); 
-      return TRUE; 
-    } 
-  } 
-  return FALSE; 
-}
 
 BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam) 
 { 
@@ -186,9 +133,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case ID_FILE_BUILDROM_AND_LOAD:
         scene.OnBuildROM(BuildFlag::Load);
         break;
-      case ID_FILE_SETTINGS:
-        DialogBox(NULL, MAKEINTRESOURCE(IDD_SETTINGS), hWnd, (DLGPROC)SettingsProc);
-        break;
+      case ID_INSTALL_BUILD_TOOLS:
+		{
+			char pathBuffer[128];
+			GetFullPathName("..\\Engine\\builder.bin", 128, pathBuffer, NULL);
+			if(CFileIO::Unpack(pathBuffer))
+			{
+				MessageBox(hWnd, "Build tools successfully installed.", "Success!", MB_OK);
+			}
+			else
+			{
+				MessageBox(hWnd, "Could not find build tools.", "Error", MB_OK);
+			}
+			break;
+		}
       case ID_ADD_CAMERA:
         scene.OnAddCamera();
         break;

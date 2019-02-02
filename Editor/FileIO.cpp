@@ -319,16 +319,34 @@ bool CFileIO::Unpack(const char *path)
 			char *buffer = (char*)calloc(1, header.size + 1);
 			mtar_read_data(&tar, buffer, header.size);
 
+			// Get archived file path without file name.
 			string newFolder(header.name);
 			string::size_type pos = newFolder.find_last_of("\\");
 			if(pos != string::npos) newFolder.erase(pos, string::npos);
+			pos = newFolder.find_first_of("\\");
+			if(pos != string::npos) newFolder.erase(0, pos);
 
-			CreateDirectoryRecursively(newFolder.c_str());		
-			if(PathFileExists(newFolder.c_str()))
+			// Rewrite path to relative form.
+			char pathBuffer[128];
+			GetFullPathName(".", 128, pathBuffer, NULL);
+			string enginePath(pathBuffer);
+			enginePath.append("\\..\\Engine").append(newFolder);
+			CreateDirectoryRecursively(enginePath.c_str());	
+			
+			if(PathFileExists(enginePath.c_str()))
 			{
-				FILE *file = fopen(header.name, "wb");
-				fwrite(buffer, 1, header.size, file);
-				fclose(file);
+				// Add updated relative path for archived file.
+				string updatedName(header.name);
+				string::size_type pos = updatedName.find_last_of("\\");
+				updatedName = updatedName.substr(pos, string::npos).insert(0, enginePath);
+
+				// Create the file to updated destination.
+				FILE *file = fopen(updatedName.c_str(), "wb");
+				if(file) 
+				{
+					fwrite(buffer, 1, header.size, file);
+					fclose(file);
+				}
 			}
 
 			free(buffer);

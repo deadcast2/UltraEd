@@ -9,6 +9,7 @@ Engine/cameras.h
 Engine/scripts.h
 Engine/mappings.h
 Engine/spec
+Engine/n64sdk
 *.plg
 *.ncb
 *.aps

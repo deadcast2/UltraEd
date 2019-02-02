@@ -191,7 +191,7 @@ void CScene::OnBuildROM(BuildFlag::Value flag)
 	}
 	else
 	{
-		MessageBox(NULL, "The ROM build has failed. Make sure the correct N64 SDK path was specified.", "Error", MB_OK);
+		MessageBox(NULL, "The ROM build has failed. Make sure the build tools have been installed.", "Error", MB_OK);
 	}
 }
 
