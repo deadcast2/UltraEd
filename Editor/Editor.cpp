@@ -136,7 +136,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       case ID_INSTALL_BUILD_TOOLS:
 		{
 			char pathBuffer[128];
-			GetFullPathName("..\\Engine\\builder.bin", 128, pathBuffer, NULL);
+			GetFullPathName("..\\Engine\\tools.bin", 128, pathBuffer, NULL);
 			if(CFileIO::Unpack(pathBuffer))
 			{
 				MessageBox(hWnd, "Build tools successfully installed.", "Success!", MB_OK);
