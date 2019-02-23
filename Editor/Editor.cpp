@@ -5,7 +5,7 @@
 
 #pragma comment(lib, "deps/DXSDK/lib/d3dx8.lib")
 #pragma comment(lib, "deps/DXSDK/lib/d3d8.lib")
-#pragma comment(lib, "deps/Assimp/lib/x86/assimp.lib")
+#pragma comment(lib, "deps/Assimp/lib/assimp-vc140-mt.lib")
 
 #include <windows.h>
 #include <commctrl.h>

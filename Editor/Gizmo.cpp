@@ -243,12 +243,11 @@ void CGizmo::Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CGameObj
     if(m_modifierState == Translate)
     {
       if(shouldSnap && snapToGridToggled)
-      {
-        
+      {        
         D3DXVECTOR3 newPos = currentGameObject->GetPosition();
-        newPos.x = round(newPos.x * (1 / snapSize)) / (1 / snapSize);
-        newPos.y = round(newPos.y * (1 / snapSize)) / (1 / snapSize);
-        newPos.z = round(newPos.z * (1 / snapSize)) / (1 / snapSize);
+        newPos.x = snap(newPos.x * (1 / snapSize)) / (1 / snapSize);
+        newPos.y = snap(newPos.y * (1 / snapSize)) / (1 / snapSize);
+        newPos.z = snap(newPos.z * (1 / snapSize)) / (1 / snapSize);
         currentGameObject->SetPosition(newPos + (targetDir * snapSize * sign));
       }
       else if(!snapToGridToggled)

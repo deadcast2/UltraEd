@@ -8,12 +8,15 @@
 
 using namespace std;
 
-enum FileType { Unknown, User, Editor };
+struct FileType
+{
+	enum Value { Unknown, User, Editor };
+};
 
 typedef struct
 {
   string path;
-  FileType type;
+  FileType::Value type;
 } FileInfo;
 
 class CFileIO

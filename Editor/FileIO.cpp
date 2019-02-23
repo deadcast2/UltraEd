@@ -165,7 +165,7 @@ FileInfo CFileIO::Import(const char *file)
   if(CUtil::StringToGuid(PathFindFileName(file)) != GUID_NULL)
   {
     info.path = file;
-    info.type = User;
+    info.type = FileType::User;
     return info;
   }
 
@@ -177,7 +177,7 @@ FileInfo CFileIO::Import(const char *file)
     if(strncmp(file, assets, strlen(assets)) == 0)
     {
       info.path = file;
-      info.type = Editor;
+      info.type = FileType::Editor;
       return info;
     }
 
@@ -187,13 +187,13 @@ FileInfo CFileIO::Import(const char *file)
     if(CopyFile(file, target, FALSE))
     {
       info.path = target;
-      info.type = User;
+      info.type = FileType::User;
       return info;
     }
   }
 
   info.path = file;
-  info.type = Unknown;
+  info.type = FileType::Unknown;
   return info;
 }
 
@@ -268,9 +268,7 @@ bool CFileIO::Decompress(string &path)
   if(bytesDecompressed == 0) return false;
 
   // Create a temp path to extract the scene file.
-  path.append(tmpnam(NULL));
-  string::size_type pos = path.find_last_of("\\");
-  if(pos != string::npos) path.erase(pos, 1);
+  path.append(".tmp");
 
   // Write decompressed file back out.
   file = fopen(path.c_str(), "wb");

@@ -50,7 +50,7 @@ void CGameObject::Import(const char *filePath)
 		aiProcess_OptimizeMeshes);
 	
 	// Save path to user imported file for saving later.
-	if(info.type == User)
+	if(info.type == FileType::User)
 	{
 		resources["vertexDataPath"] = info.path;
 	}
@@ -347,7 +347,7 @@ bool CGameObject::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
 	}
 	
 	// Save location of texture for scene saving.
-	if(info.type == User) resources["textureDataPath"] = info.path;
+	if(info.type == FileType::User) resources["textureDataPath"] = info.path;
 	
 	return true;
 }

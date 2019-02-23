@@ -89,6 +89,8 @@
       <SubSystem>Windows</SubSystem>
       <OutputFile>.\Debug\Editor.exe</OutputFile>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;winmm.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <IgnoreSpecificDefaultLibraries>libci.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

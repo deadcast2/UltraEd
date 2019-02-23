@@ -7,7 +7,7 @@
 #define APP_FILE_EXT ".ultra"
 #define APP_FILE_FILTER "UltraEd (*.ultra)\0*.ultra"
 
-#define round(x) (floor(x + 0.5f))
+#define snap(x) (floor(x + 0.5f))
 
 inline bool operator<(const GUID &first, const GUID &second)
 {

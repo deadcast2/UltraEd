@@ -3,8 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2018, assimp team
-
+Copyright (c) 2006-2017, assimp team
 
 All rights reserved.
 
@@ -200,7 +199,8 @@ struct aiFace
 // ---------------------------------------------------------------------------
 /** @brief A single influence of a bone on a vertex.
  */
-struct aiVertexWeight {
+struct aiVertexWeight
+{
     //! Index of the vertex which is influenced by the bone.
     unsigned int mVertexId;
 
@@ -211,28 +211,14 @@ struct aiVertexWeight {
 #ifdef __cplusplus
 
     //! Default constructor
-    aiVertexWeight()
-    : mVertexId(0)
-    , mWeight(0.0f) {
-        // empty
-    }
+    aiVertexWeight() { }
 
     //! Initialisation from a given index and vertex weight factor
     //! \param pID ID
     //! \param pWeight Vertex weight factor
-    aiVertexWeight( unsigned int pID, float pWeight )
-    : mVertexId( pID )
-    , mWeight( pWeight ) {
-        // empty
-    }
-
-    bool operator == ( const aiVertexWeight &rhs ) const {
-        return ( mVertexId == rhs.mVertexId && mWeight == rhs.mWeight );
-    }
-
-    bool operator != ( const aiVertexWeight &rhs ) const {
-        return ( *this == rhs );
-    }
+    aiVertexWeight( unsigned int pID, float pWeight)
+        : mVertexId( pID), mWeight( pWeight)
+    { /* nothing to do here */ }
 
 #endif // __cplusplus
 };
@@ -243,41 +229,31 @@ struct aiVertexWeight {
  *
  *  A bone has a name by which it can be found in the frame hierarchy and by
  *  which it can be addressed by animations. In addition it has a number of
- *  influences on vertices, and a matrix relating the mesh position to the
- *  position of the bone at the time of binding.
+ *  influences on vertices.
  */
-struct aiBone {
+struct aiBone
+{
     //! The name of the bone.
     C_STRUCT aiString mName;
 
-    //! The number of vertices affected by this bone.
+    //! The number of vertices affected by this bone
     //! The maximum value for this member is #AI_MAX_BONE_WEIGHTS.
     unsigned int mNumWeights;
 
-    //! The influence weights of this bone, by vertex index.
+    //! The vertices affected by this bone
     C_STRUCT aiVertexWeight* mWeights;
 
-    /** Matrix that transforms from bone space to mesh space in bind pose.
-     *
-     * This matrix describes the position of the mesh
-     * in the local space of this bone when the skeleton was bound.
-     * Thus it can be used directly to determine a desired vertex position,
-     * given the world-space transform of the bone when animated,
-     * and the position of the vertex in mesh space.
-     *
-     * It is sometimes called an inverse-bind matrix,
-     * or inverse bind pose matrix.
-     */
+    //! Matrix that transforms from mesh space to bone space in bind pose
     C_STRUCT aiMatrix4x4 mOffsetMatrix;
 
 #ifdef __cplusplus
 
     //! Default constructor
     aiBone()
-    : mName()
-    , mNumWeights( 0 )
-    , mWeights( nullptr ) {
-        // empty
+        : mName()
+        , mNumWeights( 0 )
+      , mWeights( NULL )
+    {
     }
 
     //! Copy constructor
@@ -293,44 +269,6 @@ struct aiBone {
         }
     }
 
-
-    //! Assignment operator
-    aiBone &operator=(const aiBone& other)
-    {
-        if (this == &other) {
-            return *this;
-        }
-
-        mName         = other.mName;
-        mNumWeights   = other.mNumWeights;
-        mOffsetMatrix = other.mOffsetMatrix;
-
-        if (other.mWeights && other.mNumWeights)
-        {
-            if (mWeights) {
-                delete[] mWeights;
-            }
-
-            mWeights = new aiVertexWeight[mNumWeights];
-            ::memcpy(mWeights,other.mWeights,mNumWeights * sizeof(aiVertexWeight));
-        }
-
-        return *this;
-    }
-
-    bool operator == ( const aiBone &rhs ) const {
-        if ( mName != rhs.mName || mNumWeights != rhs.mNumWeights ) {
-            return false;
-        }
-
-        for ( size_t i = 0; i < mNumWeights; ++i ) {
-            if ( mWeights[ i ] != rhs.mWeights[ i ] ) {
-                return false;
-            }
-        }
-
-        return true;
-    }
     //! Destructor - deletes the array of vertex weights
     ~aiBone()
     {
