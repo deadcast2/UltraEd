@@ -1,11 +1,11 @@
 #include <nusys.h>
 #include <math.h>
+#include "hashtable.h"
 #include "sos.h"
 #include "segments.h"
 #include "models.h"
 #include "mappings.h"
 #include "cameras.h"
-#include "hashtable.h"
 #include "utilities.h"
 #include "scripts.h"
 

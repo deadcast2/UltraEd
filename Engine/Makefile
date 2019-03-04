@@ -8,16 +8,11 @@ NUSTDLIB     = $(N64KITDIR)\nustd\lib
 LIB = $(ROOT)\usr\lib
 LPR = $(LIB)\PR
 INC = $(ROOT)\usr\include
-PROJ64 = Project64
 64DRIVEUSB = 64drive_usb
-
-CC = gcc
-LD = ld
-MAKEROM = mild
 LCDEFS = -DNU_DEBUG -DF3DEX_GBI_2
-LCINCS = -I. -I$(NUSTDINC) -I$(NUSYSINCDIR) -I$(ROOT)\usr\include\PR
+LCINCS = -I. -I$(NUSTDINC) -I$(NUSYSINCDIR) -I$(ROOT)\usr\include\PR -I$(ROOT)\GCC\MIPSE\INCLUDE
 LCOPTS = -G 0
-LDFLAGS = $(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) -lnualsgi_d -lnusys -lgultra_rom -L$(NUSTDLIB) -lnustd -L$(GCCDIR)\mipse\lib -lkmc
+LDFLAGS = $(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) -lnualsgi_d -lnusys -lgultra_rom -L$(NUSTDLIB) -lnustd -L$(ROOT)\GCC\MIPSE\LIB -lkmc
 OPTIMIZER =	-g
 APP = main.out
 TARGETS = main.n64
@@ -31,10 +26,7 @@ default: $(TARGETS)
 
 include $(COMMONRULES)
 
-.PHONY: run load
-
-run:
-	$(PROJ64) $(TARGETS)
+.PHONY: load
 
 load:
 	$(64DRIVEUSB) -l $(TARGETS)
@@ -43,5 +35,5 @@ $(CODESEGMENT):	$(CODEOBJECTS) Makefile
 	$(LD) -o $(CODESEGMENT) -r $(CODEOBJECTS) $(LDFLAGS)
 
 $(TARGETS):	$(OBJECTS)
-	$(MAKEROM) spec -s 8 -I$(NUSYSINCDIR) -r $(TARGETS) -e $(APP)
-	makemask $(TARGETS) // Allows the rom to be run on real hardware
+	$(MAKEROM) spec -s 9 -I$(NUSYSINCDIR) -r $(TARGETS) -e $(APP)
+	makemask $(TARGETS)

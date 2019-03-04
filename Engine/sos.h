@@ -34,4 +34,10 @@ struct mesh {
   Vtx *vertices;
 };
 
+struct sos_model *load_sos_model_with_texture(void *data_start, void *data_end,
+	void *texture_start, void *texture_end,
+	double positionX, double positionY, double positionZ,
+	double rotX, double rotY, double rotZ, double angle,
+	double scaleX, double scaleY, double scaleZ);
+
 #endif
