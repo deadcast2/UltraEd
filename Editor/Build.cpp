@@ -3,6 +3,7 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
+#include <regex>
 #include "stb_image.h"
 #include "stb_image_resize.h"
 #include "stb_image_write.h"
@@ -99,8 +100,15 @@ bool CBuild::WriteSpecFile(vector<CGameObject*> gameObjects)
 		specPath.append("\\..\\..\\Engine\\spec");
 		FILE *file = fopen(specPath.c_str(), "w");
 		if(file == NULL) return false;
-		fwrite(specHeader, 1, strlen(specHeader), file);
-		fwrite(specSegments.c_str(), 1, specSegments.size(), file);
+
+		string slashesNormalized(specHeader);
+		slashesNormalized = regex_replace(slashesNormalized, regex("\\\\"), "\\\\");
+		fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file);
+
+		slashesNormalized = string(specSegments);
+		slashesNormalized = regex_replace(slashesNormalized, regex("\\\\"), "\\\\");
+		fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file);
+
 		fwrite(specIncludeStart, 1, strlen(specIncludeStart), file);
 		fwrite(specIncludes.c_str(), 1, specIncludes.size(), file);
 		fwrite(specIncludeEnd, 1, strlen(specIncludeEnd), file);

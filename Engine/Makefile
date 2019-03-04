@@ -3,8 +3,8 @@ include $(ROOT)\usr\include\make\PRdefs
 N64KITDIR = $(ROOT)\..\nintendo\n64kit
 NUSYSINCDIR = $(N64KITDIR)\nusys\include
 NUSYSLIBDIR = $(N64KITDIR)\nusys\lib
-NUSTDINC     = $(N64KITDIR)\nustd\include
-NUSTDLIB     = $(N64KITDIR)\nustd\lib
+NUSTDINC = $(N64KITDIR)\nustd\include
+NUSTDLIB = $(N64KITDIR)\nustd\lib
 LIB = $(ROOT)\usr\lib
 LPR = $(LIB)\PR
 INC = $(ROOT)\usr\include
