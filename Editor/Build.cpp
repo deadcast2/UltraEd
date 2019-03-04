@@ -546,7 +546,7 @@ bool CBuild::Compile()
 		currDir.append("\\..\\..\\Engine");
 		
 		// Start the build with no window.
-		CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, currDir.c_str(), &si, &pi);
+		CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
 		WaitForSingleObject(pi.hProcess, INFINITE);
 		GetExitCodeProcess(pi.hProcess, &exitCode);
 		CloseHandle(pi.hProcess);
