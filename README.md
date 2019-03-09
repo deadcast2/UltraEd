@@ -1,22 +1,22 @@
 <img src="https://s3.amazonaws.com/kittypizza/ultraed.png" width="550">
 
-## A WIP level editor/game engine for the Nintendo 64 
+## A WIP level editor/game engine for the Nintendo 64
 
 <img src="https://i.imgur.com/etDiBGp.gif" width="600">
 
 ### Setup
 
-I've greatly reduced the setup requirements so all you need is Windows XP x86/x64 and Visual Studio 6. For convenience I put together a package with SP3 and other goodies like Git. http://www.mediafire.com/file/ozha9c7kmhg8ik3/UltraEdDeps.zip. Once your environment is setup just pull down the repo, <b>install the Microsoft Visual C++ 2008 and OpenAL redistributables</b> located in Editor/deps and then open the editor project file in Visual Studio. You should then be able to compile and run the editor!
+Open the editor solution file in Visual Studio 2017 and hit build. That's it! Make sure to also install OpenAL so you can test your rom out in the cen64 emulator included. I've included it in Editor/deps. Also if you so happen to have the excellent 64drive you can test on that too!
 
 ### Notes
 
-The reason why UltraEd only runs on Windows XP/NT is due to the ROM build process. I rely upon the N64 SDK to do the final ROM construction which utilizes old 16-bit executables. I realize I could still build an editor for a modern OS and then only build the ROM on XP/NT but I wanted the editor to feel *sort of like* Unity 3D. Everything within one environment! :)
+UltraEd isn't finished and is not a fully polished tool yet. It has enough functionality to throw a few models in a scene, texture them, script them and have some fun. I have many ideas and things I'm excited to implement in the future. Unfortunately, I have a full-time job and other life commitments so I work on this tool in my free time. I love the N64! :0)
 
-### Currently Working On... (2/4/19)
+### Currently Working On... (3/9/19)
 
-1. Reworking game objects to use a component based system for describing their functionalty.
+1. Reworking game objects to use a component based system for describing their functionality.
 2. Updating ROM build output file structures once new component system is in place.
-3. Adding a simple, non-spatial-partioned sphere-based collision detection system.
+3. Adding a simple, non-spatial-partitioned sphere-based collision detection system.
 
 ### Donations
 
