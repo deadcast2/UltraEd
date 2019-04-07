@@ -144,16 +144,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			case ID_INSTALL_BUILD_TOOLS:
 			{
-				char pathBuffer[128];
-				GetFullPathName("..\\Engine\\tools.bin", 128, pathBuffer, NULL);
-				if (CFileIO::Unpack(pathBuffer))
-				{
-					MessageBox(hWnd, "Build tools successfully installed.", "Success!", MB_OK);
-				}
-				else
-				{
-					MessageBox(hWnd, "Could not find build tools.", "Error", MB_OK);
-				}
+				RunAction("Installing build tools...", [hWnd] {
+					char pathBuffer[128];
+					GetFullPathName("..\\Engine\\tools.bin", 128, pathBuffer, NULL);
+					if (CFileIO::Unpack(pathBuffer))
+					{
+						MessageBox(hWnd, "Build tools successfully installed.", "Success!", MB_OK);
+					}
+					else
+					{
+						MessageBox(hWnd, "Could not find build tools.", "Error", MB_OK);
+					}
+				});
 				break;
 			}
 			case ID_ADD_CAMERA:
