@@ -1,7 +1,6 @@
 #include "FileIO.h"
 #include "Util.h"
 #include "cJSON.h"
-#include "microtar.h"
 #include "fastlz.h"
 #include "Dialog.h"
 #include <shlwapi.h>
@@ -139,7 +138,7 @@ bool CFileIO::Load(cJSON **data, string &fileName)
         free(buffer);
 
         // Update the path to the fully qualified target.
-        resource->child->valuestring = strdup(target);
+        resource->child->valuestring = _strdup(target);
       }
     }
 
@@ -215,7 +214,7 @@ bool CFileIO::Compress(string path)
   fclose(file);
 
   // Compressed buffer must be at least 5% larger.
-  char *compressed = (char*)malloc(size + (size * 0.05));
+  char *compressed = (char*)malloc((size_t)(size + (size * 0.05f)));
   if(compressed == NULL) return false;
   int bytesCompressed = fastlz_compress(data, size, compressed);
   if(bytesCompressed == 0) return false;

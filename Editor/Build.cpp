@@ -183,7 +183,7 @@ bool CBuild::WriteModelsFile(vector<CGameObject*> gameObjects)
 		string modelName(newResName);
 		modelName.append("_M");
 		
-		itoa(loopCount-1, countBuffer, 10);
+		_itoa(loopCount-1, countBuffer, 10);
 		modelInits.append("\n\t_UER_Models[");
 		modelInits.append(countBuffer);
 		
@@ -231,7 +231,6 @@ bool CBuild::WriteModelsFile(vector<CGameObject*> gameObjects)
 		modelInits.append(");\n");
 		
 		// Write out mesh data.
-		int i = 0;
 		vector<MeshVertex> vertices = (*it)->GetVertices();
 		string id = CUtil::GuidToString((*it)->GetId());
 		id.insert(0, CUtil::RootPath().append("\\"));
@@ -239,7 +238,7 @@ bool CBuild::WriteModelsFile(vector<CGameObject*> gameObjects)
 		FILE *file = fopen(id.c_str(), "w");
 		if(file == NULL) return false;					
 		fprintf(file, "%i\n", vertices.size());		
-		for(i = 0; i < vertices.size(); i++)
+		for(unsigned int i = 0; i < vertices.size(); i++)
 		{
 			MeshVertex vert = vertices[i];
 			fprintf(file, "%f %f %f %f %f\n", 
@@ -252,7 +251,7 @@ bool CBuild::WriteModelsFile(vector<CGameObject*> gameObjects)
 		fclose(file);
 	}
 	
-	itoa(loopCount, countBuffer, 10);
+	_itoa(loopCount, countBuffer, 10);
 	string modelArray("struct sos_model *_UER_Models[");
 	modelArray.append(countBuffer);
 	modelArray.append("];\n");
@@ -289,7 +288,7 @@ bool CBuild::WriteCamerasFile(vector<CGameObject*> gameObjects)
 	{
 		if((*it)->GetType() != GameObjectType::EditorCamera) continue;
 		
-		itoa(cameraCount++, countBuffer, 10);
+		_itoa(cameraCount++, countBuffer, 10);
 		cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");
 		
 		char vectorBuffer[128];
@@ -303,7 +302,7 @@ bool CBuild::WriteCamerasFile(vector<CGameObject*> gameObjects)
 		cameras.append(");\n");		
 	}
 	
-	itoa(cameraCount, countBuffer, 10);
+	_itoa(cameraCount, countBuffer, 10);
 	string cameraArray("struct sos_model *_UER_Cameras[");
 	cameraArray.append(countBuffer);
 	cameraArray.append("];\n");
@@ -346,7 +345,7 @@ bool CBuild::WriteScriptsFile(vector<CGameObject*> gameObjects)
 		string script = (*it)->GetScript();
 		string gameObjectRef;
 		char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
-		itoa(loopCount-1, countBuffer, 10);
+		_itoa(loopCount-1, countBuffer, 10);
 		
 		if((*it)->GetType() == GameObjectType::Model)
 		{
@@ -403,7 +402,7 @@ bool CBuild::WriteMappingsFile(vector<CGameObject*> gameObjects)
 	
 	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{	
-		itoa(loopCount++, countBuffer, 10);
+		_itoa(loopCount++, countBuffer, 10);
 		mappingsStart.append("\n\tinsert(\"").append((*it)->GetName()).append("\", ").append(countBuffer).append(");");		
 	}
 	
@@ -424,7 +423,7 @@ bool CBuild::WriteMappingsFile(vector<CGameObject*> gameObjects)
 
 bool CBuild::WriteCollisionsFile(vector<CGameObject*> gameObjects)
 {
-	int loopCount = 0;	
+	unsigned int loopCount = 0;	
 	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{	
 		if((*it)->GetType() != GameObjectType::Model) continue;

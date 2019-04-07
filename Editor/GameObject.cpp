@@ -63,16 +63,14 @@ void CGameObject::Import(const char *filePath)
 
 void CGameObject::Process(aiNode *node, const aiScene *scene)
 {
-	int i;
-	
-	for(i = 0; i < node->mNumMeshes; i++)
+	for(unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
 		vector<MeshVertex> verts = CMesh(node->mTransformation, mesh).Vertices();
 		m_vertices.insert(m_vertices.end(), verts.begin(), verts.end()); 
 	}
 	
-	for(i = 0; i < node->mNumChildren; i++)
+	for(unsigned int i = 0; i < node->mNumChildren; i++)
 	{
 		Process(node->mChildren[i], scene);
 	}
@@ -280,7 +278,7 @@ bool CGameObject::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist)
 	vector<MeshVertex> vertices = GetVertices();
 	
 	// Test all faces in this game object.
-	for(int j = 0; j < vertices.size() / 3; j++)
+	for(unsigned int j = 0; j < vertices.size() / 3; j++)
 	{
 		D3DXVECTOR3 v0 = vertices[3 * j + 0].position;
 		D3DXVECTOR3 v1 = vertices[3 * j + 1].position;

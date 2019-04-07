@@ -1,8 +1,6 @@
 #ifndef _SAVABLE_H_
 #define _SAVABLE_H_
 
-#pragma warning(disable: 4786)
-
 #include <map>
 #include "deps/DXSDK/include/d3d8.h"
 #include "cJSON.h"

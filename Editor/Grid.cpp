@@ -5,7 +5,7 @@ CGrid::CGrid()
   m_vertexBuffer = 0;
   
   int i = 0;
-  const int size = 30;
+  const FLOAT size = 30.0f;
   
   // Create the x-axis lines.
   for(i = 0; i <= size; i++)

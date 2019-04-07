@@ -371,7 +371,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
   wcex.lpszMenuName = MAKEINTRESOURCE(IDR_MAIN_MENU);
   wcex.lpszClassName = szWindowClass;
-  wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+  wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
   
   if(!RegisterClassEx(&wcex))
   {

@@ -2,10 +2,10 @@
 
 CMesh::CMesh(aiMatrix4x4 transform, aiMesh *mesh)
 {
-  for(int i = 0; i < mesh->mNumFaces; i++)
+  for(unsigned int i = 0; i < mesh->mNumFaces; i++)
   {
     aiFace face = mesh->mFaces[i];
-    for(int j = 0; j < face.mNumIndices; j++)
+    for(unsigned int j = 0; j < face.mNumIndices; j++)
     {
       MeshVertex vertex;
       

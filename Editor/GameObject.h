@@ -1,8 +1,6 @@
 #ifndef _GAMEOBJECT_H_
 #define _GAMEOBJECT_H_
 
-#pragma warning(disable: 4786)
-
 #include "deps/Assimp/include/assimp/Importer.hpp"
 #include "deps/Assimp/include/assimp/scene.h"
 #include "deps/Assimp/include/assimp/postprocess.h"

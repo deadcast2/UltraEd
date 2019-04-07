@@ -1,8 +1,6 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 
-#pragma warning(disable: 4786)
-
 #include <rpc.h>
 #include <string>
 #include <vector>

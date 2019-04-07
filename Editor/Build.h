@@ -1,8 +1,6 @@
 #ifndef _BUILD_H_
 #define _BUILD_H_
 
-#pragma warning(disable: 4786)
-
 #include <windows.h>
 #include <string>
 #include <vector>

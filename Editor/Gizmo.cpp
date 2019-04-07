@@ -238,7 +238,7 @@ void CGizmo::Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CGameObj
 
     // Only allow movement when mouse following axis.
     FLOAT modifier = 1.0f - (angle/(D3DX_PI/2));
-    int sign = modifier < 0 ? -1 : 1;
+	FLOAT sign = modifier < 0 ? -1.0f : 1.0f;
     
     if(m_modifierState == Translate)
     {

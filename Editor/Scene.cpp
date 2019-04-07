@@ -384,27 +384,20 @@ void CScene::CheckInput(float deltaTime)
 	else if(GetAsyncKeyState(VK_RBUTTON) && m_activeCameraView == CameraView::Perspective)
 	{
 		if(GetAsyncKeyState('W')) camera->Walk(4.0f * deltaTime);
-		if(GetAsyncKeyState('S')) camera->Walk(-4.0f * deltaTime);
-		
+		if(GetAsyncKeyState('S')) camera->Walk(-4.0f * deltaTime);	
 		if(GetAsyncKeyState('A')) camera->Strafe(-4.0f * deltaTime);
 		if(GetAsyncKeyState('D')) camera->Strafe(4.0f * deltaTime);
 		
-		mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, 
-			mouseSmoothX, mousePoint.x - prevMousePoint.x);
-		
-		mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, 
-			mouseSmoothY, mousePoint.y - prevMousePoint.y);
+		mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothX, (FLOAT)(mousePoint.x - prevMousePoint.x));		
+		mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
 		
 		camera->Yaw(mouseSmoothX * mouseSpeedModifier * deltaTime);
 		camera->Pitch(mouseSmoothY * mouseSpeedModifier * deltaTime);
 	}
 	else if(GetAsyncKeyState(VK_MBUTTON))
 	{
-		mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, 
-			mouseSmoothX, prevMousePoint.x - mousePoint.x);
-		
-		mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, 
-			mouseSmoothY, mousePoint.y - prevMousePoint.y);
+		mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothX, (FLOAT)(prevMousePoint.x - mousePoint.x));		
+		mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
 		
 		camera->Strafe(mouseSmoothX * deltaTime);
 		camera->Fly(mouseSmoothY * deltaTime);
@@ -441,11 +434,11 @@ void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *
 	D3DXMatrixIdentity(&matWorld);
 	
 	D3DXVECTOR3 v1;
-	D3DXVECTOR3 start = D3DXVECTOR3(screenPoint.x, screenPoint.y, 0);
+	D3DXVECTOR3 start = D3DXVECTOR3((FLOAT)screenPoint.x, (FLOAT)screenPoint.y, 0.0f);
 	D3DXVec3Unproject(&v1, &start, &viewport, &matProj, &camera->GetViewMatrix(), &matWorld);
 	
 	D3DXVECTOR3 v2;
-	D3DXVECTOR3 end = D3DXVECTOR3(screenPoint.x, screenPoint.y, 1);
+	D3DXVECTOR3 end = D3DXVECTOR3((FLOAT)screenPoint.x, (FLOAT)screenPoint.y, 1.0f);
 	D3DXVec3Unproject(&v2, &end, &viewport, &matProj, &camera->GetViewMatrix(), &matWorld);
 	
 	*origin = v1;
