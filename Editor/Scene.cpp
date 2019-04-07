@@ -90,7 +90,7 @@ void CScene::OnSave()
 	for(int i = 0; i < 4; i++) savables.push_back(&m_cameras[i]);
 	
 	// Save all of the game objects in the scene.
-	for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
+	for(auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
 	{
 		savables.push_back(&it->second);
 	}
@@ -162,7 +162,7 @@ void CScene::OnBuildROM(BuildFlag::Value flag)
 	vector<CGameObject*> gameObjects;
 	
 	// Gather all of the game objects in the scene.
-	for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
+	for(auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
 	{
 		gameObjects.push_back(&it->second);
 	}
@@ -205,7 +205,7 @@ void CScene::OnApplyTexture()
 		return;
 	}
 	
-	for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); it++)
+	for(auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); it++)
 	{
 		if(CDialog::Open("Select a texture",
 			"PNG (*.png)\0*.png\0JPEG (*.jpg)\0"
@@ -231,7 +231,7 @@ bool CScene::Pick(POINT mousePoint)
 	if(gizmoSelected) return true;
 	
 	// Check all game objects to see which poly might have been picked.
-	for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
+	for(auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
 	{
 		// Only choose the closest game object to the camera.
 		float pickDist = 0;
@@ -328,7 +328,7 @@ void CScene::Render()
 		m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
 		m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
 		
-		for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
+		for(auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
 		{
 			it->second.Render(m_device, stack);
 		}
@@ -338,7 +338,7 @@ void CScene::Render()
 			// Highlight the selected game object.
 			m_device->SetMaterial(&m_selectedMaterial);
 			m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-			for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
+			for(auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
 			{
 				m_gameObjects[*it].Render(m_device, stack);
 			}
@@ -376,7 +376,7 @@ void CScene::CheckInput(float deltaTime)
 		D3DXVECTOR3 rayOrigin, rayDir;
 		ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
 		GUID lastSelectedGameObjectId = selectedGameObjectIds.back();
-		for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
+		for(auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
 		{
 			m_gizmo.Update(GetActiveCamera(), rayOrigin, rayDir, &m_gameObjects[*it], &m_gameObjects[lastSelectedGameObjectId]);
 		}
@@ -488,7 +488,7 @@ void CScene::ReleaseResources(GameObjectRelease::Value type)
 	m_gizmo.Release();
 	CDebug::Instance().Release();
 	
-	for(map<GUID, CGameObject>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
+	for(auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
 	{
 		it->second.Release(type);
 	}
@@ -498,7 +498,7 @@ void CScene::Delete()
 {
 	if(!selectedGameObjectIds.empty())
 	{
-		for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
+		for(auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
 		{
 			m_gameObjects[*it].Release(GameObjectRelease::AllResources);
 			m_gameObjects.erase(*it);
@@ -511,7 +511,7 @@ void CScene::Duplicate()
 {
 	if(!selectedGameObjectIds.empty())
 	{
-		for(vector<GUID>::iterator it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
+		for(auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
 		{
 			CGameObject gameObject = m_gameObjects[*it];
 			string tex = gameObject.GetResources()["textureDataPath"];

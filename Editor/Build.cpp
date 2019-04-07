@@ -37,7 +37,7 @@ bool CBuild::WriteSpecFile(vector<CGameObject*> gameObjects)
 	const char *specIncludeEnd = "\nendwave";
 	
 	int loopCount = 0;
-	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+	for(auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
 		if((*it)->GetType() != GameObjectType::Model) continue;
 
@@ -122,7 +122,7 @@ bool CBuild::WriteSegmentsFile(vector<CGameObject*> gameObjects)
 {
 	string romSegments;
 	int loopCount = 0;
-	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+	for(auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
 		if((*it)->GetType() != GameObjectType::Model) continue;
 
@@ -175,7 +175,7 @@ bool CBuild::WriteModelsFile(vector<CGameObject*> gameObjects)
 	string modelInits, modelDraws;
 	int loopCount = 0;
 	char countBuffer[10];
-	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+	for(auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
 		if((*it)->GetType() != GameObjectType::Model) continue;
 
@@ -284,7 +284,7 @@ bool CBuild::WriteCamerasFile(vector<CGameObject*> gameObjects)
 	int cameraCount = 0;
 	char countBuffer[10];
 	
-	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+	for(auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
 		if((*it)->GetType() != GameObjectType::EditorCamera) continue;
 		
@@ -339,7 +339,7 @@ bool CBuild::WriteScriptsFile(vector<CGameObject*> gameObjects)
 	char countBuffer[10];
 	int loopCount = 0;
 	
-	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+	for(auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{
 		string newResName = CUtil::NewResourceName(loopCount++);
 		string script = (*it)->GetScript();
@@ -400,7 +400,7 @@ bool CBuild::WriteMappingsFile(vector<CGameObject*> gameObjects)
 	int loopCount = 0;
 	char countBuffer[10];
 	
-	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+	for(auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{	
 		_itoa(loopCount++, countBuffer, 10);
 		mappingsStart.append("\n\tinsert(\"").append((*it)->GetName()).append("\", ").append(countBuffer).append(");");		
@@ -424,12 +424,12 @@ bool CBuild::WriteMappingsFile(vector<CGameObject*> gameObjects)
 bool CBuild::WriteCollisionsFile(vector<CGameObject*> gameObjects)
 {
 	unsigned int loopCount = 0;	
-	for(vector<CGameObject*>::iterator it = gameObjects.begin(); it != gameObjects.end(); ++it)
+	for(auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 	{	
 		if((*it)->GetType() != GameObjectType::Model) continue;
 		
 		int collisionLoopCount = loopCount - 1;
-		vector<CGameObject*>::iterator citStart = gameObjects.begin();
+		auto citStart = gameObjects.begin();
 		
 		// Make sure offset doesn't go out of bounds.
 		if(loopCount < gameObjects.size())

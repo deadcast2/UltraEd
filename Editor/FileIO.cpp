@@ -29,7 +29,7 @@ bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
     cJSON *gameObjectArray = cJSON_CreateArray();
     cJSON_AddItemToObject(root, "gameObjects", gameObjectArray);
 
-    for(vector<CSavable*>::iterator it = savables.begin(); it != savables.end(); ++it)
+    for(auto it = savables.begin(); it != savables.end(); ++it)
     {
       Savable current = (*it)->Save();
       cJSON *object = current.object->child;
@@ -40,7 +40,7 @@ bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
 
       // Rewrite and archive the attached resources.
       map<string, string> resources = (*it)->GetResources();
-      for(map<string, string>::iterator rit = resources.begin(); rit != resources.end(); ++rit)
+      for(auto rit = resources.begin(); rit != resources.end(); ++rit)
       {
         const char *fileName = PathFindFileName(rit->second.c_str());
         FILE *file = fopen(rit->second.c_str(), "rb");
@@ -407,7 +407,7 @@ void CFileIO::CreateDirectoryRecursively(const char *path)
 	string currentPath;
 
 	// Walk up path creating each folder as we go deeper.
-	for(vector<string>::iterator it = folders.begin(); it != folders.end(); ++it)
+	for(auto it = folders.begin(); it != folders.end(); ++it)
 	{
 		currentPath.append(*it).append("\\");
 		
