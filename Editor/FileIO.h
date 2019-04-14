@@ -1,5 +1,4 @@
-#ifndef _FILE_IO_H_
-#define _FILE_IO_H_
+#pragma once
 
 #define LINE_FORMAT_LENGTH 128
 
@@ -39,5 +38,3 @@ namespace UltraEd
 		static void CreateDirectoryRecursively(const char *path);
 	};
 }
-
-#endif

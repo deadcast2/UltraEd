@@ -1,5 +1,4 @@
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#pragma once
 
 #include <windows.h>
 
@@ -12,5 +11,3 @@ inline bool operator<(const GUID &first, const GUID &second)
 {
 	return memcmp(&first, &second, sizeof(GUID)) < 0;
 }
-
-#endif

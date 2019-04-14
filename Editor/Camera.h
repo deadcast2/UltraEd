@@ -1,5 +1,4 @@
-#ifndef _CAMERA_H_
-#define _CAMERA_H_
+#pragma once
 
 #include <string>
 #include "cJSON.h"
@@ -42,5 +41,3 @@ namespace UltraEd
 		CameraView::Value m_view;
 	};
 }
-
-#endif

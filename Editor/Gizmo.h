@@ -1,5 +1,4 @@
-#ifndef _GIZMO_H_
-#define _GIZMO_H_
+#pragma once
 
 #include "Camera.h"
 #include "GameObject.h"
@@ -48,5 +47,3 @@ namespace UltraEd
 		bool snapToGridToggled;
 	};
 }
-
-#endif

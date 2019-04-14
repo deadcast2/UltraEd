@@ -46,10 +46,10 @@ namespace UltraEd
 
 	void CDebug::_DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to)
 	{
-		MeshVertex v1;
+		Vertex v1;
 		v1.position = from;
 
-		MeshVertex v2;
+		Vertex v2;
 		v2.position = to;
 
 		m_vertices.push_back(v1);
@@ -63,7 +63,7 @@ namespace UltraEd
 		if (m_vertexBuffer == NULL)
 		{
 			if (FAILED(device->CreateVertexBuffer(
-				m_vertices.size() * sizeof(MeshVertex),
+				m_vertices.size() * sizeof(Vertex),
 				0,
 				D3DFVF_XYZ,
 				D3DPOOL_DEFAULT,
@@ -73,13 +73,13 @@ namespace UltraEd
 			}
 
 			VOID *pVertices;
-			if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(MeshVertex),
+			if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(Vertex),
 				(BYTE**)&pVertices, 0)))
 			{
 				return NULL;
 			}
 
-			memcpy(pVertices, &m_vertices[0], m_vertices.size() * sizeof(MeshVertex));
+			memcpy(pVertices, &m_vertices[0], m_vertices.size() * sizeof(Vertex));
 			m_vertexBuffer->Unlock();
 		}
 
@@ -93,7 +93,7 @@ namespace UltraEd
 		if (buffer != NULL)
 		{
 			device->SetMaterial(&m_material);
-			device->SetStreamSource(0, buffer, sizeof(MeshVertex));
+			device->SetStreamSource(0, buffer, sizeof(Vertex));
 			device->SetVertexShader(D3DFVF_XYZ);
 			device->DrawPrimitive(D3DPT_LINELIST, 0, m_vertices.size() / 2);
 		}

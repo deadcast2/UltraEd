@@ -68,8 +68,7 @@ namespace UltraEd
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-			vector<MeshVertex> verts = CMesh(node->mTransformation, mesh).Vertices();
-			m_vertices.insert(m_vertices.end(), verts.begin(), verts.end());
+			InsertVerts(node->mTransformation, mesh);
 		}
 
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -78,12 +77,46 @@ namespace UltraEd
 		}
 	}
 
+	void CGameObject::InsertVerts(aiMatrix4x4 transform, aiMesh *mesh)
+	{
+		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+		{
+			aiFace face = mesh->mFaces[i];
+			for (unsigned int j = 0; j < face.mNumIndices; j++)
+			{
+				Vertex vertex;
+
+				// Apply the current transform to the mesh
+				// so it renders in the correct local location.
+				aiVector3D transformedVertex = mesh->mVertices[face.mIndices[j]];
+				aiTransformVecByMatrix4(&transformedVertex, &transform);
+
+				vertex.position.x = transformedVertex.x;
+				vertex.position.y = transformedVertex.y;
+				vertex.position.z = transformedVertex.z;
+
+				aiVector3D normal = mesh->mNormals[face.mIndices[j]];
+				vertex.normal.x = normal.x;
+				vertex.normal.y = normal.y;
+				vertex.normal.z = normal.z;
+
+				if (mesh->HasTextureCoords(0))
+				{
+					vertex.tu = mesh->mTextureCoords[0][face.mIndices[j]].x;
+					vertex.tv = mesh->mTextureCoords[0][face.mIndices[j]].y;
+				}
+
+				m_vertices.push_back(vertex);
+			}
+		}
+	}
+
 	IDirect3DVertexBuffer8 *CGameObject::GetBuffer(IDirect3DDevice8 *device)
 	{
 		if (m_vertexBuffer == NULL)
 		{
 			if (FAILED(device->CreateVertexBuffer(
-				m_vertices.size() * sizeof(MeshVertex),
+				m_vertices.size() * sizeof(Vertex),
 				0,
 				D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1,
 				D3DPOOL_DEFAULT,
@@ -93,20 +126,20 @@ namespace UltraEd
 			}
 
 			VOID *pVertices;
-			if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(MeshVertex),
+			if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(Vertex),
 				(BYTE**)&pVertices, 0)))
 			{
 				return NULL;
 			}
 
-			memcpy(pVertices, &m_vertices[0], m_vertices.size() * sizeof(MeshVertex));
+			memcpy(pVertices, &m_vertices[0], m_vertices.size() * sizeof(Vertex));
 			m_vertexBuffer->Unlock();
 		}
 
 		return m_vertexBuffer;
 	}
 
-	vector<MeshVertex> CGameObject::GetVertices()
+	vector<Vertex> CGameObject::GetVertices()
 	{
 		return m_vertices;
 	}
@@ -133,7 +166,7 @@ namespace UltraEd
 
 			device->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
 			device->SetTransform(D3DTS_WORLD, stack->GetTop());
-			device->SetStreamSource(0, buffer, sizeof(MeshVertex));
+			device->SetStreamSource(0, buffer, sizeof(Vertex));
 			device->SetVertexShader(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1);
 			device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, m_vertices.size() / 3);
 			device->SetTexture(0, NULL);
@@ -277,14 +310,12 @@ namespace UltraEd
 
 	bool CGameObject::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist)
 	{
-		vector<MeshVertex> vertices = GetVertices();
-
 		// Test all faces in this game object.
-		for (unsigned int j = 0; j < vertices.size() / 3; j++)
+		for (unsigned int j = 0; j < m_vertices.size() / 3; j++)
 		{
-			D3DXVECTOR3 v0 = vertices[3 * j + 0].position;
-			D3DXVECTOR3 v1 = vertices[3 * j + 1].position;
-			D3DXVECTOR3 v2 = vertices[3 * j + 2].position;
+			D3DXVECTOR3 v0 = m_vertices[3 * j + 0].position;
+			D3DXVECTOR3 v1 = m_vertices[3 * j + 1].position;
+			D3DXVECTOR3 v2 = m_vertices[3 * j + 2].position;
 
 			// Transform the local vert positions based of the game object's
 			// local matrix so when the game object is moved around we can still click it.

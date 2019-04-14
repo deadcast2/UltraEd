@@ -1,11 +1,11 @@
-#ifndef _GAMEOBJECT_H_
-#define _GAMEOBJECT_H_
+#pragma once
 
 #include "deps/Assimp/include/assimp/Importer.hpp"
 #include "deps/Assimp/include/assimp/scene.h"
 #include "deps/Assimp/include/assimp/postprocess.h"
+#include "deps/Assimp/include/assimp/cimport.h"
 #include <vector>
-#include "Mesh.h"
+#include "Vertex.h"
 #include "Savable.h"
 
 using namespace std;
@@ -54,7 +54,7 @@ namespace UltraEd
 		void GetAxisAngle(D3DXVECTOR3 *axis, float *angle);
 		void Release(GameObjectRelease::Value type);
 		void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
-		vector<MeshVertex> GetVertices();
+		vector<Vertex> GetVertices();
 		bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist);
 		void SetScript(string script);
 		string GetScript();
@@ -63,6 +63,7 @@ namespace UltraEd
 	private:
 		void Init();
 		void Import(const char *filePath);
+		void InsertVerts(aiMatrix4x4 transform, aiMesh *mesh);
 
 	private:
 		GUID m_id;
@@ -73,7 +74,7 @@ namespace UltraEd
 		IDirect3DVertexBuffer8 *GetBuffer(IDirect3DDevice8 *device);
 		bool IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir,
 			D3DXVECTOR3 &v0, D3DXVECTOR3 &v1, D3DXVECTOR3 &v2, float *dist);
-		vector<MeshVertex> m_vertices;
+		vector<Vertex> m_vertices;
 		D3DXVECTOR3 m_position;
 		D3DXVECTOR3 m_scale;
 		D3DXMATRIX m_localRot;
@@ -83,5 +84,3 @@ namespace UltraEd
 		float m_collisionRadius;
 	};
 }
-
-#endif

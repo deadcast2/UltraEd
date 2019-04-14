@@ -12,10 +12,10 @@ namespace UltraEd
 		// Create the x-axis lines.
 		for (i = 0; i <= size; i++)
 		{
-			MeshVertex v1;
+			Vertex v1;
 			v1.position = D3DXVECTOR3(-size / 2 + i, 0, -size / 2);
 
-			MeshVertex v2;
+			Vertex v2;
 			v2.position = D3DXVECTOR3(-size / 2 + i, 0, size / 2);
 
 			m_vertices.push_back(v1);
@@ -25,10 +25,10 @@ namespace UltraEd
 		// Create the z-axis lines.
 		for (i = 0; i <= size; i++)
 		{
-			MeshVertex v1;
+			Vertex v1;
 			v1.position = D3DXVECTOR3(-size / 2, 0, -size / 2 + i);
 
-			MeshVertex v2;
+			Vertex v2;
 			v2.position = D3DXVECTOR3(size / 2, 0, -size / 2 + i);
 
 			m_vertices.push_back(v1);
@@ -50,7 +50,7 @@ namespace UltraEd
 		if (m_vertexBuffer == NULL)
 		{
 			if (FAILED(device->CreateVertexBuffer(
-				m_vertices.size() * sizeof(MeshVertex),
+				m_vertices.size() * sizeof(Vertex),
 				0,
 				D3DFVF_XYZ,
 				D3DPOOL_DEFAULT,
@@ -60,13 +60,13 @@ namespace UltraEd
 			}
 
 			VOID* pVertices;
-			if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(MeshVertex),
+			if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(Vertex),
 				(BYTE**)&pVertices, 0)))
 			{
 				return NULL;
 			}
 
-			memcpy(pVertices, &m_vertices[0], m_vertices.size() * sizeof(MeshVertex));
+			memcpy(pVertices, &m_vertices[0], m_vertices.size() * sizeof(Vertex));
 			m_vertexBuffer->Unlock();
 		}
 
@@ -80,7 +80,7 @@ namespace UltraEd
 		if (buffer != NULL)
 		{
 			device->SetMaterial(&m_material);
-			device->SetStreamSource(0, buffer, sizeof(MeshVertex));
+			device->SetStreamSource(0, buffer, sizeof(Vertex));
 			device->SetVertexShader(D3DFVF_XYZ);
 			device->DrawPrimitive(D3DPT_LINELIST, 0, m_vertices.size() / 2);
 		}

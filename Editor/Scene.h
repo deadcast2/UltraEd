@@ -1,5 +1,4 @@
-#ifndef _SCENE_H_
-#define _SCENE_H_
+#pragma once
 
 #include <map>
 #include "deps/DXSDK/include/d3d8.h"
@@ -74,5 +73,3 @@ namespace UltraEd
 		CGameObject m_cameraEditorObject;
 	};
 }
-
-#endif

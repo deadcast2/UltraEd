@@ -1,5 +1,4 @@
-#ifndef _SETTINGS_H_
-#define _SETTINGS_H_
+#pragma once
 
 #include <windows.h>
 #include <string>
@@ -18,5 +17,3 @@ namespace UltraEd
 		static const char *m_key;
 	};
 }
-
-#endif

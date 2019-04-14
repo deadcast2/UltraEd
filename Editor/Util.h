@@ -1,5 +1,4 @@
-#ifndef _UTIL_H_
-#define _UTIL_H_
+#pragma once
 
 #include <rpc.h>
 #include <string>
@@ -28,5 +27,3 @@ namespace UltraEd
 		CUtil() {};
 	};
 }
-
-#endif

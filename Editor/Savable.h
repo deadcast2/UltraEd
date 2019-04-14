@@ -1,5 +1,4 @@
-#ifndef _SAVABLE_H_
-#define _SAVABLE_H_
+#pragma once
 
 #include <map>
 #include "deps/DXSDK/include/d3d8.h"
@@ -34,5 +33,3 @@ namespace UltraEd
 		map<string, string> resources;
 	};
 }
-
-#endif

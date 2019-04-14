@@ -234,7 +234,7 @@ namespace UltraEd
 			modelInits.append(");\n");
 
 			// Write out mesh data.
-			vector<MeshVertex> vertices = (*it)->GetVertices();
+			vector<Vertex> vertices = (*it)->GetVertices();
 			string id = CUtil::GuidToString((*it)->GetId());
 			id.insert(0, CUtil::RootPath().append("\\"));
 			id.append(".rom.sos");
@@ -243,7 +243,7 @@ namespace UltraEd
 			fprintf(file, "%i\n", vertices.size());
 			for (unsigned int i = 0; i < vertices.size(); i++)
 			{
-				MeshVertex vert = vertices[i];
+				Vertex vert = vertices[i];
 				fprintf(file, "%f %f %f %f %f\n",
 					vert.position.x,
 					vert.position.y,

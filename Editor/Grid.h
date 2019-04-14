@@ -1,7 +1,7 @@
-#ifndef _GRID_H_
-#define _GRID_H_
+#pragma once
 
-#include "Mesh.h"
+#include <vector>
+#include "Vertex.h"
 
 using namespace std;
 
@@ -19,8 +19,6 @@ namespace UltraEd
 		D3DMATERIAL8 m_material;
 		IDirect3DVertexBuffer8 *m_vertexBuffer;
 		IDirect3DVertexBuffer8 *GetBuffer(IDirect3DDevice8 *device);
-		vector<MeshVertex> m_vertices;
+		vector<Vertex> m_vertices;
 	};
 }
-
-#endif

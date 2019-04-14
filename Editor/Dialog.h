@@ -1,5 +1,4 @@
-#ifndef _DIALOG_H_
-#define _DIALOG_H_
+#pragma once
 
 #include <string>
 
@@ -17,5 +16,3 @@ namespace UltraEd
 		CDialog() {}
 	};
 }
-
-#endif

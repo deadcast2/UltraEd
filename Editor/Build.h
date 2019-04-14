@@ -1,5 +1,4 @@
-#ifndef _BUILD_H_
-#define _BUILD_H_
+#pragma once
 
 #include <windows.h>
 #include <string>
@@ -30,5 +29,3 @@ namespace UltraEd
 		static bool Compile();
 	};
 }
-
-#endif

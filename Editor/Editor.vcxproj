@@ -144,7 +144,6 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Gizmo.cpp" />
     <ClCompile Include="Grid.cpp" />
-    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="microtar.c" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Settings.cpp" />
@@ -165,7 +164,6 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Gizmo.h" />
     <ClInclude Include="Grid.h" />
-    <ClInclude Include="Mesh.h" />
     <ClInclude Include="microtar.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Savable.h" />
@@ -177,6 +175,7 @@
     <ClInclude Include="stb_image_resize.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="toolbar.bmp" />
