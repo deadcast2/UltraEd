@@ -1,7 +1,7 @@
 #include "FileIO.h"
 #include "Util.h"
-#include "cJSON.h"
-#include "fastlz.h"
+#include "vendor/cJSON.h"
+#include "vendor/fastlz.h"
 #include "Dialog.h"
 #include <shlwapi.h>
 

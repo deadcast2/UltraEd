@@ -13,6 +13,12 @@
       <UniqueIdentifier>{2bacbd39-7a10-45c0-8001-14489d248fbf}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="Header Files\vendor">
+      <UniqueIdentifier>{65b734fc-2dbf-4294-84ce-c4448ddeaeb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\vendor">
+      <UniqueIdentifier>{ece3220e-b467-4ab3-ad1b-69717a22bb44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Build.cpp">
@@ -59,6 +65,15 @@
     </ClCompile>
     <ClCompile Include="Util.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\cJSON.c">
+      <Filter>Source Files\vendor</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\fastlz.c">
+      <Filter>Source Files\vendor</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\microtar.c">
+      <Filter>Source Files\vendor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +150,33 @@
     </ClInclude>
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\cJSON.h">
+      <Filter>Header Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\fastlz.h">
+      <Filter>Header Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\microtar.h">
+      <Filter>Header Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\Sci_Position.h">
+      <Filter>Header Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\SciLexer.h">
+      <Filter>Header Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\Scintilla.h">
+      <Filter>Header Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\stb_image.h">
+      <Filter>Header Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\stb_image_resize.h">
+      <Filter>Header Files\vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\stb_image_write.h">
+      <Filter>Header Files\vendor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

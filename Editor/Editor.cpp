@@ -17,8 +17,8 @@
 #include "resource.h"
 #include "Scene.h"
 #include "Settings.h"
-#include "Scintilla.h"
-#include "SciLexer.h"
+#include "vendor/Scintilla.h"
+#include "vendor/SciLexer.h"
 #include "FileIO.h"
 
 #define IDM_TOOLBAR_TRANSLATE 5000

@@ -4,9 +4,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
 #include <regex>
-#include "stb_image.h"
-#include "stb_image_resize.h"
-#include "stb_image_write.h"
+#include "vendor/stb_image.h"
+#include "vendor/stb_image_resize.h"
+#include "vendor/stb_image_write.h"
 #include "build.h"
 #include "util.h"
 #include "debug.h"

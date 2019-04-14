@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "cJSON.h"
+#include "vendor/cJSON.h"
 #include "Savable.h"
 #include "deps/DXSDK/include/d3dx8.h"
 

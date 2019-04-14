@@ -3,7 +3,7 @@
 #define LINE_FORMAT_LENGTH 128
 
 #include "Scene.h"
-#include "microtar.h"
+#include "vendor/microtar.h"
 
 using namespace std;
 

@@ -3,7 +3,7 @@
 #include <map>
 #include "deps/DXSDK/include/d3d8.h"
 #include "deps/DXSDK/include/d3dx8.h"
-#include "cJSON.h"
+#include "vendor/cJSON.h"
 #include "Camera.h"
 #include "Common.h"
 #include "Debug.h"

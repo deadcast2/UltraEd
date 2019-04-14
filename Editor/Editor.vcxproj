@@ -107,6 +107,8 @@
       <PrecompiledHeaderOutputFile>.\Release\Editor.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Release\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -135,19 +137,19 @@
   <ItemGroup>
     <ClCompile Include="Build.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="cJSON.c" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Editor.cpp" />
-    <ClCompile Include="fastlz.c" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Gizmo.cpp" />
     <ClCompile Include="Grid.cpp" />
-    <ClCompile Include="microtar.c" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="vendor\cJSON.c" />
+    <ClCompile Include="vendor\fastlz.c" />
+    <ClCompile Include="vendor\microtar.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="UltraEd.rc" />
@@ -175,6 +177,15 @@
     <ClInclude Include="stb_image_resize.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="vendor\cJSON.h" />
+    <ClInclude Include="vendor\fastlz.h" />
+    <ClInclude Include="vendor\microtar.h" />
+    <ClInclude Include="vendor\SciLexer.h" />
+    <ClInclude Include="vendor\Scintilla.h" />
+    <ClInclude Include="vendor\Sci_Position.h" />
+    <ClInclude Include="vendor\stb_image.h" />
+    <ClInclude Include="vendor\stb_image_resize.h" />
+    <ClInclude Include="vendor\stb_image_write.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
