@@ -8,22 +8,25 @@
 
 using namespace std;
 
-struct MeshVertex
+namespace UltraEd
 {
-  D3DXVECTOR3 position;
-  D3DXVECTOR3 normal;
-  FLOAT tu, tv;
-};
+	struct MeshVertex
+	{
+		D3DXVECTOR3 position;
+		D3DXVECTOR3 normal;
+		FLOAT tu, tv;
+	};
 
-class CMesh  
-{
-public:
-  CMesh(aiMatrix4x4 transform, aiMesh *mesh);
-  ~CMesh();
-  vector<MeshVertex> Vertices();
-  
-private:
-  vector<MeshVertex> m_vertices;
-};
+	class CMesh
+	{
+	public:
+		CMesh(aiMatrix4x4 transform, aiMesh *mesh);
+		~CMesh();
+		vector<MeshVertex> Vertices();
+
+	private:
+		vector<MeshVertex> m_vertices;
+	};
+}
 
 #endif

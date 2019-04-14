@@ -6,14 +6,17 @@
 
 using namespace std;
 
-class CSettings
+namespace UltraEd
 {
-public:
-  static bool Set(const char *key, const char *value);
-  static bool Get(const char *key, string &value);
+	class CSettings
+	{
+	public:
+		static bool Set(const char *key, const char *value);
+		static bool Get(const char *key, string &value);
 
-private:
-  static const char *m_key;
-};
+	private:
+		static const char *m_key;
+	};
+}
 
 #endif

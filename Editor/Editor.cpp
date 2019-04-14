@@ -41,7 +41,7 @@ const TCHAR szWindowClass[] = APP_NAME;
 const TCHAR szTitle[] = _T("Loading");
 
 HWND parentWindow, toolbarWindow, statusBar, renderWindow, scriptEditorWindow;
-CScene scene;
+UltraEd::CScene scene;
 DWORD mouseClickTick = 0;
 
 void RunAction(const char *message, const std::function<void()> &action)
@@ -134,20 +134,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				PostQuitMessage(0);
 				break;
 			case ID_FILE_BUILDROM:
-				RunAction("Building ROM...", [] { scene.OnBuildROM(BuildFlag::_); });
+				RunAction("Building ROM...", [] { scene.OnBuildROM(UltraEd::BuildFlag::_); });
 				break;
 			case ID_FILE_BUILDROM_AND_RUN:
-				RunAction("Building ROM...", [] { scene.OnBuildROM(BuildFlag::Run); });
+				RunAction("Building ROM...", [] { scene.OnBuildROM(UltraEd::BuildFlag::Run); });
 				break;
 			case ID_FILE_BUILDROM_AND_LOAD:
-				RunAction("Building ROM...", [] { scene.OnBuildROM(BuildFlag::Load); });
+				RunAction("Building ROM...", [] { scene.OnBuildROM(UltraEd::BuildFlag::Load); });
 				break;
 			case ID_INSTALL_BUILD_TOOLS:
 			{
 				RunAction("Installing build tools...", [hWnd] {
 					char pathBuffer[128];
 					GetFullPathName("..\\Engine\\tools.bin", 128, pathBuffer, NULL);
-					if (CFileIO::Unpack(pathBuffer))
+					if (UltraEd::CFileIO::Unpack(pathBuffer))
 					{
 						MessageBox(hWnd, "Build tools successfully installed.", "Success!", MB_OK);
 					}
@@ -198,25 +198,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 			case IDM_TOOLBAR_TRANSLATE:
-				scene.SetGizmoModifier(Translate);
+				scene.SetGizmoModifier(UltraEd::Translate);
 				break;
 			case IDM_TOOLBAR_ROTATE:
-				scene.SetGizmoModifier(Rotate);
+				scene.SetGizmoModifier(UltraEd::Rotate);
 				break;
 			case IDM_TOOLBAR_SCALE:
-				scene.SetGizmoModifier(Scale);
+				scene.SetGizmoModifier(UltraEd::Scale);
 				break;
 			case IDM_TOOLBAR_VIEW_PERSPECTIVE:
-				scene.SetCameraView(CameraView::Perspective);
+				scene.SetCameraView(UltraEd::CameraView::Perspective);
 				break;
 			case IDM_TOOLBAR_VIEW_TOP:
-				scene.SetCameraView(CameraView::Top);
+				scene.SetCameraView(UltraEd::CameraView::Top);
 				break;
 			case IDM_TOOLBAR_VIEW_FRONT:
-				scene.SetCameraView(CameraView::Front);
+				scene.SetCameraView(UltraEd::CameraView::Front);
 				break;
 			case IDM_TOOLBAR_VIEW_LEFT:
-				scene.SetCameraView(CameraView::Left);
+				scene.SetCameraView(UltraEd::CameraView::Left);
 				break;
 			case IDM_MENU_DELETE_OBJECT:
 				scene.Delete();

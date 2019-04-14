@@ -5,14 +5,17 @@
 
 using namespace std;
 
-class CDialog
+namespace UltraEd
 {
-public:
-  static bool Open(const char *title, const char *filter, string &file);
-  static bool Save(const char *title, const char *filter, string &file);
+	class CDialog
+	{
+	public:
+		static bool Open(const char *title, const char *filter, string &file);
+		static bool Save(const char *title, const char *filter, string &file);
 
-private:
-  CDialog() {}
-};
+	private:
+		CDialog() {}
+	};
+}
 
 #endif
