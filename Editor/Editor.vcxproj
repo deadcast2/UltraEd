@@ -157,25 +157,17 @@
   <ItemGroup>
     <ClInclude Include="Build.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="cJSON.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Dialog.h" />
-    <ClInclude Include="fastlz.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Gizmo.h" />
     <ClInclude Include="Grid.h" />
-    <ClInclude Include="microtar.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Savable.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="SciLexer.h" />
-    <ClInclude Include="Scintilla.h" />
     <ClInclude Include="Settings.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="stb_image_resize.h" />
-    <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="vendor\cJSON.h" />
     <ClInclude Include="vendor\fastlz.h" />
