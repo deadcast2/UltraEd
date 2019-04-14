@@ -369,6 +369,7 @@ namespace UltraEd
 		const float smoothingModifier = 16.0f;
 		const float mouseSpeedModifier = 0.55f;
 
+		if (GetActiveWindow() != GetParent(GetWndHandle())) return;
 		if (GetAsyncKeyState('1')) m_gizmo.SetModifier(Translate);
 		if (GetAsyncKeyState('2')) m_gizmo.SetModifier(Rotate);
 		if (GetAsyncKeyState('3')) m_gizmo.SetModifier(Scale);
