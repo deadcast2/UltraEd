@@ -207,16 +207,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				scene.SetGizmoModifier(UltraEd::Scale);
 				break;
 			case IDM_TOOLBAR_VIEW_PERSPECTIVE:
-				scene.SetCameraView(UltraEd::CameraView::Perspective);
+				scene.SetViewType(UltraEd::ViewType::Perspective);
 				break;
 			case IDM_TOOLBAR_VIEW_TOP:
-				scene.SetCameraView(UltraEd::CameraView::Top);
+				scene.SetViewType(UltraEd::ViewType::Top);
 				break;
 			case IDM_TOOLBAR_VIEW_FRONT:
-				scene.SetCameraView(UltraEd::CameraView::Front);
+				scene.SetViewType(UltraEd::ViewType::Front);
 				break;
 			case IDM_TOOLBAR_VIEW_LEFT:
-				scene.SetCameraView(UltraEd::CameraView::Left);
+				scene.SetViewType(UltraEd::ViewType::Left);
 				break;
 			case IDM_MENU_DELETE_OBJECT:
 				scene.Delete();

@@ -4,7 +4,7 @@
 #include "deps/DXSDK/include/d3d8.h"
 #include "deps/DXSDK/include/d3dx8.h"
 #include "vendor/cJSON.h"
-#include "Camera.h"
+#include "View.h"
 #include "Common.h"
 #include "Debug.h"
 #include "Gizmo.h"
@@ -42,9 +42,9 @@ namespace UltraEd
 		void ReleaseResources(GameObjectRelease::Value type);
 		void CheckInput(float);
 		void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
-		void SetCameraView(CameraView::Value view);
+		void SetViewType(ViewType::Value type);
 		void SetGizmoModifier(GizmoModifierState state);
-		CCamera *GetActiveCamera();
+		CView *GetActiveView();
 		bool ToggleMovementSpace();
 		bool ToggleFillMode();
 		bool ToggleSnapToGrid();
@@ -53,7 +53,7 @@ namespace UltraEd
 		HWND GetWndHandle();
 		void SetTitle(string title);
 		void UpdateViewMatrix();
-		void ResetCameras();
+		void ResetViews();
 
 	private:
 		D3DLIGHT8 m_worldLight;
@@ -61,7 +61,7 @@ namespace UltraEd
 		D3DMATERIAL8 m_selectedMaterial;
 		D3DFILLMODE m_fillMode;
 		CGizmo m_gizmo;
-		CCamera m_cameras[4];
+		CView m_views[4];
 		IDirect3DDevice8 *m_device;
 		IDirect3D8 *m_d3d8;
 		D3DPRESENT_PARAMETERS m_d3dpp;
@@ -69,6 +69,6 @@ namespace UltraEd
 		CGrid m_grid;
 		vector<GUID> selectedGameObjectIds;
 		float mouseSmoothX, mouseSmoothY;
-		CameraView::Value m_activeCameraView;
+		ViewType::Value m_activeViewType;
 	};
 }

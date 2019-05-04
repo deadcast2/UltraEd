@@ -21,9 +21,7 @@ namespace UltraEd
 
 	CDebug& CDebug::Instance()
 	{
-		if (m_instance == NULL)
-			m_instance = new CDebug;
-
+		if (m_instance == NULL) m_instance = new CDebug;
 		return *m_instance;
 	}
 

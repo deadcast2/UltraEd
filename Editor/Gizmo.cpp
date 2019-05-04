@@ -44,11 +44,11 @@ namespace UltraEd
 		return D3DXVECTOR3(0, 0, 0);
 	}
 
-	void CGizmo::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack, CCamera *camera)
+	void CGizmo::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack, CView *view)
 	{
-		// Scale the size of the gizmo based on the camera distance.
-		D3DXVECTOR3 distance = m_gameObjects[0].GetPosition() - camera->GetPosition();
-		float scaleFactor = camera->GetView() == CameraView::Perspective ? 0.2f : 0.1f;
+		// Scale the size of the gizmo based on the view distance.
+		D3DXVECTOR3 distance = m_gameObjects[0].GetPosition() - view->GetPosition();
+		float scaleFactor = view->GetType() == ViewType::Perspective ? 0.2f : 0.1f;
 		float length = D3DXVec3Length(&distance) * scaleFactor;
 		SetScale(D3DXVECTOR3(length, length, length));
 
@@ -166,11 +166,11 @@ namespace UltraEd
 		m_gameObjects[8].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
 	}
 
-	void CGizmo::Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CGameObject *currentGameObject, CGameObject *selectedGameObject)
+	void CGizmo::Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CGameObject *currentGameObject, CGameObject *selectedGameObject)
 	{
 		D3DXVECTOR3 targetDir = D3DXVECTOR3(0, 0, 0);
 		D3DXVECTOR3 v0, v1, v2, intersectPoint;
-		D3DXVECTOR3 look = selectedGameObject->GetPosition() - camera->GetPosition();
+		D3DXVECTOR3 look = selectedGameObject->GetPosition() - view->GetPosition();
 		D3DXVec3Normalize(&look, &look);
 
 		// Determine orientation fo plane to produce depending on selected axis.

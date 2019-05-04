@@ -25,8 +25,8 @@ namespace UltraEd
 			// Write the scene JSON data.
 			cJSON *root = cJSON_CreateObject();
 
-			cJSON *cameraArray = cJSON_CreateArray();
-			cJSON_AddItemToObject(root, "cameras", cameraArray);
+			cJSON *viewArray = cJSON_CreateArray();
+			cJSON_AddItemToObject(root, "views", viewArray);
 
 			cJSON *gameObjectArray = cJSON_CreateArray();
 			cJSON_AddItemToObject(root, "gameObjects", gameObjectArray);
@@ -70,9 +70,9 @@ namespace UltraEd
 					free(fileContents);
 				}
 
-				if (current.type == SavableType::Camera)
+				if (current.type == SavableType::View)
 				{
-					cJSON_AddItemToArray(cameraArray, object);
+					cJSON_AddItemToArray(viewArray, object);
 				}
 				else if (current.type == SavableType::GameObject)
 				{

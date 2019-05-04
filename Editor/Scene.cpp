@@ -79,15 +79,15 @@ namespace UltraEd
 		selectedGameObjectIds.clear();
 		ReleaseResources(GameObjectRelease::AllResources);
 		m_gameObjects.clear();
-		ResetCameras();
+		ResetViews();
 	}
 
 	void CScene::OnSave()
 	{
 		vector<CSavable*> savables;
 
-		// Save all editor cameras.
-		for (int i = 0; i < 4; i++) savables.push_back(&m_cameras[i]);
+		// Save all editor views.
+		for (int i = 0; i < 4; i++) savables.push_back(&m_views[i]);
 
 		// Save all of the game objects in the scene.
 		for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
@@ -111,13 +111,13 @@ namespace UltraEd
 			OnNew();
 			SetTitle(loadedName);
 
-			// Restore editor cameras.
+			// Restore editor views.
 			int count = 0;
-			cJSON *cameras = cJSON_GetObjectItem(root, "cameras");
-			cJSON *cameraItem = NULL;
-			cJSON_ArrayForEach(cameraItem, cameras)
+			cJSON *views = cJSON_GetObjectItem(root, "views");
+			cJSON *viewItem = NULL;
+			cJSON_ArrayForEach(viewItem, views)
 			{
-				m_cameras[count++].Load(m_device, cameraItem);
+				m_views[count++].Load(m_device, viewItem);
 			}
 
 			// Restore saved game objects.
@@ -128,10 +128,9 @@ namespace UltraEd
 				CGameObject gameObject;
 				gameObject.Load(m_device, gameObjectItem);
 
-				// Load any editor type vertices.
-				if (gameObject.GetType() == GameObjectType::EditorCamera)
+				if (gameObject.GetType() == GameObjectType::Camera)
 				{
-					gameObject = CGameObject("Assets/camera.dae", GameObjectType::EditorCamera);
+					gameObject = CGameObject("Assets/camera.dae", GameObjectType::Camera);
 					gameObject.Load(m_device, gameObjectItem);
 				}
 
@@ -234,7 +233,7 @@ namespace UltraEd
 		// Check all game objects to see which poly might have been picked.
 		for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
 		{
-			// Only choose the closest game object to the camera.
+			// Only choose the closest game object to the view.
 			float pickDist = 0;
 			if (it->second.Pick(orig, dir, &pickDist) && pickDist < closestDist)
 			{
@@ -280,7 +279,7 @@ namespace UltraEd
 	void CScene::UpdateViewMatrix()
 	{
 		D3DXMATRIX viewMat;
-		if (m_activeCameraView == CameraView::Perspective)
+		if (m_activeViewType == ViewType::Perspective)
 		{
 			RECT rect;
 			GetClientRect(GetWndHandle(), &rect);
@@ -292,7 +291,7 @@ namespace UltraEd
 		}
 		else
 		{
-			float size = D3DXVec3Length(&GetActiveCamera()->GetPosition());
+			float size = D3DXVec3Length(&GetActiveView()->GetPosition());
 			D3DXMatrixOrthoLH(&viewMat, size, size, -1000.0f, 1000.0f);
 		}
 
@@ -312,7 +311,7 @@ namespace UltraEd
 		{
 			ID3DXMatrixStack *stack;
 			if (!SUCCEEDED(D3DXCreateMatrixStack(0, &stack))) return;
-			stack->LoadMatrix(&GetActiveCamera()->GetViewMatrix());
+			stack->LoadMatrix(&GetActiveView()->GetViewMatrix());
 
 			m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
 			m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(90, 90, 90), 1.0f, 0);
@@ -347,7 +346,7 @@ namespace UltraEd
 				// Draw the gizmo on "top" of all objects in scene.
 				m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 				m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
-				m_gizmo.Render(m_device, stack, GetActiveCamera());
+				m_gizmo.Render(m_device, stack, GetActiveView());
 			}
 
 			m_device->EndScene();
@@ -362,7 +361,7 @@ namespace UltraEd
 		POINT mousePoint;
 		GetCursorPos(&mousePoint);
 		ScreenToClient(GetWndHandle(), &mousePoint);
-		CCamera *camera = GetActiveCamera();
+		CView *view = GetActiveView();
 
 		static POINT prevMousePoint = mousePoint;
 		const float smoothingModifier = 16.0f;
@@ -380,51 +379,51 @@ namespace UltraEd
 			GUID lastSelectedGameObjectId = selectedGameObjectIds.back();
 			for (auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
 			{
-				m_gizmo.Update(GetActiveCamera(), rayOrigin, rayDir, &m_gameObjects[*it], &m_gameObjects[lastSelectedGameObjectId]);
+				m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, &m_gameObjects[*it], &m_gameObjects[lastSelectedGameObjectId]);
 			}
 		}
-		else if (GetAsyncKeyState(VK_RBUTTON) && m_activeCameraView == CameraView::Perspective)
+		else if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective)
 		{
-			if (GetAsyncKeyState('W')) camera->Walk(4.0f * deltaTime);
-			if (GetAsyncKeyState('S')) camera->Walk(-4.0f * deltaTime);
-			if (GetAsyncKeyState('A')) camera->Strafe(-4.0f * deltaTime);
-			if (GetAsyncKeyState('D')) camera->Strafe(4.0f * deltaTime);
+			if (GetAsyncKeyState('W')) view->Walk(4.0f * deltaTime);
+			if (GetAsyncKeyState('S')) view->Walk(-4.0f * deltaTime);
+			if (GetAsyncKeyState('A')) view->Strafe(-4.0f * deltaTime);
+			if (GetAsyncKeyState('D')) view->Strafe(4.0f * deltaTime);
 
 			mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothX, (FLOAT)(mousePoint.x - prevMousePoint.x));
 			mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
 
-			camera->Yaw(mouseSmoothX * mouseSpeedModifier * deltaTime);
-			camera->Pitch(mouseSmoothY * mouseSpeedModifier * deltaTime);
+			view->Yaw(mouseSmoothX * mouseSpeedModifier * deltaTime);
+			view->Pitch(mouseSmoothY * mouseSpeedModifier * deltaTime);
 		}
 		else if (GetAsyncKeyState(VK_MBUTTON))
 		{
 			mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothX, (FLOAT)(prevMousePoint.x - mousePoint.x));
 			mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
 
-			camera->Strafe(mouseSmoothX * deltaTime);
-			camera->Fly(mouseSmoothY * deltaTime);
+			view->Strafe(mouseSmoothX * deltaTime);
+			view->Fly(mouseSmoothY * deltaTime);
 		}
 		else
 		{
 			m_gizmo.Reset();
 
-			// Reset smoothing values for new mouse camera movement.
+			// Reset smoothing values for new mouse view movement.
 			mouseSmoothX = mouseSmoothX = 0;
 		}
 
-		// Remeber the last position so we know how much to move the camera.
+		// Remeber the last position so we know how much to move the view.
 		prevMousePoint = mousePoint;
 	}
 
 	void CScene::OnMouseWheel(short zDelta)
 	{
-		GetActiveCamera()->Walk(zDelta * 0.005f);
+		GetActiveView()->Walk(zDelta * 0.005f);
 		UpdateViewMatrix();
 	}
 
 	void CScene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir)
 	{
-		CCamera *camera = GetActiveCamera();
+		CView *view = GetActiveView();
 
 		D3DVIEWPORT8 viewport;
 		m_device->GetViewport(&viewport);
@@ -437,19 +436,19 @@ namespace UltraEd
 
 		D3DXVECTOR3 v1;
 		D3DXVECTOR3 start = D3DXVECTOR3((FLOAT)screenPoint.x, (FLOAT)screenPoint.y, 0.0f);
-		D3DXVec3Unproject(&v1, &start, &viewport, &matProj, &camera->GetViewMatrix(), &matWorld);
+		D3DXVec3Unproject(&v1, &start, &viewport, &matProj, &view->GetViewMatrix(), &matWorld);
 
 		D3DXVECTOR3 v2;
 		D3DXVECTOR3 end = D3DXVECTOR3((FLOAT)screenPoint.x, (FLOAT)screenPoint.y, 1.0f);
-		D3DXVec3Unproject(&v2, &end, &viewport, &matProj, &camera->GetViewMatrix(), &matWorld);
+		D3DXVec3Unproject(&v2, &end, &viewport, &matProj, &view->GetViewMatrix(), &matWorld);
 
 		*origin = v1;
 		D3DXVec3Normalize(dir, &(v2 - v1));
 	}
 
-	void CScene::SetCameraView(CameraView::Value view)
+	void CScene::SetViewType(ViewType::Value type)
 	{
-		m_activeCameraView = view;
+		m_activeViewType = type;
 		UpdateViewMatrix();
 	}
 
@@ -458,9 +457,9 @@ namespace UltraEd
 		m_gizmo.SetModifier(state);
 	}
 
-	CCamera *CScene::GetActiveCamera()
+	CView *CScene::GetActiveView()
 	{
-		return &m_cameras[m_activeCameraView];
+		return &m_views[m_activeViewType];
 	}
 
 	bool CScene::ToggleMovementSpace()
@@ -550,32 +549,32 @@ namespace UltraEd
 		return NULL;
 	}
 
-	void CScene::ResetCameras()
+	void CScene::ResetViews()
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			m_cameras[i].Reset();
+			m_views[i].Reset();
 			switch (i)
 			{
-			case CameraView::Perspective:
-				m_cameras[i].Fly(2);
-				m_cameras[i].Walk(-5);
-				m_cameras[i].SetView(CameraView::Perspective);
+			case ViewType::Perspective:
+				m_views[i].Fly(2);
+				m_views[i].Walk(-5);
+				m_views[i].SetViewType(ViewType::Perspective);
 				break;
-			case CameraView::Top:
-				m_cameras[i].Fly(12);
-				m_cameras[i].Pitch(D3DX_PI / 2);
-				m_cameras[i].SetView(CameraView::Top);
+			case ViewType::Top:
+				m_views[i].Fly(12);
+				m_views[i].Pitch(D3DX_PI / 2);
+				m_views[i].SetViewType(ViewType::Top);
 				break;
-			case CameraView::Left:
-				m_cameras[i].Yaw(D3DX_PI / 2);
-				m_cameras[i].Walk(-12);
-				m_cameras[i].SetView(CameraView::Left);
+			case ViewType::Left:
+				m_views[i].Yaw(D3DX_PI / 2);
+				m_views[i].Walk(-12);
+				m_views[i].SetViewType(ViewType::Left);
 				break;
-			case CameraView::Front:
-				m_cameras[i].Yaw(D3DX_PI);
-				m_cameras[i].Walk(-12);
-				m_cameras[i].SetView(CameraView::Front);
+			case ViewType::Front:
+				m_views[i].Yaw(D3DX_PI);
+				m_views[i].Walk(-12);
+				m_views[i].SetViewType(ViewType::Front);
 				break;
 			}
 		}
@@ -599,7 +598,7 @@ namespace UltraEd
 	void CScene::OnAddCamera()
 	{
 		char buffer[1024];
-		CGameObject newCamera("Assets/camera.dae", GameObjectType::EditorCamera);
+		CGameObject newCamera("Assets/camera.dae", GameObjectType::Camera);
 		m_gameObjects[newCamera.GetId()] = newCamera;
 		sprintf(buffer, "Camera %d", m_gameObjects.size());
 		m_gameObjects[newCamera.GetId()].SetName(string(buffer));

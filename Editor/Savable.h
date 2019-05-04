@@ -10,7 +10,7 @@ namespace UltraEd
 {
 	struct SavableType
 	{
-		enum Value { Camera, GameObject };
+		enum Value { View, GameObject };
 	};
 
 	typedef struct

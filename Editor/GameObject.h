@@ -14,7 +14,7 @@ namespace UltraEd
 {
 	struct GameObjectType
 	{
-		enum Value { Model, EditorCamera };
+		enum Value { Model, Camera };
 	};
 
 	struct GameObjectRelease

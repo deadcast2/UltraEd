@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Camera.h"
 #include "GameObject.h"
+#include "View.h"
 
 namespace UltraEd
 {
@@ -17,11 +17,11 @@ namespace UltraEd
 		void SetModifier(GizmoModifierState state);
 		bool ToggleSpace(CGameObject *gameObject);
 		bool ToggleSnapping();
-		void Update(CCamera *camera, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CGameObject *currentGameObject, CGameObject *selectedGameObject);
+		void Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CGameObject *currentGameObject, CGameObject *selectedGameObject);
 		void Reset();
 		bool Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
 		void Release();
-		void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack, CCamera *camera);
+		void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack, CView *view);
 
 	private:
 		void SetPosition(D3DXVECTOR3 position);

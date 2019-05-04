@@ -289,7 +289,7 @@ namespace UltraEd
 
 		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 		{
-			if ((*it)->GetType() != GameObjectType::EditorCamera) continue;
+			if ((*it)->GetType() != GameObjectType::Camera) continue;
 
 			_itoa(cameraCount++, countBuffer, 10);
 			cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");
