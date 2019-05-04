@@ -32,8 +32,6 @@ namespace UltraEd
 		m_worldLight.Diffuse.g = 1.0f;
 		m_worldLight.Diffuse.b = 1.0f;
 		m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
-
-		m_cameraEditorObject = CGameObject("Assets/camera.dae", GameObjectType::EditorCamera);
 	}
 
 	CScene::~CScene()
@@ -128,12 +126,13 @@ namespace UltraEd
 			cJSON_ArrayForEach(gameObjectItem, gameObjects)
 			{
 				CGameObject gameObject;
-				if (!gameObject.Load(m_device, gameObjectItem)) continue;
+				gameObject.Load(m_device, gameObjectItem);
 
 				// Load any editor type vertices.
 				if (gameObject.GetType() == GameObjectType::EditorCamera)
 				{
-					gameObject.CopyVerticesFrom(&m_cameraEditorObject);
+					gameObject = CGameObject("Assets/camera.dae", GameObjectType::EditorCamera);
+					gameObject.Load(m_device, gameObjectItem);
 				}
 
 				m_gameObjects[gameObject.GetId()] = gameObject;
@@ -600,7 +599,7 @@ namespace UltraEd
 	void CScene::OnAddCamera()
 	{
 		char buffer[1024];
-		CGameObject newCamera = m_cameraEditorObject;
+		CGameObject newCamera("Assets/camera.dae", GameObjectType::EditorCamera);
 		m_gameObjects[newCamera.GetId()] = newCamera;
 		sprintf(buffer, "Camera %d", m_gameObjects.size());
 		m_gameObjects[newCamera.GetId()].SetName(string(buffer));

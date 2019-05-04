@@ -144,15 +144,6 @@ namespace UltraEd
 		return m_vertices;
 	}
 
-	void CGameObject::CopyVerticesFrom(CGameObject *gameObject)
-	{
-		if (gameObject != NULL)
-		{
-			m_vertices = gameObject->GetVertices();
-			m_vertexBuffer = NULL;
-		}
-	}
-
 	void CGameObject::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
 	{
 		IDirect3DVertexBuffer8 *buffer = GetBuffer(device);

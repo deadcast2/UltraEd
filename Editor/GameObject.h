@@ -58,7 +58,6 @@ namespace UltraEd
 		bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist);
 		void SetScript(string script);
 		string GetScript();
-		void CopyVerticesFrom(CGameObject *gameObject);
 
 	private:
 		void Init();
