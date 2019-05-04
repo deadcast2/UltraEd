@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GameObject.h"
 #include "View.h"
+#include "Model.h"
 
 namespace UltraEd
 {
@@ -15,9 +15,9 @@ namespace UltraEd
 		CGizmo();
 		~CGizmo();
 		void SetModifier(GizmoModifierState state);
-		bool ToggleSpace(CActor *gameObject);
+		bool ToggleSpace(CActor *actor);
 		bool ToggleSnapping();
-		void Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CActor *currentGameObject, CActor *selectedGameObject);
+		void Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CActor *currentActor, CActor *selectedActor);
 		void Reset();
 		bool Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
 		void Release();
@@ -36,7 +36,7 @@ namespace UltraEd
 		D3DMATERIAL8 m_redMaterial;
 		D3DMATERIAL8 m_greenMaterial;
 		D3DMATERIAL8 m_blueMaterial;
-		CGameObject m_gameObjects[9];
+		CModel m_models[9];
 		GizmoState m_state;
 		GizmoModifierState m_modifierState;
 		D3DXVECTOR3 m_updateStartPoint;

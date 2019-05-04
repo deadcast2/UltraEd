@@ -28,8 +28,8 @@ namespace UltraEd
 			cJSON *viewArray = cJSON_CreateArray();
 			cJSON_AddItemToObject(root, "views", viewArray);
 
-			cJSON *gameObjectArray = cJSON_CreateArray();
-			cJSON_AddItemToObject(root, "gameObjects", gameObjectArray);
+			cJSON *actorArray = cJSON_CreateArray();
+			cJSON_AddItemToObject(root, "actors", actorArray);
 
 			for (auto it = savables.begin(); it != savables.end(); ++it)
 			{
@@ -74,9 +74,9 @@ namespace UltraEd
 				{
 					cJSON_AddItemToArray(viewArray, object);
 				}
-				else if (current.type == SavableType::GameObject)
+				else if (current.type == SavableType::Actor)
 				{
-					cJSON_AddItemToArray(gameObjectArray, object);
+					cJSON_AddItemToArray(actorArray, object);
 				}
 			}
 
@@ -113,13 +113,13 @@ namespace UltraEd
 			mtar_read_data(&tar, contents, header.size);
 			cJSON *root = cJSON_Parse(contents);
 
-			// Iterate through all game objects.
-			cJSON *gameObjects = cJSON_GetObjectItem(root, "gameObjects");
-			cJSON *gameObject = NULL;
-			cJSON_ArrayForEach(gameObject, gameObjects)
+			// Iterate through all actors.
+			cJSON *actors = cJSON_GetObjectItem(root, "actors");
+			cJSON *actor = NULL;
+			cJSON_ArrayForEach(actor, actors)
 			{
-				// Locate each packed game object resource.
-				cJSON *resources = cJSON_GetObjectItem(gameObject, "resources");
+				// Locate each packed actor resource.
+				cJSON *resources = cJSON_GetObjectItem(actor, "resources");
 				cJSON *resource = NULL;
 				cJSON_ArrayForEach(resource, resources)
 				{

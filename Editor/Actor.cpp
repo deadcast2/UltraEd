@@ -250,15 +250,15 @@ namespace UltraEd
 
 	bool CActor::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist)
 	{
-		// Test all faces in this game object.
+		// Test all faces in this actor.
 		for (unsigned int j = 0; j < m_vertices.size() / 3; j++)
 		{
 			D3DXVECTOR3 v0 = m_vertices[3 * j + 0].position;
 			D3DXVECTOR3 v1 = m_vertices[3 * j + 1].position;
 			D3DXVECTOR3 v2 = m_vertices[3 * j + 2].position;
 
-			// Transform the local vert positions based of the game object's
-			// local matrix so when the game object is moved around we can still click it.
+			// Transform the local vert positions based of the actor's
+			// local matrix so when the actor is moved around we can still click it.
 			D3DXVec3TransformCoord(&v0, &v0, &GetMatrix());
 			D3DXVec3TransformCoord(&v1, &v1, &GetMatrix());
 			D3DXVec3TransformCoord(&v2, &v2, &GetMatrix());
@@ -321,31 +321,31 @@ namespace UltraEd
 	{
 		char buffer[LINE_FORMAT_LENGTH];
 		cJSON *root = cJSON_CreateObject();
-		cJSON *gameObject = cJSON_CreateObject();
+		cJSON *actor = cJSON_CreateObject();
 
-		cJSON_AddItemToObject(root, "gameObject", gameObject);
+		cJSON_AddItemToObject(root, "actor", actor);
 
-		cJSON_AddStringToObject(gameObject, "id", CUtil::GuidToString(m_id).c_str());
+		cJSON_AddStringToObject(actor, "id", CUtil::GuidToString(m_id).c_str());
 
-		cJSON_AddStringToObject(gameObject, "name", m_name.c_str());
+		cJSON_AddStringToObject(actor, "name", m_name.c_str());
 
 		sprintf(buffer, "%i", (int)m_type);
-		cJSON_AddStringToObject(gameObject, "type", buffer);
+		cJSON_AddStringToObject(actor, "type", buffer);
 
 		sprintf(buffer, "%f %f %f", m_position.x, m_position.y, m_position.z);
-		cJSON_AddStringToObject(gameObject, "position", buffer);
+		cJSON_AddStringToObject(actor, "position", buffer);
 
 		sprintf(buffer, "%f %f %f", m_scale.x, m_scale.y, m_scale.z);
-		cJSON_AddStringToObject(gameObject, "scale", buffer);
+		cJSON_AddStringToObject(actor, "scale", buffer);
 
 		D3DXQUATERNION quat;
 		D3DXQuaternionRotationMatrix(&quat, &m_worldRot);
 		sprintf(buffer, "%f %f %f %f", quat.x, quat.y, quat.z, quat.w);
-		cJSON_AddStringToObject(gameObject, "rotation", buffer);
+		cJSON_AddStringToObject(actor, "rotation", buffer);
 
-		cJSON_AddStringToObject(gameObject, "script", m_script.c_str());
+		cJSON_AddStringToObject(actor, "script", m_script.c_str());
 
-		Savable savable = { root, SavableType::GameObject };
+		Savable savable = { root, SavableType::Actor };
 		return savable;
 	}
 

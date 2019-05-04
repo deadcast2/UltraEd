@@ -9,7 +9,7 @@
 #include "Debug.h"
 #include "Gizmo.h"
 #include "Grid.h"
-#include "GameObject.h"
+#include "Model.h"
 #include "Camera.h"
 
 namespace UltraEd
@@ -40,7 +40,7 @@ namespace UltraEd
 		void OnImportModel();
 		void OnBuildROM(BuildFlag::Value flag);
 		bool Pick(POINT mousePoint);
-		void ReleaseResources(GameObjectRelease::Value type);
+		void ReleaseResources(ModelRelease::Value type);
 		void CheckInput(float);
 		void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
 		void SetViewType(ViewType::Value type);
@@ -66,9 +66,9 @@ namespace UltraEd
 		IDirect3DDevice8 *m_device;
 		IDirect3D8 *m_d3d8;
 		D3DPRESENT_PARAMETERS m_d3dpp;
-		map<GUID, shared_ptr<CActor>> m_gameObjects;
+		map<GUID, shared_ptr<CActor>> m_actors;
 		CGrid m_grid;
-		vector<GUID> selectedGameObjectIds;
+		vector<GUID> selectedActorIds;
 		float mouseSmoothX, mouseSmoothY;
 		ViewType::Value m_activeViewType;
 	};

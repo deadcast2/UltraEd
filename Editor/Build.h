@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <string>
 #include <vector>
-#include "gameobject.h"
+#include "actor.h"
 #include "settings.h"
 #include "shlwapi.h"
 
@@ -14,16 +14,15 @@ namespace UltraEd
 	class CBuild
 	{
 	public:
-		static bool Start(vector<CActor*> gameObjects);
+		static bool Start(vector<CActor*> actors);
 		static bool Run();
 		static bool Load();
-		static bool WriteSpecFile(vector<CActor*> gameObjects);
-		static bool WriteSegmentsFile(vector<CActor*> gameObjects);
-		static bool WriteModelsFile(vector<CActor*> gameObjects);
-		static bool WriteCamerasFile(vector<CActor*> gameObjects);
-		static bool WriteScriptsFile(vector<CActor*> gameObjects);
-		static bool WriteMappingsFile(vector<CActor*> gameObjects);
-		static bool WriteCollisionsFile(vector<CActor*> gameObjects);
+		static bool WriteSpecFile(vector<CActor*> actors);
+		static bool WriteSegmentsFile(vector<CActor*> actors);
+		static bool WriteModelsFile(vector<CActor*> actors);
+		static bool WriteCamerasFile(vector<CActor*> actors);
+		static bool WriteScriptsFile(vector<CActor*> actors);
+		static bool WriteMappingsFile(vector<CActor*> actors);
 
 	private:
 		static bool Compile();

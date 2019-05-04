@@ -13,7 +13,7 @@
 
 namespace UltraEd
 {
-	bool CBuild::WriteSpecFile(vector<CActor*> gameObjects)
+	bool CBuild::WriteSpecFile(vector<CActor*> actors)
 	{
 		string specSegments, specIncludes;
 		const char *specHeader = "#include <nusys.h>\n\n"
@@ -39,12 +39,12 @@ namespace UltraEd
 		const char *specIncludeEnd = "\nendwave";
 
 		int loopCount = 0;
-		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
+		for (auto it : actors)
 		{
-			if ((*it)->GetType() != ActorType::Model) continue;
+			if (it->GetType() != ActorType::Model) continue;
 
 			string newResName = CUtil::NewResourceName(loopCount++);
-			string id = CUtil::GuidToString((*it)->GetId());
+			string id = CUtil::GuidToString(it->GetId());
 			id.insert(0, CUtil::RootPath().append("\\"));
 			id.append(".rom.sos");
 
@@ -61,7 +61,7 @@ namespace UltraEd
 			specIncludes.append(modelName);
 			specIncludes.append("\"");
 
-			map<string, string> resources = (*it)->GetResources();
+			map<string, string> resources = it->GetResources();
 			if (resources.count("textureDataPath"))
 			{
 				// Load the set texture and resize to required dimensions.
@@ -120,13 +120,13 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteSegmentsFile(vector<CActor*> gameObjects)
+	bool CBuild::WriteSegmentsFile(vector<CActor*> actors)
 	{
 		string romSegments;
 		int loopCount = 0;
-		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
+		for (auto it : actors)
 		{
-			if ((*it)->GetType() != ActorType::Model) continue;
+			if (it->GetType() != ActorType::Model) continue;
 
 			string newResName = CUtil::NewResourceName(loopCount++);
 			string modelName(newResName);
@@ -139,7 +139,7 @@ namespace UltraEd
 			romSegments.append(modelName);
 			romSegments.append("SegmentRomEnd[];\n");
 
-			map<string, string> resources = (*it)->GetResources();
+			map<string, string> resources = it->GetResources();
 			if (resources.count("textureDataPath"))
 			{
 				string textureName(newResName);
@@ -168,7 +168,7 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteModelsFile(vector<CActor*> gameObjects)
+	bool CBuild::WriteModelsFile(vector<CActor*> actors)
 	{
 		string modelLoadStart("\nvoid _UER_Load() {");
 		const char *modelLoadEnd = "}";
@@ -177,9 +177,9 @@ namespace UltraEd
 		string modelInits, modelDraws;
 		int loopCount = 0;
 		char countBuffer[10];
-		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
+		for (auto it : actors)
 		{
-			if ((*it)->GetType() != ActorType::Model) continue;
+			if (it->GetType() != ActorType::Model) continue;
 
 			string newResName = CUtil::NewResourceName(loopCount++);
 			string modelName(newResName);
@@ -189,7 +189,7 @@ namespace UltraEd
 			modelInits.append("\n\t_UER_Models[");
 			modelInits.append(countBuffer);
 
-			map<string, string> resources = (*it)->GetResources();
+			map<string, string> resources = it->GetResources();
 			if (resources.count("textureDataPath"))
 			{
 				modelInits.append("] = (struct sos_model*)load_sos_model_with_texture(_");
@@ -221,11 +221,11 @@ namespace UltraEd
 
 			// Add transform data.
 			char vectorBuffer[128];
-			D3DXVECTOR3 position = (*it)->GetPosition();
+			D3DXVECTOR3 position = it->GetPosition();
 			D3DXVECTOR3 axis;
 			float angle;
-			D3DXVECTOR3 scale = (*it)->GetScale();
-			(*it)->GetAxisAngle(&axis, &angle);
+			D3DXVECTOR3 scale = it->GetScale();
+			it->GetAxisAngle(&axis, &angle);
 			sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
 				position.x, position.y, position.z,
 				axis.x, axis.y, axis.z, angle * (180 / D3DX_PI),
@@ -234,8 +234,8 @@ namespace UltraEd
 			modelInits.append(");\n");
 
 			// Write out mesh data.
-			vector<Vertex> vertices = (*it)->GetVertices();
-			string id = CUtil::GuidToString((*it)->GetId());
+			vector<Vertex> vertices = it->GetVertices();
+			string id = CUtil::GuidToString(it->GetId());
 			id.insert(0, CUtil::RootPath().append("\\"));
 			id.append(".rom.sos");
 			FILE *file = fopen(id.c_str(), "w");
@@ -279,7 +279,7 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteCamerasFile(vector<CActor*> gameObjects)
+	bool CBuild::WriteCamerasFile(vector<CActor*> actors)
 	{
 		string cameraSetStart("void _UER_Camera() {");
 		const char *cameraSetEnd = "}";
@@ -287,18 +287,18 @@ namespace UltraEd
 		int cameraCount = 0;
 		char countBuffer[10];
 
-		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
+		for (auto it : actors)
 		{
-			if ((*it)->GetType() != ActorType::Camera) continue;
+			if (it->GetType() != ActorType::Camera) continue;
 
 			_itoa(cameraCount++, countBuffer, 10);
 			cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");
 
 			char vectorBuffer[128];
-			D3DXVECTOR3 position = (*it)->GetPosition();
+			D3DXVECTOR3 position = it->GetPosition();
 			D3DXVECTOR3 axis;
 			float angle;
-			(*it)->GetAxisAngle(&axis, &angle);
+			it->GetAxisAngle(&axis, &angle);
 			sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf", position.x, position.y, position.z,
 				axis.x, axis.y, axis.z, angle * (180 / D3DX_PI));
 			cameras.append(vectorBuffer);
@@ -327,7 +327,7 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteScriptsFile(vector<CActor*> gameObjects)
+	bool CBuild::WriteScriptsFile(vector<CActor*> actors)
 	{
 		string scriptStartStart("void _UER_Start() {");
 		const char *scriptStartEnd = "}";
@@ -342,24 +342,24 @@ namespace UltraEd
 		char countBuffer[10];
 		int loopCount = 0;
 
-		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
+		for (auto it : actors)
 		{
 			string newResName = CUtil::NewResourceName(loopCount++);
-			string script = (*it)->GetScript();
-			string gameObjectRef;
+			string script = it->GetScript();
+			string actorRef;
 			char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
 			_itoa(loopCount - 1, countBuffer, 10);
 
-			if ((*it)->GetType() == ActorType::Model)
+			if (it->GetType() == ActorType::Model)
 			{
-				gameObjectRef.append("_UER_Models[");
+				actorRef.append("_UER_Models[");
 			}
 			else {
-				gameObjectRef.append("_UER_Cameras[");
+				actorRef.append("_UER_Cameras[");
 			}
 
-			gameObjectRef.append(countBuffer).append("]->");
-			result = CUtil::ReplaceString(result, "gameObject->", gameObjectRef.c_str());
+			actorRef.append(countBuffer).append("]->");
+			result = CUtil::ReplaceString(result, "self->", actorRef.c_str());
 			scripts.append(result).append("\n\n");
 			if (scripts.find(string(newResName).append("start(")) != string::npos)
 			{
@@ -396,7 +396,7 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteMappingsFile(vector<CActor*> gameObjects)
+	bool CBuild::WriteMappingsFile(vector<CActor*> actors)
 	{
 		string mappingsStart("void _UER_Mappings() {");
 		const char *mappingsEnd = "\n}";
@@ -404,10 +404,10 @@ namespace UltraEd
 		int loopCount = 0;
 		char countBuffer[10];
 
-		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
+		for (auto it : actors)
 		{
 			_itoa(loopCount++, countBuffer, 10);
-			mappingsStart.append("\n\tinsert(\"").append((*it)->GetName()).append("\", ").append(countBuffer).append(");");
+			mappingsStart.append("\n\tinsert(\"").append(it->GetName()).append("\", ").append(countBuffer).append(");");
 		}
 
 		char buffer[MAX_PATH];
@@ -425,39 +425,14 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteCollisionsFile(vector<CActor*> gameObjects)
+	bool CBuild::Start(vector<CActor*> actors)
 	{
-		unsigned int loopCount = 0;
-		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
-		{
-			if ((*it)->GetType() != ActorType::Model) continue;
-
-			int collisionLoopCount = loopCount - 1;
-			auto citStart = gameObjects.begin();
-
-			// Make sure offset doesn't go out of bounds.
-			if (loopCount < gameObjects.size())
-			{
-				citStart += loopCount; // offset       
-				for (; citStart != gameObjects.end(); ++citStart)
-				{
-					int currentGOIndex = loopCount - 1;
-					CDebug::Log("checkCollision(%i, %i)\n", currentGOIndex, ++collisionLoopCount);
-				}
-			}
-		}
-		return true;
-	}
-
-	bool CBuild::Start(vector<CActor*> gameObjects)
-	{
-		WriteSpecFile(gameObjects);
-		WriteSegmentsFile(gameObjects);
-		WriteModelsFile(gameObjects);
-		WriteCamerasFile(gameObjects);
-		WriteScriptsFile(gameObjects);
-		WriteMappingsFile(gameObjects);
-		WriteCollisionsFile(gameObjects);
+		WriteSpecFile(actors);
+		WriteSegmentsFile(actors);
+		WriteModelsFile(actors);
+		WriteCamerasFile(actors);
+		WriteScriptsFile(actors);
+		WriteMappingsFile(actors);
 		return Compile();
 	}
 

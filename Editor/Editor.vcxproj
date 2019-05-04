@@ -143,7 +143,7 @@
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Gizmo.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -165,7 +165,7 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="FileIO.h" />
-    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Gizmo.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="resource.h" />
