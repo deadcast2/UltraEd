@@ -138,35 +138,35 @@ namespace UltraEd
 
 	void CGizmo::SetupTransHandles()
 	{
-		m_gameObjects[0] = CGameObject("Assets/trans-gizmo.dae", GameObjectType::Model);
+		m_gameObjects[0] = CGameObject("Assets/trans-gizmo.dae");
 		m_gameObjects[0].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
-		m_gameObjects[1] = CGameObject("Assets/trans-gizmo.dae", GameObjectType::Model);
+		m_gameObjects[1] = CGameObject("Assets/trans-gizmo.dae");
 		m_gameObjects[1].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
-		m_gameObjects[2] = CGameObject("Assets/trans-gizmo.dae", GameObjectType::Model);
+		m_gameObjects[2] = CGameObject("Assets/trans-gizmo.dae");
 		m_gameObjects[2].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
 	}
 
 	void CGizmo::SetupScaleHandles()
 	{
-		m_gameObjects[3] = CGameObject("Assets/scale-gizmo.dae", GameObjectType::Model);
+		m_gameObjects[3] = CGameObject("Assets/scale-gizmo.dae");
 		m_gameObjects[3].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
-		m_gameObjects[4] = CGameObject("Assets/scale-gizmo.dae", GameObjectType::Model);
+		m_gameObjects[4] = CGameObject("Assets/scale-gizmo.dae");
 		m_gameObjects[4].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
-		m_gameObjects[5] = CGameObject("Assets/scale-gizmo.dae", GameObjectType::Model);
+		m_gameObjects[5] = CGameObject("Assets/scale-gizmo.dae");
 		m_gameObjects[5].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
 	}
 
 	void CGizmo::SetupRotateHandles()
 	{
-		m_gameObjects[6] = CGameObject("Assets/rot-gizmo.dae", GameObjectType::Model);
+		m_gameObjects[6] = CGameObject("Assets/rot-gizmo.dae");
 		m_gameObjects[6].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
-		m_gameObjects[7] = CGameObject("Assets/rot-gizmo.dae", GameObjectType::Model);
+		m_gameObjects[7] = CGameObject("Assets/rot-gizmo.dae");
 		m_gameObjects[7].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
-		m_gameObjects[8] = CGameObject("Assets/rot-gizmo.dae", GameObjectType::Model);
+		m_gameObjects[8] = CGameObject("Assets/rot-gizmo.dae");
 		m_gameObjects[8].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
 	}
 
-	void CGizmo::Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CGameObject *currentGameObject, CGameObject *selectedGameObject)
+	void CGizmo::Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CActor *currentGameObject, CActor *selectedGameObject)
 	{
 		D3DXVECTOR3 targetDir = D3DXVECTOR3(0, 0, 0);
 		D3DXVECTOR3 v0, v1, v2, intersectPoint;
@@ -294,7 +294,7 @@ namespace UltraEd
 		m_updateStartPoint = D3DXVECTOR3(-999, -999, -999);
 	}
 
-	bool CGizmo::ToggleSpace(CGameObject *gameObject)
+	bool CGizmo::ToggleSpace(CActor *gameObject)
 	{
 		m_worldSpaceToggled = !m_worldSpaceToggled;
 

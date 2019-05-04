@@ -10,6 +10,7 @@
 #include "Gizmo.h"
 #include "Grid.h"
 #include "GameObject.h"
+#include "Camera.h"
 
 namespace UltraEd
 {
@@ -65,7 +66,7 @@ namespace UltraEd
 		IDirect3DDevice8 *m_device;
 		IDirect3D8 *m_d3d8;
 		D3DPRESENT_PARAMETERS m_d3dpp;
-		map<GUID, CGameObject> m_gameObjects;
+		map<GUID, shared_ptr<CActor>> m_gameObjects;
 		CGrid m_grid;
 		vector<GUID> selectedGameObjectIds;
 		float mouseSmoothX, mouseSmoothY;

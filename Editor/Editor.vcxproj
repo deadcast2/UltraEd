@@ -136,6 +136,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Build.cpp" />
+    <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="View.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Dialog.cpp" />
@@ -155,7 +157,9 @@
     <ResourceCompile Include="UltraEd.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor.h" />
     <ClInclude Include="Build.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="View.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Debug.h" />

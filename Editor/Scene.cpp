@@ -92,7 +92,7 @@ namespace UltraEd
 		// Save all of the game objects in the scene.
 		for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
 		{
-			savables.push_back(&it->second);
+			savables.push_back(it->second.get());
 		}
 
 		string savedName;
@@ -125,16 +125,23 @@ namespace UltraEd
 			cJSON *gameObjectItem = NULL;
 			cJSON_ArrayForEach(gameObjectItem, gameObjects)
 			{
-				CGameObject gameObject;
-				gameObject.Load(m_device, gameObjectItem);
-
-				if (gameObject.GetType() == GameObjectType::Camera)
+				switch (CActor::GetType(gameObjectItem))
 				{
-					gameObject = CGameObject("Assets/camera.dae", GameObjectType::Camera);
-					gameObject.Load(m_device, gameObjectItem);
+					case ActorType::Model:
+					{
+						auto model = make_shared<CGameObject>();
+						model->Load(m_device, gameObjectItem);
+						m_gameObjects[model->GetId()] = model;
+						break;
+					}
+					case ActorType::Camera:
+					{
+						auto camera = make_shared<CCamera>();
+						camera->Load(m_device, gameObjectItem);
+						m_gameObjects[camera->GetId()] = camera;
+						break;
+					}
 				}
-
-				m_gameObjects[gameObject.GetId()] = gameObject;
 			}
 
 			cJSON_Delete(root);
@@ -149,22 +156,22 @@ namespace UltraEd
 			"Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
 			"VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj", file))
 		{
-			CGameObject gameObject = CGameObject(file.c_str(), GameObjectType::Model);
-			m_gameObjects[gameObject.GetId()] = gameObject;
+			auto gameObject = make_shared<CGameObject>(file.c_str());
+			m_gameObjects[gameObject->GetId()] = gameObject;
 			char buffer[1024];
 			sprintf(buffer, "GameObject %d", m_gameObjects.size());
-			m_gameObjects[gameObject.GetId()].SetName(string(buffer));
+			m_gameObjects[gameObject->GetId()]->SetName(string(buffer));
 		}
 	}
 
 	void CScene::OnBuildROM(BuildFlag::Value flag)
 	{
-		vector<CGameObject*> gameObjects;
+		vector<CActor*> gameObjects;
 
 		// Gather all of the game objects in the scene.
 		for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
 		{
-			gameObjects.push_back(&it->second);
+			gameObjects.push_back(it->second.get());
 		}
 
 		if (CBuild::Start(gameObjects))
@@ -211,8 +218,8 @@ namespace UltraEd
 				"PNG (*.png)\0*.png\0JPEG (*.jpg)\0"
 				"*.jpg\0BMP (*.bmp)\0*.bmp\0TGA (*.tga)\0*.tga", file))
 			{
-				if (m_gameObjects[*it].GetType() != GameObjectType::Model) continue;
-				if (!m_gameObjects[*it].LoadTexture(m_device, file.c_str()))
+				if (m_gameObjects[*it]->GetType() != ActorType::Model) continue;
+				if (!dynamic_cast<CGameObject*>(m_gameObjects[*it].get())->LoadTexture(m_device, file.c_str()))
 				{
 					MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
 				}
@@ -235,7 +242,7 @@ namespace UltraEd
 		{
 			// Only choose the closest game object to the view.
 			float pickDist = 0;
-			if (it->second.Pick(orig, dir, &pickDist) && pickDist < closestDist)
+			if (it->second->Pick(orig, dir, &pickDist) && pickDist < closestDist)
 			{
 				closestDist = pickDist;
 				vector<GUID>::iterator found = find(selectedGameObjectIds.begin(), selectedGameObjectIds.end(), it->first);
@@ -330,7 +337,7 @@ namespace UltraEd
 
 			for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
 			{
-				it->second.Render(m_device, stack);
+				it->second->Render(m_device, stack);
 			}
 
 			if (!selectedGameObjectIds.empty())
@@ -340,7 +347,7 @@ namespace UltraEd
 				m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 				for (auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
 				{
-					m_gameObjects[*it].Render(m_device, stack);
+					m_gameObjects[*it]->Render(m_device, stack);
 				}
 
 				// Draw the gizmo on "top" of all objects in scene.
@@ -379,7 +386,8 @@ namespace UltraEd
 			GUID lastSelectedGameObjectId = selectedGameObjectIds.back();
 			for (auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
 			{
-				m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, &m_gameObjects[*it], &m_gameObjects[lastSelectedGameObjectId]);
+				m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_gameObjects[*it].get(), 
+					m_gameObjects[lastSelectedGameObjectId].get());
 			}
 		}
 		else if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective)
@@ -466,7 +474,7 @@ namespace UltraEd
 	{
 		if (!selectedGameObjectIds.empty())
 		{
-			return m_gizmo.ToggleSpace(&m_gameObjects[selectedGameObjectIds.back()]);
+			return m_gizmo.ToggleSpace(m_gameObjects[selectedGameObjectIds.back()].get());
 		}
 		return false;
 	}
@@ -488,36 +496,56 @@ namespace UltraEd
 		m_grid.Release();
 		m_gizmo.Release();
 		CDebug::Instance().Release();
-
 		for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); ++it)
 		{
-			it->second.Release(type);
+			if (auto model = dynamic_cast<CGameObject*>(it->second.get()))
+			{
+				model->Release(type);
+			}
+			else
+			{
+				it->second->Release();
+			}
 		}
 	}
 
 	void CScene::Delete()
 	{
-		if (!selectedGameObjectIds.empty())
+		for (auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
 		{
-			for (auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
+			if (auto model = dynamic_cast<CGameObject*>(m_gameObjects[*it].get()))
 			{
-				m_gameObjects[*it].Release(GameObjectRelease::AllResources);
-				m_gameObjects.erase(*it);
+				model->Release(GameObjectRelease::AllResources);
 			}
-			selectedGameObjectIds.clear();
+			else
+			{
+				m_gameObjects[*it]->Release();
+			}
+			m_gameObjects.erase(*it);
 		}
+		selectedGameObjectIds.clear();
 	}
 
 	void CScene::Duplicate()
 	{
-		if (!selectedGameObjectIds.empty())
+		for (auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
 		{
-			for (auto it = selectedGameObjectIds.begin(); it != selectedGameObjectIds.end(); ++it)
+			switch (m_gameObjects[*it]->GetType())
 			{
-				CGameObject gameObject = m_gameObjects[*it];
-				string tex = gameObject.GetResources()["textureDataPath"];
-				gameObject.LoadTexture(m_device, tex.c_str());
-				m_gameObjects[gameObject.GetId()] = gameObject;
+				case ActorType::Model:
+				{
+					auto model = make_shared<CGameObject>(*dynamic_cast<CGameObject*>(m_gameObjects[*it].get()));
+					string texturePath = model->GetResources()["textureDataPath"];
+					model->LoadTexture(m_device, texturePath.c_str());
+					m_gameObjects[model->GetId()] = model;
+					break;
+				}
+				case ActorType::Camera:
+				{
+					auto camera = make_shared<CCamera>(*dynamic_cast<CCamera*>(m_gameObjects[*it].get()));
+					m_gameObjects[camera->GetId()] = camera;
+					break;
+				}
 			}
 		}
 	}
@@ -526,7 +554,7 @@ namespace UltraEd
 	{
 		if (!selectedGameObjectIds.empty())
 		{
-			m_gameObjects[selectedGameObjectIds[0]].SetScript(script);
+			m_gameObjects[selectedGameObjectIds[0]]->SetScript(script);
 		}
 	}
 
@@ -534,7 +562,7 @@ namespace UltraEd
 	{
 		if (!selectedGameObjectIds.empty())
 		{
-			return m_gameObjects[selectedGameObjectIds[0]].GetScript();
+			return m_gameObjects[selectedGameObjectIds[0]]->GetScript();
 		}
 		return string("");
 	}
@@ -598,9 +626,9 @@ namespace UltraEd
 	void CScene::OnAddCamera()
 	{
 		char buffer[1024];
-		CGameObject newCamera("Assets/camera.dae", GameObjectType::Camera);
-		m_gameObjects[newCamera.GetId()] = newCamera;
+		auto newCamera = make_shared<CCamera>();
+		m_gameObjects[newCamera->GetId()] = newCamera;
 		sprintf(buffer, "Camera %d", m_gameObjects.size());
-		m_gameObjects[newCamera.GetId()].SetName(string(buffer));
+		m_gameObjects[newCamera->GetId()]->SetName(string(buffer));
 	}
 }

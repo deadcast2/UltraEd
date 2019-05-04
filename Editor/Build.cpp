@@ -13,7 +13,7 @@
 
 namespace UltraEd
 {
-	bool CBuild::WriteSpecFile(vector<CGameObject*> gameObjects)
+	bool CBuild::WriteSpecFile(vector<CActor*> gameObjects)
 	{
 		string specSegments, specIncludes;
 		const char *specHeader = "#include <nusys.h>\n\n"
@@ -41,7 +41,7 @@ namespace UltraEd
 		int loopCount = 0;
 		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 		{
-			if ((*it)->GetType() != GameObjectType::Model) continue;
+			if ((*it)->GetType() != ActorType::Model) continue;
 
 			string newResName = CUtil::NewResourceName(loopCount++);
 			string id = CUtil::GuidToString((*it)->GetId());
@@ -120,13 +120,13 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteSegmentsFile(vector<CGameObject*> gameObjects)
+	bool CBuild::WriteSegmentsFile(vector<CActor*> gameObjects)
 	{
 		string romSegments;
 		int loopCount = 0;
 		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 		{
-			if ((*it)->GetType() != GameObjectType::Model) continue;
+			if ((*it)->GetType() != ActorType::Model) continue;
 
 			string newResName = CUtil::NewResourceName(loopCount++);
 			string modelName(newResName);
@@ -168,7 +168,7 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteModelsFile(vector<CGameObject*> gameObjects)
+	bool CBuild::WriteModelsFile(vector<CActor*> gameObjects)
 	{
 		string modelLoadStart("\nvoid _UER_Load() {");
 		const char *modelLoadEnd = "}";
@@ -179,7 +179,7 @@ namespace UltraEd
 		char countBuffer[10];
 		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 		{
-			if ((*it)->GetType() != GameObjectType::Model) continue;
+			if ((*it)->GetType() != ActorType::Model) continue;
 
 			string newResName = CUtil::NewResourceName(loopCount++);
 			string modelName(newResName);
@@ -279,7 +279,7 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteCamerasFile(vector<CGameObject*> gameObjects)
+	bool CBuild::WriteCamerasFile(vector<CActor*> gameObjects)
 	{
 		string cameraSetStart("void _UER_Camera() {");
 		const char *cameraSetEnd = "}";
@@ -289,7 +289,7 @@ namespace UltraEd
 
 		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 		{
-			if ((*it)->GetType() != GameObjectType::Camera) continue;
+			if ((*it)->GetType() != ActorType::Camera) continue;
 
 			_itoa(cameraCount++, countBuffer, 10);
 			cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");
@@ -327,7 +327,7 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteScriptsFile(vector<CGameObject*> gameObjects)
+	bool CBuild::WriteScriptsFile(vector<CActor*> gameObjects)
 	{
 		string scriptStartStart("void _UER_Start() {");
 		const char *scriptStartEnd = "}";
@@ -350,7 +350,7 @@ namespace UltraEd
 			char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
 			_itoa(loopCount - 1, countBuffer, 10);
 
-			if ((*it)->GetType() == GameObjectType::Model)
+			if ((*it)->GetType() == ActorType::Model)
 			{
 				gameObjectRef.append("_UER_Models[");
 			}
@@ -396,7 +396,7 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteMappingsFile(vector<CGameObject*> gameObjects)
+	bool CBuild::WriteMappingsFile(vector<CActor*> gameObjects)
 	{
 		string mappingsStart("void _UER_Mappings() {");
 		const char *mappingsEnd = "\n}";
@@ -425,12 +425,12 @@ namespace UltraEd
 		return false;
 	}
 
-	bool CBuild::WriteCollisionsFile(vector<CGameObject*> gameObjects)
+	bool CBuild::WriteCollisionsFile(vector<CActor*> gameObjects)
 	{
 		unsigned int loopCount = 0;
 		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
 		{
-			if ((*it)->GetType() != GameObjectType::Model) continue;
+			if ((*it)->GetType() != ActorType::Model) continue;
 
 			int collisionLoopCount = loopCount - 1;
 			auto citStart = gameObjects.begin();
@@ -449,7 +449,7 @@ namespace UltraEd
 		return true;
 	}
 
-	bool CBuild::Start(vector<CGameObject*> gameObjects)
+	bool CBuild::Start(vector<CActor*> gameObjects)
 	{
 		WriteSpecFile(gameObjects);
 		WriteSegmentsFile(gameObjects);
