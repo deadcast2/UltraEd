@@ -55,14 +55,9 @@ namespace UltraEd
 
 	string CUtil::NewResourceName(int count)
 	{
-		char alpha = 'A';
-		string name("UER_");
-		for (int i = 0; i < count; i++)
-		{
-			alpha++;
-		}
-		name += alpha;
-		return name;
+		stringstream ss;
+		ss << "UER_" << count;
+		return ss.str();
 	}
 
 	char *CUtil::ReplaceString(const char *str, const char *from, const char *to)
