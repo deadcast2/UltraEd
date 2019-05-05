@@ -90,9 +90,9 @@ namespace UltraEd
 		for (int i = 0; i < 4; i++) savables.push_back(&m_views[i]);
 
 		// Save all of the actors in the scene.
-		for (auto it = m_actors.begin(); it != m_actors.end(); ++it)
+		for (auto actor : m_actors)
 		{
-			savables.push_back(it->second.get());
+			savables.push_back(actor.second.get());
 		}
 
 		string savedName;
@@ -169,9 +169,9 @@ namespace UltraEd
 		vector<CActor*> actors;
 
 		// Gather all of the actors in the scene.
-		for (auto it = m_actors.begin(); it != m_actors.end(); ++it)
+		for (auto actor : m_actors)
 		{
-			actors.push_back(it->second.get());
+			actors.push_back(actor.second.get());
 		}
 
 		if (CBuild::Start(actors))
@@ -212,14 +212,14 @@ namespace UltraEd
 			return;
 		}
 
-		for (auto it = selectedActorIds.begin(); it != selectedActorIds.end(); it++)
+		for (auto selectedActorId : selectedActorIds)
 		{
 			if (CDialog::Open("Select a texture",
 				"PNG (*.png)\0*.png\0JPEG (*.jpg)\0"
 				"*.jpg\0BMP (*.bmp)\0*.bmp\0TGA (*.tga)\0*.tga", file))
 			{
-				if (m_actors[*it]->GetType() != ActorType::Model) continue;
-				if (!dynamic_cast<CModel*>(m_actors[*it].get())->LoadTexture(m_device, file.c_str()))
+				if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
+				if (!dynamic_cast<CModel*>(m_actors[selectedActorId].get())->LoadTexture(m_device, file.c_str()))
 				{
 					MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
 				}
@@ -238,18 +238,18 @@ namespace UltraEd
 		if (gizmoSelected) return true;
 
 		// Check all actors to see which poly might have been picked.
-		for (auto it = m_actors.begin(); it != m_actors.end(); ++it)
+		for (auto actor : m_actors)
 		{
 			// Only choose the closest actors to the view.
 			float pickDist = 0;
-			if (it->second->Pick(orig, dir, &pickDist) && pickDist < closestDist)
+			if (actor.second->Pick(orig, dir, &pickDist) && pickDist < closestDist)
 			{
 				closestDist = pickDist;
-				vector<GUID>::iterator found = find(selectedActorIds.begin(), selectedActorIds.end(), it->first);
+				vector<GUID>::iterator found = find(selectedActorIds.begin(), selectedActorIds.end(), actor.first);
 				if (found == selectedActorIds.end())
 				{
 					if (!GetAsyncKeyState(VK_SHIFT)) selectedActorIds.clear();
-					selectedActorIds.push_back(it->first);
+					selectedActorIds.push_back(actor.first);
 				}
 				else
 				{
@@ -262,7 +262,7 @@ namespace UltraEd
 					{
 						// Unselected everything and only select what was clicked.
 						selectedActorIds.clear();
-						selectedActorIds.push_back(it->first);
+						selectedActorIds.push_back(actor.first);
 					}
 				}
 			}
@@ -335,9 +335,9 @@ namespace UltraEd
 			m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
 			m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
 
-			for (auto it = m_actors.begin(); it != m_actors.end(); ++it)
+			for (auto actor : m_actors)
 			{
-				it->second->Render(m_device, stack);
+				actor.second->Render(m_device, stack);
 			}
 
 			if (!selectedActorIds.empty())
@@ -345,9 +345,9 @@ namespace UltraEd
 				// Highlight the selected actor.
 				m_device->SetMaterial(&m_selectedMaterial);
 				m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-				for (auto it = selectedActorIds.begin(); it != selectedActorIds.end(); ++it)
+				for (auto selectedActorId : selectedActorIds)
 				{
-					m_actors[*it]->Render(m_device, stack);
+					m_actors[selectedActorId]->Render(m_device, stack);
 				}
 
 				// Draw the gizmo on "top" of all objects in scene.
@@ -384,9 +384,9 @@ namespace UltraEd
 			D3DXVECTOR3 rayOrigin, rayDir;
 			ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
 			GUID lastSelectedActorId = selectedActorIds.back();
-			for (auto it = selectedActorIds.begin(); it != selectedActorIds.end(); ++it)
+			for (auto selectedActorId : selectedActorIds)
 			{
-				m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[*it].get(), 
+				m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
 					m_actors[lastSelectedActorId].get());
 			}
 		}
@@ -496,45 +496,45 @@ namespace UltraEd
 		m_grid.Release();
 		m_gizmo.Release();
 		CDebug::Instance().Release();
-		for (auto it = m_actors.begin(); it != m_actors.end(); ++it)
+		for (auto actor : m_actors)
 		{
-			if (auto model = dynamic_cast<CModel*>(it->second.get()))
+			if (auto model = dynamic_cast<CModel*>(actor.second.get()))
 			{
 				model->Release(type);
 			}
 			else
 			{
-				it->second->Release();
+				actor.second->Release();
 			}
 		}
 	}
 
 	void CScene::Delete()
 	{
-		for (auto it = selectedActorIds.begin(); it != selectedActorIds.end(); ++it)
+		for (auto selectedActorId : selectedActorIds)
 		{
-			if (auto model = dynamic_cast<CModel*>(m_actors[*it].get()))
+			if (auto model = dynamic_cast<CModel*>(m_actors[selectedActorId].get()))
 			{
 				model->Release(ModelRelease::AllResources);
 			}
 			else
 			{
-				m_actors[*it]->Release();
+				m_actors[selectedActorId]->Release();
 			}
-			m_actors.erase(*it);
+			m_actors.erase(selectedActorId);
 		}
 		selectedActorIds.clear();
 	}
 
 	void CScene::Duplicate()
 	{
-		for (auto it = selectedActorIds.begin(); it != selectedActorIds.end(); ++it)
+		for (auto selectedActorId : selectedActorIds)
 		{
-			switch (m_actors[*it]->GetType())
+			switch (m_actors[selectedActorId]->GetType())
 			{
 				case ActorType::Model:
 				{
-					auto model = make_shared<CModel>(*dynamic_cast<CModel*>(m_actors[*it].get()));
+					auto model = make_shared<CModel>(*dynamic_cast<CModel*>(m_actors[selectedActorId].get()));
 					string texturePath = model->GetResources()["textureDataPath"];
 					model->LoadTexture(m_device, texturePath.c_str());
 					m_actors[model->GetId()] = model;
@@ -542,7 +542,7 @@ namespace UltraEd
 				}
 				case ActorType::Camera:
 				{
-					auto camera = make_shared<CCamera>(*dynamic_cast<CCamera*>(m_actors[*it].get()));
+					auto camera = make_shared<CCamera>(*dynamic_cast<CCamera*>(m_actors[selectedActorId].get()));
 					m_actors[camera->GetId()] = camera;
 					break;
 				}

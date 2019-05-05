@@ -39,12 +39,12 @@ namespace UltraEd
 		const char *specIncludeEnd = "\nendwave";
 
 		int loopCount = 0;
-		for (auto it : actors)
+		for (auto actor : actors)
 		{
-			if (it->GetType() != ActorType::Model) continue;
+			if (actor->GetType() != ActorType::Model) continue;
 
 			string newResName = CUtil::NewResourceName(loopCount++);
-			string id = CUtil::GuidToString(it->GetId());
+			string id = CUtil::GuidToString(actor->GetId());
 			id.insert(0, CUtil::RootPath().append("\\"));
 			id.append(".rom.sos");
 
@@ -61,7 +61,7 @@ namespace UltraEd
 			specIncludes.append(modelName);
 			specIncludes.append("\"");
 
-			map<string, string> resources = it->GetResources();
+			map<string, string> resources = actor->GetResources();
 			if (resources.count("textureDataPath"))
 			{
 				// Load the set texture and resize to required dimensions.
@@ -124,9 +124,9 @@ namespace UltraEd
 	{
 		string romSegments;
 		int loopCount = 0;
-		for (auto it : actors)
+		for (auto actor : actors)
 		{
-			if (it->GetType() != ActorType::Model) continue;
+			if (actor->GetType() != ActorType::Model) continue;
 
 			string newResName = CUtil::NewResourceName(loopCount++);
 			string modelName(newResName);
@@ -139,7 +139,7 @@ namespace UltraEd
 			romSegments.append(modelName);
 			romSegments.append("SegmentRomEnd[];\n");
 
-			map<string, string> resources = it->GetResources();
+			map<string, string> resources = actor->GetResources();
 			if (resources.count("textureDataPath"))
 			{
 				string textureName(newResName);
@@ -177,9 +177,9 @@ namespace UltraEd
 		string modelInits, modelDraws;
 		int loopCount = 0;
 		char countBuffer[10];
-		for (auto it : actors)
+		for (auto actor : actors)
 		{
-			if (it->GetType() != ActorType::Model) continue;
+			if (actor->GetType() != ActorType::Model) continue;
 
 			string newResName = CUtil::NewResourceName(loopCount++);
 			string modelName(newResName);
@@ -189,7 +189,7 @@ namespace UltraEd
 			modelInits.append("\n\t_UER_Models[");
 			modelInits.append(countBuffer);
 
-			map<string, string> resources = it->GetResources();
+			map<string, string> resources = actor->GetResources();
 			if (resources.count("textureDataPath"))
 			{
 				modelInits.append("] = (struct sos_model*)load_sos_model_with_texture(_");
@@ -221,11 +221,11 @@ namespace UltraEd
 
 			// Add transform data.
 			char vectorBuffer[128];
-			D3DXVECTOR3 position = it->GetPosition();
+			D3DXVECTOR3 position = actor->GetPosition();
 			D3DXVECTOR3 axis;
 			float angle;
-			D3DXVECTOR3 scale = it->GetScale();
-			it->GetAxisAngle(&axis, &angle);
+			D3DXVECTOR3 scale = actor->GetScale();
+			actor->GetAxisAngle(&axis, &angle);
 			sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
 				position.x, position.y, position.z,
 				axis.x, axis.y, axis.z, angle * (180 / D3DX_PI),
@@ -234,8 +234,8 @@ namespace UltraEd
 			modelInits.append(");\n");
 
 			// Write out mesh data.
-			vector<Vertex> vertices = it->GetVertices();
-			string id = CUtil::GuidToString(it->GetId());
+			vector<Vertex> vertices = actor->GetVertices();
+			string id = CUtil::GuidToString(actor->GetId());
 			id.insert(0, CUtil::RootPath().append("\\"));
 			id.append(".rom.sos");
 			FILE *file = fopen(id.c_str(), "w");
@@ -287,18 +287,18 @@ namespace UltraEd
 		int cameraCount = 0;
 		char countBuffer[10];
 
-		for (auto it : actors)
+		for (auto actor : actors)
 		{
-			if (it->GetType() != ActorType::Camera) continue;
+			if (actor->GetType() != ActorType::Camera) continue;
 
 			_itoa(cameraCount++, countBuffer, 10);
 			cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct sos_model*)create_camera(");
 
 			char vectorBuffer[128];
-			D3DXVECTOR3 position = it->GetPosition();
+			D3DXVECTOR3 position = actor->GetPosition();
 			D3DXVECTOR3 axis;
 			float angle;
-			it->GetAxisAngle(&axis, &angle);
+			actor->GetAxisAngle(&axis, &angle);
 			sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf", position.x, position.y, position.z,
 				axis.x, axis.y, axis.z, angle * (180 / D3DX_PI));
 			cameras.append(vectorBuffer);
@@ -342,19 +342,20 @@ namespace UltraEd
 		char countBuffer[10];
 		int loopCount = 0;
 
-		for (auto it : actors)
+		for (auto actor : actors)
 		{
 			string newResName = CUtil::NewResourceName(loopCount++);
-			string script = it->GetScript();
+			string script = actor->GetScript();
 			string actorRef;
 			char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
 			_itoa(loopCount - 1, countBuffer, 10);
 
-			if (it->GetType() == ActorType::Model)
+			if (actor->GetType() == ActorType::Model)
 			{
 				actorRef.append("_UER_Models[");
 			}
-			else {
+			else 
+			{
 				actorRef.append("_UER_Cameras[");
 			}
 
@@ -404,10 +405,10 @@ namespace UltraEd
 		int loopCount = 0;
 		char countBuffer[10];
 
-		for (auto it : actors)
+		for (auto actor : actors)
 		{
 			_itoa(loopCount++, countBuffer, 10);
-			mappingsStart.append("\n\tinsert(\"").append(it->GetName()).append("\", ").append(countBuffer).append(");");
+			mappingsStart.append("\n\tinsert(\"").append(actor->GetName()).append("\", ").append(countBuffer).append(");");
 		}
 
 		char buffer[MAX_PATH];

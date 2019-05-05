@@ -31,9 +31,9 @@ namespace UltraEd
 			cJSON *actorArray = cJSON_CreateArray();
 			cJSON_AddItemToObject(root, "actors", actorArray);
 
-			for (auto it = savables.begin(); it != savables.end(); ++it)
+			for (auto savable : savables)
 			{
-				Savable current = (*it)->Save();
+				Savable current = savable->Save();
 				cJSON *object = current.object->child;
 
 				// Add array to hold all attached resources.
@@ -41,16 +41,16 @@ namespace UltraEd
 				cJSON_AddItemToObject(object, "resources", resourceArray);
 
 				// Rewrite and archive the attached resources.
-				map<string, string> resources = (*it)->GetResources();
-				for (auto rit = resources.begin(); rit != resources.end(); ++rit)
+				map<string, string> resources = savable->GetResources();
+				for (auto resource : resources)
 				{
-					const char *fileName = PathFindFileName(rit->second.c_str());
-					FILE *file = fopen(rit->second.c_str(), "rb");
+					const char *fileName = PathFindFileName(resource.second.c_str());
+					FILE *file = fopen(resource.second.c_str(), "rb");
 
 					if (file == NULL) continue;
 
 					cJSON *item = cJSON_CreateObject();
-					cJSON_AddStringToObject(item, rit->first.c_str(), fileName);
+					cJSON_AddStringToObject(item, resource.first.c_str(), fileName);
 					cJSON_AddItemToArray(resourceArray, item);
 
 					// Calculate resource length.
@@ -409,12 +409,12 @@ namespace UltraEd
 		string currentPath;
 
 		// Walk up path creating each folder as we go deeper.
-		for (auto it = folders.begin(); it != folders.end(); ++it)
+		for (auto folder : folders)
 		{
-			currentPath.append(*it).append("\\");
+			currentPath.append(folder).append("\\");
 
 			// Skip the root since will be a drive letter.
-			if (it != folders.begin())
+			if (folder != folders.front())
 			{
 				CreateDirectory(currentPath.c_str(), NULL);
 			}
