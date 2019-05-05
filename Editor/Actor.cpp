@@ -1,6 +1,7 @@
 #include "Actor.h"
 #include "FileIO.h"
 #include "Util.h"
+#include "Mesh.h"
 
 namespace UltraEd 
 {
@@ -26,68 +27,11 @@ namespace UltraEd
 
 	void CActor::Import(const char *filePath)
 	{
-		Assimp::Importer importer;
-		FileInfo info = CFileIO::Import(filePath);
-		const aiScene *scene = importer.ReadFile(info.path, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded |
-			aiProcess_OptimizeMeshes);
-
-		// Save path to user imported file for saving later.
-		if (info.type == FileType::User)
+		CMesh mesh(filePath);
+		m_vertices = mesh.GetVertices();
+		if (mesh.GetFileInfo().type == FileType::User)
 		{
-			resources["vertexDataPath"] = info.path;
-		}
-
-		if (scene)
-		{
-			Process(scene->mRootNode, scene);
-		}
-	}
-
-	void CActor::Process(aiNode *node, const aiScene *scene)
-	{
-		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-		{
-			aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-			InsertVerts(node->mTransformation, mesh);
-		}
-
-		for (unsigned int i = 0; i < node->mNumChildren; i++)
-		{
-			Process(node->mChildren[i], scene);
-		}
-	}
-
-	void CActor::InsertVerts(aiMatrix4x4 transform, aiMesh *mesh)
-	{
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-		{
-			aiFace face = mesh->mFaces[i];
-			for (unsigned int j = 0; j < face.mNumIndices; j++)
-			{
-				Vertex vertex;
-
-				// Apply the current transform to the mesh
-				// so it renders in the correct local location.
-				aiVector3D transformedVertex = mesh->mVertices[face.mIndices[j]];
-				aiTransformVecByMatrix4(&transformedVertex, &transform);
-
-				vertex.position.x = transformedVertex.x;
-				vertex.position.y = transformedVertex.y;
-				vertex.position.z = transformedVertex.z;
-
-				aiVector3D normal = mesh->mNormals[face.mIndices[j]];
-				vertex.normal.x = normal.x;
-				vertex.normal.y = normal.y;
-				vertex.normal.z = normal.z;
-
-				if (mesh->HasTextureCoords(0))
-				{
-					vertex.tu = mesh->mTextureCoords[0][face.mIndices[j]].x;
-					vertex.tv = mesh->mTextureCoords[0][face.mIndices[j]].y;
-				}
-
-				m_vertices.push_back(vertex);
-			}
+			resources["vertexDataPath"] = mesh.GetFileInfo().path;
 		}
 	}
 
@@ -119,36 +63,6 @@ namespace UltraEd
 		return m_vertexBuffer;
 	}
 
-	vector<Vertex> CActor::GetVertices()
-	{
-		return m_vertices;
-	}
-
-	GUID CActor::GetId()
-	{
-		return m_id;
-	}
-
-	void CActor::ResetId()
-	{
-		m_id = CUtil::NewGuid();
-	}
-
-	string CActor::GetName()
-	{
-		return m_name;
-	}
-
-	void CActor::SetName(string name)
-	{
-		m_name = name;
-	}
-
-	ActorType::Value CActor::GetType()
-	{
-		return m_type;
-	}
-
 	ActorType::Value CActor::GetType(cJSON *item)
 	{
 		int typeValue;
@@ -157,29 +71,9 @@ namespace UltraEd
 		return (ActorType::Value)typeValue;
 	}
 
-	D3DXVECTOR3 CActor::GetPosition()
-	{
-		return m_position;
-	}
-
-	void CActor::SetPosition(D3DXVECTOR3 position)
-	{
-		m_position = position;
-	}
-
 	void CActor::SetRotation(D3DXVECTOR3 rotation)
 	{
 		D3DXMatrixRotationYawPitchRoll(&m_worldRot, rotation.y, rotation.x, rotation.z);
-	}
-
-	D3DXVECTOR3 CActor::GetScale()
-	{
-		return m_scale;
-	}
-
-	void CActor::SetScale(D3DXVECTOR3 scale)
-	{
-		m_scale = scale;
 	}
 
 	D3DXVECTOR3 CActor::GetRight()
@@ -210,16 +104,6 @@ namespace UltraEd
 		D3DXQuaternionToAxisAngle(&quat, axis, angle);
 	}
 
-	void CActor::Move(D3DXVECTOR3 position)
-	{
-		m_position += position;
-	}
-
-	void CActor::Scale(D3DXVECTOR3 position)
-	{
-		m_scale += position;
-	}
-
 	void CActor::Rotate(FLOAT angle, D3DXVECTOR3 dir)
 	{
 		D3DXMATRIX newWorld;
@@ -236,16 +120,6 @@ namespace UltraEd
 		D3DXMatrixScaling(&scale, m_scale.x, m_scale.y, m_scale.z);
 
 		return scale * m_worldRot * m_localRot * translation;
-	}
-
-	D3DXMATRIX CActor::GetRotationMatrix()
-	{
-		return m_worldRot;
-	}
-
-	void CActor::SetLocalRotationMatrix(D3DXMATRIX mat)
-	{
-		m_localRot = mat;
 	}
 
 	bool CActor::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist)
@@ -305,16 +179,6 @@ namespace UltraEd
 		*dist = D3DXVec3Dot(&edge2, &qvec) * (1.0f / det);
 
 		return true;
-	}
-
-	void CActor::SetScript(string script)
-	{
-		m_script = script;
-	}
-
-	string CActor::GetScript()
-	{
-		return m_script;
 	}
 
 	Savable CActor::Save()
