@@ -89,7 +89,7 @@ namespace UltraEd
 			mtar_finalize(&tar);
 			mtar_close(&tar);
 
-			return Compress(file.c_str());
+			return Compress(file);
 		}
 
 		return false;
@@ -302,7 +302,7 @@ namespace UltraEd
 
 		mtar_finalize(&tar);
 		mtar_close(&tar);
-		return Compress(output.c_str());
+		return Compress(output);
 	}
 
 	bool CFileIO::Unpack(const char *path)
