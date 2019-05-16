@@ -3,6 +3,8 @@
 #include <windows.h>
 #include <string>
 
+#define REG_DATA_LENGTH SIZE_MAX
+
 using namespace std;
 
 namespace UltraEd

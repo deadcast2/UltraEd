@@ -1,9 +1,9 @@
 #pragma once
 
-#define LINE_FORMAT_LENGTH 128
-
 #include "Scene.h"
 #include "vendor/microtar.h"
+
+#define LINE_FORMAT_LENGTH 128
 
 using namespace std;
 

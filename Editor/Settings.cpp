@@ -12,7 +12,7 @@ namespace UltraEd
 		if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, CSettings::m_key, 0, NULL,
 			REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &regKey, NULL) == ERROR_SUCCESS)
 		{
-			int valueLength = strlen(value);
+			int valueLength = strnlen(value, REG_DATA_LENGTH);
 			if (valueLength > 0 && RegSetValueEx(regKey, key, 0, REG_SZ, (const BYTE*)value, valueLength) == ERROR_SUCCESS)
 			{
 				success = true;
