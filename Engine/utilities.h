@@ -5,11 +5,11 @@
 
 #define VECTOR3(X, Y, Z) &(struct vector3) { X, Y, Z }
 
-struct sos_model *FindGameObjectByName(const char *name)
+struct actor *FindActorByName(const char *name)
 {
-  struct nlist *np = lookup(name);
-  if(np == NULL) return NULL;
-  return _UER_Models[np->gameObjectIndex];
+    struct nlist *np = lookup(name);
+    if (np == NULL) return NULL;
+    return _UER_Models[np->gameObjectIndex];
 }
 
 #endif
