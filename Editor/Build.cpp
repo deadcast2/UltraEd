@@ -346,7 +346,7 @@ namespace UltraEd
         {
             string actorRef;
             int index = 0;
-            
+
             if (actor->GetType() == ActorType::Model)
             {
                 actorRef.append("_UER_Models[");

@@ -4,10 +4,10 @@
 
 namespace UltraEd
 {
-	struct Vertex
-	{
-		D3DXVECTOR3 position;
-		D3DXVECTOR3 normal;
-		FLOAT tu, tv;
-	};
+    struct Vertex
+    {
+        D3DXVECTOR3 position;
+        D3DXVECTOR3 normal;
+        FLOAT tu, tv;
+    };
 }

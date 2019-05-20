@@ -9,5 +9,5 @@
 
 inline bool operator<(const GUID &first, const GUID &second)
 {
-	return memcmp(&first, &second, sizeof(GUID)) < 0;
+    return memcmp(&first, &second, sizeof(GUID)) < 0;
 }
