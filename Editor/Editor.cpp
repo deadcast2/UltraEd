@@ -32,17 +32,22 @@
 #define IDM_MENU_DUPLICATE_OBJECT 9002
 #define IDM_MENU_MODIFY_SCRIPT_OBJECT 9003
 #define IDM_MENU_ADD_TEXTURE 9004
-#define IDM_STATUS_BAR 9999
+#define IDM_STATUS_BAR 9998
+#define IDM_TREEVIEW 9999
 
+const int treeviewBorder = 2;
 const int windowWidth = 800;
 const int windowHeight = 600;
 const int mouseWaitPeriod = 250; // milliseconds
 const TCHAR szWindowClass[] = APP_NAME;
 const TCHAR szTitle[] = _T("Loading");
 
-HWND parentWindow, toolbarWindow, statusBar, renderWindow, scriptEditorWindow;
+HWND parentWindow, toolbarWindow, statusBar, treeview, renderWindow, scriptEditorWindow;
 UltraEd::CScene scene;
 DWORD mouseClickTick = 0;
+HCURSOR hcSizeCursor;
+BOOL resizingTreeView = false;
+int treeviewWidth = 160; // Starting width
 
 void RunAction(const char *message, const std::function<void()> &action)
 {
@@ -51,48 +56,59 @@ void RunAction(const char *message, const std::function<void()> &action)
     if (statusBar) SendMessage(statusBar, SB_SETTEXT, 0, (LPARAM)"");
 }
 
+BOOL IsMouseOverSplitter(WPARAM wParam, LPARAM lParam)
+{
+    POINT point = { LOWORD(lParam), HIWORD(lParam) };
+    RECT treeviewRect;
+    GetClientRect(treeview, &treeviewRect);
+    return point.x <= 8;
+}
+
 BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-    case WM_INITDIALOG:
-    {
-        RECT rc;
-        GetClientRect(hWndDlg, &rc);
-        scriptEditorWindow = CreateWindow(
-            "Scintilla",
-            "Source",
-            WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
-            0, 0,
-            rc.right, rc.bottom - 50,
-            hWndDlg,
-            0,
-            0,
-            0);
-        SendMessage(scriptEditorWindow, SCI_SETLEXER, SCLEX_CPP, 0);
-        SendMessage(scriptEditorWindow, SCI_STYLESETSIZE, STYLE_DEFAULT, 10);
-        SendMessage(scriptEditorWindow, SCI_STYLESETFONT, STYLE_DEFAULT, reinterpret_cast<LPARAM>("Verdana"));
-        SendMessage(scriptEditorWindow, SCI_SETTEXT, 0, reinterpret_cast<LPARAM>(scene.GetScript().c_str()));
-        ShowWindow(scriptEditorWindow, SW_SHOW);
-        SetFocus(scriptEditorWindow);
-    }
-    break;
-    case WM_COMMAND:
-        switch (LOWORD(wParam))
+        case WM_INITDIALOG:
         {
-        case IDC_SCRIPT_EDITOR_SAVE_CHANGES:
-        {
-            HRESULT length = SendMessage(scriptEditorWindow, SCI_GETLENGTH, 0, 0) + 1;
-            char *buffer = (char*)malloc(sizeof(char) * length);
-            SendMessage(scriptEditorWindow, SCI_GETTEXT, length, reinterpret_cast<LPARAM>(buffer));
-            scene.SetScript(string(buffer));
-            free(buffer);
-            SendMessage(hWndDlg, WM_COMMAND, IDCANCEL, 0);
-            return TRUE;
+            RECT rc;
+            GetClientRect(hWndDlg, &rc);
+            scriptEditorWindow = CreateWindow(
+                "Scintilla",
+                "Source",
+                WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
+                0, 0,
+                rc.right, rc.bottom - 50,
+                hWndDlg,
+                0,
+                0,
+                0);
+            SendMessage(scriptEditorWindow, SCI_SETLEXER, SCLEX_CPP, 0);
+            SendMessage(scriptEditorWindow, SCI_STYLESETSIZE, STYLE_DEFAULT, 10);
+            SendMessage(scriptEditorWindow, SCI_STYLESETFONT, STYLE_DEFAULT, reinterpret_cast<LPARAM>("Verdana"));
+            SendMessage(scriptEditorWindow, SCI_SETTEXT, 0, reinterpret_cast<LPARAM>(scene.GetScript().c_str()));
+            ShowWindow(scriptEditorWindow, SW_SHOW);
+            SetFocus(scriptEditorWindow);
+            break;
         }
-        case IDCANCEL:
-            EndDialog(hWndDlg, wParam);
-            return TRUE;
+        case WM_COMMAND:
+        {
+            switch (LOWORD(wParam))
+            {
+                case IDC_SCRIPT_EDITOR_SAVE_CHANGES:
+                {
+                    HRESULT length = SendMessage(scriptEditorWindow, SCI_GETLENGTH, 0, 0) + 1;
+                    char *buffer = (char*)malloc(sizeof(char) * length);
+                    SendMessage(scriptEditorWindow, SCI_GETTEXT, length, reinterpret_cast<LPARAM>(buffer));
+                    scene.SetScript(string(buffer));
+                    free(buffer);
+                    SendMessage(hWndDlg, WM_COMMAND, IDCANCEL, 0);
+                    return TRUE;
+                }
+                case IDCANCEL:
+                    EndDialog(hWndDlg, wParam);
+                    return TRUE;
+            }
+            break;
         }
     }
     return FALSE;
@@ -102,201 +118,257 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-    case WM_KEYDOWN:
-    {
-        switch (LOWORD(wParam))
+        case WM_KEYDOWN:
         {
-        case VK_DELETE:
-            scene.Delete();
-            break;
-        case 'D':
-            if (GetKeyState(VK_CONTROL) & 0x8000) scene.Duplicate();
-            break;
-        }
-    }
-    case WM_COMMAND:
-    {
-        switch (LOWORD(wParam))
-        {
-        case ID_FILE_NEWSCENE:
-            if (MessageBox(hWnd, "All scene data will be erased.", "Are you sure?", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+            switch (LOWORD(wParam))
             {
-                scene.OnNew();
+                case VK_DELETE:
+                    scene.Delete();
+                    break;
+                case 'D':
+                    if (GetKeyState(VK_CONTROL) & 0x8000) scene.Duplicate();
+                    break;
+            }
+        }
+        case WM_COMMAND:
+        {
+            switch (LOWORD(wParam))
+            {
+                case ID_FILE_NEWSCENE:
+                    if (MessageBox(hWnd, "All scene data will be erased.", "Are you sure?", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+                    {
+                        scene.OnNew();
+                    }
+                    break;
+                case ID_FILE_SAVESCENE:
+                    scene.OnSave();
+                    break;
+                case ID_FILE_LOADSCENE:
+                    scene.OnLoad();
+                    break;
+                case ID_FILE_EXIT:
+                    PostQuitMessage(0);
+                    break;
+                case ID_FILE_BUILDROM:
+                    RunAction("Building ROM...", [] { scene.OnBuildROM(UltraEd::BuildFlag::_); });
+                    break;
+                case ID_FILE_BUILDROM_AND_RUN:
+                    RunAction("Building ROM...", [] { scene.OnBuildROM(UltraEd::BuildFlag::Run); });
+                    break;
+                case ID_FILE_BUILDROM_AND_LOAD:
+                    RunAction("Building ROM...", [] { scene.OnBuildROM(UltraEd::BuildFlag::Load); });
+                    break;
+                case ID_INSTALL_BUILD_TOOLS:
+                {
+                    RunAction("Installing build tools...", [hWnd] {
+                        char pathBuffer[128];
+                        GetFullPathName("..\\Engine\\tools.bin", 128, pathBuffer, NULL);
+                        if (UltraEd::CFileIO::Unpack(pathBuffer))
+                        {
+                            MessageBox(hWnd, "Build tools successfully installed.", "Success!", MB_OK);
+                        }
+                        else
+                        {
+                            MessageBox(hWnd, "Could not find build tools.", "Error", MB_OK);
+                        }
+                    });
+                    break;
+                }
+                case ID_ADD_CAMERA:
+                    scene.OnAddCamera();
+                    break;
+                case ID_ADD_MODEL:
+                    scene.OnImportModel();
+                    break;
+                case ID_ADD_TEXTURE:
+                    scene.OnApplyTexture();
+                    break;
+                case ID_RENDER_SOLID:
+                {
+                    HMENU menu = GetMenu(hWnd);
+                    if (menu != NULL)
+                    {
+                        bool toggled = scene.ToggleFillMode();
+                        CheckMenuItem(menu, wParam, toggled ? MF_CHECKED : MF_UNCHECKED);
+                    }
+                    break;
+                }
+                case ID_MOVEMENT_WORLDSPACE:
+                {
+                    HMENU menu = GetMenu(hWnd);
+                    if (menu != NULL)
+                    {
+                        bool toggled = scene.ToggleMovementSpace();
+                        CheckMenuItem(menu, wParam, toggled ? MF_CHECKED : MF_UNCHECKED);
+                    }
+                    break;
+                }
+                case ID_MOVEMENT_SNAPTOGRID:
+                {
+                    HMENU menu = GetMenu(hWnd);
+                    if (menu != NULL)
+                    {
+                        bool toggled = scene.ToggleSnapToGrid();
+                        CheckMenuItem(menu, wParam, toggled ? MF_CHECKED : MF_UNCHECKED);
+                    }
+                    break;
+                }
+                case IDM_TOOLBAR_TRANSLATE:
+                    scene.SetGizmoModifier(UltraEd::Translate);
+                    break;
+                case IDM_TOOLBAR_ROTATE:
+                    scene.SetGizmoModifier(UltraEd::Rotate);
+                    break;
+                case IDM_TOOLBAR_SCALE:
+                    scene.SetGizmoModifier(UltraEd::Scale);
+                    break;
+                case IDM_TOOLBAR_VIEW_PERSPECTIVE:
+                    scene.SetViewType(UltraEd::ViewType::Perspective);
+                    break;
+                case IDM_TOOLBAR_VIEW_TOP:
+                    scene.SetViewType(UltraEd::ViewType::Top);
+                    break;
+                case IDM_TOOLBAR_VIEW_FRONT:
+                    scene.SetViewType(UltraEd::ViewType::Front);
+                    break;
+                case IDM_TOOLBAR_VIEW_LEFT:
+                    scene.SetViewType(UltraEd::ViewType::Left);
+                    break;
+                case IDM_MENU_DELETE_OBJECT:
+                    scene.Delete();
+                    break;
+                case IDM_MENU_DUPLICATE_OBJECT:
+                    scene.Duplicate();
+                    break;
+                case IDM_MENU_MODIFY_SCRIPT_OBJECT:
+                    DialogBox(NULL, MAKEINTRESOURCE(IDD_SCRIPT_EDITOR), hWnd, (DLGPROC)ScriptEditorProc);
+                    break;
+                case IDM_MENU_ADD_TEXTURE:
+                    scene.OnApplyTexture();
+                    break;
             }
             break;
-        case ID_FILE_SAVESCENE:
-            scene.OnSave();
+        }
+        case WM_MOUSEMOVE:
+        {
+            if (IsMouseOverSplitter(wParam, lParam)) SetCursor(hcSizeCursor);
+            if (resizingTreeView && wParam == MK_LBUTTON)
+            {
+                // Track new width of treeview.
+                RECT parentRect;
+                GetClientRect(renderWindow, &parentRect);
+                RECT treeviewRect;
+                GetClientRect(treeview, &treeviewRect);
+                int xPosition = LOWORD(lParam);
+                if (xPosition > parentRect.right) xPosition -= USHRT_MAX;
+                treeviewWidth = treeviewRect.right + xPosition;
+
+                // Draw resize preview rectangle.
+                RECT renderRect;
+                GetClientRect(renderWindow, &renderRect);
+                RECT toolbarRect;
+                GetClientRect(toolbarWindow, &toolbarRect);
+                RECT resizeBox;
+                HDC hDC = GetDC(parentWindow);
+                SetRect(&resizeBox, 0, toolbarRect.bottom + treeviewBorder, treeviewWidth,
+                    renderRect.bottom - treeviewBorder);
+                DrawFocusRect(hDC, &resizeBox);
+                ReleaseDC(hWnd, hDC);
+            }
             break;
-        case ID_FILE_LOADSCENE:
-            scene.OnLoad();
+        }
+        case WM_MOUSEWHEEL:
+        {
+            scene.OnMouseWheel(HIWORD(wParam));
             break;
-        case ID_FILE_EXIT:
+        }
+        case WM_LBUTTONDOWN:
+        {
+            if (IsMouseOverSplitter(wParam, lParam))
+            {
+                SetCursor(hcSizeCursor);
+                SetCapture(hWnd);
+                resizingTreeView = true;
+                break;
+            }
+            POINT point = { LOWORD(lParam), HIWORD(lParam) };
+            scene.Pick(point);
+            break;
+        }
+        case WM_LBUTTONUP:
+        {
+            if (resizingTreeView)
+            {
+                RECT parentRect;
+                ReleaseCapture();
+                GetClientRect(parentWindow, &parentRect);
+                PostMessage(parentWindow, WM_SIZE, wParam, MAKELPARAM(parentRect.right, parentRect.bottom));
+                resizingTreeView = false;
+            }
+            break;
+        }
+        case WM_RBUTTONDOWN:
+        {
+            mouseClickTick = GetTickCount();
+            break;
+        }
+        case WM_RBUTTONUP:
+        {
+            // Only show menu when doing a fast click so
+            // it doesn't show after dragging.
+            if (GetTickCount() - mouseClickTick < mouseWaitPeriod)
+            {
+                POINT point = { LOWORD(lParam), HIWORD(lParam) };
+                if (scene.Pick(point))
+                {
+                    ClientToScreen(hWnd, &point);
+                    HMENU menu = CreatePopupMenu();
+                    AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
+                    AppendMenu(menu, MF_STRING, IDM_MENU_MODIFY_SCRIPT_OBJECT, _T("Modify Script"));
+                    AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete"));
+                    AppendMenu(menu, MF_STRING, IDM_MENU_DUPLICATE_OBJECT, _T("Duplicate"));
+                    TrackPopupMenu(menu, TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
+                    DestroyMenu(menu);
+                }
+            }
+            break;
+        }
+        case WM_SIZE:
+        {
+            if (wParam != SIZE_MINIMIZED && hWnd == parentWindow)
+            {
+                // Resize the child windows and the scene.
+                RECT toolbarRect;
+                GetClientRect(toolbarWindow, &toolbarRect);
+                RECT statusRect;
+                GetClientRect(statusBar, &statusRect);
+
+                MoveWindow(toolbarWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
+                MoveWindow(treeview, 0, toolbarRect.bottom + treeviewBorder, treeviewWidth,
+                    HIWORD(lParam) - (toolbarRect.bottom + statusRect.bottom + treeviewBorder), 1);
+                MoveWindow(statusBar, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
+
+                RECT treeviewRect;
+                GetClientRect(treeview, &treeviewRect);
+                MoveWindow(renderWindow, treeviewRect.right + treeviewBorder, 0,
+                    LOWORD(lParam) - treeviewRect.right, HIWORD(lParam) - statusRect.bottom, 1);
+                scene.Resize();
+            }
+            break;
+        }
+        case WM_ERASEBKGND:
+        {
+            return 1;
+        }
+        case WM_DESTROY:
+        {
             PostQuitMessage(0);
             break;
-        case ID_FILE_BUILDROM:
-            RunAction("Building ROM...", [] { scene.OnBuildROM(UltraEd::BuildFlag::_); });
-            break;
-        case ID_FILE_BUILDROM_AND_RUN:
-            RunAction("Building ROM...", [] { scene.OnBuildROM(UltraEd::BuildFlag::Run); });
-            break;
-        case ID_FILE_BUILDROM_AND_LOAD:
-            RunAction("Building ROM...", [] { scene.OnBuildROM(UltraEd::BuildFlag::Load); });
-            break;
-        case ID_INSTALL_BUILD_TOOLS:
+        }
+        default:
         {
-            RunAction("Installing build tools...", [hWnd] {
-                char pathBuffer[128];
-                GetFullPathName("..\\Engine\\tools.bin", 128, pathBuffer, NULL);
-                if (UltraEd::CFileIO::Unpack(pathBuffer))
-                {
-                    MessageBox(hWnd, "Build tools successfully installed.", "Success!", MB_OK);
-                }
-                else
-                {
-                    MessageBox(hWnd, "Could not find build tools.", "Error", MB_OK);
-                }
-            });
-            break;
+            return DefWindowProc(hWnd, message, wParam, lParam);
         }
-        case ID_ADD_CAMERA:
-            scene.OnAddCamera();
-            break;
-        case ID_ADD_MODEL:
-            scene.OnImportModel();
-            break;
-        case ID_ADD_TEXTURE:
-            scene.OnApplyTexture();
-            break;
-        case ID_RENDER_SOLID:
-        {
-            HMENU menu = GetMenu(hWnd);
-            if (menu != NULL)
-            {
-                bool toggled = scene.ToggleFillMode();
-                CheckMenuItem(menu, wParam, toggled ? MF_CHECKED : MF_UNCHECKED);
-            }
-            break;
-        }
-        case ID_MOVEMENT_WORLDSPACE:
-        {
-            HMENU menu = GetMenu(hWnd);
-            if (menu != NULL)
-            {
-                bool toggled = scene.ToggleMovementSpace();
-                CheckMenuItem(menu, wParam, toggled ? MF_CHECKED : MF_UNCHECKED);
-            }
-            break;
-        }
-        case ID_MOVEMENT_SNAPTOGRID:
-        {
-            HMENU menu = GetMenu(hWnd);
-            if (menu != NULL)
-            {
-                bool toggled = scene.ToggleSnapToGrid();
-                CheckMenuItem(menu, wParam, toggled ? MF_CHECKED : MF_UNCHECKED);
-            }
-            break;
-        }
-        case IDM_TOOLBAR_TRANSLATE:
-            scene.SetGizmoModifier(UltraEd::Translate);
-            break;
-        case IDM_TOOLBAR_ROTATE:
-            scene.SetGizmoModifier(UltraEd::Rotate);
-            break;
-        case IDM_TOOLBAR_SCALE:
-            scene.SetGizmoModifier(UltraEd::Scale);
-            break;
-        case IDM_TOOLBAR_VIEW_PERSPECTIVE:
-            scene.SetViewType(UltraEd::ViewType::Perspective);
-            break;
-        case IDM_TOOLBAR_VIEW_TOP:
-            scene.SetViewType(UltraEd::ViewType::Top);
-            break;
-        case IDM_TOOLBAR_VIEW_FRONT:
-            scene.SetViewType(UltraEd::ViewType::Front);
-            break;
-        case IDM_TOOLBAR_VIEW_LEFT:
-            scene.SetViewType(UltraEd::ViewType::Left);
-            break;
-        case IDM_MENU_DELETE_OBJECT:
-            scene.Delete();
-            break;
-        case IDM_MENU_DUPLICATE_OBJECT:
-            scene.Duplicate();
-            break;
-        case IDM_MENU_MODIFY_SCRIPT_OBJECT:
-            DialogBox(NULL, MAKEINTRESOURCE(IDD_SCRIPT_EDITOR), hWnd, (DLGPROC)ScriptEditorProc);
-            break;
-        case IDM_MENU_ADD_TEXTURE:
-            scene.OnApplyTexture();
-            break;
-        }
-        break;
-    }
-    case WM_MOUSEWHEEL:
-    {
-        scene.OnMouseWheel(HIWORD(wParam));
-        break;
-    }
-    case WM_LBUTTONDOWN:
-    {
-        POINT point = { LOWORD(lParam), HIWORD(lParam) };
-        scene.Pick(point);
-        break;
-    }
-    case WM_RBUTTONDOWN:
-    {
-        mouseClickTick = GetTickCount();
-        break;
-    }
-    case WM_RBUTTONUP:
-    {
-        // Only show menu when doing a fast click so
-        // it doesn't show after dragging.
-        if (GetTickCount() - mouseClickTick < mouseWaitPeriod)
-        {
-            POINT point = { LOWORD(lParam), HIWORD(lParam) };
-            if (scene.Pick(point))
-            {
-                ClientToScreen(hWnd, &point);
-                HMENU menu = CreatePopupMenu();
-                AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
-                AppendMenu(menu, MF_STRING, IDM_MENU_MODIFY_SCRIPT_OBJECT, _T("Modify Script"));
-                AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete"));
-                AppendMenu(menu, MF_STRING, IDM_MENU_DUPLICATE_OBJECT, _T("Duplicate"));
-                TrackPopupMenu(menu, TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
-                DestroyMenu(menu);
-            }
-        }
-        break;
-    }
-    case WM_SIZE:
-    {
-        if (wParam != SIZE_MINIMIZED)
-        {
-            // Resize the child windows and the scene.
-            MoveWindow(toolbarWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
-            MoveWindow(renderWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
-            MoveWindow(statusBar, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
-            scene.Resize();
-        }
-        break;
-    }
-    case WM_ERASEBKGND:
-    {
-        return 1;
-        break;
-    }
-    case WM_DESTROY:
-    {
-        PostQuitMessage(0);
-        break;
-    }
-    default:
-    {
-        return DefWindowProc(hWnd, message, wParam, lParam);
-        break;
-    }
     }
 
     return 0;
@@ -371,6 +443,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 1;
     }
 
+    hcSizeCursor = LoadCursor(NULL, IDC_SIZEWE);
+
     WNDCLASSEX wcex;
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -404,6 +478,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     toolbarWindow = CreateToolbar(parentWindow, hInstance);
+
     if (!toolbarWindow)
     {
         MessageBox(NULL, "Could not create toolbar.", "Error", NULL);
@@ -411,6 +486,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     statusBar = CreateStatusWindow(WS_VISIBLE | WS_CHILD, "Welcome to UltraEd", parentWindow, IDM_STATUS_BAR);
+
     if (!statusBar)
     {
         MessageBox(NULL, "Could not create status bar.", "Error", NULL);
@@ -418,11 +494,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     ShowWindow(parentWindow, nCmdShow);
-    UpdateWindow(parentWindow);
+
+    // Create treeview that shows objects in scene.   
+    RECT parentRect;
+    GetClientRect(parentWindow, &parentRect);
+    RECT toolbarRect;
+    GetClientRect(toolbarWindow, &toolbarRect);
+    RECT statusRect;
+    GetClientRect(statusBar, &statusRect);
+    treeview = CreateWindowEx(WS_EX_CLIENTEDGE, WC_TREEVIEW, TEXT("Tree View"),
+        WS_VISIBLE | WS_CHILD | WS_BORDER | TVS_HASLINES,
+        0, toolbarRect.bottom + treeviewBorder,
+        treeviewWidth, parentRect.bottom - (toolbarRect.bottom + statusRect.bottom + treeviewBorder),
+        parentWindow, (HMENU)IDM_TREEVIEW, hInstance, NULL);
+
+    if (!treeview)
+    {
+        MessageBox(NULL, "Could not create treeview.", "Error", NULL);
+        return 1;
+    }
 
     // Create the window for rendering the scene.
+    RECT treeviewRect;
+    GetClientRect(treeview, &treeviewRect);
     renderWindow = CreateWindow(szWindowClass, szTitle, WS_CLIPSIBLINGS | WS_CHILD,
-        CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, parentWindow, NULL, hInstance, NULL);
+        treeviewRect.right + treeviewBorder, 0,
+        parentRect.right - treeviewRect.right, parentRect.bottom - statusRect.bottom,
+        parentWindow, NULL, hInstance, NULL);
 
     if (!renderWindow)
     {
