@@ -1,3 +1,5 @@
+#include <windows.h>
+#include <commctrl.h>
 #include "Util.h"
 
 namespace UltraEd
@@ -158,5 +160,12 @@ namespace UltraEd
             tokens.push_back(token);
         }
         return tokens;
+    }
+
+    void CUtil::RunAction(HWND statusBar, const char *message, const std::function<void()> &action)
+    {
+        if (statusBar) SendMessage(statusBar, SB_SETTEXT, 0, (LPARAM)message);
+        action();
+        if (statusBar) SendMessage(statusBar, SB_SETTEXT, 0, (LPARAM)"");
     }
 }
