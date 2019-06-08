@@ -55,6 +55,7 @@ namespace UltraEd
         void SetTitle(string title);
         void UpdateViewMatrix();
         void ResetViews();
+        void RefreshActorList();
 
     private:
         D3DLIGHT8 m_worldLight;

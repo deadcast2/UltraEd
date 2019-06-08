@@ -19,9 +19,9 @@
 #include "handlers/Menu.h"
 #include "handlers/MouseMenu.h"
 #include "handlers/Toolbar.h"
+#include "handlers/Treeview.h"
 
 #define IDM_STATUS_BAR 9998
-#define IDM_TREEVIEW 9999
 
 const int treeviewBorder = 2;
 const int windowWidth = 800;
@@ -36,14 +36,6 @@ DWORD mouseClickTick = 0;
 HCURSOR hcSizeCursor;
 BOOL resizingTreeView = false;
 int treeviewWidth = 160; // Starting width
-
-BOOL IsMouseOverSplitter(WPARAM wParam, LPARAM lParam)
-{
-    POINT point = { LOWORD(lParam), HIWORD(lParam) };
-    RECT treeviewRect;
-    GetClientRect(treeview, &treeviewRect);
-    return point.x <= 8;
-}
 
 BOOL CALLBACK ScriptEditorProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -115,12 +107,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             UltraEd::MenuHandler(statusBar, hWnd, wParam, scene);
             UltraEd::ToolbarHandler(wParam, scene);
+            UltraEd::TreeviewHandler(treeview, wParam, lParam);
             UltraEd::MouseMenuHandler(ScriptEditorProc, hWnd, wParam, scene);
             break;
         }
         case WM_MOUSEMOVE:
         {
-            if (IsMouseOverSplitter(wParam, lParam)) SetCursor(hcSizeCursor);
+            if (UltraEd::IsMouseOverSplitter(treeview, wParam, lParam)) SetCursor(hcSizeCursor);
             if (resizingTreeView && wParam == MK_LBUTTON)
             {
                 // Track new width of treeview.
@@ -153,7 +146,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         case WM_LBUTTONDOWN:
         {
-            if (IsMouseOverSplitter(wParam, lParam))
+            if (UltraEd::IsMouseOverSplitter(treeview, wParam, lParam))
             {
                 SetCursor(hcSizeCursor);
                 SetCapture(hWnd);

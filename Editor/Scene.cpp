@@ -1,9 +1,10 @@
-#include "build.h"
+#include "Build.h"
 #include "Scene.h"
 #include "Settings.h"
 #include "FileIO.h"
 #include "Dialog.h"
 #include "Util.h"
+#include "resource.h"
 
 namespace UltraEd
 {
@@ -43,16 +44,10 @@ namespace UltraEd
 
     bool CScene::Create(HWND windowHandle)
     {
-        if ((m_d3d8 = Direct3DCreate8(D3D_SDK_VERSION)) == NULL)
-        {
-            return false;
-        }
+        if ((m_d3d8 = Direct3DCreate8(D3D_SDK_VERSION)) == NULL) return false;
 
         D3DDISPLAYMODE d3ddm;
-        if (FAILED(m_d3d8->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddm)))
-        {
-            return false;
-        }
+        if (FAILED(m_d3d8->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddm))) return false;
 
         m_d3dpp.Windowed = TRUE;
         m_d3dpp.SwapEffect = D3DSWAPEFFECT_COPY_VSYNC;
@@ -61,10 +56,7 @@ namespace UltraEd
         m_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 
         if (FAILED(m_d3d8->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, windowHandle,
-            D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device)))
-        {
-            return false;
-        }
+            D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device))) return false;
 
         // Setup the new scene.
         OnNew();
@@ -80,6 +72,7 @@ namespace UltraEd
         ReleaseResources(ModelRelease::AllResources);
         m_actors.clear();
         ResetViews();
+        RefreshActorList();
     }
 
     void CScene::OnSave()
@@ -127,24 +120,25 @@ namespace UltraEd
             {
                 switch (CActor::GetType(actor))
                 {
-                case ActorType::Model:
-                {
-                    auto model = make_shared<CModel>();
-                    model->Load(m_device, actor);
-                    m_actors[model->GetId()] = model;
-                    break;
-                }
-                case ActorType::Camera:
-                {
-                    auto camera = make_shared<CCamera>();
-                    camera->Load(m_device, actor);
-                    m_actors[camera->GetId()] = camera;
-                    break;
-                }
+                    case ActorType::Model:
+                    {
+                        auto model = make_shared<CModel>();
+                        model->Load(m_device, actor);
+                        m_actors[model->GetId()] = model;
+                        break;
+                    }
+                    case ActorType::Camera:
+                    {
+                        auto camera = make_shared<CCamera>();
+                        camera->Load(m_device, actor);
+                        m_actors[camera->GetId()] = camera;
+                        break;
+                    }
                 }
             }
 
             cJSON_Delete(root);
+            RefreshActorList();
         }
     }
 
@@ -161,6 +155,7 @@ namespace UltraEd
             char buffer[1024];
             sprintf(buffer, "Actor %d", m_actors.size());
             m_actors[model->GetId()]->SetName(string(buffer));
+            RefreshActorList();
         }
     }
 
@@ -524,6 +519,7 @@ namespace UltraEd
             m_actors.erase(selectedActorId);
         }
         selectedActorIds.clear();
+        RefreshActorList();
     }
 
     void CScene::Duplicate()
@@ -532,22 +528,23 @@ namespace UltraEd
         {
             switch (m_actors[selectedActorId]->GetType())
             {
-            case ActorType::Model:
-            {
-                auto model = make_shared<CModel>(*dynamic_cast<CModel*>(m_actors[selectedActorId].get()));
-                string texturePath = model->GetResources()["textureDataPath"];
-                model->LoadTexture(m_device, texturePath.c_str());
-                m_actors[model->GetId()] = model;
-                break;
-            }
-            case ActorType::Camera:
-            {
-                auto camera = make_shared<CCamera>(*dynamic_cast<CCamera*>(m_actors[selectedActorId].get()));
-                m_actors[camera->GetId()] = camera;
-                break;
-            }
+                case ActorType::Model:
+                {
+                    auto model = make_shared<CModel>(*dynamic_cast<CModel*>(m_actors[selectedActorId].get()));
+                    string texturePath = model->GetResources()["textureDataPath"];
+                    model->LoadTexture(m_device, texturePath.c_str());
+                    m_actors[model->GetId()] = model;
+                    break;
+                }
+                case ActorType::Camera:
+                {
+                    auto camera = make_shared<CCamera>(*dynamic_cast<CCamera*>(m_actors[selectedActorId].get()));
+                    m_actors[camera->GetId()] = camera;
+                    break;
+                }
             }
         }
+        RefreshActorList();
     }
 
     void CScene::SetScript(string script)
@@ -584,26 +581,26 @@ namespace UltraEd
             m_views[i].Reset();
             switch (i)
             {
-            case ViewType::Perspective:
-                m_views[i].Fly(2);
-                m_views[i].Walk(-5);
-                m_views[i].SetViewType(ViewType::Perspective);
-                break;
-            case ViewType::Top:
-                m_views[i].Fly(12);
-                m_views[i].Pitch(D3DX_PI / 2);
-                m_views[i].SetViewType(ViewType::Top);
-                break;
-            case ViewType::Left:
-                m_views[i].Yaw(D3DX_PI / 2);
-                m_views[i].Walk(-12);
-                m_views[i].SetViewType(ViewType::Left);
-                break;
-            case ViewType::Front:
-                m_views[i].Yaw(D3DX_PI);
-                m_views[i].Walk(-12);
-                m_views[i].SetViewType(ViewType::Front);
-                break;
+                case ViewType::Perspective:
+                    m_views[i].Fly(2);
+                    m_views[i].Walk(-5);
+                    m_views[i].SetViewType(ViewType::Perspective);
+                    break;
+                case ViewType::Top:
+                    m_views[i].Fly(12);
+                    m_views[i].Pitch(D3DX_PI / 2);
+                    m_views[i].SetViewType(ViewType::Top);
+                    break;
+                case ViewType::Left:
+                    m_views[i].Yaw(D3DX_PI / 2);
+                    m_views[i].Walk(-12);
+                    m_views[i].SetViewType(ViewType::Left);
+                    break;
+                case ViewType::Front:
+                    m_views[i].Yaw(D3DX_PI);
+                    m_views[i].Walk(-12);
+                    m_views[i].SetViewType(ViewType::Front);
+                    break;
             }
         }
     }
@@ -630,5 +627,14 @@ namespace UltraEd
         m_actors[newCamera->GetId()] = newCamera;
         sprintf(buffer, "Camera %d", m_actors.size());
         m_actors[newCamera->GetId()]->SetName(string(buffer));
+    }
+
+    void CScene::RefreshActorList()
+    {
+        SendMessage(GetWndHandle(), WM_COMMAND, TV_CLEAR_ACTORS, 0);
+        for (auto actor : m_actors)
+        {
+            SendMessage(GetWndHandle(), WM_COMMAND, TV_ADD_ACTOR, (LPARAM)actor.second->GetName().c_str());
+        }
     }
 }

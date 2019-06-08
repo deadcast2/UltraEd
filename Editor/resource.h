@@ -28,6 +28,10 @@
 #define ID_INSTALL_BUILD_TOOLS          40017
 #define ID_FILE_BUILDROM_AND_LOAD       40018
 
+#define IDM_TREEVIEW 9999
+#define TV_ADD_ACTOR WM_USER + 0
+#define TV_CLEAR_ACTORS WM_USER + 1
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

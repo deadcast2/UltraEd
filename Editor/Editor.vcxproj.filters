@@ -19,7 +19,7 @@
     <Filter Include="Source Files\vendor">
       <UniqueIdentifier>{ece3220e-b467-4ab3-ad1b-69717a22bb44}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Handlers">
+    <Filter Include="Header Files\handlers">
       <UniqueIdentifier>{eba0cad5-68c8-4ab5-83af-81f4f92f7e56}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -167,13 +167,16 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="handlers\Toolbar.h">
-      <Filter>Header Files\Handlers</Filter>
+      <Filter>Header Files\handlers</Filter>
     </ClInclude>
     <ClInclude Include="handlers\Menu.h">
-      <Filter>Header Files\Handlers</Filter>
+      <Filter>Header Files\handlers</Filter>
     </ClInclude>
     <ClInclude Include="handlers\MouseMenu.h">
-      <Filter>Header Files\Handlers</Filter>
+      <Filter>Header Files\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="handlers\Treeview.h">
+      <Filter>Header Files\handlers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
