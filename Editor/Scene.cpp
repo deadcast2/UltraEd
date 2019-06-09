@@ -263,6 +263,7 @@ namespace UltraEd
             }
         }
 
+        RefreshActorList();
         if (closestDist != FLT_MAX) return true;
         if (!gizmoSelected) selectedActorIds.clear();
         return false;
@@ -635,6 +636,10 @@ namespace UltraEd
         for (auto actor : m_actors)
         {
             SendMessage(GetWndHandle(), WM_COMMAND, TV_ADD_ACTOR, (LPARAM)actor.second.get());
+        }
+        for (auto selectedActorId : selectedActorIds)
+        {
+            SendMessage(GetWndHandle(), WM_COMMAND, TV_SELECT_ACTOR, (LPARAM)m_actors[selectedActorId].get());
         }
     }
 

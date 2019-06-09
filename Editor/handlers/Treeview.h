@@ -20,7 +20,6 @@ namespace UltraEd
 
         string actorName = actor->GetName();
         tvi.pszText = (LPSTR)actorName.c_str();
-
         tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);
         tvi.lParam = (LPARAM)actor;
 
@@ -28,8 +27,8 @@ namespace UltraEd
         tvins.item = tvi;
         tvins.hInsertAfter = (HTREEITEM)TVI_FIRST;
         tvins.hParent = TVI_ROOT;
-
-        SendMessage(treeview, TVM_INSERTITEM, 0, (LPARAM)(LPTVINSERTSTRUCT)&tvins);
+        
+        TreeView_InsertItem(treeview, (LPTVINSERTSTRUCT)&tvins);
     }
 
     void TreeviewHandler(HWND treeview, WPARAM wParam, LPARAM lParam, CScene &scene)
@@ -42,6 +41,30 @@ namespace UltraEd
             case TV_CLEAR_ACTORS:
                 TreeView_DeleteAllItems(treeview);
                 break;
+            case TV_SELECT_ACTOR:
+            {
+                TVITEM tvitem = { 0 };
+                auto selectedActor = (CActor*)lParam;
+                auto currentItem = TreeView_GetRoot(treeview);
+
+                while (currentItem != NULL)
+                {
+                    tvitem.hItem = currentItem;
+                    TreeView_GetItem(treeview, &tvitem);
+                    auto actor = (CActor*)tvitem.lParam;
+
+                    if (actor->GetId() == selectedActor->GetId())
+                    {
+                        TreeView_SelectItem(treeview, tvitem.hItem);
+                        SetFocus(treeview);
+                        break;
+                    }
+
+                    currentItem = TreeView_GetNextSibling(treeview, currentItem);
+                }
+
+                break;
+            }
             case TVN_SELCHANGED:
             {
                 auto pnmtv = (LPNMTREEVIEW)lParam;

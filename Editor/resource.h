@@ -31,6 +31,7 @@
 #define IDM_TREEVIEW 9999
 #define TV_ADD_ACTOR WM_USER + 0
 #define TV_CLEAR_ACTORS WM_USER + 1
+#define TV_SELECT_ACTOR WM_USER + 2
 
 // Next default values for new objects
 // 
