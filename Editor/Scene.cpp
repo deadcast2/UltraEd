@@ -634,7 +634,13 @@ namespace UltraEd
         SendMessage(GetWndHandle(), WM_COMMAND, TV_CLEAR_ACTORS, 0);
         for (auto actor : m_actors)
         {
-            SendMessage(GetWndHandle(), WM_COMMAND, TV_ADD_ACTOR, (LPARAM)actor.second->GetName().c_str());
+            SendMessage(GetWndHandle(), WM_COMMAND, TV_ADD_ACTOR, (LPARAM)actor.second.get());
         }
+    }
+
+    void CScene::SelectActorById(GUID id)
+    {
+        selectedActorIds.clear();
+        selectedActorIds.push_back(id);
     }
 }

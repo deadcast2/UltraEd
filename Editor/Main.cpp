@@ -107,8 +107,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             UltraEd::MenuHandler(statusBar, hWnd, wParam, scene);
             UltraEd::ToolbarHandler(wParam, scene);
-            UltraEd::TreeviewHandler(treeview, wParam, lParam);
+            UltraEd::TreeviewHandler(treeview, wParam, lParam, scene);
             UltraEd::MouseMenuHandler(ScriptEditorProc, hWnd, wParam, scene);
+            break;
+        }
+        case WM_NOTIFY:
+        {
+            UltraEd::TreeviewHandler(treeview, ((LPNMHDR)lParam)->code, lParam, scene);
             break;
         }
         case WM_MOUSEMOVE:

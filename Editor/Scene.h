@@ -49,6 +49,7 @@ namespace UltraEd
         bool ToggleMovementSpace();
         bool ToggleFillMode();
         bool ToggleSnapToGrid();
+        void SelectActorById(GUID id);
 
     private:
         HWND GetWndHandle();
