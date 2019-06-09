@@ -642,5 +642,6 @@ namespace UltraEd
     {
         selectedActorIds.clear();
         selectedActorIds.push_back(id);
+        m_gizmo.Update(m_actors[id].get());
     }
 }

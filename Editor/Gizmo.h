@@ -17,6 +17,7 @@ namespace UltraEd
         void SetModifier(GizmoModifierState state);
         bool ToggleSpace(CActor *actor);
         bool ToggleSnapping();
+        void Update(CActor *currentActor);
         void Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CActor *currentActor, CActor *selectedActor);
         void Reset();
         bool Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir);

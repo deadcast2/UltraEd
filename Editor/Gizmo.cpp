@@ -166,6 +166,11 @@ namespace UltraEd
         m_models[8].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
     }
 
+    void CGizmo::Update(CActor *currentActor)
+    {
+        if (currentActor != NULL) SetPosition(currentActor->GetPosition());
+    }
+
     void CGizmo::Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CActor *currentActor, CActor *selectedActor)
     {
         D3DXVECTOR3 targetDir = D3DXVECTOR3(0, 0, 0);
