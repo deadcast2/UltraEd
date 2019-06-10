@@ -85,6 +85,9 @@ namespace UltraEd
                     case VK_DELETE:
                         if (scene != NULL) scene->Delete();
                         break;
+                    case 'D':
+                        if (GetKeyState(VK_CONTROL) & 0x8000) scene->Duplicate();
+                        break;
                 }
                 break;
             }
