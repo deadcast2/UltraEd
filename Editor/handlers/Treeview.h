@@ -1,10 +1,12 @@
 #pragma once
 
-#include <windows.h>
-#include <commctrl.h>
-
 namespace UltraEd
 {
+    HWND treeview;
+    BOOL resizingTreeView = false;
+    int treeviewWidth = 160; // Starting width
+    const int treeviewBorder = 2;
+
     BOOL IsMouseOverSplitter(HWND treeview, WPARAM wParam, LPARAM lParam)
     {
         POINT point = { LOWORD(lParam), HIWORD(lParam) };
@@ -31,7 +33,7 @@ namespace UltraEd
         TreeView_InsertItem(treeview, (LPTVINSERTSTRUCT)&tvins);
     }
 
-    void TreeviewHandler(HWND treeview, WPARAM wParam, LPARAM lParam, CScene &scene)
+    void TreeviewHandler(HWND treeview, WPARAM wParam, LPARAM lParam, CScene *scene)
     {
         switch (wParam)
         {
@@ -71,7 +73,7 @@ namespace UltraEd
                 if (pnmtv->action != 0)
                 {
                     auto actor = (CActor*)pnmtv->itemNew.lParam;
-                    scene.SelectActorById(actor->GetId());
+                    if (scene != NULL) scene->SelectActorById(actor->GetId());
                 }
                 break;
             }
@@ -81,7 +83,7 @@ namespace UltraEd
                 switch (info->wVKey)
                 {
                     case VK_DELETE:
-                        scene.Delete();
+                        if (scene != NULL) scene->Delete();
                         break;
                 }
                 break;

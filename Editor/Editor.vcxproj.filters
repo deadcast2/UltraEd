@@ -178,6 +178,12 @@
     <ClInclude Include="handlers\Treeview.h">
       <Filter>Header Files\handlers</Filter>
     </ClInclude>
+    <ClInclude Include="handlers\ScriptEditor.h">
+      <Filter>Header Files\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="handlers\Window.h">
+      <Filter>Header Files\handlers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="toolbar.bmp">

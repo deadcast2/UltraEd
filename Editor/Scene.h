@@ -70,8 +70,8 @@ namespace UltraEd
         D3DPRESENT_PARAMETERS m_d3dpp;
         map<GUID, shared_ptr<CActor>> m_actors;
         CGrid m_grid;
-        vector<GUID> selectedActorIds;
-        float mouseSmoothX, mouseSmoothY;
+        vector<GUID> m_selectedActorIds;
+        float m_mouseSmoothX, m_mouseSmoothY;
         ViewType::Value m_activeViewType;
     };
 }

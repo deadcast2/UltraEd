@@ -14,6 +14,8 @@ namespace UltraEd
         m_d3d8 = 0;
         m_device = 0;
         m_fillMode = D3DFILL_SOLID;
+        m_activeViewType = ViewType::Perspective;
+        m_mouseSmoothX = m_mouseSmoothY = 0;
 
         ZeroMemory(&m_defaultMaterial, sizeof(D3DMATERIAL8));
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
@@ -68,7 +70,7 @@ namespace UltraEd
     void CScene::OnNew()
     {
         SetTitle("New");
-        selectedActorIds.clear();
+        m_selectedActorIds.clear();
         ReleaseResources(ModelRelease::AllResources);
         m_actors.clear();
         ResetViews();
@@ -201,13 +203,13 @@ namespace UltraEd
     {
         string file;
 
-        if (selectedActorIds.empty())
+        if (m_selectedActorIds.empty())
         {
             MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
             return;
         }
 
-        for (auto selectedActorId : selectedActorIds)
+        for (auto selectedActorId : m_selectedActorIds)
         {
             if (CDialog::Open("Select a texture",
                 "PNG (*.png)\0*.png\0JPEG (*.jpg)\0"
@@ -240,24 +242,24 @@ namespace UltraEd
             if (actor.second->Pick(orig, dir, &pickDist) && pickDist < closestDist)
             {
                 closestDist = pickDist;
-                vector<GUID>::iterator found = find(selectedActorIds.begin(), selectedActorIds.end(), actor.first);
-                if (found == selectedActorIds.end())
+                vector<GUID>::iterator found = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor.first);
+                if (found == m_selectedActorIds.end())
                 {
-                    if (!GetAsyncKeyState(VK_SHIFT)) selectedActorIds.clear();
-                    selectedActorIds.push_back(actor.first);
+                    if (!GetAsyncKeyState(VK_SHIFT)) m_selectedActorIds.clear();
+                    m_selectedActorIds.push_back(actor.first);
                 }
                 else
                 {
                     // Shift clicking an already selected actors so unselect it.
                     if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
                     {
-                        selectedActorIds.erase(found);
+                        m_selectedActorIds.erase(found);
                     }
                     else
                     {
                         // Unselected everything and only select what was clicked.
-                        selectedActorIds.clear();
-                        selectedActorIds.push_back(actor.first);
+                        m_selectedActorIds.clear();
+                        m_selectedActorIds.push_back(actor.first);
                     }
                 }
             }
@@ -265,7 +267,7 @@ namespace UltraEd
 
         RefreshActorList();
         if (closestDist != FLT_MAX) return true;
-        if (!gizmoSelected) selectedActorIds.clear();
+        if (!gizmoSelected) m_selectedActorIds.clear();
         return false;
     }
 
@@ -336,12 +338,12 @@ namespace UltraEd
                 actor.second->Render(m_device, stack);
             }
 
-            if (!selectedActorIds.empty())
+            if (!m_selectedActorIds.empty())
             {
                 // Highlight the selected actor.
                 m_device->SetMaterial(&m_selectedMaterial);
                 m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-                for (auto selectedActorId : selectedActorIds)
+                for (auto selectedActorId : m_selectedActorIds)
                 {
                     m_actors[selectedActorId]->Render(m_device, stack);
                 }
@@ -375,12 +377,12 @@ namespace UltraEd
         if (GetAsyncKeyState('2')) m_gizmo.SetModifier(Rotate);
         if (GetAsyncKeyState('3')) m_gizmo.SetModifier(Scale);
 
-        if (GetAsyncKeyState(VK_LBUTTON) && !selectedActorIds.empty())
+        if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
             D3DXVECTOR3 rayOrigin, rayDir;
             ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
-            GUID lastSelectedActorId = selectedActorIds.back();
-            for (auto selectedActorId : selectedActorIds)
+            GUID lastSelectedActorId = m_selectedActorIds.back();
+            for (auto selectedActorId : m_selectedActorIds)
             {
                 m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
                     m_actors[lastSelectedActorId].get());
@@ -393,26 +395,26 @@ namespace UltraEd
             if (GetAsyncKeyState('A')) view->Strafe(-4.0f * deltaTime);
             if (GetAsyncKeyState('D')) view->Strafe(4.0f * deltaTime);
 
-            mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothX, (FLOAT)(mousePoint.x - prevMousePoint.x));
-            mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
+            m_mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(mousePoint.x - prevMousePoint.x));
+            m_mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
 
-            view->Yaw(mouseSmoothX * mouseSpeedModifier * deltaTime);
-            view->Pitch(mouseSmoothY * mouseSpeedModifier * deltaTime);
+            view->Yaw(m_mouseSmoothX * mouseSpeedModifier * deltaTime);
+            view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
         }
         else if (GetAsyncKeyState(VK_MBUTTON))
         {
-            mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothX, (FLOAT)(prevMousePoint.x - mousePoint.x));
-            mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
+            m_mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(prevMousePoint.x - mousePoint.x));
+            m_mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
 
-            view->Strafe(mouseSmoothX * deltaTime);
-            view->Fly(mouseSmoothY * deltaTime);
+            view->Strafe(m_mouseSmoothX * deltaTime);
+            view->Fly(m_mouseSmoothY * deltaTime);
         }
         else
         {
             m_gizmo.Reset();
 
             // Reset smoothing values for new mouse view movement.
-            mouseSmoothX = mouseSmoothX = 0;
+            m_mouseSmoothX = m_mouseSmoothX = 0;
         }
 
         // Remeber the last position so we know how much to move the view.
@@ -468,9 +470,9 @@ namespace UltraEd
 
     bool CScene::ToggleMovementSpace()
     {
-        if (!selectedActorIds.empty())
+        if (!m_selectedActorIds.empty())
         {
-            return m_gizmo.ToggleSpace(m_actors[selectedActorIds.back()].get());
+            return m_gizmo.ToggleSpace(m_actors[m_selectedActorIds.back()].get());
         }
         return false;
     }
@@ -507,7 +509,7 @@ namespace UltraEd
 
     void CScene::Delete()
     {
-        for (auto selectedActorId : selectedActorIds)
+        for (auto selectedActorId : m_selectedActorIds)
         {
             if (auto model = dynamic_cast<CModel*>(m_actors[selectedActorId].get()))
             {
@@ -519,13 +521,13 @@ namespace UltraEd
             }
             m_actors.erase(selectedActorId);
         }
-        selectedActorIds.clear();
+        m_selectedActorIds.clear();
         RefreshActorList();
     }
 
     void CScene::Duplicate()
     {
-        for (auto selectedActorId : selectedActorIds)
+        for (auto selectedActorId : m_selectedActorIds)
         {
             switch (m_actors[selectedActorId]->GetType())
             {
@@ -550,17 +552,17 @@ namespace UltraEd
 
     void CScene::SetScript(string script)
     {
-        if (!selectedActorIds.empty())
+        if (!m_selectedActorIds.empty())
         {
-            m_actors[selectedActorIds[0]]->SetScript(script);
+            m_actors[m_selectedActorIds[0]]->SetScript(script);
         }
     }
 
     string CScene::GetScript()
     {
-        if (!selectedActorIds.empty())
+        if (!m_selectedActorIds.empty())
         {
-            return m_actors[selectedActorIds[0]]->GetScript();
+            return m_actors[m_selectedActorIds[0]]->GetScript();
         }
         return string("");
     }
@@ -637,7 +639,7 @@ namespace UltraEd
         {
             SendMessage(GetWndHandle(), WM_COMMAND, TV_ADD_ACTOR, (LPARAM)actor.second.get());
         }
-        for (auto selectedActorId : selectedActorIds)
+        for (auto selectedActorId : m_selectedActorIds)
         {
             SendMessage(GetWndHandle(), WM_COMMAND, TV_SELECT_ACTOR, (LPARAM)m_actors[selectedActorId].get());
         }
@@ -645,8 +647,8 @@ namespace UltraEd
 
     void CScene::SelectActorById(GUID id)
     {
-        selectedActorIds.clear();
-        selectedActorIds.push_back(id);
+        m_selectedActorIds.clear();
+        m_selectedActorIds.push_back(id);
         m_gizmo.Update(m_actors[id].get());
     }
 }
