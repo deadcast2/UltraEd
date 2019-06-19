@@ -75,7 +75,7 @@ namespace UltraEd
 
     void CGrid::Render(IDirect3DDevice8 *device)
     {
-        IDirect3DVertexBuffer8* buffer = GetBuffer(device);
+        IDirect3DVertexBuffer8 *buffer = GetBuffer(device);
 
         if (buffer != NULL)
         {

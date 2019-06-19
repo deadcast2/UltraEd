@@ -140,6 +140,7 @@
     <ClCompile Include="Build.cpp" />
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="View.cpp" />
     <ClCompile Include="Debug.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Build.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Collider.h" />
     <ClInclude Include="handlers\Menu.h" />
     <ClInclude Include="handlers\MouseMenu.h" />
     <ClInclude Include="handlers\Treeview.h" />

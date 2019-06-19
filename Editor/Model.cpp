@@ -45,6 +45,8 @@ namespace UltraEd
 
             stack->Pop();
         }
+
+        CActor::Render(device, stack);
     }
 
     void CModel::Release(ModelRelease::Value type)

@@ -9,11 +9,19 @@ namespace UltraEd
     {
         ResetId();
         m_vertexBuffer = 0;
+        m_collider = 0;
         m_position = D3DXVECTOR3(0, 0, 0);
         m_scale = D3DXVECTOR3(1, 1, 1);
         m_script = string("void @start()\n{\n\n}\n\nvoid @update()\n{\n\n}\n\nvoid @input(NUContData gamepads[4])\n{\n\n}");
+        
         D3DXMatrixIdentity(&m_localRot);
         D3DXMatrixIdentity(&m_worldRot);
+
+        ZeroMemory(&m_material, sizeof(D3DMATERIAL8));
+        m_material.Diffuse.r = 1;
+        m_material.Diffuse.g = 1;
+        m_material.Diffuse.b = 1;
+        m_material.Diffuse.a = 1;
     }
 
     void CActor::Release()
@@ -23,6 +31,18 @@ namespace UltraEd
             m_vertexBuffer->Release();
             m_vertexBuffer = 0;
         }
+
+        if (m_collider != NULL)
+        {
+            m_collider->Release();
+            m_collider = 0;
+        }
+    }
+
+    void CActor::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
+    {
+        if (m_collider) m_collider->Render(device);
+        device->SetMaterial(&m_material);
     }
 
     void CActor::Import(const char *filePath)

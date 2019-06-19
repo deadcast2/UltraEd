@@ -129,6 +129,7 @@ namespace UltraEd
                         ClientToScreen(hWnd, &point);
                         HMENU menu = CreatePopupMenu();
                         AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
+                        AppendMenu(menu, MF_STRING, IDM_MENU_ADD_COLLIDER, _T("Add Collider"));
                         AppendMenu(menu, MF_STRING, IDM_MENU_MODIFY_SCRIPT_OBJECT, _T("Modify Script"));
                         AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete"));
                         AppendMenu(menu, MF_STRING, IDM_MENU_DUPLICATE_OBJECT, _T("Duplicate"));

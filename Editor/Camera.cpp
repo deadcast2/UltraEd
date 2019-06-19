@@ -28,11 +28,13 @@ namespace UltraEd
 
             device->SetTransform(D3DTS_WORLD, stack->GetTop());
             device->SetStreamSource(0, buffer, sizeof(Vertex));
-            device->SetVertexShader(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1);
+            device->SetVertexShader(D3DFVF_XYZ | D3DFVF_NORMAL);
             device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, GetVertices().size() / 3);
 
             stack->Pop();
         }
+
+        CActor::Render(device, stack);
     }
 
     Savable CCamera::Save()

@@ -4,6 +4,7 @@
 #include "Vertex.h"
 #include "Savable.h"
 #include "Util.h"
+#include "Collider.h"
 
 namespace UltraEd
 {
@@ -17,7 +18,7 @@ namespace UltraEd
     public:
         CActor();
         virtual void Release();
-        virtual void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack) = 0;
+        virtual void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
         GUID GetId() { return m_id; }
         void ResetId() { m_id = CUtil::NewGuid(); }
         string GetName() { return m_name; }
@@ -43,6 +44,8 @@ namespace UltraEd
         bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist);
         string GetScript() { return m_script; }
         void SetScript(string script) { m_script = script; }
+        CCollider *GetCollider() { return m_collider; }
+        void SetCollider(CCollider *collider) { m_collider = collider; }
         Savable Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
 
@@ -56,6 +59,7 @@ namespace UltraEd
         GUID m_id;
         string m_name;
         vector<Vertex> m_vertices;
+        D3DMATERIAL8 m_material;
         D3DXVECTOR3 m_position;
         D3DXVECTOR3 m_scale;
         D3DXMATRIX m_localRot;
@@ -63,5 +67,6 @@ namespace UltraEd
         string m_script;
         bool IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir,
             D3DXVECTOR3 &v0, D3DXVECTOR3 &v1, D3DXVECTOR3 &v2, float *dist);
+        CCollider *m_collider;
     };
 }
