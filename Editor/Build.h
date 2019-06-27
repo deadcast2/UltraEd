@@ -21,6 +21,7 @@ namespace UltraEd
         static bool WriteSegmentsFile(vector<CActor*> actors);
         static bool WriteModelsFile(vector<CActor*> actors);
         static bool WriteCamerasFile(vector<CActor*> actors);
+        static bool WriteCollisionFile(vector<CActor*> actors);
         static bool WriteScriptsFile(vector<CActor*> actors);
         static bool WriteMappingsFile(vector<CActor*> actors);
 

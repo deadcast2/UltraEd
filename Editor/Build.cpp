@@ -327,6 +327,42 @@ namespace UltraEd
         return false;
     }
 
+    bool CBuild::WriteCollisionFile(vector<CActor*> actors)
+    {
+        string collideSetStart("void _UER_Collide() {");
+        const char *collideSetEnd = "}";
+        string collisions;
+        int collisionCount = 0;
+        char countBuffer[10];
+
+        for (auto actor : actors)
+        {
+            int subLoop = collisionCount++;
+            for (auto subActor = next(actors.begin(), collisionCount); subActor != actors.end(); ++subActor)
+            {
+                _itoa(collisionCount-1, countBuffer, 10);
+                collisions.append("\n\tcheck_collision(_UER_Actors[").append(countBuffer);
+                _itoa(++subLoop, countBuffer, 10);
+                collisions.append("], _UER_Actors[").append(countBuffer).append("]);\n");
+            }
+        }
+
+        char buffer[MAX_PATH];
+        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
+        {
+            string collisionPath(buffer);
+            collisionPath.append("\\..\\..\\Engine\\collision.h");
+            FILE *file = fopen(collisionPath.c_str(), "w");
+            if (file == NULL) return false;
+            fwrite(collideSetStart.c_str(), 1, collideSetStart.size(), file);
+            fwrite(collisions.c_str(), 1, collisions.size(), file);
+            fwrite(collideSetEnd, 1, strlen(collideSetEnd), file);
+            fclose(file);
+            return true;
+        }
+        return false;
+    }
+
     bool CBuild::WriteScriptsFile(vector<CActor*> actors)
     {
         string scriptStartStart("void _UER_Start() {");
@@ -440,6 +476,7 @@ namespace UltraEd
         WriteSegmentsFile(actors);
         WriteModelsFile(actors);
         WriteCamerasFile(actors);
+        WriteCollisionFile(actors);
         WriteScriptsFile(actors);
         WriteMappingsFile(actors);
         return Compile();
