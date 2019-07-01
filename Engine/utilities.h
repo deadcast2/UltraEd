@@ -9,7 +9,7 @@ struct actor *FindActorByName(const char *name)
 {
     struct nlist *np = lookup(name);
     if (np == NULL) return NULL;
-    return _UER_Models[np->gameObjectIndex];
+    return _UER_Actors[np->gameObjectIndex];
 }
 
 #endif

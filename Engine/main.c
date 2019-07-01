@@ -3,9 +3,8 @@
 #include "hashtable.h"
 #include "actor.h"
 #include "segments.h"
-#include "models.h"
+#include "actors.h"
 #include "mappings.h"
-#include "cameras.h"
 #include "utilities.h"
 #include "scripts.h"
 
@@ -109,9 +108,10 @@ void checkInputs()
 
 void updateCamera()
 {
-    struct actor *camera = _UER_Cameras[currentCamera];
+    struct actor *camera = _UER_Actors[currentCamera];
     guTranslate(&world.translation, -camera->position->x, -camera->position->y, camera->position->z);
-    guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis->x, camera->rotationAxis->y, -camera->rotationAxis->z);
+    guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis->x, camera->rotationAxis->y, 
+        -camera->rotationAxis->z);
 }
 
 void gfxCallback(int pendingGfx)
@@ -124,11 +124,20 @@ void gfxCallback(int pendingGfx)
 
 int initHeapMemory()
 {
-    if (InitHeap(mem_heep, sizeof(mem_heep)) == -1)
-    {
-        return -1;
-    }
+    if (InitHeap(mem_heep, sizeof(mem_heep)) == -1) return -1;
     return 0;
+}
+
+void setDefaultCamera()
+{
+    for (int i = 0; i < _UER_ActorCount; i++)
+    {
+        if (_UER_Actors[i]->type == Camera)
+        {
+            currentCamera = i;
+            break;
+        }
+    }
 }
 
 void mainproc()
@@ -139,8 +148,8 @@ void mainproc()
     if (initHeapMemory() > -1)
     {
         _UER_Load();
+        setDefaultCamera();
         _UER_Mappings();
-        _UER_Camera();
         _UER_Start();
     }
 

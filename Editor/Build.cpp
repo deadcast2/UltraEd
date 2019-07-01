@@ -168,159 +168,112 @@ namespace UltraEd
         return false;
     }
 
-    bool CBuild::WriteModelsFile(vector<CActor*> actors)
+    bool CBuild::WriteActorsFile(vector<CActor*> actors)
     {
-        string modelLoadStart("\nvoid _UER_Load() {");
-        const char *modelLoadEnd = "}";
-        const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
-        const char *drawEnd = "}";
-        string modelInits, modelDraws;
-        int loopCount = 0;
+        int actorCount = -1;
         char countBuffer[10];
+        string actorInits, modelDraws;
+
+        _itoa(actors.size(), countBuffer, 10);
+        string actorsArrayDef("const int _UER_ActorCount = ");
+        actorsArrayDef.append(countBuffer).append(";\nstruct actor *_UER_Actors[")
+            .append(countBuffer).append("];\n");
+
         for (auto actor : actors)
         {
-            if (actor->GetType() != ActorType::Model) continue;
+            string resourceName = CUtil::NewResourceName(++actorCount);
 
-            string newResName = CUtil::NewResourceName(loopCount++);
-            string modelName(newResName);
+            string modelName(resourceName);
             modelName.append("_M");
 
-            _itoa(loopCount - 1, countBuffer, 10);
-            modelInits.append("\n\t_UER_Models[");
-            modelInits.append(countBuffer);
+            string textureName(resourceName);
+            textureName.append("_T");
 
-            map<string, string> resources = actor->GetResources();
-            if (resources.count("textureDataPath"))
+            _itoa(actorCount, countBuffer, 10);
+            actorInits.append("\n\t_UER_Actors[").append(countBuffer).append("] = ");
+
+            if (actor->GetType() == ActorType::Model)
             {
-                modelInits.append("] = (struct actor*)load_model_with_texture(_");
+                auto resources = actor->GetResources();
+
+                if (resources.count("textureDataPath"))
+                {
+                    actorInits.append("(struct actor*)load_model_with_texture(_");
+                }
+                else
+                {
+                    actorInits.append("(struct actor*)load_model(_");
+                }
+
+                actorInits.append(modelName).append("SegmentRomStart, _").append(modelName).append("SegmentRomEnd");
+
+                if (resources.count("textureDataPath"))
+                {
+                    actorInits.append(", _").append(textureName).append("SegmentRomStart, _").append(textureName).append("SegmentRomEnd");
+                }
+
+                // Add transform data.
+                char vectorBuffer[128];
+                D3DXVECTOR3 position = actor->GetPosition(), scale = actor->GetScale(), axis;
+                float angle;
+                actor->GetAxisAngle(&axis, &angle);
+                sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+                    position.x, position.y, position.z,
+                    axis.x, axis.y, axis.z, angle * (180 / D3DX_PI),
+                    scale.x, scale.y, scale.z);
+                actorInits.append(vectorBuffer).append(");\n");
+
+                // Write out mesh data.
+                vector<Vertex> vertices = actor->GetVertices();
+                string id = CUtil::GuidToString(actor->GetId());
+                id.insert(0, CUtil::RootPath().append("\\")).append(".rom.sos");
+                FILE *file = fopen(id.c_str(), "w");
+                if (file == NULL) return false;
+                fprintf(file, "%i\n", vertices.size());
+                for (unsigned int i = 0; i < vertices.size(); i++)
+                {
+                    Vertex vert = vertices[i];
+                    fprintf(file, "%f %f %f %f %f\n", vert.position.x, vert.position.y, vert.position.z,
+                        vert.tu, vert.tv);
+                }
+                fclose(file);
+
+                modelDraws.append("\n\tmodel_draw(_UER_Actors[").append(countBuffer).append("], display_list);\n");
             }
-            else {
-                modelInits.append("] = (struct actor*)load_model(_");
-            }
-
-            modelInits.append(modelName);
-            modelInits.append("SegmentRomStart, _");
-            modelInits.append(modelName);
-            modelInits.append("SegmentRomEnd");
-
-            modelDraws.append("\n\tmodel_draw(_UER_Models[");
-            modelDraws.append(countBuffer);
-            modelDraws.append("], display_list);\n");
-
-            if (resources.count("textureDataPath"))
+            else if (actor->GetType() == ActorType::Camera)
             {
-                string textureName(newResName);
-                textureName.append("_T");
-
-                modelInits.append(", _");
-                modelInits.append(textureName);
-                modelInits.append("SegmentRomStart, _");
-                modelInits.append(textureName);
-                modelInits.append("SegmentRomEnd");
+                actorInits.append("(struct actor*)create_camera(");
+                char vectorBuffer[128];
+                D3DXVECTOR3 position = actor->GetPosition();
+                D3DXVECTOR3 axis;
+                float angle;
+                actor->GetAxisAngle(&axis, &angle);
+                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf", position.x, position.y, position.z,
+                    axis.x, axis.y, axis.z, angle * (180 / D3DX_PI));
+                actorInits.append(vectorBuffer).append(");\n");
             }
-
-            // Add transform data.
-            char vectorBuffer[128];
-            D3DXVECTOR3 position = actor->GetPosition();
-            D3DXVECTOR3 axis;
-            float angle;
-            D3DXVECTOR3 scale = actor->GetScale();
-            actor->GetAxisAngle(&axis, &angle);
-            sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
-                position.x, position.y, position.z,
-                axis.x, axis.y, axis.z, angle * (180 / D3DX_PI),
-                scale.x, scale.y, scale.z);
-            modelInits.append(vectorBuffer);
-            modelInits.append(");\n");
-
-            // Write out mesh data.
-            vector<Vertex> vertices = actor->GetVertices();
-            string id = CUtil::GuidToString(actor->GetId());
-            id.insert(0, CUtil::RootPath().append("\\"));
-            id.append(".rom.sos");
-            FILE *file = fopen(id.c_str(), "w");
-            if (file == NULL) return false;
-            fprintf(file, "%i\n", vertices.size());
-            for (unsigned int i = 0; i < vertices.size(); i++)
-            {
-                Vertex vert = vertices[i];
-                fprintf(file, "%f %f %f %f %f\n",
-                    vert.position.x,
-                    vert.position.y,
-                    vert.position.z,
-                    vert.tu,
-                    vert.tv);
-            }
-            fclose(file);
         }
-
-        _itoa(loopCount, countBuffer, 10);
-        string modelArray("struct actor *_UER_Models[");
-        modelArray.append(countBuffer);
-        modelArray.append("];\n");
-        modelLoadStart.insert(0, modelArray);
 
         char buffer[MAX_PATH];
         if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
         {
-            string modelInitsPath(buffer);
-            modelInitsPath.append("\\..\\..\\Engine\\models.h");
-            FILE *file = fopen(modelInitsPath.c_str(), "w");
+            string actorInitsPath(buffer);
+            actorInitsPath.append("\\..\\..\\Engine\\actors.h");
+            FILE *file = fopen(actorInitsPath.c_str(), "w");
             if (file == NULL) return false;
-            fwrite(modelLoadStart.c_str(), 1, modelLoadStart.size(), file);
-            fwrite(modelInits.c_str(), 1, modelInits.size(), file);
-            fwrite(modelLoadEnd, 1, strlen(modelLoadEnd), file);
+
+            fwrite(actorsArrayDef.c_str(), 1, actorsArrayDef.size(), file);
+
+            const char *actorInitStart = "\nvoid _UER_Load() {";
+            fwrite(actorInitStart, 1, strlen(actorInitStart), file);
+            fwrite(actorInits.c_str(), 1, actorInits.size(), file);
+            fwrite("}", 1, 1, file);
+
+            const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
             fwrite(drawStart, 1, strlen(drawStart), file);
             fwrite(modelDraws.c_str(), 1, modelDraws.size(), file);
-            fwrite(drawEnd, 1, strlen(drawEnd), file);
-            fclose(file);
-            return true;
-        }
-        return false;
-    }
+            fwrite("}", 1, 1, file);
 
-    bool CBuild::WriteCamerasFile(vector<CActor*> actors)
-    {
-        string cameraSetStart("void _UER_Camera() {");
-        const char *cameraSetEnd = "}";
-        string cameras;
-        int cameraCount = 0;
-        char countBuffer[10];
-
-        for (auto actor : actors)
-        {
-            if (actor->GetType() != ActorType::Camera) continue;
-
-            _itoa(cameraCount++, countBuffer, 10);
-            cameras.append("\n\t_UER_Cameras[").append(countBuffer).append("] = (struct actor*)create_camera(");
-
-            char vectorBuffer[128];
-            D3DXVECTOR3 position = actor->GetPosition();
-            D3DXVECTOR3 axis;
-            float angle;
-            actor->GetAxisAngle(&axis, &angle);
-            sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf", position.x, position.y, position.z,
-                axis.x, axis.y, axis.z, angle * (180 / D3DX_PI));
-            cameras.append(vectorBuffer);
-            cameras.append(");\n");
-        }
-
-        _itoa(cameraCount, countBuffer, 10);
-        string cameraArray("struct actor *_UER_Cameras[");
-        cameraArray.append(countBuffer);
-        cameraArray.append("];\n");
-        cameraSetStart.insert(0, cameraArray);
-
-        char buffer[MAX_PATH];
-        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
-        {
-            string camerasPath(buffer);
-            camerasPath.append("\\..\\..\\Engine\\cameras.h");
-            FILE *file = fopen(camerasPath.c_str(), "w");
-            if (file == NULL) return false;
-            fwrite(cameraSetStart.c_str(), 1, cameraSetStart.size(), file);
-            fwrite(cameras.c_str(), 1, cameras.size(), file);
-            fwrite(cameraSetEnd, 1, strlen(cameraSetEnd), file);
             fclose(file);
             return true;
         }
@@ -330,7 +283,6 @@ namespace UltraEd
     bool CBuild::WriteCollisionFile(vector<CActor*> actors)
     {
         string collideSetStart("void _UER_Collide() {");
-        const char *collideSetEnd = "}";
         string collisions;
         int collisionCount = 0;
         char countBuffer[10];
@@ -340,7 +292,7 @@ namespace UltraEd
             int subLoop = collisionCount++;
             for (auto subActor = next(actors.begin(), collisionCount); subActor != actors.end(); ++subActor)
             {
-                _itoa(collisionCount-1, countBuffer, 10);
+                _itoa(collisionCount - 1, countBuffer, 10);
                 collisions.append("\n\tcheck_collision(_UER_Actors[").append(countBuffer);
                 _itoa(++subLoop, countBuffer, 10);
                 collisions.append("], _UER_Actors[").append(countBuffer).append("]);\n");
@@ -356,7 +308,7 @@ namespace UltraEd
             if (file == NULL) return false;
             fwrite(collideSetStart.c_str(), 1, collideSetStart.size(), file);
             fwrite(collisions.c_str(), 1, collisions.size(), file);
-            fwrite(collideSetEnd, 1, strlen(collideSetEnd), file);
+            fwrite("}", 1, 1, file);
             fclose(file);
             return true;
         }
@@ -366,39 +318,23 @@ namespace UltraEd
     bool CBuild::WriteScriptsFile(vector<CActor*> actors)
     {
         string scriptStartStart("void _UER_Start() {");
-        const char *scriptStartEnd = "}";
-
         string scriptUpdateStart("\n\nvoid _UER_Update() {");
-        const char *scriptUpdateEnd = "}";
-
         string inputStart("\n\nvoid _UER_Input(NUContData gamepads[4]) {");
-        const char *inputEnd = "}";
 
         string scripts;
         char countBuffer[10];
-        int loopCount = 0, modelCount = 0, cameraCount = 0;
+        int actorCount = -1;
 
         for (auto actor : actors)
         {
             string actorRef;
-            int index = 0;
+            actorRef.append("_UER_Actors[");
 
-            if (actor->GetType() == ActorType::Model)
-            {
-                actorRef.append("_UER_Models[");
-                index = modelCount++;
-            }
-            else
-            {
-                actorRef.append("_UER_Cameras[");
-                index = cameraCount++;
-            }
-
-            string newResName = CUtil::NewResourceName(loopCount++);
+            string newResName = CUtil::NewResourceName(++actorCount);
             string script = actor->GetScript();
             char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
 
-            _itoa(index, countBuffer, 10);
+            _itoa(actorCount, countBuffer, 10);
             actorRef.append(countBuffer).append("]->");
             result = CUtil::ReplaceString(result, "self->", actorRef.c_str());
             scripts.append(result).append("\n\n");
@@ -430,11 +366,11 @@ namespace UltraEd
             if (file == NULL) return false;
             fwrite(scripts.c_str(), 1, scripts.size(), file);
             fwrite(scriptStartStart.c_str(), 1, scriptStartStart.size(), file);
-            fwrite(scriptStartEnd, 1, strlen(scriptStartEnd), file);
+            fwrite("}", 1, 1, file);
             fwrite(scriptUpdateStart.c_str(), 1, scriptUpdateStart.size(), file);
-            fwrite(scriptUpdateEnd, 1, strlen(scriptUpdateEnd), file);
+            fwrite("}", 1, 1, file);
             fwrite(inputStart.c_str(), 1, inputStart.size(), file);
-            fwrite(inputEnd, 1, strlen(inputEnd), file);
+            fwrite("}", 1, 1, file);
             fclose(file);
             return true;
         }
@@ -444,15 +380,13 @@ namespace UltraEd
     bool CBuild::WriteMappingsFile(vector<CActor*> actors)
     {
         string mappingsStart("void _UER_Mappings() {");
-        const char *mappingsEnd = "\n}";
-
         int loopCount = 0;
         char countBuffer[10];
 
         for (auto actor : actors)
         {
             _itoa(loopCount++, countBuffer, 10);
-            mappingsStart.append("\n\tinsert(\"").append(actor->GetName()).append("\", ").append(countBuffer).append(");");
+            mappingsStart.append("\n\tinsert(\"").append(actor->GetName()).append("\", ").append(countBuffer).append(");\n");
         }
 
         char buffer[MAX_PATH];
@@ -463,7 +397,7 @@ namespace UltraEd
             FILE *file = fopen(mappingsPath.c_str(), "w");
             if (file == NULL) return false;
             fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file);
-            fwrite(mappingsEnd, 1, strlen(mappingsEnd), file);
+            fwrite("}", 1, 1, file);
             fclose(file);
             return true;
         }
@@ -474,8 +408,7 @@ namespace UltraEd
     {
         WriteSpecFile(actors);
         WriteSegmentsFile(actors);
-        WriteModelsFile(actors);
-        WriteCamerasFile(actors);
+        WriteActorsFile(actors);
         WriteCollisionFile(actors);
         WriteScriptsFile(actors);
         WriteMappingsFile(actors);

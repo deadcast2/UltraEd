@@ -7,6 +7,8 @@
 #define SCREEN_WD 320
 #define SCREEN_HT 240
 
+enum actorType { Model, Camera };
+
 struct transform 
 {
     Mtx projection;
@@ -17,6 +19,7 @@ struct transform
 
 struct actor 
 {
+    enum actorType type;
     struct mesh *mesh;
     unsigned short *texture;
     double rotationAngle;

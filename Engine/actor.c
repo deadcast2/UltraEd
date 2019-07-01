@@ -60,6 +60,7 @@ struct actor *load_model_with_texture(void *data_start, void *data_end, void *te
     new_model->rotationAxis = (struct vector3*)malloc(sizeof(struct vector3));
     new_model->scale = (struct vector3*)malloc(sizeof(struct vector3));
     new_model->visible = 1;
+    new_model->type = Model;
 
     // Read how many vertices for this mesh.
     line = (char*)strtok(data_buffer, "\n");
@@ -197,6 +198,7 @@ struct actor *create_camera(double positionX, double positionY, double positionZ
     camera->position = (struct vector3*)malloc(sizeof(struct vector3));
     camera->rotationAxis = (struct vector3*)malloc(sizeof(struct vector3));
     camera->visible = 1;
+    camera->type = Camera;
 
     if (rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
     camera->position->x = positionX;
