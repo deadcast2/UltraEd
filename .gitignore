@@ -5,8 +5,7 @@ Library/
 Player/Config
 Player/Logs
 Engine/segments.h
-Engine/models.h
-Engine/cameras.h
+Engine/actors.h
 Engine/collision.h
 Engine/scripts.h
 Engine/mappings.h
