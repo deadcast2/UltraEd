@@ -297,12 +297,24 @@ namespace UltraEd
 
             for (auto subActor = next(actors.begin(), collisionCount); subActor != actors.end(); ++subActor)
             {
+                subLoop++;
+
                 if (!(*subActor)->GetCollider()) continue;
 
                 _itoa(collisionCount - 1, countBuffer, 10);
-                collisions.append("\n\tcheck_collision(_UER_Actors[").append(countBuffer);
-                _itoa(++subLoop, countBuffer, 10);
-                collisions.append("], _UER_Actors[").append(countBuffer).append("]);\n");
+                collisions.append("\n\tif(check_collision(_UER_Actors[").append(countBuffer);
+                _itoa(subLoop, countBuffer, 10);
+                collisions.append("], _UER_Actors[").append(countBuffer).append("]))\n\t{\n");
+
+                collisions.append("\t\t").append(CUtil::NewResourceName(subLoop)).append("collide(");
+                _itoa(collisionCount - 1, countBuffer, 10);
+                collisions.append("_UER_Actors[").append(countBuffer).append("]);\n");
+
+                collisions.append("\t\t").append(CUtil::NewResourceName(collisionCount - 1)).append("collide(");
+                _itoa(subLoop, countBuffer, 10);
+                collisions.append("_UER_Actors[").append(countBuffer).append("]);\n");
+
+                collisions.append("\t}\n");
             }
         }
 
@@ -310,7 +322,7 @@ namespace UltraEd
         if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
         {
             string collisionPath(buffer);
-            collisionPath.append("\\..\\..\\Engine\\collision.h");
+            collisionPath.append("\\..\\..\\Engine\\collisions.h");
             FILE *file = fopen(collisionPath.c_str(), "w");
             if (file == NULL) return false;
             fwrite(collideSetStart.c_str(), 1, collideSetStart.size(), file);

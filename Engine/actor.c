@@ -211,3 +211,8 @@ struct actor *create_camera(double positionX, double positionY, double positionZ
 
     return camera;
 }
+
+int check_collision(struct actor *a, struct actor *b)
+{
+    return 0;
+}

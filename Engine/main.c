@@ -7,6 +7,7 @@
 #include "mappings.h"
 #include "utilities.h"
 #include "scripts.h"
+#include "collisions.h"
 
 #define GFX_GLIST_LEN 2048
 
@@ -110,7 +111,7 @@ void updateCamera()
 {
     struct actor *camera = _UER_Actors[currentCamera];
     guTranslate(&world.translation, -camera->position->x, -camera->position->y, camera->position->z);
-    guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis->x, camera->rotationAxis->y, 
+    guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis->x, camera->rotationAxis->y,
         -camera->rotationAxis->z);
 }
 
@@ -119,6 +120,7 @@ void gfxCallback(int pendingGfx)
     checkInputs();
     updateCamera();
     _UER_Update();
+    _UER_Collide();
     if (pendingGfx < 1) createDisplayList();
 }
 

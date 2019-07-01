@@ -13,6 +13,7 @@ namespace UltraEd
         m_position = D3DXVECTOR3(0, 0, 0);
         m_scale = D3DXVECTOR3(1, 1, 1);
         m_script = string("void @start()\n{\n\n}\n\nvoid @update()\n{\n\n}\n\nvoid @input(NUContData gamepads[4])\n{\n\n}");
+        m_script.append("\n\nvoid @collide(struct actor *other)\n{\n\n}");
         
         D3DXMatrixIdentity(&m_localRot);
         D3DXMatrixIdentity(&m_worldRot);
