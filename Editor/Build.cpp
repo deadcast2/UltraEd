@@ -40,10 +40,11 @@ namespace UltraEd
 
         int loopCount = 0;
         for (auto actor : actors)
-        {
+        {          
+            string newResName = CUtil::NewResourceName(loopCount++);
+
             if (actor->GetType() != ActorType::Model) continue;
 
-            string newResName = CUtil::NewResourceName(loopCount++);
             string id = CUtil::GuidToString(actor->GetId());
             id.insert(0, CUtil::RootPath().append("\\"));
             id.append(".rom.sos");
@@ -125,10 +126,11 @@ namespace UltraEd
         string romSegments;
         int loopCount = 0;
         for (auto actor : actors)
-        {
+        {           
+            string newResName = CUtil::NewResourceName(loopCount++);
+
             if (actor->GetType() != ActorType::Model) continue;
 
-            string newResName = CUtil::NewResourceName(loopCount++);
             string modelName(newResName);
             modelName.append("_M");
 
