@@ -292,8 +292,13 @@ namespace UltraEd
         for (auto actor : actors)
         {
             int subLoop = collisionCount++;
+
+            if (!actor->GetCollider()) continue;
+
             for (auto subActor = next(actors.begin(), collisionCount); subActor != actors.end(); ++subActor)
             {
+                if (!(*subActor)->GetCollider()) continue;
+
                 _itoa(collisionCount - 1, countBuffer, 10);
                 collisions.append("\n\tcheck_collision(_UER_Actors[").append(countBuffer);
                 _itoa(++subLoop, countBuffer, 10);
