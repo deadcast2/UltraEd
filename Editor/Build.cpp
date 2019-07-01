@@ -194,6 +194,8 @@ namespace UltraEd
             _itoa(actorCount, countBuffer, 10);
             actorInits.append("\n\t_UER_Actors[").append(countBuffer).append("] = ");
 
+            float colliderRadius = actor->GetCollider() ? actor->GetCollider()->GetRadius() : 0.0;
+
             if (actor->GetType() == ActorType::Model)
             {
                 auto resources = actor->GetResources();
@@ -219,10 +221,10 @@ namespace UltraEd
                 D3DXVECTOR3 position = actor->GetPosition(), scale = actor->GetScale(), axis;
                 float angle;
                 actor->GetAxisAngle(&axis, &angle);
-                sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+                sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
                     position.x, position.y, position.z,
                     axis.x, axis.y, axis.z, angle * (180 / D3DX_PI),
-                    scale.x, scale.y, scale.z);
+                    scale.x, scale.y, scale.z, colliderRadius);
                 actorInits.append(vectorBuffer).append(");\n");
 
                 // Write out mesh data.
@@ -250,8 +252,8 @@ namespace UltraEd
                 D3DXVECTOR3 axis;
                 float angle;
                 actor->GetAxisAngle(&axis, &angle);
-                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf", position.x, position.y, position.z,
-                    axis.x, axis.y, axis.z, angle * (180 / D3DX_PI));
+                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf", position.x, position.y, position.z,
+                    axis.x, axis.y, axis.z, angle * (180 / D3DX_PI), colliderRadius);
                 actorInits.append(vectorBuffer).append(");\n");
             }
         }
