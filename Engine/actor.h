@@ -28,6 +28,7 @@ struct actor
     struct vector3 *position;
     struct vector3 *rotationAxis;
     struct vector3 *scale;
+    struct vector3 *center;
     struct transform transform;
 };
 
@@ -43,15 +44,18 @@ struct mesh
 };
 
 struct actor *load_model(void *data_start, void *data_end, double positionX, double positionY, double positionZ,
-    double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, double radius);
+    double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
+    double centerX, double centerY, double centerZ, double radius);
 
 struct actor *load_model_with_texture(void *data_start, void *data_end,
     void *texture_start, void *texture_end,
     double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
-    double scaleX, double scaleY, double scaleZ, double radius);
+    double scaleX, double scaleY, double scaleZ, 
+    double centerX, double centerY, double centerZ, double radius);
 
 struct actor *create_camera(double positionX, double positionY, double positionZ,
-    double rotX, double rotY, double rotZ, double angle, double radius);
+    double rotX, double rotY, double rotZ, double angle, 
+    double centerX, double centerY, double centerZ, double radius);
 
 #endif

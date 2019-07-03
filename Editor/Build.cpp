@@ -194,7 +194,8 @@ namespace UltraEd
             _itoa(actorCount, countBuffer, 10);
             actorInits.append("\n\t_UER_Actors[").append(countBuffer).append("] = ");
 
-            float colliderRadius = actor->GetCollider() ? actor->GetCollider()->GetRadius() : 0.0;
+            D3DXVECTOR3 colliderCenter = actor->GetCollider() ? actor->GetCollider()->GetCenter() : D3DXVECTOR3(0, 0, 0);
+            FLOAT colliderRadius = actor->GetCollider() ? actor->GetCollider()->GetRadius() : 0.0f;
 
             if (actor->GetType() == ActorType::Model)
             {
@@ -217,14 +218,15 @@ namespace UltraEd
                 }
 
                 // Add transform data.
-                char vectorBuffer[128];
+                char vectorBuffer[256];
                 D3DXVECTOR3 position = actor->GetPosition(), scale = actor->GetScale(), axis;
                 float angle;
                 actor->GetAxisAngle(&axis, &angle);
-                sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+                sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
                     position.x, position.y, position.z,
                     axis.x, axis.y, axis.z, angle * (180 / D3DX_PI),
-                    scale.x, scale.y, scale.z, colliderRadius);
+                    scale.x, scale.y, scale.z, 
+                    colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius);
                 actorInits.append(vectorBuffer).append(");\n");
 
                 // Write out mesh data.
@@ -247,13 +249,15 @@ namespace UltraEd
             else if (actor->GetType() == ActorType::Camera)
             {
                 actorInits.append("(struct actor*)create_camera(");
-                char vectorBuffer[128];
+                char vectorBuffer[256];
                 D3DXVECTOR3 position = actor->GetPosition();
                 D3DXVECTOR3 axis;
                 float angle;
                 actor->GetAxisAngle(&axis, &angle);
-                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf", position.x, position.y, position.z,
-                    axis.x, axis.y, axis.z, angle * (180 / D3DX_PI), colliderRadius);
+                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf", 
+                    position.x, position.y, position.z,
+                    axis.x, axis.y, axis.z, angle * (180 / D3DX_PI), 
+                    colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius);
                 actorInits.append(vectorBuffer).append(");\n");
             }
         }

@@ -30,15 +30,18 @@ unsigned short *image_24_to_16(const unsigned char *data, const int size_x, cons
 }
 
 struct actor *load_model(void *data_start, void *data_end, double positionX, double positionY, double positionZ,
-    double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, double radius)
+    double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
+    double centerX, double centerY, double centerZ, double radius)
 {
     return load_model_with_texture(data_start, data_end,
-        NULL, NULL, positionX, positionY, positionZ, rotX, rotY, rotZ, angle, scaleX, scaleY, scaleZ, radius);
+        NULL, NULL, positionX, positionY, positionZ, rotX, rotY, rotZ, angle, scaleX, scaleY, scaleZ, 
+        centerX, centerY, centerZ, radius);
 }
 
 struct actor *load_model_with_texture(void *data_start, void *data_end, void *texture_start, void *texture_end,
     double positionX, double positionY, double positionZ, double rotX, double rotY, double rotZ, double angle,
-    double scaleX, double scaleY, double scaleZ, double radius)
+    double scaleX, double scaleY, double scaleZ, 
+    double centerX, double centerY, double centerZ, double radius)
 {
     unsigned char data_buffer[200000];
     unsigned char texture_buffer[20000];
@@ -61,6 +64,11 @@ struct actor *load_model_with_texture(void *data_start, void *data_end, void *te
     new_model->scale = (struct vector3*)malloc(sizeof(struct vector3));
     new_model->visible = 1;
     new_model->type = Model;
+
+    new_model->center = (struct vector3*)malloc(sizeof(struct vector3));
+    new_model->center->x = centerX;
+    new_model->center->y = centerY;
+    new_model->center->z = centerZ;
     new_model->radius = radius;
 
     // Read how many vertices for this mesh.
@@ -192,7 +200,8 @@ void model_draw(struct actor *model, Gfx **display_list)
 }
 
 struct actor *create_camera(double positionX, double positionY, double positionZ,
-    double rotX, double rotY, double rotZ, double angle, double radius)
+    double rotX, double rotY, double rotZ, double angle, 
+    double centerX, double centerY, double centerZ, double radius)
 {
     struct actor *camera;
     camera = (struct actor*)malloc(sizeof(struct actor));
@@ -200,6 +209,11 @@ struct actor *create_camera(double positionX, double positionY, double positionZ
     camera->rotationAxis = (struct vector3*)malloc(sizeof(struct vector3));
     camera->visible = 1;
     camera->type = Camera;
+
+    camera->center = (struct vector3*)malloc(sizeof(struct vector3));
+    camera->center->x = centerX;
+    camera->center->y = centerY;
+    camera->center->z = centerZ;
     camera->radius = radius;
 
     if (rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
@@ -223,13 +237,21 @@ int check_collision(struct actor *a, struct actor *b)
 {
     float dist = 0;
     float radiusSum = 0;
-    struct vector3 *vectorA = a->position;
-    struct vector3 *vectorB = b->position;
+    struct vector3 vectorA = *a->position;
+    struct vector3 vectorB = *b->position;
     struct vector3 vectorC;
 
-    vectorC.x = vectorA->x - vectorB->x;
-    vectorC.y = vectorA->y - vectorB->y;
-    vectorC.z = vectorA->z - vectorB->z;
+    vectorA.x += a->center->x;
+    vectorA.y += a->center->y;
+    vectorA.z += a->center->z;
+
+    vectorB.x += b->center->x;
+    vectorB.y += b->center->y;
+    vectorB.z += b->center->z;
+
+    vectorC.x = vectorA.x - vectorB.x;
+    vectorC.y = vectorA.y - vectorB.y;
+    vectorC.z = vectorA.z - vectorB.z;
 
     dist = dot(vectorC, vectorC);
     radiusSum = a->radius + b->radius;
