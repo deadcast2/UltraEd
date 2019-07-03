@@ -178,7 +178,7 @@ namespace UltraEd
         D3DXVECTOR3 look = selectedActor->GetPosition() - view->GetPosition();
         D3DXVec3Normalize(&look, &look);
 
-        // Determine orientation fo plane to produce depending on selected axis.
+        // Determine orientation for plane to produce depending on selected axis.
         if (m_state == XAxis)
         {
             D3DXVECTOR3 right = m_worldSpaceToggled ? D3DXVECTOR3(1, 0, 0) : selectedActor->GetRight();
