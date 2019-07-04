@@ -10,6 +10,7 @@
 #include "build.h"
 #include "util.h"
 #include "debug.h"
+#include "SphereCollider.h"
 
 namespace UltraEd
 {
@@ -195,7 +196,7 @@ namespace UltraEd
             actorInits.append("\n\t_UER_Actors[").append(countBuffer).append("] = ");
 
             D3DXVECTOR3 colliderCenter = actor->GetCollider() ? actor->GetCollider()->GetCenter() : D3DXVECTOR3(0, 0, 0);
-            FLOAT colliderRadius = actor->GetCollider() ? actor->GetCollider()->GetRadius() : 0.0f;
+            FLOAT colliderRadius = actor->GetCollider() ? dynamic_cast<CSphereCollider*>(actor->GetCollider())->GetRadius() : 0.0f;
 
             if (actor->GetType() == ActorType::Model)
             {

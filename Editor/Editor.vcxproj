@@ -142,6 +142,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="View.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Dialog.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="handlers\Toolbar.h" />
     <ClInclude Include="handlers\ScriptEditor.h" />
+    <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="View.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Debug.h" />

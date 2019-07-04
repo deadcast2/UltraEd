@@ -5,6 +5,7 @@
 #include "Dialog.h"
 #include "Util.h"
 #include "resource.h"
+#include "SphereCollider.h"
 
 namespace UltraEd
 {
@@ -173,7 +174,7 @@ namespace UltraEd
         {
             if (m_actors[selectedActorId]->GetCollider() == NULL)
             {
-                m_actors[selectedActorId]->SetCollider(new CCollider(m_actors[selectedActorId]->GetVertices()));
+                m_actors[selectedActorId]->SetCollider(new CSphereCollider(m_actors[selectedActorId]->GetVertices()));
             }
         }
     }
