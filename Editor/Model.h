@@ -25,6 +25,5 @@ namespace UltraEd
 
     private:
         LPDIRECT3DTEXTURE8 m_texture;
-        float m_collisionRadius;
     };
 }

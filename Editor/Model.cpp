@@ -22,7 +22,6 @@ namespace UltraEd
         Import(filePath);
         m_texture = 0;
         m_type = ActorType::Model;
-        m_collisionRadius = 1;
     }
 
     void CModel::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
