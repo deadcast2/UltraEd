@@ -1,20 +1,24 @@
 #include "SphereCollider.h"
+#include "FileIO.h"
 
 namespace UltraEd
 {
-    CSphereCollider::CSphereCollider(vector<Vertex> &vertices)
+    CSphereCollider::CSphereCollider()
     {
         m_radius = 1;
         m_type = ColliderType::Sphere;
-        Compute(vertices);
     }
 
-    void CSphereCollider::Compute(vector<Vertex> &vertices)
+    CSphereCollider::CSphereCollider(vector<Vertex> &vertices) : CSphereCollider()
     {
         // Compute optimal center and radius (sphere)
         FindCenterWithRadius(m_center, m_radius, vertices);
+        Build();
+    }
 
-        const int segments = 16;
+    void CSphereCollider::Build()
+    {
+        const int segments = 32;
         const float sample = (2 * D3DX_PI) / segments;
 
         // Horizontal
@@ -108,5 +112,23 @@ namespace UltraEd
         {
             AdjustSphere(center, radius, vertices[i]);
         }
+    }
+
+    Savable CSphereCollider::Save()
+    {
+        Savable savable = CCollider::Save();
+        char buffer[LINE_FORMAT_LENGTH];
+        sprintf(buffer, "%f", m_radius);
+        cJSON_AddStringToObject(savable.object, "radius", buffer);
+        return savable;
+    }
+
+    bool CSphereCollider::Load(IDirect3DDevice8 *device, cJSON *root)
+    {
+        CCollider::Load(device, root);
+        cJSON *radius = cJSON_GetObjectItem(root, "radius");
+        sscanf(radius->valuestring, "%f", &m_radius);
+        Build();
+        return true;
     }
 }

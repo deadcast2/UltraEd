@@ -1,4 +1,5 @@
 #include "Collider.h"
+#include "FileIO.h"
 
 namespace UltraEd
 {
@@ -61,5 +62,39 @@ namespace UltraEd
             m_vertexBuffer->Release();
             m_vertexBuffer = 0;
         }
+    }
+
+    ColliderType::Value CCollider::GetType(cJSON *item)
+    {
+        int typeValue;
+        cJSON *type = cJSON_GetObjectItem(item, "type");
+        sscanf(type->valuestring, "%i", &typeValue);
+        return (ColliderType::Value)typeValue;
+    }
+
+    Savable CCollider::Save()
+    {
+        char buffer[LINE_FORMAT_LENGTH];
+        cJSON *root = cJSON_CreateObject();
+
+        sprintf(buffer, "%i", (int)m_type);
+        cJSON_AddStringToObject(root, "type", buffer);
+
+        sprintf(buffer, "%f %f %f", m_center.x, m_center.y, m_center.z);
+        cJSON_AddStringToObject(root, "center", buffer);
+
+        return { root, SavableType::Actor };
+    }
+
+    bool CCollider::Load(IDirect3DDevice8 *device, cJSON *root)
+    {
+        m_type = GetType(root);
+
+        float x, y, z;
+        cJSON *center = cJSON_GetObjectItem(root, "center");
+        sscanf(center->valuestring, "%f %f %f", &x, &y, &z);
+        m_center = D3DXVECTOR3(x, y, z);
+
+        return true;
     }
 }

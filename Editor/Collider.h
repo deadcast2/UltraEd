@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "Savable.h"
 #include "Vertex.h"
 
 using namespace std;
@@ -12,14 +13,17 @@ namespace UltraEd
         enum Value { Sphere };
     };
 
-    class CCollider
+    class CCollider : public CSavable
     {
     public:
         CCollider();
         void Release();
         void Render(IDirect3DDevice8 *device);
-        virtual void Compute(vector<Vertex> &vertices) = 0;
+        virtual void Build() = 0;
         D3DXVECTOR3 GetCenter() { return m_center; }
+        Savable Save();
+        bool Load(IDirect3DDevice8 *device, cJSON *root);
+        static ColliderType::Value GetType(cJSON *item);
         
     protected:
         ColliderType::Value m_type;

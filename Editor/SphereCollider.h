@@ -9,9 +9,12 @@ namespace UltraEd
     class CSphereCollider : public CCollider
     {
     public:
+        CSphereCollider();
         CSphereCollider(vector<Vertex> &vertices);
-        void Compute(vector<Vertex> &vertices);
+        void Build();
         FLOAT GetRadius() { return m_radius; }
+        Savable Save();
+        bool Load(IDirect3DDevice8 *device, cJSON *root);
 
     private:
         void DistantAABBPoints(int &min, int &max, vector<Vertex> vertices);

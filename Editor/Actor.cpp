@@ -2,6 +2,7 @@
 #include "FileIO.h"
 #include "Util.h"
 #include "Mesh.h"
+#include "SphereCollider.h"
 
 namespace UltraEd
 {
@@ -230,6 +231,11 @@ namespace UltraEd
 
         cJSON_AddStringToObject(actor, "script", m_script.c_str());
 
+        if (m_collider)
+        {
+            cJSON_AddItemToObject(actor, "collider", m_collider->Save().object);
+        }
+
         Savable savable = { root, SavableType::Actor };
         return savable;
     }
@@ -260,6 +266,18 @@ namespace UltraEd
 
         cJSON *script = cJSON_GetObjectItem(root, "script");
         m_script = script->valuestring;
+
+        cJSON *collider = cJSON_GetObjectItem(root, "collider");
+        if (collider)
+        {
+            switch (CCollider::GetType(collider))
+            {
+                case ColliderType::Sphere:
+                    SetCollider(new CSphereCollider());
+                    m_collider->Load(device, collider);
+                    break;
+            }
+        }
 
         cJSON_ArrayForEach(resource, resources)
         {
