@@ -44,8 +44,8 @@ namespace UltraEd
         bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist);
         string GetScript() { return m_script; }
         void SetScript(string script) { m_script = script; }
-        CCollider *GetCollider() { return m_collider; }
-        void SetCollider(CCollider *collider) { m_collider = collider; }
+        CCollider *GetCollider() { return m_collider.get(); }
+        void SetCollider(CCollider *collider) { m_collider = shared_ptr<CCollider>(collider); }
         Savable Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
 
@@ -67,6 +67,6 @@ namespace UltraEd
         string m_script;
         bool IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir,
             D3DXVECTOR3 &v0, D3DXVECTOR3 &v1, D3DXVECTOR3 &v2, float *dist);
-        CCollider *m_collider;
+        shared_ptr<CCollider> m_collider;
     };
 }
