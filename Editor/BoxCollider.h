@@ -12,14 +12,15 @@ namespace UltraEd
         CBoxCollider();
         CBoxCollider(vector<Vertex> &vertices);
         void Build();
-        D3DXVECTOR3 *GetExtents() { return m_extents; }
+        FLOAT *GetExtents() { return m_extents; }
         Savable Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
 
     private:
         void BuildLine(D3DXVECTOR3 &start, D3DXVECTOR3 &end);
+        void DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, vector<Vertex> vertices);
 
     private:
-        D3DXVECTOR3 m_extents[3];
+        FLOAT m_extents[3];
     };
 }

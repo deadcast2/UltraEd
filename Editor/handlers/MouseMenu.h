@@ -26,6 +26,9 @@ namespace UltraEd
             case IDM_MENU_ADD_SPHERE_COLLIDER:
                 scene->OnAddCollider(ColliderType::Sphere);
                 break;
+            case IDM_MENU_DELETE_COLLIDER:
+                scene->OnDeleteCollider();
+                break;
         }
     }
 }

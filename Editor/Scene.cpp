@@ -184,6 +184,21 @@ namespace UltraEd
         }
     }
 
+    void CScene::OnDeleteCollider()
+    {
+        if (m_selectedActorIds.empty())
+        {
+            MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
+            return;
+        }
+
+        for (auto selectedActorId : m_selectedActorIds)
+        {
+            m_actors[selectedActorId]->SetCollider(NULL);          
+        }
+    }
+
+
     void CScene::OnBuildROM(BuildFlag::Value flag)
     {
         vector<CActor*> actors;

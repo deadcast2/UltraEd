@@ -52,11 +52,11 @@ namespace UltraEd
         for (size_t i = 0; i < vertices.size(); i++)
         {
             if (vertices[i].position.x < vertices[minX].position.x) minX = i;
-            if (vertices[i].position.x > vertices[maxX].position.x) minX = i;
+            if (vertices[i].position.x > vertices[maxX].position.x) maxX = i;
             if (vertices[i].position.y < vertices[minY].position.y) minY = i;
-            if (vertices[i].position.y > vertices[maxY].position.y) minY = i;
+            if (vertices[i].position.y > vertices[maxY].position.y) maxY = i;
             if (vertices[i].position.z < vertices[minZ].position.z) minZ = i;
-            if (vertices[i].position.z > vertices[maxZ].position.z) minZ = i;
+            if (vertices[i].position.z > vertices[maxZ].position.z) maxZ = i;
         }
 
         FLOAT distX = D3DXVec3Dot(&(vertices[maxX].position - vertices[minX].position),

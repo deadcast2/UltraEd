@@ -5,38 +5,77 @@ namespace UltraEd
 {
     CBoxCollider::CBoxCollider()
     {
-        m_extents[0] = D3DXVECTOR3(1, 0, 0);
-        m_extents[1] = D3DXVECTOR3(0, 1, 0);
-        m_extents[2] = D3DXVECTOR3(0, 0, 1);
+        m_extents[0] = m_extents[1] = m_extents[2] = 1.0f;
         m_type = ColliderType::Box;
     }
 
     CBoxCollider::CBoxCollider(vector<Vertex> &vertices) : CBoxCollider()
     {
+        D3DXVECTOR3 min, max;
+        DistantAABBPoints(min, max, vertices);
+
+        FLOAT midX = (min.x + max.x) / 2;
+        FLOAT midY = (min.y + max.y) / 2;
+        FLOAT midZ = (min.z + max.z) / 2;
+
+        m_center = D3DXVECTOR3(midX / 2, midY / 2, midZ / 2);
+        m_extents[0] = min.x - midX;
+        m_extents[1] = min.y - midY;
+        m_extents[2] = min.z - midZ;
+
         Build();
+    }
+
+    void CBoxCollider::DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, vector<Vertex> vertices)
+    {
+        int minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
+        for (size_t i = 0; i < vertices.size(); i++)
+        {
+            if (vertices[i].position.x < vertices[minX].position.x) minX = i;
+            if (vertices[i].position.x > vertices[maxX].position.x) maxX = i;
+            if (vertices[i].position.y < vertices[minY].position.y) minY = i;
+            if (vertices[i].position.y > vertices[maxY].position.y) maxY = i;
+            if (vertices[i].position.z < vertices[minZ].position.z) minZ = i;
+            if (vertices[i].position.z > vertices[maxZ].position.z) maxZ = i;
+        }
+
+        min = D3DXVECTOR3(vertices[minX].position.x, vertices[minY].position.y, vertices[minZ].position.z);
+        max = D3DXVECTOR3(vertices[maxX].position.x, vertices[maxY].position.y, vertices[maxZ].position.z);
     }
 
     void CBoxCollider::Build()
     {
         // Top square
-        BuildLine(-m_extents[0] + m_extents[1] + m_extents[2], m_extents[0] + m_extents[1] + m_extents[2]);
-        BuildLine(-m_extents[0] + m_extents[1] - m_extents[2], m_extents[0] + m_extents[1] - m_extents[2]);
-        BuildLine(-m_extents[0] + m_extents[1] - m_extents[2], -m_extents[0] + m_extents[1] + m_extents[2]);
-        BuildLine(m_extents[0] + m_extents[1] - m_extents[2], m_extents[0] + m_extents[1] + m_extents[2]);
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]),
+            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]),
+            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]),
+            D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]),
+            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]));
 
         // Bottom square
-        BuildLine(-m_extents[0] - m_extents[1] + m_extents[2], m_extents[0] - m_extents[1] + m_extents[2]);
-        BuildLine(-m_extents[0] - m_extents[1] - m_extents[2], m_extents[0] - m_extents[1] - m_extents[2]);
-        BuildLine(-m_extents[0] - m_extents[1] - m_extents[2], -m_extents[0] - m_extents[1] + m_extents[2]);
-        BuildLine(m_extents[0] - m_extents[1] - m_extents[2], m_extents[0] - m_extents[1] + m_extents[2]);
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]),
+            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]),
+            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]),
+            D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]),
+            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
 
         // Left square
-        BuildLine(-m_extents[0] - m_extents[1] + m_extents[2], -m_extents[0] + m_extents[1] + m_extents[2]);
-        BuildLine(-m_extents[0] - m_extents[1] - m_extents[2], -m_extents[0] + m_extents[1] - m_extents[2]);
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]),
+            D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]),
+            D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
 
         // Right square
-        BuildLine(m_extents[0] - m_extents[1] + m_extents[2], m_extents[0] + m_extents[1] + m_extents[2]);
-        BuildLine(m_extents[0] - m_extents[1] - m_extents[2], m_extents[0] + m_extents[1] - m_extents[2]);
+        BuildLine(D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]),
+            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]),
+            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
     }
 
     void CBoxCollider::BuildLine(D3DXVECTOR3 &start, D3DXVECTOR3 &end)
@@ -54,27 +93,16 @@ namespace UltraEd
     {
         Savable savable = CCollider::Save();
         char buffer[LINE_FORMAT_LENGTH];
-        cJSON *array = cJSON_CreateArray();
-
-        for (int i = 0; i < 3; i++)
-        {
-            sprintf(buffer, "%f %f %f", m_extents[i].x, m_extents[i].y, m_extents[i].z);
-            cJSON_AddItemToArray(array, cJSON_CreateString(buffer));
-        }
-
-        cJSON_AddItemToObject(savable.object, "extents", array);
+        sprintf(buffer, "%f %f %f", m_extents[0], m_extents[1], m_extents[2]);
+        cJSON_AddStringToObject(savable.object, "extents", buffer);
         return savable;
     }
 
     bool CBoxCollider::Load(IDirect3DDevice8 *device, cJSON *root)
     {
         CCollider::Load(device, root);
-        cJSON *array = cJSON_GetObjectItem(root, "extents");
-        for (int i = 0; i < 3; i++)
-        {
-            cJSON *extent = cJSON_GetArrayItem(array, i);
-            sscanf(extent->valuestring, "%f %f %f", &m_extents[i].x, &m_extents[i].y, &m_extents[i].z);
-        }
+        cJSON *extents = cJSON_GetObjectItem(root, "extents");
+        sscanf(extents->valuestring, "%f %f %f", &m_extents[0], &m_extents[1], &m_extents[2]);
         Build();
         return true;
     }
