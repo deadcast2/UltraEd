@@ -129,12 +129,18 @@ namespace UltraEd
                         ClientToScreen(hWnd, &point);
                         HMENU menu = CreatePopupMenu();
                         AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
-                        AppendMenu(menu, MF_STRING, IDM_MENU_ADD_COLLIDER, _T("Add Collider"));
+
+                        HMENU colliderMenu = CreatePopupMenu();
+                        AppendMenu(menu, MF_STRING | MF_POPUP, (UINT_PTR)colliderMenu, _T("Add Collider"));
+                        AppendMenu(colliderMenu, MF_STRING, IDM_MENU_ADD_BOX_COLLIDER, _T("Box"));
+                        AppendMenu(colliderMenu, MF_STRING, IDM_MENU_ADD_SPHERE_COLLIDER, _T("Sphere"));
+
                         AppendMenu(menu, MF_STRING, IDM_MENU_MODIFY_SCRIPT_OBJECT, _T("Modify Script"));
                         AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete"));
                         AppendMenu(menu, MF_STRING, IDM_MENU_DUPLICATE_OBJECT, _T("Duplicate"));
                         TrackPopupMenu(menu, TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
                         DestroyMenu(menu);
+                        DestroyMenu(colliderMenu);
                     }
                 }
                 break;

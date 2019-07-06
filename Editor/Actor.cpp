@@ -2,6 +2,7 @@
 #include "FileIO.h"
 #include "Util.h"
 #include "Mesh.h"
+#include "BoxCollider.h"
 #include "SphereCollider.h"
 
 namespace UltraEd
@@ -272,6 +273,10 @@ namespace UltraEd
         {
             switch (CCollider::GetType(collider))
             {
+                case ColliderType::Box:
+                    SetCollider(new CBoxCollider());
+                    m_collider->Load(device, collider);
+                    break;
                 case ColliderType::Sphere:
                     SetCollider(new CSphereCollider());
                     m_collider->Load(device, collider);

@@ -20,8 +20,11 @@ namespace UltraEd
             case IDM_MENU_ADD_TEXTURE:
                 scene->OnApplyTexture();
                 break;
-            case IDM_MENU_ADD_COLLIDER:
-                scene->OnAddCollider();
+            case IDM_MENU_ADD_BOX_COLLIDER:
+                scene->OnAddCollider(ColliderType::Box);
+                break;
+            case IDM_MENU_ADD_SPHERE_COLLIDER:
+                scene->OnAddCollider(ColliderType::Sphere);
                 break;
         }
     }

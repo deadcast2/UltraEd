@@ -5,6 +5,7 @@
 #include "Dialog.h"
 #include "Util.h"
 #include "resource.h"
+#include "BoxCollider.h"
 #include "SphereCollider.h"
 
 namespace UltraEd
@@ -162,7 +163,7 @@ namespace UltraEd
         }
     }
 
-    void CScene::OnAddCollider()
+    void CScene::OnAddCollider(ColliderType::Value type)
     {
         if (m_selectedActorIds.empty())
         {
@@ -172,7 +173,11 @@ namespace UltraEd
 
         for (auto selectedActorId : m_selectedActorIds)
         {
-            if (m_actors[selectedActorId]->GetCollider() == NULL)
+            if (type == ColliderType::Box)
+            {
+                m_actors[selectedActorId]->SetCollider(new CBoxCollider(m_actors[selectedActorId]->GetVertices()));
+            }
+            else 
             {
                 m_actors[selectedActorId]->SetCollider(new CSphereCollider(m_actors[selectedActorId]->GetVertices()));
             }

@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="Build.cpp" />
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -163,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
+    <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Build.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />

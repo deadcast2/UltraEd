@@ -10,7 +10,7 @@ namespace UltraEd
 {
     struct ColliderType
     {
-        enum Value { Sphere };
+        enum Value { Box, Sphere };
     };
 
     class CCollider : public CSavable
@@ -23,6 +23,7 @@ namespace UltraEd
         D3DXVECTOR3 GetCenter() { return m_center; }
         Savable Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
+        ColliderType::Value GetType() { return m_type; };
         static ColliderType::Value GetType(cJSON *item);
         
     protected:

@@ -38,7 +38,7 @@ namespace UltraEd
         void OnAddCamera();
         void OnApplyTexture();
         void OnImportModel();
-        void OnAddCollider();
+        void OnAddCollider(ColliderType::Value type);
         void OnBuildROM(BuildFlag::Value flag);
         bool Pick(POINT mousePoint);
         void ReleaseResources(ModelRelease::Value type);
