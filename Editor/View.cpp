@@ -3,16 +3,13 @@
 namespace UltraEd
 {
     CView::CView()
-    {
+    {       
         Reset();
-    }
-
-    CView::~CView()
-    {
     }
 
     void CView::Reset()
     {
+        m_type = ViewType::Perspective;
         m_right = D3DXVECTOR3(1, 0, 0);
         m_up = D3DXVECTOR3(0, 1, 0);
         m_forward = D3DXVECTOR3(0, 0, 1);

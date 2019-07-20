@@ -157,7 +157,7 @@ namespace UltraEd
             auto model = make_shared<CModel>(file.c_str());
             m_actors[model->GetId()] = model;
             char buffer[1024];
-            sprintf(buffer, "Actor %d", m_actors.size());
+            sprintf(buffer, "Actor %u", m_actors.size());
             m_actors[model->GetId()]->SetName(string(buffer));
             RefreshActorList();
         }
@@ -411,9 +411,9 @@ namespace UltraEd
         const float mouseSpeedModifier = 0.55f;
 
         if (GetActiveWindow() != GetParent(GetWndHandle())) return;
-        if (GetAsyncKeyState('1')) m_gizmo.SetModifier(Translate);
-        if (GetAsyncKeyState('2')) m_gizmo.SetModifier(Rotate);
-        if (GetAsyncKeyState('3')) m_gizmo.SetModifier(Scale);
+        if (GetAsyncKeyState('1')) m_gizmo.SetModifier(GizmoModifierState::Translate);
+        if (GetAsyncKeyState('2')) m_gizmo.SetModifier(GizmoModifierState::Rotate);
+        if (GetAsyncKeyState('3')) m_gizmo.SetModifier(GizmoModifierState::Scale);
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
@@ -496,7 +496,7 @@ namespace UltraEd
         UpdateViewMatrix();
     }
 
-    void CScene::SetGizmoModifier(GizmoModifierState state)
+    void CScene::SetGizmoModifier(GizmoModifierState::Value state)
     {
         m_gizmo.SetModifier(state);
     }
@@ -666,8 +666,9 @@ namespace UltraEd
         char buffer[1024];
         auto newCamera = make_shared<CCamera>();
         m_actors[newCamera->GetId()] = newCamera;
-        sprintf(buffer, "Camera %d", m_actors.size());
+        sprintf(buffer, "Camera %u", m_actors.size());
         m_actors[newCamera->GetId()]->SetName(string(buffer));
+        RefreshActorList();
     }
 
     void CScene::RefreshActorList()

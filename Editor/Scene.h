@@ -46,7 +46,7 @@ namespace UltraEd
         void CheckInput(float);
         void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
         void SetViewType(ViewType::Value type);
-        void SetGizmoModifier(GizmoModifierState state);
+        void SetGizmoModifier(GizmoModifierState::Value state);
         CView *GetActiveView();
         bool ToggleMovementSpace();
         bool ToggleFillMode();

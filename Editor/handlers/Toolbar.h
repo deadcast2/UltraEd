@@ -13,13 +13,13 @@ namespace UltraEd
         switch (LOWORD(wParam))
         {
             case IDM_TOOLBAR_TRANSLATE:
-                scene->SetGizmoModifier(Translate);
+                scene->SetGizmoModifier(GizmoModifierState::Translate);
                 break;
             case IDM_TOOLBAR_ROTATE:
-                scene->SetGizmoModifier(Rotate);
+                scene->SetGizmoModifier(GizmoModifierState::Rotate);
                 break;
             case IDM_TOOLBAR_SCALE:
-                scene->SetGizmoModifier(Scale);
+                scene->SetGizmoModifier(GizmoModifierState::Scale);
                 break;
             case IDM_TOOLBAR_VIEW_PERSPECTIVE:
                 scene->SetViewType(ViewType::Perspective);

@@ -5,16 +5,21 @@
 
 namespace UltraEd
 {
-    enum GizmoState { XAxis, YAxis, ZAxis };
+    struct GizmoAxisState
+    {
+        enum Value { XAxis, YAxis, ZAxis };
+    };
 
-    enum GizmoModifierState { Translate, Scale, Rotate };
+    struct GizmoModifierState
+    {
+        enum Value { Translate, Scale, Rotate };
+    };
 
     class CGizmo
     {
     public:
         CGizmo();
-        ~CGizmo();
-        void SetModifier(GizmoModifierState state);
+        void SetModifier(GizmoModifierState::Value state);
         bool ToggleSpace(CActor *actor);
         bool ToggleSnapping();
         void Update(CActor *currentActor);
@@ -38,8 +43,8 @@ namespace UltraEd
         D3DMATERIAL8 m_greenMaterial;
         D3DMATERIAL8 m_blueMaterial;
         CModel m_models[9];
-        GizmoState m_state;
-        GizmoModifierState m_modifierState;
+        GizmoAxisState::Value m_axisState;
+        GizmoModifierState::Value m_modifierState;
         D3DXVECTOR3 m_updateStartPoint;
         D3DXVECTOR3 m_xAxisRot;
         D3DXVECTOR3 m_yAxisRot;

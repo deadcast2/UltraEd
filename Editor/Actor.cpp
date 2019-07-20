@@ -10,6 +10,7 @@ namespace UltraEd
     CActor::CActor()
     {
         ResetId();
+        m_type = ActorType::Model;
         m_vertexBuffer = 0;
         m_collider = 0;
         m_position = D3DXVECTOR3(0, 0, 0);

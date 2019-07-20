@@ -6,7 +6,8 @@ namespace UltraEd
 {
     CGizmo::CGizmo()
     {
-        m_modifierState = Translate;
+        m_axisState = GizmoAxisState::XAxis;
+        m_modifierState = GizmoModifierState::Translate;
         m_xAxisRot = D3DXVECTOR3(0, -D3DX_PI / 2, 0);
         m_yAxisRot = D3DXVECTOR3(D3DX_PI / 2, 0, 0);
         m_zAxisRot = D3DXVECTOR3(0, D3DX_PI, 0);
@@ -20,25 +21,21 @@ namespace UltraEd
         Reset();
     }
 
-    CGizmo::~CGizmo()
-    {
-    }
-
-    void CGizmo::SetModifier(enum GizmoModifierState state)
+    void CGizmo::SetModifier(GizmoModifierState::Value state)
     {
         m_modifierState = state;
     }
 
     D3DXVECTOR3 CGizmo::GetModifyVector()
     {
-        switch (m_state)
+        switch (m_axisState)
         {
-        case XAxis:
-            return D3DXVECTOR3(1, 0, 0);
-        case YAxis:
-            return D3DXVECTOR3(0, 1, 0);
-        case ZAxis:
-            return D3DXVECTOR3(0, 0, 1);
+            case GizmoAxisState::XAxis:
+                return D3DXVECTOR3(1, 0, 0);
+            case GizmoAxisState::YAxis:
+                return D3DXVECTOR3(0, 1, 0);
+            case GizmoAxisState::ZAxis:
+                return D3DXVECTOR3(0, 0, 1);
         }
 
         return D3DXVECTOR3(0, 0, 0);
@@ -77,17 +74,17 @@ namespace UltraEd
 
         if (m_models[m_modifierState * 3 + 0].Pick(orig, dir, &dist))
         {
-            m_state = XAxis;
+            m_axisState = GizmoAxisState::XAxis;
             return true;
         }
         else if (m_models[m_modifierState * 3 + 1].Pick(orig, dir, &dist))
         {
-            m_state = YAxis;
+            m_axisState = GizmoAxisState::YAxis;
             return true;
         }
         else if (m_models[m_modifierState * 3 + 2].Pick(orig, dir, &dist))
         {
-            m_state = ZAxis;
+            m_axisState = GizmoAxisState::ZAxis;
             return true;
         }
 
@@ -179,7 +176,7 @@ namespace UltraEd
         D3DXVec3Normalize(&look, &look);
 
         // Determine orientation for plane to produce depending on selected axis.
-        if (m_state == XAxis)
+        if (m_axisState == GizmoAxisState::XAxis)
         {
             D3DXVECTOR3 right = m_worldSpaceToggled ? D3DXVECTOR3(1, 0, 0) : selectedActor->GetRight();
             D3DXVECTOR3 up;
@@ -192,7 +189,7 @@ namespace UltraEd
 
             targetDir = right;
         }
-        else if (m_state == YAxis)
+        else if (m_axisState == GizmoAxisState::YAxis)
         {
             D3DXVECTOR3 up = m_worldSpaceToggled ? D3DXVECTOR3(0, 1, 0) : selectedActor->GetUp();
             D3DXVECTOR3 right;
@@ -205,7 +202,7 @@ namespace UltraEd
 
             targetDir = up;
         }
-        else if (m_state == ZAxis)
+        else if (m_axisState == GizmoAxisState::ZAxis)
         {
             D3DXVECTOR3 forward = m_worldSpaceToggled ? D3DXVECTOR3(0, 0, 1) : selectedActor->GetForward();
             D3DXVECTOR3 up;
@@ -247,7 +244,7 @@ namespace UltraEd
             FLOAT modifier = 1.0f - (angle / (D3DX_PI / 2));
             FLOAT sign = modifier < 0 ? -1.0f : 1.0f;
 
-            if (m_modifierState == Translate)
+            if (m_modifierState == GizmoModifierState::Translate)
             {
                 if (shouldSnap && snapToGridToggled)
                 {
@@ -262,7 +259,7 @@ namespace UltraEd
                     currentActor->Move(targetDir * (moveDist * modifier));
                 }
             }
-            else if (m_modifierState == Scale)
+            else if (m_modifierState == GizmoModifierState::Scale)
             {
                 currentActor->Scale(targetDir * (moveDist * modifier));
             }
