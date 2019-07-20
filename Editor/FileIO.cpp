@@ -200,89 +200,72 @@ namespace UltraEd
 
     bool CFileIO::Compress(string path)
     {
-        FILE *file = fopen(path.c_str(), "rb");
+        unique_ptr<FILE, decltype(fclose)*> file(fopen(path.c_str(), "rb"), fclose);
         if (file == NULL) return false;
 
         // Get the total size of the file.
-        fseek(file, 0, SEEK_END);
-        long size = ftell(file);
-        rewind(file);
+        fseek(file.get(), 0, SEEK_END);
+        long size = ftell(file.get());
+        rewind(file.get());
 
         // Read in entire file.
-        char *data = (char*)malloc(size);
+        unique_ptr<char, decltype(free)*> data((char*)malloc(size), free);
         if (data == NULL) return false;
-        int bytesRead = fread(data, 1, size, file);
+        int bytesRead = fread(data.get(), 1, size, file.get());
         if (bytesRead != size) return false;
-        fclose(file);
 
         // Compressed buffer must be at least 5% larger.
-        char *compressed = (char*)malloc((size_t)(size + (size * 0.05f)));
+        unique_ptr<char, decltype(free)*> compressed((char*)malloc((size_t)(size + (size * 0.05f))), free);
         if (compressed == NULL) return false;
-        int bytesCompressed = fastlz_compress(data, size, compressed);
+        int bytesCompressed = fastlz_compress(data.get(), size, compressed.get());
         if (bytesCompressed == 0) return false;
 
         // Annotate compressed data with uncompressed size.
         int annotatedSize = bytesCompressed + sizeof(int);
-        char *buffer = (char*)malloc(annotatedSize);
-        memcpy(buffer, &size, sizeof(int));
-        memcpy(buffer + sizeof(int), compressed, bytesCompressed);
+        unique_ptr<char, decltype(free)*> buffer((char*)malloc(annotatedSize), free);
+        memcpy(buffer.get(), &size, sizeof(int));
+        memcpy(buffer.get() + sizeof(int), compressed.get(), bytesCompressed);
 
         // Write compressed file back out.
-        file = fopen(path.c_str(), "wb");
-        if (file == NULL) 
-        {
-            free(buffer);
-            return false; 
-        }
+        file = unique_ptr<FILE, decltype(fclose)*>(fopen(path.c_str(), "wb"), fclose);
+        if (file == NULL) return false;
 
-        size_t bytesWritten = fwrite(buffer, 1, annotatedSize, file);
-        fclose(file);
-        free(compressed);
-        free(buffer);
-        free(data);
-
+        size_t bytesWritten = fwrite(buffer.get(), 1, annotatedSize, file.get());
         return bytesWritten == annotatedSize;
     }
 
     bool CFileIO::Decompress(string &path)
     {
-        FILE *file = fopen(path.c_str(), "rb");
+        unique_ptr<FILE, decltype(fclose)*> file(fopen(path.c_str(), "rb"), fclose);
         if (file == NULL) return false;
 
         // Get the total size of the file.
-        fseek(file, 0, SEEK_END);
-        long size = ftell(file);
-        rewind(file);
+        fseek(file.get(), 0, SEEK_END);
+        long size = ftell(file.get());
+        rewind(file.get());
 
         // Read in entire file.
-        char *data = (char*)malloc(size);
+        unique_ptr<char, decltype(free)*> data((char*)malloc(size), free);
         if (data == NULL) return false;
-        int bytesRead = fread(data, 1, size, file);
+        int bytesRead = fread(data.get(), 1, size, file.get());
         if (bytesRead != size) return false;
-        fclose(file);
 
         // Read the uncompressed file length.
         int uncompressedSize = 0;
-        memmove(&uncompressedSize, data, sizeof(int));
-        memmove(data, data + sizeof(int), size - sizeof(int));
+        memmove(&uncompressedSize, data.get(), sizeof(int));
+        memmove(data.get(), data.get() + sizeof(int), size - sizeof(int));
 
-        char *decompressed = (char*)malloc(uncompressedSize);
+        unique_ptr<char, decltype(free)*> decompressed((char*)malloc(uncompressedSize), free);
         if (decompressed == NULL) return false;
-        int bytesDecompressed = fastlz_decompress(data, size - sizeof(int), decompressed, uncompressedSize);
+        int bytesDecompressed = fastlz_decompress(data.get(), size - sizeof(int), decompressed.get(),
+            uncompressedSize);
         if (bytesDecompressed == 0) return false;
 
-        // Create a temp path to extract the scene file.
-        path.append(".tmp");
-
         // Write decompressed file back out.
-        file = fopen(path.c_str(), "wb");
+        file = unique_ptr<FILE, decltype(fclose)*>(fopen(path.append(".tmp").c_str(), "wb"), fclose);
         if (file == NULL) return false;
 
-        size_t bytesWritten = fwrite(decompressed, 1, bytesDecompressed, file);       
-        fclose(file);
-        free(decompressed);
-        free(data);
-
+        size_t bytesWritten = fwrite(decompressed.get(), 1, bytesDecompressed, file.get());
         return bytesWritten == bytesDecompressed;
     }
 
