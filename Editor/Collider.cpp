@@ -5,6 +5,7 @@ namespace UltraEd
 {
     CCollider::CCollider()
     {
+        m_type = ColliderType::Box;
         m_vertexBuffer = 0;
         m_center = D3DXVECTOR3(0, 0, 0);
 

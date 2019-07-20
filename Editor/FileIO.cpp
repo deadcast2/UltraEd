@@ -229,16 +229,19 @@ namespace UltraEd
 
         // Write compressed file back out.
         file = fopen(path.c_str(), "wb");
-        if (file == NULL) return false;
-        unsigned int bytesWritten = fwrite(buffer, 1, annotatedSize, file);
-        if (bytesWritten != annotatedSize) return false;
-        fclose(file);
+        if (file == NULL) 
+        {
+            free(buffer);
+            return false; 
+        }
 
+        size_t bytesWritten = fwrite(buffer, 1, annotatedSize, file);
+        fclose(file);
         free(compressed);
         free(buffer);
         free(data);
 
-        return true;
+        return bytesWritten == annotatedSize;
     }
 
     bool CFileIO::Decompress(string &path)
@@ -274,13 +277,13 @@ namespace UltraEd
         // Write decompressed file back out.
         file = fopen(path.c_str(), "wb");
         if (file == NULL) return false;
-        unsigned int bytesWritten = fwrite(decompressed, 1, bytesDecompressed, file);
-        if (bytesWritten != bytesDecompressed) return false;
+
+        size_t bytesWritten = fwrite(decompressed, 1, bytesDecompressed, file);       
         fclose(file);
         free(decompressed);
         free(data);
 
-        return true;
+        return bytesWritten == bytesDecompressed;
     }
 
     string CFileIO::CleanFileName(const char *fileName)

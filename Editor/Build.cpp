@@ -237,8 +237,8 @@ namespace UltraEd
                 id.insert(0, CUtil::RootPath().append("\\")).append(".rom.sos");
                 FILE *file = fopen(id.c_str(), "w");
                 if (file == NULL) return false;
-                fprintf(file, "%i\n", vertices.size());
-                for (unsigned int i = 0; i < vertices.size(); i++)
+                fprintf(file, "%lu\n", vertices.size());
+                for (size_t i = 0; i < vertices.size(); i++)
                 {
                     Vertex vert = vertices[i];
                     fprintf(file, "%f %f %f %f %f\n", vert.position.x, vert.position.y, vert.position.z,
