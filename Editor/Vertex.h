@@ -8,6 +8,7 @@ namespace UltraEd
     {
         D3DXVECTOR3 position;
         D3DXVECTOR3 normal;
+        D3DCOLOR color;
         FLOAT tu, tv;
     };
 }

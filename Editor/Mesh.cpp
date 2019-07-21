@@ -55,11 +55,17 @@ namespace UltraEd
                 vertex.normal.x = normal.x;
                 vertex.normal.y = normal.y;
                 vertex.normal.z = normal.z;
-
+              
                 if (mesh->HasTextureCoords(0))
                 {
                     vertex.tu = mesh->mTextureCoords[0][face.mIndices[j]].x;
                     vertex.tv = mesh->mTextureCoords[0][face.mIndices[j]].y;
+                }
+
+                if (mesh->HasVertexColors(0))
+                {
+                    aiColor4D color = mesh->mColors[0][face.mIndices[j]];
+                    vertex.color = D3DCOLOR_COLORVALUE(color.r, color.g, color.b, color.a);
                 }
 
                 m_vertices.push_back(vertex);

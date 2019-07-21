@@ -38,7 +38,7 @@ namespace UltraEd
             device->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
             device->SetTransform(D3DTS_WORLD, stack->GetTop());
             device->SetStreamSource(0, buffer, sizeof(Vertex));
-            device->SetVertexShader(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1);
+            device->SetVertexShader(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1);
             device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, GetVertices().size() / 3);
             device->SetTexture(0, NULL);
 

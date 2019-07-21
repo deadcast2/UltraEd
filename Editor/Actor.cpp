@@ -66,7 +66,7 @@ namespace UltraEd
             if (FAILED(device->CreateVertexBuffer(
                 m_vertices.size() * sizeof(Vertex),
                 0,
-                D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1,
+                D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1,
                 D3DPOOL_DEFAULT,
                 &m_vertexBuffer)))
             {
