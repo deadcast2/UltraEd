@@ -168,7 +168,6 @@ namespace UltraEd
         if (m_selectedActorIds.empty())
         {
             MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
-            return;
         }
 
         for (auto selectedActorId : m_selectedActorIds)
@@ -189,7 +188,6 @@ namespace UltraEd
         if (m_selectedActorIds.empty())
         {
             MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
-            return;
         }
 
         for (auto selectedActorId : m_selectedActorIds)
@@ -266,11 +264,7 @@ namespace UltraEd
     {
         D3DXVECTOR3 orig, dir;
         ScreenRaycast(mousePoint, &orig, &dir);
-        bool gizmoSelected = m_gizmo.Select(orig, dir);
         float closestDist = FLT_MAX;
-
-        // When just selecting the gizmo don't check any actors.
-        if (gizmoSelected) return true;
 
         // Check all actors to see which poly might have been picked.
         for (auto actor : m_actors)
@@ -280,7 +274,7 @@ namespace UltraEd
             if (actor.second->Pick(orig, dir, &pickDist) && pickDist < closestDist)
             {
                 closestDist = pickDist;
-                vector<GUID>::iterator found = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor.first);
+                auto found = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor.first);
                 if (found == m_selectedActorIds.end())
                 {
                     if (!GetAsyncKeyState(VK_SHIFT)) m_selectedActorIds.clear();
@@ -305,7 +299,7 @@ namespace UltraEd
 
         RefreshActorList();
         if (closestDist != FLT_MAX) return true;
-        if (!gizmoSelected) m_selectedActorIds.clear();
+        if (!m_gizmo.Select(orig, dir)) m_selectedActorIds.clear();
         return false;
     }
 
