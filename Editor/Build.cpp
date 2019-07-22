@@ -241,8 +241,9 @@ namespace UltraEd
                 for (size_t i = 0; i < vertices.size(); i++)
                 {
                     Vertex vert = vertices[i];
-                    fprintf(file, "%f %f %f %f %f\n", vert.position.x, vert.position.y, vert.position.z,
-                        vert.tu, vert.tv);
+                    D3DXCOLOR color(vert.color);
+                    fprintf(file, "%f %f %f %f %f %f %f %f %f\n", vert.position.x, vert.position.y, vert.position.z,
+                        color.r, color.g, color.b, color.a, vert.tu, vert.tv);
                 }
                 fclose(file);
 

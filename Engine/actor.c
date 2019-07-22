@@ -80,9 +80,9 @@ struct actor *load_model_with_texture(void *data_start, void *data_end, void *te
     // Gather all of the X, Y, and Z vertex info.
     for (i = 0; i < vertex_count; i++)
     {
-        double x, y, z, s, t;
+        double x, y, z, r, g, b, a, s, t;
         line = (char*)strtok(NULL, "\n");
-        sscanf(line, "%lf %lf %lf %lf %lf", &x, &y, &z, &s, &t);
+        sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf %lf", &x, &y, &z, &r, &g, &b, &a, &s, &t);
 
         new_model->mesh->vertices[i].v.ob[0] = x * 1000;
         new_model->mesh->vertices[i].v.ob[1] = y * 1000;
@@ -90,10 +90,10 @@ struct actor *load_model_with_texture(void *data_start, void *data_end, void *te
         new_model->mesh->vertices[i].v.flag = 0;
         new_model->mesh->vertices[i].v.tc[0] = (int)(s * 32) << 5;
         new_model->mesh->vertices[i].v.tc[1] = (int)(t * 32) << 5;
-        new_model->mesh->vertices[i].v.cn[0] = 0;
-        new_model->mesh->vertices[i].v.cn[1] = 0;
-        new_model->mesh->vertices[i].v.cn[2] = 0;
-        new_model->mesh->vertices[i].v.cn[3] = 0;
+        new_model->mesh->vertices[i].v.cn[0] = r * 255;
+        new_model->mesh->vertices[i].v.cn[1] = g * 255;
+        new_model->mesh->vertices[i].v.cn[2] = b * 255;
+        new_model->mesh->vertices[i].v.cn[3] = a * 255;
     }
 
     // Entire axis can't be zero or it won't render.
