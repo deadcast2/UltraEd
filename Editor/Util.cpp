@@ -2,6 +2,8 @@
 #include <commctrl.h>
 #include "Util.h"
 
+#pragma warning(disable:6031)
+
 namespace UltraEd
 {
     float CUtil::Lerp(float time, float start, float end)
@@ -94,7 +96,7 @@ namespace UltraEd
             /* Increase the cache size when necessary. */
             if (cache_sz < count) {
                 cache_sz += cache_sz_inc;
-                pos_cache_tmp = (int*)realloc(pos_cache, sizeof(*pos_cache) * cache_sz);
+                pos_cache_tmp = (ptrdiff_t *)realloc(pos_cache, sizeof(*pos_cache) * cache_sz);
                 if (pos_cache_tmp == NULL) {
                     goto end_repl_str;
                 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <string>
 #include "deps/DXSDK/include/d3d8.h"
 #include "vendor/cJSON.h"
 
