@@ -40,7 +40,12 @@ namespace UltraEd
             aiFace face = mesh->mFaces[i];
             for (unsigned int j = 0; j < face.mNumIndices; j++)
             {
-                Vertex vertex;
+                Vertex vertex = {
+                    D3DXVECTOR3(0, 0, 0),
+                    D3DXVECTOR3(0, 0, 0),
+                    D3DCOLOR_COLORVALUE(1, 1, 1, 1),
+                    0, 0
+                };
 
                 // Apply the current transform to the mesh
                 // so it renders in the correct local location.
