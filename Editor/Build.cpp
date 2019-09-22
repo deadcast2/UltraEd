@@ -310,6 +310,13 @@ namespace UltraEd
 
                 if (!(*subActor)->GetCollider()) continue;
 
+                string actorScript = actor->GetScript();
+                string subActorScript = (*subActor)->GetScript();
+
+                // Both actors must define a collide method.
+                if (actorScript.find("collide(") == string::npos || subActorScript.find("collide(") == string::npos)
+                    continue;
+
                 _itoa(collisionCount - 1, countBuffer, 10);
                 collisions.append("\n\tif(check_collision(_UER_Actors[").append(countBuffer);
                 _itoa(subLoop, countBuffer, 10);
