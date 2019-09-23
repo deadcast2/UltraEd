@@ -409,8 +409,10 @@ namespace UltraEd
         CView *view = GetActiveView();
 
         static POINT prevMousePoint = mousePoint;
+        static DWORD prevTick = GetTickCount();
         const float smoothingModifier = 16.0f;
         const float mouseSpeedModifier = 0.55f;
+        const bool mouseReady = GetTickCount() - prevTick < 100;
 
         if (GetActiveWindow() != GetParent(GetWndHandle())) return;
         if (GetAsyncKeyState('1')) m_gizmo.SetModifier(GizmoModifierState::Translate);
@@ -428,7 +430,7 @@ namespace UltraEd
                     m_actors[lastSelectedActorId].get());
             }
         }
-        else if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective)
+        else if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective && mouseReady)
         {
             if (GetAsyncKeyState('W')) view->Walk(4.0f * deltaTime);
             if (GetAsyncKeyState('S')) view->Walk(-4.0f * deltaTime);
@@ -441,7 +443,7 @@ namespace UltraEd
             view->Yaw(m_mouseSmoothX * mouseSpeedModifier * deltaTime);
             view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
         }
-        else if (GetAsyncKeyState(VK_MBUTTON))
+        else if (GetAsyncKeyState(VK_MBUTTON) && mouseReady)
         {
             m_mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(prevMousePoint.x - mousePoint.x));
             m_mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
@@ -457,8 +459,9 @@ namespace UltraEd
             m_mouseSmoothX = m_mouseSmoothX = 0;
         }
 
-        // Remeber the last position so we know how much to move the view.
+        // Remember the last position so we know how much to move the view.
         prevMousePoint = mousePoint;
+        prevTick = GetTickCount();
     }
 
     void CScene::OnMouseWheel(short zDelta)
