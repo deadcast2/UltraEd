@@ -260,7 +260,7 @@ namespace UltraEd
         }
     }
 
-    bool CScene::Pick(POINT mousePoint)
+    bool CScene::Pick(POINT mousePoint, CActor **selectedActor)
     {
         D3DXVECTOR3 orig, dir;
         ScreenRaycast(mousePoint, &orig, &dir);
@@ -278,6 +278,7 @@ namespace UltraEd
             if (actor.second->Pick(orig, dir, &pickDist) && pickDist < closestDist)
             {
                 closestDist = pickDist;
+
                 auto found = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor.first);
                 if (found == m_selectedActorIds.end())
                 {
@@ -298,6 +299,9 @@ namespace UltraEd
                         m_selectedActorIds.push_back(actor.first);
                     }
                 }
+
+                if (selectedActor != NULL)
+                    *selectedActor = actor.second.get();
             }
         }
 

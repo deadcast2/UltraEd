@@ -124,11 +124,17 @@ namespace UltraEd
                 if (GetTickCount() - mouseClickTick < mouseWaitPeriod)
                 {
                     POINT point = { LOWORD(lParam), HIWORD(lParam) };
-                    if (scene->Pick(point))
+                    CActor *selectedActor = NULL;
+
+                    if (scene->Pick(point, &selectedActor))
                     {
                         ClientToScreen(hWnd, &point);
                         HMENU menu = CreatePopupMenu();
-                        AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
+
+                        if (selectedActor != NULL && selectedActor->GetType() == ActorType::Model)
+                        {
+                            AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
+                        }
 
                         HMENU colliderMenu = CreatePopupMenu();
                         AppendMenu(menu, MF_STRING | MF_POPUP, (UINT_PTR)colliderMenu, _T("Collider"));

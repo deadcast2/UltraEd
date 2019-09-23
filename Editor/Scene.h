@@ -41,7 +41,7 @@ namespace UltraEd
         void OnAddCollider(ColliderType::Value type);
         void OnDeleteCollider();
         void OnBuildROM(BuildFlag::Value flag);
-        bool Pick(POINT mousePoint);
+        bool Pick(POINT mousePoint, CActor **selectedActor = NULL);
         void ReleaseResources(ModelRelease::Value type);
         void CheckInput(float);
         void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
