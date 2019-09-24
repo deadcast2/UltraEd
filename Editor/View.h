@@ -19,6 +19,7 @@ namespace UltraEd
         Savable Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
         D3DXVECTOR3 GetPosition();
+        void SetPosition(D3DXVECTOR3 position);
         D3DXVECTOR3 GetForward();
         D3DXVECTOR3 GetRight();
         D3DXVECTOR3 GetUp();

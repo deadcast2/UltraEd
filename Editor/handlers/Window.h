@@ -16,7 +16,7 @@ namespace UltraEd
 
     LRESULT CALLBACK WindowHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        CScene *scene = (CScene*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+        CScene *scene = (CScene *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
         switch (message)
         {
@@ -36,6 +36,9 @@ namespace UltraEd
                             break;
                         case 'D':
                             if (GetKeyState(VK_CONTROL) & 0x8000) scene->Duplicate();
+                            break;
+                        case 'F':
+                            scene->FocusSelected();
                             break;
                     }
                 }
@@ -172,7 +175,7 @@ namespace UltraEd
                     GetClientRect(treeview, &treeviewRect);
                     MoveWindow(renderWindow, treeviewRect.right + treeviewBorder, 0,
                         LOWORD(lParam) - treeviewRect.right, HIWORD(lParam) - statusRect.bottom, 1);
-                    if(scene != NULL) scene->Resize();
+                    if (scene != NULL) scene->Resize();
                 }
                 break;
             }

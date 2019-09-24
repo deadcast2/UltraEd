@@ -92,6 +92,11 @@ namespace UltraEd
         return m_pos;
     }
 
+    void CView::SetPosition(D3DXVECTOR3 position)
+    {
+        m_pos = position;
+    }
+
     D3DXVECTOR3 CView::GetForward()
     {
         return m_forward;

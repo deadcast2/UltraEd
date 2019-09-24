@@ -81,7 +81,7 @@ namespace UltraEd
 
     void CScene::OnSave()
     {
-        vector<CSavable*> savables;
+        vector<CSavable *> savables;
 
         // Save all editor views.
         for (int i = 0; i < 4; i++) savables.push_back(&m_views[i]);
@@ -176,7 +176,7 @@ namespace UltraEd
             {
                 m_actors[selectedActorId]->SetCollider(new CBoxCollider(m_actors[selectedActorId]->GetVertices()));
             }
-            else 
+            else
             {
                 m_actors[selectedActorId]->SetCollider(new CSphereCollider(m_actors[selectedActorId]->GetVertices()));
             }
@@ -192,14 +192,14 @@ namespace UltraEd
 
         for (auto selectedActorId : m_selectedActorIds)
         {
-            m_actors[selectedActorId]->SetCollider(NULL);          
+            m_actors[selectedActorId]->SetCollider(NULL);
         }
     }
 
 
     void CScene::OnBuildROM(BuildFlag::Value flag)
     {
-        vector<CActor*> actors;
+        vector<CActor *> actors;
 
         // Gather all of the actors in the scene.
         for (auto actor : m_actors)
@@ -252,7 +252,7 @@ namespace UltraEd
                 "*.jpg\0BMP (*.bmp)\0*.bmp\0TGA (*.tga)\0*.tga", file))
             {
                 if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
-                if (!dynamic_cast<CModel*>(m_actors[selectedActorId].get())->LoadTexture(m_device, file.c_str()))
+                if (!dynamic_cast<CModel *>(m_actors[selectedActorId].get())->LoadTexture(m_device, file.c_str()))
                 {
                     MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
                 }
@@ -539,7 +539,7 @@ namespace UltraEd
         CDebug::Instance().Release();
         for (auto actor : m_actors)
         {
-            if (auto model = dynamic_cast<CModel*>(actor.second.get()))
+            if (auto model = dynamic_cast<CModel *>(actor.second.get()))
             {
                 model->Release(type);
             }
@@ -554,7 +554,7 @@ namespace UltraEd
     {
         for (auto selectedActorId : m_selectedActorIds)
         {
-            if (auto model = dynamic_cast<CModel*>(m_actors[selectedActorId].get()))
+            if (auto model = dynamic_cast<CModel *>(m_actors[selectedActorId].get()))
             {
                 model->Release(ModelRelease::AllResources);
             }
@@ -576,7 +576,7 @@ namespace UltraEd
             {
                 case ActorType::Model:
                 {
-                    auto model = make_shared<CModel>(*dynamic_cast<CModel*>(m_actors[selectedActorId].get()));
+                    auto model = make_shared<CModel>(*dynamic_cast<CModel *>(m_actors[selectedActorId].get()));
                     string texturePath = model->GetResources()["textureDataPath"];
                     model->LoadTexture(m_device, texturePath.c_str());
                     m_actors[model->GetId()] = model;
@@ -584,13 +584,22 @@ namespace UltraEd
                 }
                 case ActorType::Camera:
                 {
-                    auto camera = make_shared<CCamera>(*dynamic_cast<CCamera*>(m_actors[selectedActorId].get()));
+                    auto camera = make_shared<CCamera>(*dynamic_cast<CCamera *>(m_actors[selectedActorId].get()));
                     m_actors[camera->GetId()] = camera;
                     break;
                 }
             }
         }
         RefreshActorList();
+    }
+
+    void CScene::FocusSelected()
+    {
+        if (m_selectedActorIds.size() > 0)
+        {
+            auto selectedActor = m_actors[m_selectedActorIds[0]];
+            GetActiveView()->SetPosition(selectedActor->GetPosition() + (GetActiveView()->GetForward() * -2.5f));
+        }
     }
 
     void CScene::SetScript(string script)

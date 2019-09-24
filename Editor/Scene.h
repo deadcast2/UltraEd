@@ -27,6 +27,7 @@ namespace UltraEd
         bool Create(HWND windowHandle);
         void Delete();
         void Duplicate();
+        void FocusSelected();
         void SetScript(string script);
         string GetScript();
         void Render();

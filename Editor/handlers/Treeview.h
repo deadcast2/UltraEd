@@ -29,7 +29,7 @@ namespace UltraEd
         tvins.item = tvi;
         tvins.hInsertAfter = (HTREEITEM)TVI_FIRST;
         tvins.hParent = TVI_ROOT;
-        
+
         TreeView_InsertItem(treeview, (LPTVINSERTSTRUCT)&tvins);
     }
 
@@ -38,7 +38,7 @@ namespace UltraEd
         switch (wParam)
         {
             case TV_ADD_ACTOR:
-                AddItemToTree(treeview, (CActor*)lParam);
+                AddItemToTree(treeview, (CActor *)lParam);
                 break;
             case TV_CLEAR_ACTORS:
                 TreeView_DeleteAllItems(treeview);
@@ -46,14 +46,14 @@ namespace UltraEd
             case TV_SELECT_ACTOR:
             {
                 TVITEM tvitem = { 0 };
-                auto selectedActor = (CActor*)lParam;
+                auto selectedActor = (CActor *)lParam;
                 auto currentItem = TreeView_GetRoot(treeview);
 
                 while (currentItem != NULL)
                 {
                     tvitem.hItem = currentItem;
                     TreeView_GetItem(treeview, &tvitem);
-                    auto actor = (CActor*)tvitem.lParam;
+                    auto actor = (CActor *)tvitem.lParam;
 
                     if (actor->GetId() == selectedActor->GetId())
                     {
@@ -72,7 +72,7 @@ namespace UltraEd
                 auto pnmtv = (LPNMTREEVIEW)lParam;
                 if (pnmtv->action != 0)
                 {
-                    auto actor = (CActor*)pnmtv->itemNew.lParam;
+                    auto actor = (CActor *)pnmtv->itemNew.lParam;
                     if (scene != NULL) scene->SelectActorById(actor->GetId());
                 }
                 break;
@@ -87,6 +87,9 @@ namespace UltraEd
                         break;
                     case 'D':
                         if (GetKeyState(VK_CONTROL) & 0x8000) scene->Duplicate();
+                        break;
+                    case 'F':
+                        if (scene != NULL) scene->FocusSelected();
                         break;
                 }
                 break;
