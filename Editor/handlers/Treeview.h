@@ -80,18 +80,7 @@ namespace UltraEd
             case TVN_KEYDOWN:
             {
                 auto info = (LPNMTVKEYDOWN)lParam;
-                switch (info->wVKey)
-                {
-                    case VK_DELETE:
-                        if (scene != NULL) scene->Delete();
-                        break;
-                    case 'D':
-                        if (GetKeyState(VK_CONTROL) & 0x8000) scene->Duplicate();
-                        break;
-                    case 'F':
-                        if (scene != NULL) scene->FocusSelected();
-                        break;
-                }
+                KeyDownHandler(info->wVKey, scene);
                 break;
             }
         }

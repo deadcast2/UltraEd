@@ -168,6 +168,7 @@
     <ClInclude Include="Build.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
+    <ClInclude Include="handlers\KeyDown.h" />
     <ClInclude Include="handlers\Menu.h" />
     <ClInclude Include="handlers\MouseMenu.h" />
     <ClInclude Include="handlers\Treeview.h" />

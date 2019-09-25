@@ -202,6 +202,9 @@
     <ClInclude Include="BoxCollider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="handlers\KeyDown.h">
+      <Filter>Header Files\handlers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="toolbar.bmp">

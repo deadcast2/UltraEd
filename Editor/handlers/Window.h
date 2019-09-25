@@ -4,6 +4,7 @@
 #include "Menu.h"
 #include "MouseMenu.h"
 #include "Toolbar.h"
+#include "KeyDown.h"
 #include "Treeview.h"
 #include "ScriptEditor.h"
 
@@ -27,21 +28,7 @@ namespace UltraEd
             }
             case WM_KEYDOWN:
             {
-                if (scene != NULL)
-                {
-                    switch (LOWORD(wParam))
-                    {
-                        case VK_DELETE:
-                            scene->Delete();
-                            break;
-                        case 'D':
-                            if (GetKeyState(VK_CONTROL) & 0x8000) scene->Duplicate();
-                            break;
-                        case 'F':
-                            scene->FocusSelected();
-                            break;
-                    }
-                }
+                KeyDownHandler(LOWORD(wParam), scene);
                 break;
             }
             case WM_COMMAND:

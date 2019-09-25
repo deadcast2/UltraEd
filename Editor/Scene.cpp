@@ -415,9 +415,6 @@ namespace UltraEd
         const bool mouseReady = GetTickCount() - prevTick < 100;
 
         if (GetActiveWindow() != GetParent(GetWndHandle())) return;
-        if (GetAsyncKeyState('1')) m_gizmo.SetModifier(GizmoModifierState::Translate);
-        if (GetAsyncKeyState('2')) m_gizmo.SetModifier(GizmoModifierState::Rotate);
-        if (GetAsyncKeyState('3')) m_gizmo.SetModifier(GizmoModifierState::Scale);
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
