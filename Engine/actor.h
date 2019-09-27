@@ -9,52 +9,52 @@
 
 enum actorType { Model, Camera };
 
-struct transform 
+typedef struct transform 
 {
     Mtx projection;
     Mtx translation;
     Mtx scale;
     Mtx rotation;
-};
+} transform;
 
-struct actor 
+typedef struct vector3
+{
+    double x, y, z;
+} vector3;
+
+typedef struct mesh
+{
+    int vertex_count;
+    Vtx *vertices;
+} mesh;
+
+typedef struct actor 
 {
     enum actorType type;
-    struct mesh *mesh;
+    mesh *mesh;
     unsigned short *texture;
     double rotationAngle;
     double radius;
     int visible;
-    struct vector3 *position;
-    struct vector3 *rotationAxis;
-    struct vector3 *scale;
-    struct vector3 *center;
-    struct transform transform;
-};
+    vector3 *position;
+    vector3 *rotationAxis;
+    vector3 *scale;
+    vector3 *center;
+    transform transform;
+} actor;
 
-struct vector3 
-{
-    double x, y, z;
-};
-
-struct mesh 
-{
-    int vertex_count;
-    Vtx *vertices;
-};
-
-struct actor *load_model(void *data_start, void *data_end, double positionX, double positionY, double positionZ,
+actor *load_model(void *data_start, void *data_end, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius);
 
-struct actor *load_model_with_texture(void *data_start, void *data_end,
+actor *load_model_with_texture(void *data_start, void *data_end,
     void *texture_start, void *texture_end,
     double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
     double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius);
 
-struct actor *create_camera(double positionX, double positionY, double positionZ,
+actor *create_camera(double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, 
     double centerX, double centerY, double centerZ, double radius);
 

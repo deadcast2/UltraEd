@@ -2,7 +2,7 @@
 #include "upng.h"
 #include "actor.h"
 
-struct actor *load_model(void *data_start, void *data_end, double positionX, double positionY, double positionZ,
+actor *load_model(void *data_start, void *data_end, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius)
 {
@@ -11,7 +11,7 @@ struct actor *load_model(void *data_start, void *data_end, double positionX, dou
         centerX, centerY, centerZ, radius);
 }
 
-struct actor *load_model_with_texture(void *data_start, void *data_end, void *texture_start, void *texture_end,
+actor *load_model_with_texture(void *data_start, void *data_end, void *texture_start, void *texture_end,
     double positionX, double positionY, double positionZ, double rotX, double rotY, double rotZ, double angle,
     double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius)
@@ -23,22 +23,22 @@ struct actor *load_model_with_texture(void *data_start, void *data_end, void *te
     int texture_size = texture_end - texture_start;
     int i = 0;
     int vertex_count = 0;
-    struct actor *new_model;
+    actor *new_model;
     upng_t *png;
 
     // Transfer from ROM the model mesh data and texture.
     rom_2_ram(data_start, data_buffer, data_size);
     rom_2_ram(texture_start, texture_buffer, texture_size);
 
-    new_model = (struct actor*)malloc(sizeof(struct actor));
-    new_model->mesh = (struct mesh*)malloc(sizeof(struct mesh));
-    new_model->position = (struct vector3*)malloc(sizeof(struct vector3));
-    new_model->rotationAxis = (struct vector3*)malloc(sizeof(struct vector3));
-    new_model->scale = (struct vector3*)malloc(sizeof(struct vector3));
+    new_model = (actor*)malloc(sizeof(actor));
+    new_model->mesh = (mesh*)malloc(sizeof(mesh));
+    new_model->position = (vector3*)malloc(sizeof(vector3));
+    new_model->rotationAxis = (vector3*)malloc(sizeof(vector3));
+    new_model->scale = (vector3*)malloc(sizeof(vector3));
     new_model->visible = 1;
     new_model->type = Model;
 
-    new_model->center = (struct vector3*)malloc(sizeof(struct vector3));
+    new_model->center = (vector3*)malloc(sizeof(vector3));
     new_model->center->x = centerX;
     new_model->center->y = centerY;
     new_model->center->z = centerZ;
@@ -99,7 +99,7 @@ struct actor *load_model_with_texture(void *data_start, void *data_end, void *te
     return new_model;
 }
 
-void model_draw(struct actor *model, Gfx **display_list)
+void model_draw(actor *model, Gfx **display_list)
 {
     int i;
     int remaining_vertices = model->mesh->vertex_count;
@@ -172,18 +172,18 @@ void model_draw(struct actor *model, Gfx **display_list)
     gSPPopMatrix((*display_list)++, G_MTX_MODELVIEW);
 }
 
-struct actor *create_camera(double positionX, double positionY, double positionZ,
+actor *create_camera(double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, 
     double centerX, double centerY, double centerZ, double radius)
 {
-    struct actor *camera;
-    camera = (struct actor*)malloc(sizeof(struct actor));
-    camera->position = (struct vector3*)malloc(sizeof(struct vector3));
-    camera->rotationAxis = (struct vector3*)malloc(sizeof(struct vector3));
+    actor *camera;
+    camera = (actor*)malloc(sizeof(actor));
+    camera->position = (vector3*)malloc(sizeof(vector3));
+    camera->rotationAxis = (vector3*)malloc(sizeof(vector3));
     camera->visible = 1;
     camera->type = Camera;
 
-    camera->center = (struct vector3*)malloc(sizeof(struct vector3));
+    camera->center = (vector3*)malloc(sizeof(vector3));
     camera->center->x = centerX;
     camera->center->y = centerY;
     camera->center->z = centerZ;
@@ -201,18 +201,18 @@ struct actor *create_camera(double positionX, double positionY, double positionZ
     return camera;
 }
 
-float dot(struct vector3 a, struct vector3 b)
+float dot(vector3 a, vector3 b)
 {
     return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
-int check_collision(struct actor *a, struct actor *b)
+int check_collision(actor *a, actor *b)
 {
     float dist = 0;
     float radiusSum = 0;
-    struct vector3 vectorA = *a->position;
-    struct vector3 vectorB = *b->position;
-    struct vector3 vectorC;
+    vector3 vectorA = *a->position;
+    vector3 vectorB = *b->position;
+    vector3 vectorC;
 
     vectorA.x += a->center->x;
     vectorA.y += a->center->y;

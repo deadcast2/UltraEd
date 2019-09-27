@@ -179,7 +179,7 @@ namespace UltraEd
 
         _itoa(actors.size(), countBuffer, 10);
         string actorsArrayDef("const int _UER_ActorCount = ");
-        actorsArrayDef.append(countBuffer).append(";\nstruct actor *_UER_Actors[")
+        actorsArrayDef.append(countBuffer).append(";\nactor *_UER_Actors[")
             .append(countBuffer).append("];\n");
 
         for (auto actor : actors)
@@ -205,11 +205,11 @@ namespace UltraEd
 
                 if (resources.count("textureDataPath"))
                 {
-                    actorInits.append("(struct actor*)load_model_with_texture(_");
+                    actorInits.append("(actor*)load_model_with_texture(_");
                 }
                 else
                 {
-                    actorInits.append("(struct actor*)load_model(_");
+                    actorInits.append("(actor*)load_model(_");
                 }
 
                 actorInits.append(modelName).append("SegmentRomStart, _").append(modelName).append("SegmentRomEnd");
@@ -251,7 +251,7 @@ namespace UltraEd
             }
             else if (actor->GetType() == ActorType::Camera)
             {
-                actorInits.append("(struct actor*)create_camera(");
+                actorInits.append("(actor*)create_camera(");
                 char vectorBuffer[256];
                 D3DXVECTOR3 position = actor->GetPosition();
                 D3DXVECTOR3 axis;
