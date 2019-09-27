@@ -110,10 +110,13 @@ void checkInputs()
 
 void updateCamera()
 {
-    struct actor *camera = _UER_Actors[currentCamera];
-    guTranslate(&world.translation, -camera->position->x, -camera->position->y, camera->position->z);
-    guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis->x, camera->rotationAxis->y,
-        -camera->rotationAxis->z);
+    if (_UER_ActorCount > 0)
+    {
+        struct actor *camera = _UER_Actors[currentCamera];
+        guTranslate(&world.translation, -camera->position->x, -camera->position->y, camera->position->z);
+        guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis->x, camera->rotationAxis->y,
+            -camera->rotationAxis->z);
+    }
 }
 
 void gfxCallback(int pendingGfx)
