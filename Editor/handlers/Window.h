@@ -6,6 +6,7 @@
 #include "Toolbar.h"
 #include "KeyDown.h"
 #include "Treeview.h"
+#include "Tabs.h"
 #include "ScriptEditor.h"
 
 namespace UltraEd
@@ -51,7 +52,7 @@ namespace UltraEd
                 {
                     // Track new width of treeview.
                     RECT parentRect;
-                    GetClientRect(renderWindow, &parentRect);
+                    GetClientRect(parentWindow, &parentRect);
                     RECT treeviewRect;
                     GetClientRect(treeview, &treeviewRect);
                     int xPosition = LOWORD(lParam);
@@ -59,14 +60,14 @@ namespace UltraEd
                     UltraEd::treeviewWidth = treeviewRect.right + xPosition;
 
                     // Draw resize preview rectangle.
-                    RECT renderRect;
-                    GetClientRect(renderWindow, &renderRect);
                     RECT toolbarRect;
                     GetClientRect(toolbarWindow, &toolbarRect);
+                    RECT statusRect;
+                    GetClientRect(statusBar, &statusRect);
                     RECT resizeBox;
                     HDC hDC = GetDC(parentWindow);
-                    SetRect(&resizeBox, 0, toolbarRect.bottom + treeviewBorder, UltraEd::treeviewWidth,
-                        renderRect.bottom - treeviewBorder);
+                    SetRect(&resizeBox, 0, toolbarRect.bottom + treeviewBorder, 
+                        treeviewWidth, parentRect.bottom - statusRect.bottom);
                     DrawFocusRect(hDC, &resizeBox);
                     ReleaseDC(hWnd, hDC);
                 }
@@ -154,14 +155,21 @@ namespace UltraEd
                     GetClientRect(statusBar, &statusRect);
 
                     MoveWindow(toolbarWindow, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
-                    MoveWindow(treeview, 0, toolbarRect.bottom + treeviewBorder, UltraEd::treeviewWidth,
+                    MoveWindow(treeview, 0, toolbarRect.bottom + treeviewBorder, treeviewWidth,
                         HIWORD(lParam) - (toolbarRect.bottom + statusRect.bottom + treeviewBorder), 1);
                     MoveWindow(statusBar, 0, 0, LOWORD(lParam), HIWORD(lParam), 1);
 
+                    RECT parentRect;
+                    GetClientRect(parentWindow, &parentRect);
                     RECT treeviewRect;
                     GetClientRect(treeview, &treeviewRect);
+
+                    MoveWindow(tabsWindow, treeviewRect.right, 
+                        parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight,
+                        LOWORD(lParam), parentRect.bottom, 1);
                     MoveWindow(renderWindow, treeviewRect.right + treeviewBorder, 0,
-                        LOWORD(lParam) - treeviewRect.right, HIWORD(lParam) - statusRect.bottom, 1);
+                        LOWORD(lParam) - treeviewRect.right, HIWORD(lParam) - statusRect.bottom - tabsWindowHeight, 1);
+
                     if (scene != NULL) scene->Resize();
                 }
                 break;

@@ -91,12 +91,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 1;
     }
 
-    // Create the window for rendering the scene.
+    // Create the tabbed window.
     RECT treeviewRect;
     GetClientRect(UltraEd::treeview, &treeviewRect);
+    UltraEd::tabsWindow = CreateWindow(WC_TABCONTROL, "Tabs", WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
+        treeviewRect.right, parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight,
+        parentRect.right, parentRect.bottom,
+        UltraEd::parentWindow, NULL, hInstance, NULL);
+
+    if (UltraEd::tabsWindow == NULL)
+    {
+        MessageBox(NULL, "Could not create tabs window.", "Error", NULL);
+        return 1;
+    }
+
+    TCITEM tie;
+    tie.mask = TCIF_TEXT;
+    tie.pszText = "Build Output";
+    if (TabCtrl_InsertItem(UltraEd::tabsWindow, 0, &tie) == -1)
+    {
+        MessageBox(NULL, "Could not add tab to tabs windows.", "Error", NULL);
+        return 1;
+    }
+
+    // Create the window for rendering the scene.
+    RECT tabbedWindowRect;
+    GetClientRect(UltraEd::tabsWindow, &tabbedWindowRect);
     UltraEd::renderWindow = CreateWindow(szWindowClass, szTitle, WS_CLIPSIBLINGS | WS_CHILD,
         treeviewRect.right + UltraEd::treeviewBorder, 0,
-        parentRect.right - treeviewRect.right, parentRect.bottom - statusRect.bottom,
+        parentRect.right - treeviewRect.right, parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight,
         UltraEd::parentWindow, NULL, hInstance, NULL);
 
     if (!UltraEd::renderWindow)

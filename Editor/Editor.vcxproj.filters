@@ -205,6 +205,9 @@
     <ClInclude Include="handlers\KeyDown.h">
       <Filter>Header Files\handlers</Filter>
     </ClInclude>
+    <ClInclude Include="Tabs.h">
+      <Filter>Header Files\handlers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="toolbar.bmp">
