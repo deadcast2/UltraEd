@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 1;
     }
 
-    UltraEd::statusBar = CreateStatusWindow(WS_VISIBLE | WS_CHILD, "Welcome to UltraEd", 
+    UltraEd::statusBar = CreateStatusWindow(WS_VISIBLE | WS_CHILD, "Welcome to UltraEd",
         UltraEd::parentWindow, IDM_STATUS_BAR);
 
     if (!UltraEd::statusBar)
@@ -96,7 +96,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     GetClientRect(UltraEd::treeview, &treeviewRect);
     UltraEd::tabsWindow = CreateWindow(WC_TABCONTROL, "Tabs", WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
         treeviewRect.right, parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight,
-        parentRect.right, parentRect.bottom,
+        parentRect.right - treeviewRect.right + UltraEd::tabsBorder, parentRect.bottom,
         UltraEd::parentWindow, NULL, hInstance, NULL);
 
     if (UltraEd::tabsWindow == NULL)
@@ -114,9 +114,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 1;
     }
 
-    // Create the window for rendering the scene.
     RECT tabbedWindowRect;
     GetClientRect(UltraEd::tabsWindow, &tabbedWindowRect);
+    UltraEd::buildOutput = CreateWindowEx(0, "EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL |
+        ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL,
+        8, 28, tabbedWindowRect.right - 14, UltraEd::tabsWindowHeight - statusRect.bottom - 8,
+        UltraEd::tabsWindow, NULL, hInstance, NULL);
+
+    SendMessage(UltraEd::buildOutput, EM_SETREADONLY, TRUE, NULL);
+
+    // Create the window for rendering the scene.
     UltraEd::renderWindow = CreateWindow(szWindowClass, szTitle, WS_CLIPSIBLINGS | WS_CHILD,
         treeviewRect.right + UltraEd::treeviewBorder, 0,
         parentRect.right - treeviewRect.right, parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight,
@@ -138,8 +145,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     // Pass scene pointers to handles that need it during event handling.
-    SetWindowLongPtr(UltraEd::renderWindow, GWLP_USERDATA, (LPARAM)&scene);
-    SetWindowLongPtr(UltraEd::parentWindow, GWLP_USERDATA, (LPARAM)&scene);
+    SetWindowLongPtr(UltraEd::renderWindow, GWLP_USERDATA, (LPARAM)& scene);
+    SetWindowLongPtr(UltraEd::parentWindow, GWLP_USERDATA, (LPARAM)& scene);
 
     MSG msg = { 0 };
     while (WM_QUIT != msg.message)

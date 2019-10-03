@@ -38,6 +38,7 @@ namespace UltraEd
                 UltraEd::ToolbarHandler(wParam, scene);
                 UltraEd::TreeviewHandler(treeview, wParam, lParam, scene);
                 UltraEd::MouseMenuHandler(UltraEd::ScriptEditorHandler, hWnd, wParam, scene);
+                UltraEd::TabHandler(wParam, lParam);
                 break;
             }
             case WM_NOTIFY:
@@ -166,7 +167,12 @@ namespace UltraEd
 
                     MoveWindow(tabsWindow, treeviewRect.right, 
                         parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight,
-                        LOWORD(lParam), parentRect.bottom, 1);
+                        parentRect.right - treeviewRect.right + tabsBorder, parentRect.bottom, 1);
+
+                    RECT tabsWindowRect;
+                    GetClientRect(tabsWindow, &tabsWindowRect);
+
+                    MoveWindow(buildOutput, 8, 28, tabsWindowRect.right - 14, UltraEd::tabsWindowHeight - statusRect.bottom - 8, 1);
                     MoveWindow(renderWindow, treeviewRect.right + treeviewBorder, 0,
                         LOWORD(lParam) - treeviewRect.right, HIWORD(lParam) - statusRect.bottom - tabsWindowHeight, 1);
 

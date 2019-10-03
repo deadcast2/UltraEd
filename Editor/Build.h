@@ -14,7 +14,7 @@ namespace UltraEd
     class CBuild
     {
     public:
-        static bool Start(vector<CActor*> actors);
+        static bool Start(vector<CActor*> actors, HWND hWnd);
         static bool Run();
         static bool Load();
         static bool WriteSpecFile(vector<CActor*> actors);
@@ -25,6 +25,6 @@ namespace UltraEd
         static bool WriteMappingsFile(vector<CActor*> actors);
 
     private:
-        static bool Compile();
+        static bool Compile(HWND hWnd);
     };
 }

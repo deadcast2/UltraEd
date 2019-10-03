@@ -11,10 +11,11 @@
 #include "util.h"
 #include "debug.h"
 #include "SphereCollider.h"
+#include "resource.h"
 
 namespace UltraEd
 {
-    bool CBuild::WriteSpecFile(vector<CActor*> actors)
+    bool CBuild::WriteSpecFile(vector<CActor *> actors)
     {
         string specSegments, specIncludes;
         const char *specHeader = "#include <nusys.h>\n\n"
@@ -41,7 +42,7 @@ namespace UltraEd
 
         int loopCount = 0;
         for (auto actor : actors)
-        {          
+        {
             string newResName = CUtil::NewResourceName(loopCount++);
 
             if (actor->GetType() != ActorType::Model) continue;
@@ -122,12 +123,12 @@ namespace UltraEd
         return false;
     }
 
-    bool CBuild::WriteSegmentsFile(vector<CActor*> actors)
+    bool CBuild::WriteSegmentsFile(vector<CActor *> actors)
     {
         string romSegments;
         int loopCount = 0;
         for (auto actor : actors)
-        {           
+        {
             string newResName = CUtil::NewResourceName(loopCount++);
 
             if (actor->GetType() != ActorType::Model) continue;
@@ -171,7 +172,7 @@ namespace UltraEd
         return false;
     }
 
-    bool CBuild::WriteActorsFile(vector<CActor*> actors)
+    bool CBuild::WriteActorsFile(vector<CActor *> actors)
     {
         int actorCount = -1;
         char countBuffer[10];
@@ -196,8 +197,8 @@ namespace UltraEd
             actorInits.append("\n\t_UER_Actors[").append(countBuffer).append("] = ");
 
             D3DXVECTOR3 colliderCenter = actor->GetCollider() ? actor->GetCollider()->GetCenter() : D3DXVECTOR3(0, 0, 0);
-            FLOAT colliderRadius = actor->GetCollider() && actor->GetCollider()->GetType() == ColliderType::Sphere ? 
-                dynamic_cast<CSphereCollider*>(actor->GetCollider())->GetRadius() : 0.0f;
+            FLOAT colliderRadius = actor->GetCollider() && actor->GetCollider()->GetType() == ColliderType::Sphere ?
+                dynamic_cast<CSphereCollider *>(actor->GetCollider())->GetRadius() : 0.0f;
 
             if (actor->GetType() == ActorType::Model)
             {
@@ -227,7 +228,7 @@ namespace UltraEd
                 sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
                     position.x, position.y, position.z,
                     axis.x, axis.y, axis.z, angle * (180 / D3DX_PI),
-                    scale.x, scale.y, scale.z, 
+                    scale.x, scale.y, scale.z,
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius);
                 actorInits.append(vectorBuffer).append(");\n");
 
@@ -257,9 +258,9 @@ namespace UltraEd
                 D3DXVECTOR3 axis;
                 float angle;
                 actor->GetAxisAngle(&axis, &angle);
-                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf", 
+                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
                     position.x, position.y, position.z,
-                    axis.x, axis.y, axis.z, angle * (180 / D3DX_PI), 
+                    axis.x, axis.y, axis.z, angle * (180 / D3DX_PI),
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius);
                 actorInits.append(vectorBuffer).append(");\n");
             }
@@ -291,7 +292,7 @@ namespace UltraEd
         return false;
     }
 
-    bool CBuild::WriteCollisionFile(vector<CActor*> actors)
+    bool CBuild::WriteCollisionFile(vector<CActor *> actors)
     {
         string collideSetStart("void _UER_Collide() {");
         string collisions;
@@ -350,7 +351,7 @@ namespace UltraEd
         return false;
     }
 
-    bool CBuild::WriteScriptsFile(vector<CActor*> actors)
+    bool CBuild::WriteScriptsFile(vector<CActor *> actors)
     {
         string scriptStartStart("void _UER_Start() {");
         string scriptUpdateStart("\n\nvoid _UER_Update() {");
@@ -412,7 +413,7 @@ namespace UltraEd
         return false;
     }
 
-    bool CBuild::WriteMappingsFile(vector<CActor*> actors)
+    bool CBuild::WriteMappingsFile(vector<CActor *> actors)
     {
         string mappingsStart("void _UER_Mappings() {");
         int loopCount = 0;
@@ -439,7 +440,7 @@ namespace UltraEd
         return false;
     }
 
-    bool CBuild::Start(vector<CActor*> actors)
+    bool CBuild::Start(vector<CActor *> actors, HWND hWnd)
     {
         WriteSpecFile(actors);
         WriteSegmentsFile(actors);
@@ -447,7 +448,7 @@ namespace UltraEd
         WriteCollisionFile(actors);
         WriteScriptsFile(actors);
         WriteMappingsFile(actors);
-        return Compile();
+        return Compile(hWnd);
     }
 
     bool CBuild::Run()
@@ -516,7 +517,7 @@ namespace UltraEd
         return false;
     }
 
-    bool CBuild::Compile()
+    bool CBuild::Compile(HWND hWnd)
     {
         // Set the root env variable for the N64 build tools.
         SetEnvironmentVariable("ROOT", "..\\Engine\\n64sdk\\ultra");
@@ -525,12 +526,29 @@ namespace UltraEd
         char buffer[MAX_PATH];
         if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
         {
+            HANDLE stdOutRead = NULL;
+            HANDLE stdOutWrite = NULL;
+
+            SECURITY_ATTRIBUTES securityAttrs;
+            securityAttrs.nLength = sizeof(SECURITY_ATTRIBUTES);
+            securityAttrs.bInheritHandle = TRUE;
+            securityAttrs.lpSecurityDescriptor = NULL;
+
+            if (!CreatePipe(&stdOutRead, &stdOutWrite, &securityAttrs, 0))
+                MessageBox(NULL, "Could not create pipe", "Pipe Error", NULL);
+
+            if (!SetHandleInformation(stdOutRead, HANDLE_FLAG_INHERIT, 0))
+                MessageBox(NULL, "Could set handle information for pipe", "Pipe Error", NULL);
+
             DWORD exitCode;
             STARTUPINFO si;
             PROCESS_INFORMATION pi;
 
             ZeroMemory(&si, sizeof(si));
             si.cb = sizeof(si);
+            si.hStdError = stdOutWrite;
+            si.hStdOutput = stdOutWrite;
+            si.dwFlags |= STARTF_USESTDHANDLES;
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
@@ -538,11 +556,30 @@ namespace UltraEd
             currDir.append("\\..\\..\\Engine");
 
             // Start the build with no window.
-            CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
+            CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
+
+            DWORD dwRead;
+            CHAR chBuf[4096];
+            CloseHandle(stdOutWrite);
+
+            // Send the build results to the output window.
+            SendMessage(hWnd, WM_COMMAND, TAB_BUILD_OUTPUT_CLEAR, NULL);
+            while (ReadFile(stdOutRead, chBuf, 4096, &dwRead, NULL))
+            {
+                if (dwRead == 0) break;
+                auto buffer = make_unique<char[]>(dwRead + 1); // Add 1 to prevent garbage.
+                if (buffer)
+                {
+                    memcpy(buffer.get(), chBuf, dwRead);
+                    SendMessage(hWnd, WM_COMMAND, TAB_BUILD_OUTPUT, reinterpret_cast<LPARAM>(buffer.release()));
+                }
+            }
+
             WaitForSingleObject(pi.hProcess, INFINITE);
             GetExitCodeProcess(pi.hProcess, &exitCode);
             CloseHandle(pi.hProcess);
             CloseHandle(pi.hThread);
+            CloseHandle(stdOutRead);
 
             return exitCode == 0;
         }

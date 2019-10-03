@@ -207,7 +207,7 @@ namespace UltraEd
             actors.push_back(actor.second.get());
         }
 
-        if (CBuild::Start(actors))
+        if (CBuild::Start(actors, GetWndHandle()))
         {
             if (flag & BuildFlag::Run)
             {
