@@ -1,6 +1,9 @@
 #ifndef _HASHTABLE_H_
 #define _HASHTABLE_H_
 
+#include <malloc.h>
+#include "n64sdk\ultra\GCC\MIPSE\INCLUDE\STRING.H"
+
 #define HASHSIZE 100
 
 struct nlist
@@ -12,7 +15,7 @@ struct nlist
 
 static struct nlist *hashtable[HASHSIZE];
 
-unsigned hash(char *s)
+unsigned hash(const char *s)
 {
     unsigned int hashval;
     for (hashval = 0; *s != '\0'; s++)
@@ -22,7 +25,7 @@ unsigned hash(char *s)
     return hashval % HASHSIZE;
 }
 
-struct nlist *lookup(char *s)
+struct nlist *lookup(const char *s)
 {
     struct nlist *np;
     for (np = hashtable[hash(s)]; np != NULL; np = np->next)
@@ -35,7 +38,7 @@ struct nlist *lookup(char *s)
     return NULL;
 }
 
-struct nlist *insert(char *name, unsigned int index)
+struct nlist *insert(const char *name, unsigned int index)
 {
     struct nlist *np;
     if ((np = lookup(name)) == NULL)

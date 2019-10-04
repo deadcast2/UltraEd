@@ -58,4 +58,8 @@ actor *create_camera(double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, 
     double centerX, double centerY, double centerZ, double radius);
 
+void model_draw(actor *model, Gfx **display_list);
+
+int check_collision(actor *a, actor *b);
+
 #endif

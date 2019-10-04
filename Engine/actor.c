@@ -1,6 +1,10 @@
 #include <nusys.h>
+#include <malloc.h>
+#include <string.h>
+#include <stdio.h>
 #include "upng.h"
 #include "actor.h"
+#include "utilities.h"
 
 actor *load_model(void *data_start, void *data_end, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 

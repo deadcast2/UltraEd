@@ -1,11 +1,11 @@
 #include <nusys.h>
 #include <math.h>
+#include "utilities.h"
 #include "hashtable.h"
 #include "actor.h"
 #include "segments.h"
 #include "actors.h"
 #include "mappings.h"
-#include "utilities.h"
 #include "core.h"
 #include "scripts.h"
 #include "collisions.h"
