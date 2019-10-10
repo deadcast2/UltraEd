@@ -17,7 +17,8 @@ namespace UltraEd
         m_scale = D3DXVECTOR3(1, 1, 1);
         m_script = string("void @start()\n{\n\n}\n\nvoid @update()\n{\n\n}\n\nvoid @input(NUContData gamepads[4])\n{\n\n}");
         m_script.append("\n\nvoid @collide(actor *other)\n{\n\n}");
-        
+        SetDirty(true);
+
         D3DXMatrixIdentity(&m_localRot);
         D3DXMatrixIdentity(&m_worldRot);
 
@@ -75,7 +76,7 @@ namespace UltraEd
 
             VOID *pVertices;
             if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(Vertex),
-                (BYTE**)&pVertices, 0)))
+                (BYTE **)& pVertices, 0)))
             {
                 return NULL;
             }
@@ -132,7 +133,7 @@ namespace UltraEd
     {
         D3DXMATRIX newWorld;
         D3DXMatrixRotationAxis(&newWorld, &dir, angle);
-        m_worldRot *= newWorld;
+        Dirty([&] { m_worldRot *= newWorld; }, &m_worldRot);
     }
 
     D3DXMATRIX CActor::GetMatrix()
@@ -238,6 +239,8 @@ namespace UltraEd
             cJSON_AddItemToObject(actor, "collider", m_collider->Save().object);
         }
 
+        SetDirty(false);
+
         Savable savable = { root, SavableType::Actor };
         return savable;
     }
@@ -293,6 +296,8 @@ namespace UltraEd
                 Import(path);
             }
         }
+
+        SetDirty(false);
 
         return true;
     }

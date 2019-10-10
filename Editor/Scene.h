@@ -19,7 +19,7 @@ namespace UltraEd
         enum Value { _, Run, Load };
     };
 
-    class CScene
+    class CScene : public CSavable
     {
     public:
         CScene();
@@ -45,6 +45,7 @@ namespace UltraEd
         bool Pick(POINT mousePoint, CActor **selectedActor = NULL);
         void ReleaseResources(ModelRelease::Value type);
         void CheckInput(float);
+        void CheckChanges();
         void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
         void SetViewType(ViewType::Value type);
         void SetGizmoModifier(GizmoModifierState::Value state);
@@ -53,10 +54,13 @@ namespace UltraEd
         bool ToggleFillMode();
         bool ToggleSnapToGrid();
         void SelectActorById(GUID id);
+        Savable Save() { return {}; }
+        bool Load(IDirect3DDevice8 *device, cJSON *root) { return true; }
+        void SetDirty(bool value);
 
     private:
         HWND GetWndHandle();
-        void SetTitle(string title);
+        void SetTitle(string title, bool store = true);
         void UpdateViewMatrix();
         void ResetViews();
         void RefreshActorList();
@@ -76,5 +80,6 @@ namespace UltraEd
         vector<GUID> m_selectedActorIds;
         float m_mouseSmoothX, m_mouseSmoothY;
         ViewType::Value m_activeViewType;
+        string m_sceneName;
     };
 }

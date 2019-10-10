@@ -76,6 +76,13 @@ namespace UltraEd
         return true;
     }
 
+    bool CModel::SetTexture(IDirect3DDevice8 *device, const char *filePath)
+    {
+        bool result = false;
+        Dirty([&] { result = LoadTexture(device, filePath); }, &result);
+        return result;
+    }
+
     Savable CModel::Save()
     {
         return CActor::Save();

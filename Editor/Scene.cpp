@@ -252,7 +252,7 @@ namespace UltraEd
                 "*.jpg\0BMP (*.bmp)\0*.bmp\0TGA (*.tga)\0*.tga", file))
             {
                 if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
-                if (!dynamic_cast<CModel *>(m_actors[selectedActorId].get())->LoadTexture(m_device, file.c_str()))
+                if (!dynamic_cast<CModel *>(m_actors[selectedActorId].get())->SetTexture(m_device, file.c_str()))
                 {
                     MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
                 }
@@ -351,6 +351,7 @@ namespace UltraEd
         float deltaTime = (currentTime - lastTime) * 0.001f;
 
         CheckInput(deltaTime);
+        CheckChanges();
 
         if (m_device)
         {
@@ -461,6 +462,18 @@ namespace UltraEd
         prevTick = GetTickCount();
     }
 
+    void CScene::CheckChanges()
+    {
+        for (const auto actor : m_actors)
+        {
+            if (actor.second->IsDirty())
+            {
+                SetDirty(true);
+                break;
+            }
+        }
+    }
+
     void CScene::OnMouseWheel(short zDelta)
     {
         GetActiveView()->Walk(zDelta * 0.005f);
@@ -560,6 +573,7 @@ namespace UltraEd
                 m_actors[selectedActorId]->Release();
             }
             m_actors.erase(selectedActorId);
+            SetDirty(true);
         }
         m_selectedActorIds.clear();
         RefreshActorList();
@@ -575,7 +589,7 @@ namespace UltraEd
                 {
                     auto model = make_shared<CModel>(*dynamic_cast<CModel *>(m_actors[selectedActorId].get()));
                     string texturePath = model->GetResources()["textureDataPath"];
-                    model->LoadTexture(m_device, texturePath.c_str());
+                    model->SetTexture(m_device, texturePath.c_str());
                     m_actors[model->GetId()] = model;
                     break;
                 }
@@ -657,16 +671,6 @@ namespace UltraEd
         }
     }
 
-    void CScene::SetTitle(string title)
-    {
-        HWND parentWnd = GetParent(GetWndHandle());
-        if (parentWnd != NULL)
-        {
-            title.append(" - ").append(APP_NAME);
-            SetWindowText(parentWnd, title.c_str());
-        }
-    }
-
     bool CScene::ToggleSnapToGrid()
     {
         return m_gizmo.ToggleSnapping();
@@ -700,5 +704,30 @@ namespace UltraEd
         m_selectedActorIds.clear();
         m_selectedActorIds.push_back(id);
         m_gizmo.Update(m_actors[id].get());
+    }
+
+    void CScene::SetTitle(string title, bool store)
+    {
+        HWND parentWnd = GetParent(GetWndHandle());
+        if (parentWnd != NULL)
+        {
+            if (store) m_sceneName = title;
+            title.append(" - ").append(APP_NAME);
+            SetWindowText(parentWnd, title.c_str());
+        }
+    }
+
+    void CScene::SetDirty(bool value)
+    {
+        HWND parentWnd = GetParent(GetWndHandle());
+        if (parentWnd != NULL)
+        {
+            string newSceneName(m_sceneName);
+            if (value)
+            {
+                newSceneName.append("*");
+            }
+            SetTitle(newSceneName, false);
+        }
     }
 }
