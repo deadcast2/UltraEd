@@ -177,7 +177,7 @@ namespace UltraEd
             MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
         }
 
-        for (auto selectedActorId : m_selectedActorIds)
+        for (const auto &selectedActorId : m_selectedActorIds)
         {
             if (type == ColliderType::Box)
             {
@@ -197,7 +197,7 @@ namespace UltraEd
             MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
         }
 
-        for (auto selectedActorId : m_selectedActorIds)
+        for (const auto &selectedActorId : m_selectedActorIds)
         {
             m_actors[selectedActorId]->SetCollider(NULL);
         }
@@ -209,7 +209,7 @@ namespace UltraEd
         vector<CActor *> actors;
 
         // Gather all of the actors in the scene.
-        for (auto actor : m_actors)
+        for (const auto &actor : m_actors)
         {
             actors.push_back(actor.second.get());
         }
@@ -252,7 +252,7 @@ namespace UltraEd
             return;
         }
 
-        for (auto selectedActorId : m_selectedActorIds)
+        for (const auto &selectedActorId : m_selectedActorIds)
         {
             if (CDialog::Open("Select a texture",
                 "PNG (*.png)\0*.png\0JPEG (*.jpg)\0"
@@ -278,7 +278,7 @@ namespace UltraEd
         if (gizmoSelected && !m_selectedActorIds.empty()) return true;
 
         // Check all actors to see which poly might have been picked.
-        for (auto actor : m_actors)
+        for (const auto &actor : m_actors)
         {
             // Only choose the closest actors to the view.
             float pickDist = 0;
@@ -381,7 +381,7 @@ namespace UltraEd
             m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
             m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
 
-            for (auto actor : m_actors)
+            for (const auto &actor : m_actors)
             {
                 actor.second->Render(m_device, stack);
             }
@@ -391,7 +391,7 @@ namespace UltraEd
                 // Highlight the selected actor.
                 m_device->SetMaterial(&m_selectedMaterial);
                 m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-                for (auto selectedActorId : m_selectedActorIds)
+                for (const auto &selectedActorId : m_selectedActorIds)
                 {
                     m_actors[selectedActorId]->Render(m_device, stack);
                 }
@@ -429,7 +429,7 @@ namespace UltraEd
             D3DXVECTOR3 rayOrigin, rayDir;
             ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
             GUID lastSelectedActorId = m_selectedActorIds.back();
-            for (auto selectedActorId : m_selectedActorIds)
+            for (const auto &selectedActorId : m_selectedActorIds)
             {
                 m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
                     m_actors[lastSelectedActorId].get());
@@ -555,7 +555,7 @@ namespace UltraEd
         m_grid.Release();
         m_gizmo.Release();
         CDebug::Instance().Release();
-        for (auto actor : m_actors)
+        for (const auto &actor : m_actors)
         {
             if (auto model = dynamic_cast<CModel *>(actor.second.get()))
             {
@@ -697,11 +697,11 @@ namespace UltraEd
     void CScene::RefreshActorList()
     {
         SendMessage(GetWndHandle(), WM_COMMAND, TV_CLEAR_ACTORS, 0);
-        for (auto actor : m_actors)
+        for (const auto &actor : m_actors)
         {
             SendMessage(GetWndHandle(), WM_COMMAND, TV_ADD_ACTOR, (LPARAM)actor.second.get());
         }
-        for (auto selectedActorId : m_selectedActorIds)
+        for (const auto &selectedActorId : m_selectedActorIds)
         {
             SendMessage(GetWndHandle(), WM_COMMAND, TV_SELECT_ACTOR, (LPARAM)m_actors[selectedActorId].get());
         }

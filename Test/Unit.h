@@ -20,7 +20,7 @@ public:
         CAssert assert;
         cout << "Starting tests\n";
 
-        for (auto test : m_tests)
+        for (const auto &test : m_tests)
         {
             try
             {

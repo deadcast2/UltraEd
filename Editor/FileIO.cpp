@@ -31,7 +31,7 @@ namespace UltraEd
             cJSON *actorArray = cJSON_CreateArray();
             cJSON_AddItemToObject(root, "actors", actorArray);
 
-            for (auto savable : savables)
+            for (const auto &savable : savables)
             {
                 Savable current = savable->Save();
                 cJSON *object = current.object->child;
@@ -42,7 +42,7 @@ namespace UltraEd
 
                 // Rewrite and archive the attached resources.
                 map<string, string> resources = savable->GetResources();
-                for (auto resource : resources)
+                for (const auto &resource : resources)
                 {
                     const char *fileName = PathFindFileName(resource.second.c_str());
                     FILE *file = fopen(resource.second.c_str(), "rb");
@@ -395,7 +395,7 @@ namespace UltraEd
         string currentPath;
 
         // Walk up path creating each folder as we go deeper.
-        for (auto folder : folders)
+        for (const auto &folder : folders)
         {
             currentPath.append(folder).append("\\");
 

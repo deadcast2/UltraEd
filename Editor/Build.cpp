@@ -41,7 +41,7 @@ namespace UltraEd
         const char *specIncludeEnd = "\nendwave";
 
         int loopCount = 0;
-        for (auto actor : actors)
+        for (const auto &actor : actors)
         {
             string newResName = CUtil::NewResourceName(loopCount++);
 
@@ -127,7 +127,7 @@ namespace UltraEd
     {
         string romSegments;
         int loopCount = 0;
-        for (auto actor : actors)
+        for (const auto &actor : actors)
         {
             string newResName = CUtil::NewResourceName(loopCount++);
 
@@ -183,7 +183,7 @@ namespace UltraEd
         actorsArrayDef.append(countBuffer).append(";\nactor *_UER_Actors[")
             .append(countBuffer).append("];\n");
 
-        for (auto actor : actors)
+        for (const auto &actor : actors)
         {
             string resourceName = CUtil::NewResourceName(++actorCount);
 
@@ -299,13 +299,13 @@ namespace UltraEd
         int collisionCount = 0;
         char countBuffer[10];
 
-        for (auto actor : actors)
+        for (const auto &actor : actors)
         {
             int subLoop = collisionCount++;
 
             if (!actor->GetCollider()) continue;
 
-            for (auto subActor = next(actors.begin(), collisionCount); subActor != actors.end(); ++subActor)
+            for (auto &subActor = next(actors.begin(), collisionCount); subActor != actors.end(); ++subActor)
             {
                 subLoop++;
 
@@ -361,7 +361,7 @@ namespace UltraEd
         char countBuffer[10];
         int actorCount = -1;
 
-        for (auto actor : actors)
+        for (const auto &actor : actors)
         {
             string actorRef;
             actorRef.append("_UER_Actors[");
@@ -419,7 +419,7 @@ namespace UltraEd
         int loopCount = 0;
         char countBuffer[10];
 
-        for (auto actor : actors)
+        for (const auto &actor : actors)
         {
             _itoa(loopCount++, countBuffer, 10);
             mappingsStart.append("\n\tinsert(\"").append(actor->GetName()).append("\", ").append(countBuffer).append(");\n");
