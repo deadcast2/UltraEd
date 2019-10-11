@@ -30,10 +30,10 @@ namespace UltraEd
         tvins.hInsertAfter = (HTREEITEM)TVI_FIRST;
         tvins.hParent = TVI_ROOT;
 
-        TreeView_InsertItem(treeview, (LPTVINSERTSTRUCT)&tvins);
+        TreeView_InsertItem(treeview, (LPTVINSERTSTRUCT)& tvins);
     }
 
-    void TreeviewHandler(HWND treeview, WPARAM wParam, LPARAM lParam, CScene *scene)
+    void TreeviewHandler(HWND treeview, HWND hWnd, WPARAM wParam, LPARAM lParam, CScene *scene)
     {
         switch (wParam)
         {
@@ -81,6 +81,19 @@ namespace UltraEd
             {
                 auto info = (LPNMTVKEYDOWN)lParam;
                 KeyDownHandler(info->wVKey, scene);
+                break;
+            }
+            case NM_RCLICK:
+            {
+                TVITEM tvitem = { 0 };
+                tvitem.hItem = TreeView_GetSelection(treeview);
+                TreeView_GetItem(treeview, &tvitem);
+                auto actor = (CActor *)tvitem.lParam;
+
+                POINT point = { 0 };
+                GetCursorPos(&point);
+
+                if (actor != NULL) MouseMenuCreate(hWnd, point, actor);
                 break;
             }
         }

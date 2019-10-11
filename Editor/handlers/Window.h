@@ -5,9 +5,9 @@
 #include "MouseMenu.h"
 #include "Toolbar.h"
 #include "KeyDown.h"
+#include "ScriptEditor.h"
 #include "Treeview.h"
 #include "Tabs.h"
-#include "ScriptEditor.h"
 
 namespace UltraEd
 {
@@ -36,14 +36,14 @@ namespace UltraEd
             {
                 UltraEd::MenuHandler(statusBar, hWnd, wParam, scene);
                 UltraEd::ToolbarHandler(wParam, scene);
-                UltraEd::TreeviewHandler(treeview, wParam, lParam, scene);
+                UltraEd::TreeviewHandler(treeview, hWnd, wParam, lParam, scene);
                 UltraEd::MouseMenuHandler(UltraEd::ScriptEditorHandler, hWnd, wParam, scene);
                 UltraEd::TabHandler(wParam, lParam);
                 break;
             }
             case WM_NOTIFY:
             {
-                UltraEd::TreeviewHandler(treeview, ((LPNMHDR)lParam)->code, lParam, scene);
+                UltraEd::TreeviewHandler(treeview, hWnd, ((LPNMHDR)lParam)->code, lParam, scene);
                 break;
             }
             case WM_MOUSEMOVE:
@@ -115,32 +115,13 @@ namespace UltraEd
                 // it doesn't show after dragging.
                 if (GetTickCount() - mouseClickTick < mouseWaitPeriod)
                 {
-                    POINT point = { LOWORD(lParam), HIWORD(lParam) };
                     CActor *selectedActor = NULL;
+                    POINT point = { LOWORD(lParam), HIWORD(lParam) };
 
                     if (scene->Pick(point, &selectedActor))
                     {
                         ClientToScreen(hWnd, &point);
-                        HMENU menu = CreatePopupMenu();
-
-                        if (selectedActor != NULL && selectedActor->GetType() == ActorType::Model)
-                        {
-                            AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
-                        }
-
-                        HMENU colliderMenu = CreatePopupMenu();
-                        AppendMenu(menu, MF_STRING | MF_POPUP, (UINT_PTR)colliderMenu, _T("Collider"));
-                        AppendMenu(colliderMenu, MF_STRING, IDM_MENU_ADD_BOX_COLLIDER, _T("Add Box"));
-                        AppendMenu(colliderMenu, MF_STRING, IDM_MENU_ADD_SPHERE_COLLIDER, _T("Add Sphere"));
-                        AppendMenu(colliderMenu, MF_SEPARATOR, NULL, NULL);
-                        AppendMenu(colliderMenu, MF_STRING, IDM_MENU_DELETE_COLLIDER, _T("Delete"));
-
-                        AppendMenu(menu, MF_STRING, IDM_MENU_MODIFY_SCRIPT_OBJECT, _T("Modify Script"));
-                        AppendMenu(menu, MF_STRING, IDM_MENU_DELETE_OBJECT, _T("Delete"));
-                        AppendMenu(menu, MF_STRING, IDM_MENU_DUPLICATE_OBJECT, _T("Duplicate"));
-                        TrackPopupMenu(menu, TPM_RIGHTBUTTON, point.x, point.y, 0, hWnd, NULL);
-                        DestroyMenu(menu);
-                        DestroyMenu(colliderMenu);
+                        MouseMenuCreate(hWnd, point, selectedActor);
                     }
                 }
                 break;
