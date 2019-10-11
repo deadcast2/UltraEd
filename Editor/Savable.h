@@ -38,7 +38,7 @@ namespace UltraEd
             set();
             if (before != *var) m_isDirty = true;
         }
-        void SetDirty(bool value) { m_isDirty = value; }
+        virtual void SetDirty(bool value) { m_isDirty = value; }
         map<string, string> resources;
 
     private:

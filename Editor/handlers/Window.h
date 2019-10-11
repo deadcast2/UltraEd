@@ -189,6 +189,9 @@ namespace UltraEd
                 PostQuitMessage(0);
                 break;
             }
+            case WM_CLOSE:
+                if (scene == NULL || scene->Confirm()) PostQuitMessage(0);
+                break;
             default:
             {
                 return DefWindowProc(hWnd, message, wParam, lParam);

@@ -13,10 +13,7 @@ namespace UltraEd
         switch (LOWORD(wParam))
         {
             case ID_FILE_NEWSCENE:
-                if (MessageBox(hWnd, "All scene data will be erased.", "Are you sure?", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
-                {
-                    scene->OnNew();
-                }
+                scene->OnNew();
                 break;
             case ID_FILE_SAVESCENE:
                 scene->OnSave();
@@ -25,7 +22,7 @@ namespace UltraEd
                 scene->OnLoad();
                 break;
             case ID_FILE_EXIT:
-                PostQuitMessage(0);
+                SendMessage(hWnd, WM_CLOSE, 0, 0);
                 break;
             case ID_FILE_BUILDROM:
                 CUtil::RunAction(statusBar, "Building ROM...", [scene] { scene->OnBuildROM(BuildFlag::_); });

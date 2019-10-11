@@ -69,8 +69,10 @@ namespace UltraEd
         return true;
     }
 
-    void CScene::OnNew()
+    void CScene::OnNew(bool confirm)
     {
+        if (confirm && !Confirm()) return;
+
         SetTitle("New");
         m_selectedActorIds.clear();
         ReleaseResources(ModelRelease::AllResources);
@@ -79,7 +81,7 @@ namespace UltraEd
         RefreshActorList();
     }
 
-    void CScene::OnSave()
+    bool CScene::OnSave()
     {
         vector<CSavable *> savables;
 
@@ -87,7 +89,7 @@ namespace UltraEd
         for (int i = 0; i < 4; i++) savables.push_back(&m_views[i]);
 
         // Save all of the actors in the scene.
-        for (auto actor : m_actors)
+        for (const auto &actor : m_actors)
         {
             savables.push_back(actor.second.get());
         }
@@ -96,16 +98,21 @@ namespace UltraEd
         if (CFileIO::Save(savables, savedName))
         {
             SetTitle(savedName);
+            return true;
         }
+
+        return false;
     }
 
     void CScene::OnLoad()
     {
+        if (!Confirm()) return;
+
         cJSON *root = NULL;
         string loadedName;
         if (CFileIO::Load(&root, loadedName))
         {
-            OnNew();
+            OnNew(false);
             SetTitle(loadedName);
 
             // Restore editor views.
@@ -464,14 +471,15 @@ namespace UltraEd
 
     void CScene::CheckChanges()
     {
-        for (const auto actor : m_actors)
+        for (const auto &actor : m_actors)
         {
             if (actor.second->IsDirty())
             {
                 SetDirty(true);
-                break;
+                return;
             }
         }
+        SetDirty(false);
     }
 
     void CScene::OnMouseWheel(short zDelta)
@@ -562,7 +570,7 @@ namespace UltraEd
 
     void CScene::Delete()
     {
-        for (auto selectedActorId : m_selectedActorIds)
+        for (const auto &selectedActorId : m_selectedActorIds)
         {
             if (auto model = dynamic_cast<CModel *>(m_actors[selectedActorId].get()))
             {
@@ -581,7 +589,7 @@ namespace UltraEd
 
     void CScene::Duplicate()
     {
-        for (auto selectedActorId : m_selectedActorIds)
+        for (const auto &selectedActorId : m_selectedActorIds)
         {
             switch (m_actors[selectedActorId]->GetType())
             {
@@ -719,6 +727,8 @@ namespace UltraEd
 
     void CScene::SetDirty(bool value)
     {
+        CSavable::SetDirty(value);
+
         HWND parentWnd = GetParent(GetWndHandle());
         if (parentWnd != NULL)
         {
@@ -729,5 +739,21 @@ namespace UltraEd
             }
             SetTitle(newSceneName, false);
         }
+    }
+
+    bool CScene::Confirm()
+    {
+        if (IsDirty())
+        {
+            int choice = MessageBox(NULL, "Would you like to save your changes?", "Are you sure?", MB_YESNOCANCEL | MB_ICONQUESTION);
+            switch (choice)
+            {
+                case IDCANCEL:
+                    return false;
+                case IDYES:
+                    if (!OnSave()) return false;
+            }
+        }
+        return true;
     }
 }

@@ -33,8 +33,8 @@ namespace UltraEd
         void Render();
         void Resize();
         void OnMouseWheel(short zDelta);
-        void OnNew();
-        void OnSave();
+        void OnNew(bool confirm = true);
+        bool OnSave();
         void OnLoad();
         void OnAddCamera();
         void OnApplyTexture();
@@ -57,6 +57,7 @@ namespace UltraEd
         Savable Save() { return {}; }
         bool Load(IDirect3DDevice8 *device, cJSON *root) { return true; }
         void SetDirty(bool value);
+        bool Confirm();
 
     private:
         HWND GetWndHandle();
