@@ -3,13 +3,13 @@
 
 namespace UltraEd
 {
-    CCollider::CCollider()
+    CCollider::CCollider() : 
+        m_type(ColliderType::Box),
+        m_vertices(),
+        m_center(0, 0, 0), 
+        m_material(),
+        m_vertexBuffer()
     {
-        m_type = ColliderType::Box;
-        m_vertexBuffer = 0;
-        m_center = D3DXVECTOR3(0, 0, 0);
-
-        ZeroMemory(&m_material, sizeof(D3DMATERIAL8));
         m_material.Emissive.r = 0;
         m_material.Emissive.g = 1;
         m_material.Emissive.b = 0;
@@ -19,19 +19,14 @@ namespace UltraEd
     {
         if (m_vertexBuffer == NULL)
         {
-            if (FAILED(device->CreateVertexBuffer(
-                m_vertices.size() * sizeof(Vertex),
-                0,
-                D3DFVF_XYZ,
-                D3DPOOL_DEFAULT,
-                &m_vertexBuffer)))
+            if (FAILED(device->CreateVertexBuffer(m_vertices.size() * sizeof(Vertex), 0, D3DFVF_XYZ,
+                D3DPOOL_DEFAULT, &m_vertexBuffer)))
             {
                 return NULL;
             }
 
-            VOID* pVertices;
-            if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(Vertex),
-                (BYTE**)&pVertices, 0)))
+            void *pVertices;
+            if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(Vertex), (BYTE **)&pVertices, 0)))
             {
                 return NULL;
             }

@@ -6,10 +6,11 @@
 
 namespace UltraEd
 {
-    CMesh::CMesh(const char *filePath)
+    CMesh::CMesh(const char *filePath) :
+        m_vertices(),
+        m_info(CFileIO::Import(filePath))
     {
         Assimp::Importer importer;
-        m_info = CFileIO::Import(filePath);
         const aiScene *scene = importer.ReadFile(m_info.path, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded |
             aiProcess_OptimizeMeshes);
 

@@ -4,16 +4,20 @@
 
 namespace UltraEd
 {
-    CGizmo::CGizmo()
+    CGizmo::CGizmo() :
+        m_redMaterial(),
+        m_greenMaterial(),
+        m_blueMaterial(),
+        m_models(),
+        m_axisState(GizmoAxisState::XAxis), 
+        m_modifierState(GizmoModifierState::Translate),
+        m_updateStartPoint(-999, -999, -999),
+        m_xAxisRot(0, -D3DX_PI / 2, 0), 
+        m_yAxisRot(D3DX_PI / 2, 0, 0), 
+        m_zAxisRot(0, D3DX_PI, 0),
+        m_worldSpaceToggled(true), 
+        m_snapToGridToggled(false)
     {
-        m_axisState = GizmoAxisState::XAxis;
-        m_modifierState = GizmoModifierState::Translate;
-        m_xAxisRot = D3DXVECTOR3(0, -D3DX_PI / 2, 0);
-        m_yAxisRot = D3DXVECTOR3(D3DX_PI / 2, 0, 0);
-        m_zAxisRot = D3DXVECTOR3(0, D3DX_PI, 0);
-        m_worldSpaceToggled = TRUE;
-        snapToGridToggled = false;
-
         SetupMaterials();
         SetupTransHandles();
         SetupScaleHandles();
@@ -115,19 +119,16 @@ namespace UltraEd
     void CGizmo::SetupMaterials()
     {
         // Create the red material.
-        ZeroMemory(&m_redMaterial, sizeof(D3DMATERIAL8));
         m_redMaterial.Emissive.r = 0.8f;
         m_redMaterial.Emissive.g = 0;
         m_redMaterial.Emissive.b = 0;
 
         // Create the green material.
-        ZeroMemory(&m_greenMaterial, sizeof(D3DMATERIAL8));
         m_greenMaterial.Emissive.r = 0;
         m_greenMaterial.Emissive.g = 0.8f;
         m_greenMaterial.Emissive.b = 0;
 
         // Create the blue material.
-        ZeroMemory(&m_blueMaterial, sizeof(D3DMATERIAL8));
         m_blueMaterial.Emissive.r = 0;
         m_blueMaterial.Emissive.g = 0;
         m_blueMaterial.Emissive.b = 0.8f;
@@ -246,7 +247,7 @@ namespace UltraEd
 
             if (m_modifierState == GizmoModifierState::Translate)
             {
-                if (shouldSnap && snapToGridToggled)
+                if (shouldSnap && m_snapToGridToggled)
                 {
                     D3DXVECTOR3 newPos = currentActor->GetPosition();
                     newPos.x = snap(newPos.x * (1 / snapSize)) / (1 / snapSize);
@@ -254,7 +255,7 @@ namespace UltraEd
                     newPos.z = snap(newPos.z * (1 / snapSize)) / (1 / snapSize);
                     currentActor->SetPosition(newPos + (targetDir * snapSize * sign));
                 }
-                else if (!snapToGridToggled)
+                else if (!m_snapToGridToggled)
                 {
                     currentActor->Move(targetDir * (moveDist * modifier));
                 }
@@ -281,7 +282,7 @@ namespace UltraEd
 
             if (selectedActor == currentActor)
             {
-                if (shouldSnap || !snapToGridToggled)
+                if (shouldSnap || !m_snapToGridToggled)
                 {
                     m_updateStartPoint = intersectPoint;
                 }
@@ -316,7 +317,7 @@ namespace UltraEd
 
     bool CGizmo::ToggleSnapping()
     {
-        snapToGridToggled = !snapToGridToggled;
-        return snapToGridToggled;
+        m_snapToGridToggled = !m_snapToGridToggled;
+        return m_snapToGridToggled;
     }
 }

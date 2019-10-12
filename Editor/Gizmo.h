@@ -50,6 +50,6 @@ namespace UltraEd
         D3DXVECTOR3 m_yAxisRot;
         D3DXVECTOR3 m_zAxisRot;
         bool m_worldSpaceToggled;
-        bool snapToGridToggled;
+        bool m_snapToGridToggled;
     };
 }
