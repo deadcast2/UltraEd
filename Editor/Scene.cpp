@@ -424,11 +424,13 @@ namespace UltraEd
 
         static POINT prevMousePoint = mousePoint;
         static DWORD prevTick = GetTickCount();
+        static bool prevInScene = false;
         const float smoothingModifier = 16.0f;
         const float mouseSpeedModifier = 0.55f;
         const bool mouseReady = GetTickCount() - prevTick < 100;
 
-        if (!MouseInScene(mousePoint)) return;
+        // Only accept input when mouse in scene or when pressed mouse leaves scene.
+        if (!prevInScene && !(prevInScene = MouseInScene(mousePoint))) return;
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
@@ -468,6 +470,8 @@ namespace UltraEd
 
             // Reset smoothing values for new mouse view movement.
             m_mouseSmoothX = m_mouseSmoothX = 0;
+
+            prevInScene = false;
         }
 
         // Remember the last position so we know how much to move the view.
