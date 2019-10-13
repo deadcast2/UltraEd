@@ -431,6 +431,8 @@ namespace UltraEd
 
         // Only accept input when mouse in scene or when pressed mouse leaves scene.
         if (!prevInScene && !(prevInScene = MouseInScene(mousePoint))) return;
+        
+        WrapCursor();
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
@@ -775,5 +777,23 @@ namespace UltraEd
         GetClientRect(GetWndHandle(), &rect);
         return mousePoint.x > 0 && mousePoint.x < rect.right
             && mousePoint.y > 0 && mousePoint.y < rect.bottom;
+    }
+
+    void CScene::WrapCursor()
+    {
+        const int screenX = GetSystemMetrics(SM_CXVIRTUALSCREEN) - 1;
+        const int screenY = GetSystemMetrics(SM_CYVIRTUALSCREEN) - 1;
+
+        POINT mousePoint;
+        GetCursorPos(&mousePoint);
+
+        if (mousePoint.x >= screenX)
+            SetCursorPos(1, mousePoint.y);
+        else if (mousePoint.x < 1)
+            SetCursorPos(screenX - 1, mousePoint.y);
+        else if (mousePoint.y >= screenY)
+            SetCursorPos(mousePoint.x, 1);
+        else if (mousePoint.y < 1)
+            SetCursorPos(mousePoint.x, screenY - 1);
     }
 }

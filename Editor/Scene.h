@@ -66,6 +66,7 @@ namespace UltraEd
         void ResetViews();
         void RefreshActorList();
         bool MouseInScene(const POINT &mousePoint);
+        void WrapCursor();
 
     private:
         D3DLIGHT8 m_worldLight;
