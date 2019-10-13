@@ -44,8 +44,6 @@ namespace UltraEd
         void OnBuildROM(BuildFlag::Value flag);
         bool Pick(POINT mousePoint, CActor **selectedActor = NULL);
         void ReleaseResources(ModelRelease::Value type);
-        void CheckInput(float);
-        void CheckChanges();
         void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
         void SetViewType(ViewType::Value type);
         void SetGizmoModifier(GizmoModifierState::Value state);
@@ -61,10 +59,13 @@ namespace UltraEd
 
     private:
         HWND GetWndHandle();
+        void CheckChanges();
+        void CheckInput(const float);
         void SetTitle(string title, bool store = true);
         void UpdateViewMatrix();
         void ResetViews();
         void RefreshActorList();
+        bool MouseInScene(const POINT &mousePoint);
 
     private:
         D3DLIGHT8 m_worldLight;

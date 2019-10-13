@@ -154,8 +154,9 @@ namespace UltraEd
                     GetClientRect(tabsWindow, &tabsWindowRect);
 
                     MoveWindow(buildOutput, 8, 28, tabsWindowRect.right - 14, UltraEd::tabsWindowHeight - statusRect.bottom - 8, 1);
-                    MoveWindow(renderWindow, treeviewRect.right + treeviewBorder, 0,
-                        LOWORD(lParam) - treeviewRect.right, HIWORD(lParam) - statusRect.bottom - tabsWindowHeight, 1);
+                    MoveWindow(renderWindow, treeviewRect.right + treeviewBorder, toolbarRect.bottom + treeviewBorder,
+                        LOWORD(lParam) - treeviewRect.right, HIWORD(lParam) - statusRect.bottom - tabsWindowHeight - 
+                        tabsBorder - toolbarRect.bottom, 1);
 
                     if (scene != NULL) scene->Resize();
                 }

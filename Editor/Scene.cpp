@@ -415,7 +415,7 @@ namespace UltraEd
         lastTime = currentTime;
     }
 
-    void CScene::CheckInput(float deltaTime)
+    void CScene::CheckInput(const float deltaTime)
     {
         POINT mousePoint;
         GetCursorPos(&mousePoint);
@@ -428,7 +428,7 @@ namespace UltraEd
         const float mouseSpeedModifier = 0.55f;
         const bool mouseReady = GetTickCount() - prevTick < 100;
 
-        if (GetActiveWindow() != GetParent(GetWndHandle())) return;
+        if (!MouseInScene(mousePoint)) return;
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
@@ -761,5 +761,15 @@ namespace UltraEd
             }
         }
         return true;
+    }
+
+    bool CScene::MouseInScene(const POINT &mousePoint)
+    {
+        if (GetActiveWindow() != GetParent(GetWndHandle())) return false;
+
+        RECT rect = { 0 };
+        GetClientRect(GetWndHandle(), &rect);
+        return mousePoint.x > 0 && mousePoint.x < rect.right
+            && mousePoint.y > 0 && mousePoint.y < rect.bottom;
     }
 }

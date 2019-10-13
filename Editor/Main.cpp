@@ -125,8 +125,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     // Create the window for rendering the scene.
     UltraEd::renderWindow = CreateWindow(szWindowClass, szTitle, WS_CLIPSIBLINGS | WS_CHILD,
-        treeviewRect.right + UltraEd::treeviewBorder, 0,
-        parentRect.right - treeviewRect.right, parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight,
+        treeviewRect.right + UltraEd::treeviewBorder, toolbarRect.bottom + UltraEd::treeviewBorder,
+        parentRect.right - treeviewRect.right, parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight - 
+        UltraEd::tabsBorder - toolbarRect.bottom,
         UltraEd::parentWindow, NULL, hInstance, NULL);
 
     if (!UltraEd::renderWindow)
