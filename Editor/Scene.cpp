@@ -10,28 +10,34 @@
 
 namespace UltraEd
 {
-    CScene::CScene()
+    CScene::CScene() :
+        m_worldLight(),
+        m_defaultMaterial(),
+        m_selectedMaterial(),
+        m_fillMode(D3DFILL_SOLID),
+        m_gizmo(),
+        m_views(),
+        m_device(0),
+        m_d3d8(0),
+        m_d3dpp(),
+        m_actors(),
+        m_grid(),
+        m_selectedActorIds(),
+        m_mouseSmoothX(0),
+        m_mouseSmoothY(0),
+        m_activeViewType(ViewType::Perspective),
+        m_sceneName()
     {
-        ZeroMemory(&m_d3dpp, sizeof(m_d3dpp));
-        m_d3d8 = 0;
-        m_device = 0;
-        m_fillMode = D3DFILL_SOLID;
-        m_activeViewType = ViewType::Perspective;
-        m_mouseSmoothX = m_mouseSmoothY = 0;
-
-        ZeroMemory(&m_defaultMaterial, sizeof(D3DMATERIAL8));
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
         m_defaultMaterial.Diffuse.b = m_defaultMaterial.Ambient.b = 1.0f;
         m_defaultMaterial.Diffuse.a = m_defaultMaterial.Ambient.a = 1.0f;
 
-        ZeroMemory(&m_selectedMaterial, sizeof(D3DMATERIAL8));
         m_selectedMaterial.Ambient.r = m_selectedMaterial.Emissive.r = 0.0f;
         m_selectedMaterial.Ambient.g = m_selectedMaterial.Emissive.g = 1.0f;
         m_selectedMaterial.Ambient.b = m_selectedMaterial.Emissive.b = 0.0f;
         m_selectedMaterial.Ambient.a = m_selectedMaterial.Emissive.a = 1.0f;
 
-        ZeroMemory(&m_worldLight, sizeof(D3DLIGHT8));
         m_worldLight.Type = D3DLIGHT_DIRECTIONAL;
         m_worldLight.Diffuse.r = 1.0f;
         m_worldLight.Diffuse.g = 1.0f;
