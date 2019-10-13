@@ -315,6 +315,8 @@ namespace UltraEd
 
                 if (selectedActor != NULL)
                     *selectedActor = actor.second.get();
+
+                m_gizmo.Update(actor.second.get());
             }
         }
 
@@ -425,24 +427,28 @@ namespace UltraEd
         static POINT prevMousePoint = mousePoint;
         static DWORD prevTick = GetTickCount();
         static bool prevInScene = false;
+        static bool prevGizmo = false;
         const float smoothingModifier = 16.0f;
         const float mouseSpeedModifier = 0.55f;
         const bool mouseReady = GetTickCount() - prevTick < 100;
 
         // Only accept input when mouse in scene or when pressed mouse leaves scene.
         if (!prevInScene && !(prevInScene = MouseInScene(mousePoint))) return;
-        
+
         WrapCursor();
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
             D3DXVECTOR3 rayOrigin, rayDir;
             ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
-            GUID lastSelectedActorId = m_selectedActorIds.back();
-            for (const auto &selectedActorId : m_selectedActorIds)
+            if (prevGizmo || (prevGizmo = m_gizmo.Select(rayOrigin, rayDir)))
             {
-                m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
-                    m_actors[lastSelectedActorId].get());
+                GUID lastSelectedActorId = m_selectedActorIds.back();
+                for (const auto &selectedActorId : m_selectedActorIds)
+                {
+                    m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
+                        m_actors[lastSelectedActorId].get());
+                }
             }
         }
         else if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective && mouseReady)
@@ -473,7 +479,7 @@ namespace UltraEd
             // Reset smoothing values for new mouse view movement.
             m_mouseSmoothX = m_mouseSmoothX = 0;
 
-            prevInScene = false;
+            prevInScene = prevGizmo = false;
         }
 
         // Remember the last position so we know how much to move the view.
