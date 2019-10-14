@@ -26,5 +26,6 @@ namespace UltraEd
 
     private:
         static bool Compile(HWND hWnd);
+        static string GetPathFor(string name);
     };
 }

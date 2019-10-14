@@ -98,28 +98,22 @@ namespace UltraEd
             }
         }
 
-        char buffer[MAX_PATH];
-        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
-        {
-            string specPath(buffer);
-            specPath.append("\\..\\..\\Engine\\spec");
-            unique_ptr<FILE, decltype(fclose) *> file(fopen(specPath.c_str(), "w"), fclose);
-            if (file == NULL) return false;
+        string specPath = GetPathFor("Engine\\spec");
+        unique_ptr<FILE, decltype(fclose) *> file(fopen(specPath.c_str(), "w"), fclose);
+        if (file == NULL) return false;
 
-            string slashesNormalized(specHeader);
-            slashesNormalized = regex_replace(slashesNormalized, regex("\\\\"), "\\\\");
-            fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file.get());
+        string slashesNormalized(specHeader);
+        slashesNormalized = regex_replace(slashesNormalized, regex("\\\\"), "\\\\");
+        fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file.get());
 
-            slashesNormalized = string(specSegments);
-            slashesNormalized = regex_replace(slashesNormalized, regex("\\\\"), "\\\\");
-            fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file.get());
+        slashesNormalized = string(specSegments);
+        slashesNormalized = regex_replace(slashesNormalized, regex("\\\\"), "\\\\");
+        fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file.get());
 
-            fwrite(specIncludeStart, 1, strlen(specIncludeStart), file.get());
-            fwrite(specIncludes.c_str(), 1, specIncludes.size(), file.get());
-            fwrite(specIncludeEnd, 1, strlen(specIncludeEnd), file.get());
-            return true;
-        }
-        return false;
+        fwrite(specIncludeStart, 1, strlen(specIncludeStart), file.get());
+        fwrite(specIncludes.c_str(), 1, specIncludes.size(), file.get());
+        fwrite(specIncludeEnd, 1, strlen(specIncludeEnd), file.get());
+        return true;
     }
 
     bool CBuild::WriteSegmentsFile(vector<CActor *> actors)
@@ -157,17 +151,11 @@ namespace UltraEd
             }
         }
 
-        char buffer[MAX_PATH];
-        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
-        {
-            string segmentsPath(buffer);
-            segmentsPath.append("\\..\\..\\Engine\\segments.h");
-            unique_ptr<FILE, decltype(fclose) *> file(fopen(segmentsPath.c_str(), "w"), fclose);
-            if (file == NULL) return false;
-            fwrite(romSegments.c_str(), 1, romSegments.size(), file.get());
-            return true;
-        }
-        return false;
+        string segmentsPath = GetPathFor("Engine\\segments.h");
+        unique_ptr<FILE, decltype(fclose) *> file(fopen(segmentsPath.c_str(), "w"), fclose);
+        if (file == NULL) return false;
+        fwrite(romSegments.c_str(), 1, romSegments.size(), file.get());
+        return true;
     }
 
     bool CBuild::WriteActorsFile(vector<CActor *> actors)
@@ -264,28 +252,22 @@ namespace UltraEd
             }
         }
 
-        char buffer[MAX_PATH];
-        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
-        {
-            string actorInitsPath(buffer);
-            actorInitsPath.append("\\..\\..\\Engine\\actors.h");
-            unique_ptr<FILE, decltype(fclose) *> file(fopen(actorInitsPath.c_str(), "w"), fclose);
-            if (file == NULL) return false;
+        string actorInitsPath = GetPathFor("Engine\\actors.h");
+        unique_ptr<FILE, decltype(fclose) *> file(fopen(actorInitsPath.c_str(), "w"), fclose);
+        if (file == NULL) return false;
 
-            fwrite(actorsArrayDef.c_str(), 1, actorsArrayDef.size(), file.get());
+        fwrite(actorsArrayDef.c_str(), 1, actorsArrayDef.size(), file.get());
 
-            const char *actorInitStart = "\nvoid _UER_Load() {";
-            fwrite(actorInitStart, 1, strlen(actorInitStart), file.get());
-            fwrite(actorInits.c_str(), 1, actorInits.size(), file.get());
-            fwrite("}", 1, 1, file.get());
+        const char *actorInitStart = "\nvoid _UER_Load() {";
+        fwrite(actorInitStart, 1, strlen(actorInitStart), file.get());
+        fwrite(actorInits.c_str(), 1, actorInits.size(), file.get());
+        fwrite("}", 1, 1, file.get());
 
-            const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
-            fwrite(drawStart, 1, strlen(drawStart), file.get());
-            fwrite(modelDraws.c_str(), 1, modelDraws.size(), file.get());
-            fwrite("}", 1, 1, file.get());
-            return true;
-        }
-        return false;
+        const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
+        fwrite(drawStart, 1, strlen(drawStart), file.get());
+        fwrite(modelDraws.c_str(), 1, modelDraws.size(), file.get());
+        fwrite("}", 1, 1, file.get());
+        return true;
     }
 
     bool CBuild::WriteCollisionFile(vector<CActor *> actors)
@@ -331,19 +313,13 @@ namespace UltraEd
             }
         }
 
-        char buffer[MAX_PATH];
-        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
-        {
-            string collisionPath(buffer);
-            collisionPath.append("\\..\\..\\Engine\\collisions.h");
-            unique_ptr<FILE, decltype(fclose) *> file(fopen(collisionPath.c_str(), "w"), fclose);
-            if (file == NULL) return false;
-            fwrite(collideSetStart.c_str(), 1, collideSetStart.size(), file.get());
-            fwrite(collisions.c_str(), 1, collisions.size(), file.get());
-            fwrite("}", 1, 1, file.get());
-            return true;
-        }
-        return false;
+        string collisionPath = GetPathFor("Engine\\collisions.h");
+        unique_ptr<FILE, decltype(fclose) *> file(fopen(collisionPath.c_str(), "w"), fclose);
+        if (file == NULL) return false;
+        fwrite(collideSetStart.c_str(), 1, collideSetStart.size(), file.get());
+        fwrite(collisions.c_str(), 1, collisions.size(), file.get());
+        fwrite("}", 1, 1, file.get());
+        return true;
     }
 
     bool CBuild::WriteScriptsFile(vector<CActor *> actors)
@@ -388,23 +364,17 @@ namespace UltraEd
             free(result);
         }
 
-        char buffer[MAX_PATH];
-        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
-        {
-            string scriptsPath(buffer);
-            scriptsPath.append("\\..\\..\\Engine\\scripts.h");
-            unique_ptr<FILE, decltype(fclose) *> file(fopen(scriptsPath.c_str(), "w"), fclose);
-            if (file == NULL) return false;
-            fwrite(scripts.c_str(), 1, scripts.size(), file.get());
-            fwrite(scriptStartStart.c_str(), 1, scriptStartStart.size(), file.get());
-            fwrite("}", 1, 1, file.get());
-            fwrite(scriptUpdateStart.c_str(), 1, scriptUpdateStart.size(), file.get());
-            fwrite("}", 1, 1, file.get());
-            fwrite(inputStart.c_str(), 1, inputStart.size(), file.get());
-            fwrite("}", 1, 1, file.get());
-            return true;
-        }
-        return false;
+        string scriptsPath = GetPathFor("Engine\\scripts.h");
+        unique_ptr<FILE, decltype(fclose) *> file(fopen(scriptsPath.c_str(), "w"), fclose);
+        if (file == NULL) return false;
+        fwrite(scripts.c_str(), 1, scripts.size(), file.get());
+        fwrite(scriptStartStart.c_str(), 1, scriptStartStart.size(), file.get());
+        fwrite("}", 1, 1, file.get());
+        fwrite(scriptUpdateStart.c_str(), 1, scriptUpdateStart.size(), file.get());
+        fwrite("}", 1, 1, file.get());
+        fwrite(inputStart.c_str(), 1, inputStart.size(), file.get());
+        fwrite("}", 1, 1, file.get());
+        return true;
     }
 
     bool CBuild::WriteMappingsFile(vector<CActor *> actors)
@@ -419,18 +389,12 @@ namespace UltraEd
             mappingsStart.append("\n\tinsert(\"").append(actor->GetName()).append("\", ").append(countBuffer).append(");\n");
         }
 
-        char buffer[MAX_PATH];
-        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
-        {
-            string mappingsPath(buffer);
-            mappingsPath.append("\\..\\..\\Engine\\mappings.h");
-            unique_ptr<FILE, decltype(fclose) *> file(fopen(mappingsPath.c_str(), "w"), fclose);
-            if (file == NULL) return false;
-            fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file.get());
-            fwrite("}", 1, 1, file.get());
-            return true;
-        }
-        return false;
+        string mappingsPath = GetPathFor("Engine\\mappings.h");
+        unique_ptr<FILE, decltype(fclose) *> file(fopen(mappingsPath.c_str(), "w"), fclose);
+        if (file == NULL) return false;
+        fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file.get());
+        fwrite("}", 1, 1, file.get());
+        return true;
     }
 
     bool CBuild::Start(vector<CActor *> actors, HWND hWnd)
@@ -459,8 +423,7 @@ namespace UltraEd
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
-            string currDir(buffer);
-            currDir.append("\\..\\..\\Player");
+            string currDir = GetPathFor("Player");
 
             // Start the build with no window.
             CreateProcess(NULL, "cmd /c cen64.exe pifdata.bin ..\\Engine\\main.n64", NULL, NULL, FALSE,
@@ -492,8 +455,7 @@ namespace UltraEd
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
-            string currDir(buffer);
-            currDir.append("\\..\\..\\Player\\USB");
+            string currDir = GetPathFor("Player\\USB");
 
             // Start the USB loader with no window.
             CreateProcess(NULL, "cmd /c 64drive_usb.exe -l ..\\..\\Engine\\main.n64 -c 6102", NULL, NULL, FALSE,
@@ -545,8 +507,7 @@ namespace UltraEd
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
-            string currDir(buffer);
-            currDir.append("\\..\\..\\Engine");
+            string currDir = GetPathFor("Engine");
 
             // Start the build with no window.
             CreateProcess(NULL, "cmd /c build.bat", NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
@@ -578,5 +539,21 @@ namespace UltraEd
         }
 
         return false;
+    }
+
+    string CBuild::GetPathFor(string name)
+    {
+        char buffer[MAX_PATH];
+        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
+        {
+            string path(buffer);
+
+#ifdef _DEBUG
+            return path.append("\\..\\..\\").append(name);
+#else
+            return path.append("\\..\\").append(name);
+#endif
+        }
+        return string();
     }
 }
