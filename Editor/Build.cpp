@@ -103,21 +103,20 @@ namespace UltraEd
         {
             string specPath(buffer);
             specPath.append("\\..\\..\\Engine\\spec");
-            FILE *file = fopen(specPath.c_str(), "w");
+            unique_ptr<FILE, decltype(fclose) *> file(fopen(specPath.c_str(), "w"), fclose);
             if (file == NULL) return false;
 
             string slashesNormalized(specHeader);
             slashesNormalized = regex_replace(slashesNormalized, regex("\\\\"), "\\\\");
-            fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file);
+            fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file.get());
 
             slashesNormalized = string(specSegments);
             slashesNormalized = regex_replace(slashesNormalized, regex("\\\\"), "\\\\");
-            fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file);
+            fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file.get());
 
-            fwrite(specIncludeStart, 1, strlen(specIncludeStart), file);
-            fwrite(specIncludes.c_str(), 1, specIncludes.size(), file);
-            fwrite(specIncludeEnd, 1, strlen(specIncludeEnd), file);
-            fclose(file);
+            fwrite(specIncludeStart, 1, strlen(specIncludeStart), file.get());
+            fwrite(specIncludes.c_str(), 1, specIncludes.size(), file.get());
+            fwrite(specIncludeEnd, 1, strlen(specIncludeEnd), file.get());
             return true;
         }
         return false;
@@ -163,10 +162,9 @@ namespace UltraEd
         {
             string segmentsPath(buffer);
             segmentsPath.append("\\..\\..\\Engine\\segments.h");
-            FILE *file = fopen(segmentsPath.c_str(), "w");
+            unique_ptr<FILE, decltype(fclose) *> file(fopen(segmentsPath.c_str(), "w"), fclose);
             if (file == NULL) return false;
-            fwrite(romSegments.c_str(), 1, romSegments.size(), file);
-            fclose(file);
+            fwrite(romSegments.c_str(), 1, romSegments.size(), file.get());
             return true;
         }
         return false;
@@ -271,22 +269,20 @@ namespace UltraEd
         {
             string actorInitsPath(buffer);
             actorInitsPath.append("\\..\\..\\Engine\\actors.h");
-            FILE *file = fopen(actorInitsPath.c_str(), "w");
+            unique_ptr<FILE, decltype(fclose) *> file(fopen(actorInitsPath.c_str(), "w"), fclose);
             if (file == NULL) return false;
 
-            fwrite(actorsArrayDef.c_str(), 1, actorsArrayDef.size(), file);
+            fwrite(actorsArrayDef.c_str(), 1, actorsArrayDef.size(), file.get());
 
             const char *actorInitStart = "\nvoid _UER_Load() {";
-            fwrite(actorInitStart, 1, strlen(actorInitStart), file);
-            fwrite(actorInits.c_str(), 1, actorInits.size(), file);
-            fwrite("}", 1, 1, file);
+            fwrite(actorInitStart, 1, strlen(actorInitStart), file.get());
+            fwrite(actorInits.c_str(), 1, actorInits.size(), file.get());
+            fwrite("}", 1, 1, file.get());
 
             const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
-            fwrite(drawStart, 1, strlen(drawStart), file);
-            fwrite(modelDraws.c_str(), 1, modelDraws.size(), file);
-            fwrite("}", 1, 1, file);
-
-            fclose(file);
+            fwrite(drawStart, 1, strlen(drawStart), file.get());
+            fwrite(modelDraws.c_str(), 1, modelDraws.size(), file.get());
+            fwrite("}", 1, 1, file.get());
             return true;
         }
         return false;
@@ -340,12 +336,11 @@ namespace UltraEd
         {
             string collisionPath(buffer);
             collisionPath.append("\\..\\..\\Engine\\collisions.h");
-            FILE *file = fopen(collisionPath.c_str(), "w");
+            unique_ptr<FILE, decltype(fclose) *> file(fopen(collisionPath.c_str(), "w"), fclose);
             if (file == NULL) return false;
-            fwrite(collideSetStart.c_str(), 1, collideSetStart.size(), file);
-            fwrite(collisions.c_str(), 1, collisions.size(), file);
-            fwrite("}", 1, 1, file);
-            fclose(file);
+            fwrite(collideSetStart.c_str(), 1, collideSetStart.size(), file.get());
+            fwrite(collisions.c_str(), 1, collisions.size(), file.get());
+            fwrite("}", 1, 1, file.get());
             return true;
         }
         return false;
@@ -398,16 +393,15 @@ namespace UltraEd
         {
             string scriptsPath(buffer);
             scriptsPath.append("\\..\\..\\Engine\\scripts.h");
-            FILE *file = fopen(scriptsPath.c_str(), "w");
+            unique_ptr<FILE, decltype(fclose) *> file(fopen(scriptsPath.c_str(), "w"), fclose);
             if (file == NULL) return false;
-            fwrite(scripts.c_str(), 1, scripts.size(), file);
-            fwrite(scriptStartStart.c_str(), 1, scriptStartStart.size(), file);
-            fwrite("}", 1, 1, file);
-            fwrite(scriptUpdateStart.c_str(), 1, scriptUpdateStart.size(), file);
-            fwrite("}", 1, 1, file);
-            fwrite(inputStart.c_str(), 1, inputStart.size(), file);
-            fwrite("}", 1, 1, file);
-            fclose(file);
+            fwrite(scripts.c_str(), 1, scripts.size(), file.get());
+            fwrite(scriptStartStart.c_str(), 1, scriptStartStart.size(), file.get());
+            fwrite("}", 1, 1, file.get());
+            fwrite(scriptUpdateStart.c_str(), 1, scriptUpdateStart.size(), file.get());
+            fwrite("}", 1, 1, file.get());
+            fwrite(inputStart.c_str(), 1, inputStart.size(), file.get());
+            fwrite("}", 1, 1, file.get());
             return true;
         }
         return false;
@@ -430,11 +424,10 @@ namespace UltraEd
         {
             string mappingsPath(buffer);
             mappingsPath.append("\\..\\..\\Engine\\mappings.h");
-            FILE *file = fopen(mappingsPath.c_str(), "w");
+            unique_ptr<FILE, decltype(fclose) *> file(fopen(mappingsPath.c_str(), "w"), fclose);
             if (file == NULL) return false;
-            fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file);
-            fwrite("}", 1, 1, file);
-            fclose(file);
+            fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file.get());
+            fwrite("}", 1, 1, file.get());
             return true;
         }
         return false;
