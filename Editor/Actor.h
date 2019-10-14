@@ -17,6 +17,7 @@ namespace UltraEd
     {
     public:
         CActor();
+        virtual ~CActor() { }
         virtual void Release();
         virtual void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
         GUID GetId() { return m_id; }

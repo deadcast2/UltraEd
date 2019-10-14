@@ -17,6 +17,7 @@ namespace UltraEd
     {
     public:
         CCollider();
+        virtual ~CCollider() { }
         void Release();
         void Render(IDirect3DDevice8 *device);
         virtual void Build() = 0;
