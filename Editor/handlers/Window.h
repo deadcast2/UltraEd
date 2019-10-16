@@ -67,7 +67,7 @@ namespace UltraEd
                     GetClientRect(statusBar, &statusRect);
                     RECT resizeBox;
                     HDC hDC = GetDC(parentWindow);
-                    SetRect(&resizeBox, 0, toolbarRect.bottom + treeviewBorder, 
+                    SetRect(&resizeBox, 0, toolbarRect.bottom + treeviewBorder,
                         treeviewWidth, parentRect.bottom - statusRect.bottom);
                     DrawFocusRect(hDC, &resizeBox);
                     ReleaseDC(hWnd, hDC);
@@ -146,19 +146,26 @@ namespace UltraEd
                     RECT treeviewRect;
                     GetClientRect(treeview, &treeviewRect);
 
-                    MoveWindow(tabsWindow, treeviewRect.right, 
+                    MoveWindow(tabsWindow, treeviewRect.right,
                         parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight,
                         parentRect.right - treeviewRect.right + tabsBorder, parentRect.bottom, 1);
 
                     RECT tabsWindowRect;
                     GetClientRect(tabsWindow, &tabsWindowRect);
 
-                    MoveWindow(buildOutput, 8, 28, tabsWindowRect.right - 14, UltraEd::tabsWindowHeight - statusRect.bottom - 8, 1);
-                    MoveWindow(renderWindow, treeviewRect.right + treeviewBorder, toolbarRect.bottom + treeviewBorder,
-                        LOWORD(lParam) - treeviewRect.right, HIWORD(lParam) - statusRect.bottom - tabsWindowHeight - 
-                        tabsBorder - toolbarRect.bottom, 1);
+                    MoveWindow(buildOutput, 8, 28, tabsWindowRect.right - 14, UltraEd::tabsWindowHeight -
+                        statusRect.bottom - 8, 1);
 
-                    if (scene != NULL) scene->Resize();
+                    const int renderWidth = LOWORD(lParam) - treeviewRect.right;
+                    const int renderHeight = HIWORD(lParam) - statusRect.bottom - tabsWindowHeight -
+                        tabsBorder - toolbarRect.bottom;
+                    if (renderWidth > 1 && renderHeight > 1)
+                    {
+                        MoveWindow(renderWindow, treeviewRect.right + treeviewBorder, toolbarRect.bottom + treeviewBorder,
+                            renderWidth, renderHeight, 1);
+
+                        if (scene != NULL) scene->Resize();
+                    }
                 }
                 break;
             }
