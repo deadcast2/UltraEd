@@ -79,12 +79,13 @@ namespace UltraEd
     {
         if (confirm && !Confirm()) return;
 
-        SetTitle("New");
+        SetTitle("Untitled");
         m_selectedActorIds.clear();
         ReleaseResources(ModelRelease::AllResources);
         m_actors.clear();
         ResetViews();
         RefreshActorList();
+        SetDirty(false);
     }
 
     bool CScene::OnSave()
@@ -104,6 +105,7 @@ namespace UltraEd
         if (CFileIO::Save(savables, savedName))
         {
             SetTitle(savedName);
+            SetDirty(false);
             return true;
         }
 
@@ -497,7 +499,6 @@ namespace UltraEd
                 return;
             }
         }
-        SetDirty(false);
     }
 
     void CScene::OnMouseWheel(short zDelta)
