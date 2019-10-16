@@ -37,12 +37,14 @@ namespace UltraEd
         void SetupScaleHandles();
         void SetupTransHandles();
         void SetupRotateHandles();
+        void SetupSelectorHandles();
 
     private:
+        static const int GIZMO_COUNT = 12;
         D3DMATERIAL8 m_redMaterial;
         D3DMATERIAL8 m_greenMaterial;
         D3DMATERIAL8 m_blueMaterial;
-        CModel m_models[9];
+        CModel m_models[GIZMO_COUNT];
         GizmoAxisState::Value m_axisState;
         GizmoModifierState::Value m_modifierState;
         D3DXVECTOR3 m_updateStartPoint;

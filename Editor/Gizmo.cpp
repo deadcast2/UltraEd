@@ -22,6 +22,7 @@ namespace UltraEd
         SetupTransHandles();
         SetupScaleHandles();
         SetupRotateHandles();
+        SetupSelectorHandles();
         Reset();
     }
 
@@ -66,7 +67,7 @@ namespace UltraEd
 
     void CGizmo::Release()
     {
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < GIZMO_COUNT; i++)
         {
             m_models[i].Release(ModelRelease::AllResources);
         }
@@ -76,17 +77,18 @@ namespace UltraEd
     {
         float dist = 0;
 
-        if (m_models[m_modifierState * 3 + 0].Pick(orig, dir, &dist))
+        // Use the hidden selector gizmo handles to make selection easier.
+        if (m_models[9].Pick(orig, dir, &dist))
         {
             m_axisState = GizmoAxisState::XAxis;
             return true;
         }
-        else if (m_models[m_modifierState * 3 + 1].Pick(orig, dir, &dist))
+        else if (m_models[10].Pick(orig, dir, &dist))
         {
             m_axisState = GizmoAxisState::YAxis;
             return true;
         }
-        else if (m_models[m_modifierState * 3 + 2].Pick(orig, dir, &dist))
+        else if (m_models[11].Pick(orig, dir, &dist))
         {
             m_axisState = GizmoAxisState::ZAxis;
             return true;
@@ -97,7 +99,7 @@ namespace UltraEd
 
     void CGizmo::SetPosition(D3DXVECTOR3 position)
     {
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < GIZMO_COUNT; i++)
         {
             m_models[i].SetPosition(position);
         }
@@ -110,7 +112,7 @@ namespace UltraEd
         scale.y = scale.y < 1 ? 1 : scale.y;
         scale.z = scale.z < 1 ? 1 : scale.z;
 
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < GIZMO_COUNT; i++)
         {
             m_models[i].SetScale(scale);
         }
@@ -162,6 +164,16 @@ namespace UltraEd
         m_models[7].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
         m_models[8] = CModel("Assets/rot-gizmo.dae");
         m_models[8].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
+    }
+
+    void CGizmo::SetupSelectorHandles()
+    {
+        m_models[9] = CModel("Assets/selector-gizmo.dae");
+        m_models[9].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
+        m_models[10] = CModel("Assets/selector-gizmo.dae");
+        m_models[10].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
+        m_models[11] = CModel("Assets/selector-gizmo.dae");
+        m_models[11].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
     }
 
     void CGizmo::Update(CActor *currentActor)
