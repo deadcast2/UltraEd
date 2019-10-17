@@ -6,14 +6,14 @@
 
 #define HASHSIZE 100
 
-struct nlist
+typedef struct nlist
 {
     struct nlist *next;
     char *name;
     unsigned int gameObjectIndex;
-};
+} nlist;
 
-static struct nlist *hashtable[HASHSIZE];
+static nlist *hashtable[HASHSIZE];
 
 unsigned hash(const char *s)
 {
@@ -25,9 +25,9 @@ unsigned hash(const char *s)
     return hashval % HASHSIZE;
 }
 
-struct nlist *lookup(const char *s)
+nlist *lookup(const char *s)
 {
-    struct nlist *np;
+    nlist *np;
     for (np = hashtable[hash(s)]; np != NULL; np = np->next)
     {
         if (strcmp(s, np->name) == 0)
@@ -38,12 +38,12 @@ struct nlist *lookup(const char *s)
     return NULL;
 }
 
-struct nlist *insert(const char *name, unsigned int index)
+nlist *insert(const char *name, unsigned int index)
 {
-    struct nlist *np;
+    nlist *np;
     if ((np = lookup(name)) == NULL)
     {
-        np = (struct nlist*)malloc(sizeof(*np));
+        np = (nlist*)malloc(sizeof(*np));
         if (np == NULL || (np->name = strdup(name)) == NULL) return NULL;
         unsigned int hashval = hash(name);
         np->next = hashtable[hashval];
