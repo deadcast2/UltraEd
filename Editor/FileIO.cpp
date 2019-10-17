@@ -140,6 +140,7 @@ namespace UltraEd
                     free(buffer);
 
                     // Update the path to the fully qualified target.
+                    cJSON_free(resource->child->valuestring);
                     resource->child->valuestring = _strdup(target);
                 }
             }
