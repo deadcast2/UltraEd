@@ -15,10 +15,9 @@
 char mem_heep[1024 * 512];
 Gfx *glistp;
 Gfx gfx_glist[GFX_GLIST_LEN];
-struct transform world;
+transform world;
 u16 perspNormal;
 NUContData contdata[4];
-int currentCamera = 0;
 
 static Vp viewPort =
 {
@@ -110,9 +109,9 @@ void checkInputs()
 
 void updateCamera()
 {
-    if (_UER_ActorCount > 0)
+    actor *camera = _UER_ActiveCamera;
+    if (camera != NULL)
     {
-        struct actor *camera = _UER_Actors[currentCamera];
         guTranslate(&world.translation, -camera->position->x, -camera->position->y, camera->position->z);
         guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis->x, camera->rotationAxis->y,
             -camera->rotationAxis->z);
@@ -140,7 +139,7 @@ void setDefaultCamera()
     {
         if (_UER_Actors[i]->type == Camera)
         {
-            currentCamera = i;
+            _UER_ActiveCamera = _UER_Actors[i];
             break;
         }
     }

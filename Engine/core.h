@@ -13,4 +13,12 @@ actor *FindActorByName(const char *name)
     return _UER_Actors[np->gameObjectIndex];
 }
 
+void SetActiveCamera(actor *camera)
+{
+    if (camera != NULL && camera->type == Camera)
+    {
+        _UER_ActiveCamera = camera;
+    }
+}
+
 #endif

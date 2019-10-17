@@ -167,7 +167,7 @@ namespace UltraEd
         _itoa(actors.size(), countBuffer, 10);
         string actorsArrayDef("const int _UER_ActorCount = ");
         actorsArrayDef.append(countBuffer).append(";\nactor *_UER_Actors[")
-            .append(countBuffer).append("];\n");
+            .append(countBuffer).append("];\n").append("actor *_UER_ActiveCamera = NULL;\n");
 
         for (const auto &actor : actors)
         {
