@@ -414,6 +414,7 @@ namespace UltraEd
 
             m_device->EndScene();
             m_device->Present(NULL, NULL, NULL, NULL);
+            stack->Release();
         }
 
         lastTime = currentTime;
