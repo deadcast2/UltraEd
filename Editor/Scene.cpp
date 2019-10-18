@@ -341,20 +341,19 @@ namespace UltraEd
     void CScene::UpdateViewMatrix()
     {
         D3DXMATRIX viewMat;
+        RECT rect;
+        GetClientRect(GetWndHandle(), &rect);
+        const float aspect = (float)rect.right / (float)rect.bottom;
+
         if (m_activeViewType == ViewType::Perspective)
         {
-            RECT rect;
-            GetClientRect(GetWndHandle(), &rect);
-
-            float aspect = (float)rect.right / (float)rect.bottom;
-            float fov = D3DX_PI / 2.0f;
-
+            const float fov = D3DX_PI / 2.0f;
             D3DXMatrixPerspectiveFovLH(&viewMat, fov, aspect, 0.1f, 1000.0f);
         }
         else
         {
-            float size = D3DXVec3Length(&GetActiveView()->GetPosition());
-            D3DXMatrixOrthoLH(&viewMat, size, size, -1000.0f, 1000.0f);
+            const float size = D3DXVec3Length(&GetActiveView()->GetPosition());
+            D3DXMatrixOrthoLH(&viewMat, size * aspect, size, -1000.0f, 1000.0f);
         }
 
         m_device->SetTransform(D3DTS_PROJECTION, &viewMat);
