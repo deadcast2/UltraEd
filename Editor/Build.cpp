@@ -339,12 +339,12 @@ namespace UltraEd
 
             string newResName = CUtil::NewResourceName(++actorCount);
             string script = actor->GetScript();
-            char *result = CUtil::ReplaceString(script.c_str(), "@", newResName.c_str());
+            auto result = unique_ptr<char>(CUtil::ReplaceString(script.c_str(), "@", newResName.c_str()));
 
             _itoa(actorCount, countBuffer, 10);
             actorRef.append(countBuffer).append("]->");
-            result = CUtil::ReplaceString(result, "self->", actorRef.c_str());
-            scripts.append(result).append("\n\n");
+            result = unique_ptr<char>(CUtil::ReplaceString(result.get(), "self->", actorRef.c_str()));
+            scripts.append(result.get()).append("\n\n");
 
             if (scripts.find(string(newResName).append("start(")) != string::npos)
             {
@@ -360,8 +360,6 @@ namespace UltraEd
             {
                 inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
             }
-
-            free(result);
         }
 
         string scriptsPath = GetPathFor("Engine\\scripts.h");
