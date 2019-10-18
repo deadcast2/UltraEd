@@ -125,9 +125,7 @@ namespace UltraEd
     Savable CView::Save()
     {
         char buffer[128];
-        cJSON *root = cJSON_CreateObject();
         cJSON *view = cJSON_CreateObject();
-        cJSON_AddItemToObject(root, "view", view);
 
         sprintf(buffer, "%f %f %f", m_pos.x, m_pos.y, m_pos.z);
         cJSON_AddStringToObject(view, "position", buffer);
@@ -141,7 +139,7 @@ namespace UltraEd
         sprintf(buffer, "%f %f %f", m_up.x, m_up.y, m_up.z);
         cJSON_AddStringToObject(view, "up", buffer);
 
-        Savable savable = { root, SavableType::View };
+        Savable savable = { view, SavableType::View };
         return savable;
     }
 

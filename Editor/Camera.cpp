@@ -42,7 +42,7 @@ namespace UltraEd
         Savable savable = CActor::Save();
         char buffer[LINE_FORMAT_LENGTH];
         sprintf(buffer, "%f", m_fov);
-        cJSON_AddStringToObject(cJSON_GetObjectItem(savable.object, "actor"), "fov", buffer);
+        cJSON_AddStringToObject(savable.object, "fov", buffer);
         return savable;
     }
 

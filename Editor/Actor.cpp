@@ -209,10 +209,7 @@ namespace UltraEd
     Savable CActor::Save()
     {
         char buffer[LINE_FORMAT_LENGTH];
-        cJSON *root = cJSON_CreateObject();
         cJSON *actor = cJSON_CreateObject();
-
-        cJSON_AddItemToObject(root, "actor", actor);
 
         cJSON_AddStringToObject(actor, "id", CUtil::GuidToString(m_id).c_str());
 
@@ -241,7 +238,7 @@ namespace UltraEd
 
         SetDirty(false);
 
-        Savable savable = { root, SavableType::Actor };
+        Savable savable = { actor, SavableType::Actor };
         return savable;
     }
 

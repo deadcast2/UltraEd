@@ -34,7 +34,7 @@ namespace UltraEd
             for (const auto &savable : savables)
             {
                 Savable current = savable->Save();
-                cJSON *object = current.object->child;
+                cJSON *object = current.object;
 
                 // Add array to hold all attached resources.
                 cJSON *resourceArray = cJSON_CreateArray();
@@ -80,7 +80,7 @@ namespace UltraEd
                 }
             }
 
-            const char *rendered = cJSON_Print(root);
+            char *rendered = cJSON_Print(root);
             cJSON_Delete(root);
 
             mtar_write_file_header(&tar, "scene.json", strlen(rendered));
@@ -88,6 +88,7 @@ namespace UltraEd
 
             mtar_finalize(&tar);
             mtar_close(&tar);
+            free(rendered);
 
             return Compress(file);
         }
