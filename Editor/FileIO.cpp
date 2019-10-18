@@ -7,7 +7,7 @@
 
 namespace UltraEd
 {
-    bool CFileIO::Save(vector<CSavable*> savables, string &fileName)
+    bool CFileIO::Save(vector<CSavable *> savables, string &fileName)
     {
         string file;
 
@@ -45,8 +45,7 @@ namespace UltraEd
                 for (const auto &resource : resources)
                 {
                     const char *fileName = PathFindFileName(resource.second.c_str());
-                    FILE *file = fopen(resource.second.c_str(), "rb");
-
+                    unique_ptr<FILE, decltype(fclose) *> file(fopen(resource.second.c_str(), "rb"), fclose);
                     if (file == NULL) continue;
 
                     cJSON *item = cJSON_CreateObject();
@@ -54,20 +53,17 @@ namespace UltraEd
                     cJSON_AddItemToArray(resourceArray, item);
 
                     // Calculate resource length.
-                    fseek(file, 0, SEEK_END);
-                    long fileLength = ftell(file);
-                    rewind(file);
+                    fseek(file.get(), 0, SEEK_END);
+                    long fileLength = ftell(file.get());
+                    rewind(file.get());
 
                     // Read all contents of resource into a buffer.
-                    char *fileContents = (char*)malloc(fileLength);
-                    fread(fileContents, fileLength, 1, file);
+                    auto fileContents = make_unique<char[]>(fileLength);
+                    fread(fileContents.get(), fileLength, 1, file.get());
 
                     // Write the buffer to the tar archive.
                     mtar_write_file_header(&tar, fileName, fileLength);
-                    mtar_write_data(&tar, fileContents, fileLength);
-
-                    fclose(file);
-                    free(fileContents);
+                    mtar_write_data(&tar, fileContents.get(), fileLength);
                 }
 
                 if (current.type == SavableType::View)
@@ -80,15 +76,14 @@ namespace UltraEd
                 }
             }
 
-            char *rendered = cJSON_Print(root);
+            auto rendered = unique_ptr<char>(cJSON_Print(root));
             cJSON_Delete(root);
 
-            mtar_write_file_header(&tar, "scene.json", strlen(rendered));
-            mtar_write_data(&tar, rendered, strlen(rendered));
+            mtar_write_file_header(&tar, "scene.json", strlen(rendered.get()));
+            mtar_write_data(&tar, rendered.get(), strlen(rendered.get()));
 
             mtar_finalize(&tar);
             mtar_close(&tar);
-            free(rendered);
 
             return Compress(file);
         }
@@ -110,9 +105,9 @@ namespace UltraEd
             mtar_open(&tar, file.c_str(), "r");
             mtar_find(&tar, "scene.json", &header);
 
-            char *contents = (char*)calloc(1, header.size + 1);
-            mtar_read_data(&tar, contents, header.size);
-            cJSON *root = cJSON_Parse(contents);
+            auto contents = make_unique<char[]>(header.size + 1);
+            mtar_read_data(&tar, contents.get(), header.size);
+            cJSON *root = cJSON_Parse(contents.get());
 
             // Iterate through all actors.
             cJSON *actors = cJSON_GetObjectItem(root, "actors");
@@ -129,16 +124,13 @@ namespace UltraEd
 
                     // Locate the resource to extract.
                     mtar_find(&tar, fileName, &header);
-                    char *buffer = (char*)calloc(1, header.size + 1);
-                    mtar_read_data(&tar, buffer, header.size);
+                    auto buffer = make_unique<char[]>(header.size + 1);
+                    mtar_read_data(&tar, buffer.get(), header.size);
 
                     // Format path and write to library.
-                    string rootPath = CUtil::RootPath();
-                    sprintf(target, "%s\\%s", rootPath.c_str(), fileName);
-                    FILE *file = fopen(target, "wb");
-                    fwrite(buffer, 1, header.size, file);
-                    fclose(file);
-                    free(buffer);
+                    sprintf(target, "%s\\%s", CUtil::RootPath().c_str(), fileName);
+                    unique_ptr<FILE, decltype(fclose) *> file(fopen(target, "wb"), fclose);
+                    fwrite(buffer.get(), 1, header.size, file.get());
 
                     // Update the path to the fully qualified target.
                     cJSON_free(resource->child->valuestring);
@@ -147,7 +139,6 @@ namespace UltraEd
             }
 
             mtar_close(&tar);
-            free(contents);
             remove(file.c_str());
 
             // Pass the constructed json object out.
@@ -202,7 +193,7 @@ namespace UltraEd
 
     bool CFileIO::Compress(string path)
     {
-        unique_ptr<FILE, decltype(fclose)*> file(fopen(path.c_str(), "rb"), fclose);
+        unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "rb"), fclose);
         if (file == NULL) return false;
 
         // Get the total size of the file.
@@ -211,25 +202,25 @@ namespace UltraEd
         rewind(file.get());
 
         // Read in entire file.
-        unique_ptr<char, decltype(free)*> data((char*)malloc(size), free);
+        unique_ptr<char, decltype(free) *> data((char *)malloc(size), free);
         if (data == NULL) return false;
         int bytesRead = fread(data.get(), 1, size, file.get());
         if (bytesRead != size) return false;
 
         // Compressed buffer must be at least 5% larger.
-        unique_ptr<char, decltype(free)*> compressed((char*)malloc((size_t)(size + (size * 0.05f))), free);
+        unique_ptr<char, decltype(free) *> compressed((char *)malloc((size_t)(size + (size * 0.05f))), free);
         if (compressed == NULL) return false;
         int bytesCompressed = fastlz_compress(data.get(), size, compressed.get());
         if (bytesCompressed == 0) return false;
 
         // Annotate compressed data with uncompressed size.
         int annotatedSize = bytesCompressed + sizeof(int);
-        unique_ptr<char, decltype(free)*> buffer((char*)malloc(annotatedSize), free);
+        unique_ptr<char, decltype(free) *> buffer((char *)malloc(annotatedSize), free);
         memcpy(buffer.get(), &size, sizeof(int));
         memcpy(buffer.get() + sizeof(int), compressed.get(), bytesCompressed);
 
         // Write compressed file back out.
-        file = unique_ptr<FILE, decltype(fclose)*>(fopen(path.c_str(), "wb"), fclose);
+        file = unique_ptr<FILE, decltype(fclose) *>(fopen(path.c_str(), "wb"), fclose);
         if (file == NULL) return false;
 
         size_t bytesWritten = fwrite(buffer.get(), 1, annotatedSize, file.get());
@@ -238,7 +229,7 @@ namespace UltraEd
 
     bool CFileIO::Decompress(string &path)
     {
-        unique_ptr<FILE, decltype(fclose)*> file(fopen(path.c_str(), "rb"), fclose);
+        unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "rb"), fclose);
         if (file == NULL) return false;
 
         // Get the total size of the file.
@@ -247,7 +238,7 @@ namespace UltraEd
         rewind(file.get());
 
         // Read in entire file.
-        unique_ptr<char, decltype(free)*> data((char*)malloc(size), free);
+        unique_ptr<char, decltype(free) *> data((char *)malloc(size), free);
         if (data == NULL) return false;
         int bytesRead = fread(data.get(), 1, size, file.get());
         if (bytesRead != size) return false;
@@ -257,14 +248,14 @@ namespace UltraEd
         memmove(&uncompressedSize, data.get(), sizeof(int));
         memmove(data.get(), data.get() + sizeof(int), size - sizeof(int));
 
-        unique_ptr<char, decltype(free)*> decompressed((char*)malloc(uncompressedSize), free);
+        unique_ptr<char, decltype(free) *> decompressed((char *)malloc(uncompressedSize), free);
         if (decompressed == NULL) return false;
         int bytesDecompressed = fastlz_decompress(data.get(), size - sizeof(int), decompressed.get(),
             uncompressedSize);
         if (bytesDecompressed == 0) return false;
 
         // Write decompressed file back out.
-        file = unique_ptr<FILE, decltype(fclose)*>(fopen(path.append(".tmp").c_str(), "wb"), fclose);
+        file = unique_ptr<FILE, decltype(fclose) *>(fopen(path.append(".tmp").c_str(), "wb"), fclose);
         if (file == NULL) return false;
 
         size_t bytesWritten = fwrite(decompressed.get(), 1, bytesDecompressed, file.get());
@@ -303,7 +294,7 @@ namespace UltraEd
             mtar_open(&tar, decompressPath.c_str(), "r");
             while (mtar_read_header(&tar, &header) == MTAR_ESUCCESS)
             {
-                char *buffer = (char*)calloc(1, header.size + 1);
+                char *buffer = (char *)calloc(1, header.size + 1);
                 mtar_read_data(&tar, buffer, header.size);
 
                 // Get archived file path without file name.
@@ -377,7 +368,7 @@ namespace UltraEd
                 rewind(hFile);
 
                 // Read all contents of resource into a buffer.
-                char *fileContents = (char*)malloc(fileLength);
+                char *fileContents = (char *)malloc(fileLength);
                 fread(fileContents, fileLength, 1, hFile);
 
                 // Write the buffer to the tar archive.
