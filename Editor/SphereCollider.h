@@ -10,7 +10,7 @@ namespace UltraEd
     {
     public:
         CSphereCollider();
-        CSphereCollider(vector<Vertex> &vertices);
+        CSphereCollider(const vector<Vertex> &vertices);
         void Build();
         FLOAT GetRadius() { return m_radius; }
         Savable Save();

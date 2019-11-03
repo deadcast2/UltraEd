@@ -96,7 +96,7 @@ namespace UltraEd
         return (ActorType::Value)typeValue;
     }
 
-    void CActor::SetRotation(D3DXVECTOR3 rotation)
+    void CActor::SetRotation(const D3DXVECTOR3 &rotation)
     {
         D3DXMatrixRotationYawPitchRoll(&m_worldRot, rotation.y, rotation.x, rotation.z);
     }
@@ -129,7 +129,7 @@ namespace UltraEd
         D3DXQuaternionToAxisAngle(&quat, axis, angle);
     }
 
-    void CActor::Rotate(FLOAT angle, D3DXVECTOR3 dir)
+    void CActor::Rotate(const float &angle, const D3DXVECTOR3 &dir)
     {
         D3DXMATRIX newWorld;
         D3DXMatrixRotationAxis(&newWorld, &dir, angle);
@@ -147,7 +147,7 @@ namespace UltraEd
         return scale * m_worldRot * m_localRot * translation;
     }
 
-    bool CActor::Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist)
+    bool CActor::Pick(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir, float *dist)
     {
         // Test all faces in this actor.
         for (unsigned int j = 0; j < m_vertices.size() / 3; j++)
@@ -172,8 +172,8 @@ namespace UltraEd
         return false;
     }
 
-    bool CActor::IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir, D3DXVECTOR3 &v0,
-        D3DXVECTOR3 &v1, D3DXVECTOR3 &v2, float *dist)
+    bool CActor::IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir, const D3DXVECTOR3 &v0,
+        const D3DXVECTOR3 &v1, const D3DXVECTOR3 &v2, float *dist)
     {
         // Find vectors for two edges sharing vert0
         D3DXVECTOR3 edge1 = v1 - v0;

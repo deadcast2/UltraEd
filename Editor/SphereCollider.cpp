@@ -9,7 +9,7 @@ namespace UltraEd
         m_type = ColliderType::Sphere;
     }
 
-    CSphereCollider::CSphereCollider(vector<Vertex> &vertices) : CSphereCollider()
+    CSphereCollider::CSphereCollider(const vector<Vertex> &vertices) : CSphereCollider()
     {
         // Compute optimal center and radius (sphere)
         FindCenterWithRadius(m_center, m_radius, vertices);

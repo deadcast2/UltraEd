@@ -20,31 +20,31 @@ namespace UltraEd
         virtual ~CActor() { }
         virtual void Release();
         virtual void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
-        GUID GetId() { return m_id; }
+        const GUID &GetId() { return m_id; }
         void ResetId() { m_id = CUtil::NewGuid(); }
-        string GetName() { return m_name; }
+        const string &GetName() { return m_name; }
         void SetName(string name) { m_name = name; }
-        ActorType::Value GetType() { return m_type; }
+        const ActorType::Value &GetType() { return m_type; }
         static ActorType::Value GetType(cJSON *item);
         D3DXMATRIX GetMatrix();
-        D3DXMATRIX GetRotationMatrix() { return m_worldRot; }
-        void SetLocalRotationMatrix(D3DXMATRIX mat) { m_localRot = mat; }
-        void Move(D3DXVECTOR3 position) { Dirty([&] { m_position += position; }, &m_position); }
-        void Scale(D3DXVECTOR3 position) { Dirty([&] { m_scale += position; }, &m_scale); }
-        void Rotate(FLOAT angle, D3DXVECTOR3 dir);
-        D3DXVECTOR3 GetPosition() { return m_position; }
-        void SetPosition(D3DXVECTOR3 position) { m_position = position; }
-        void SetRotation(D3DXVECTOR3 rotation);
-        D3DXVECTOR3 GetScale() { return m_scale; }
-        void SetScale(D3DXVECTOR3 scale) { m_scale = scale; }
+        const D3DXMATRIX &GetRotationMatrix() { return m_worldRot; }
+        void SetLocalRotationMatrix(const D3DXMATRIX &mat) { m_localRot = mat; }
+        void Move(const D3DXVECTOR3 &position) { Dirty([&] { m_position += position; }, &m_position); }
+        void Scale(const D3DXVECTOR3 &position) { Dirty([&] { m_scale += position; }, &m_scale); }
+        void Rotate(const float &angle, const D3DXVECTOR3 &dir);
+        const D3DXVECTOR3 &GetPosition() { return m_position; }
+        void SetPosition(const D3DXVECTOR3 &position) { m_position = position; }
+        void SetRotation(const D3DXVECTOR3 &rotation);
+        const D3DXVECTOR3 &GetScale() { return m_scale; }
+        void SetScale(const D3DXVECTOR3 &scale) { m_scale = scale; }
         D3DXVECTOR3 GetRight();
         D3DXVECTOR3 GetForward();
         D3DXVECTOR3 GetUp();
         void GetAxisAngle(D3DXVECTOR3 *axis, float *angle);
-        vector<Vertex> GetVertices() { return m_vertices; }
-        bool Pick(D3DXVECTOR3 orig, D3DXVECTOR3 dir, float *dist);
-        string GetScript() { return m_script; }
-        void SetScript(string script) { Dirty([&] { m_script = script; }, &m_script); }
+        const vector<Vertex> &GetVertices() { return m_vertices; }
+        bool Pick(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir, float *dist);
+        const string &GetScript() { return m_script; }
+        void SetScript(const string &script) { Dirty([&] { m_script = script; }, &m_script); }
         CCollider *GetCollider() { return m_collider.get(); }
         void SetCollider(CCollider *collider) { Dirty([&] { m_collider = shared_ptr<CCollider>(collider); }, &m_collider); }
         Savable Save();
@@ -67,7 +67,7 @@ namespace UltraEd
         D3DXMATRIX m_worldRot;
         string m_script;
         bool IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir,
-            D3DXVECTOR3 &v0, D3DXVECTOR3 &v1, D3DXVECTOR3 &v2, float *dist);
+            const D3DXVECTOR3 &v0, const D3DXVECTOR3 &v1, const D3DXVECTOR3 &v2, float *dist);
         shared_ptr<CCollider> m_collider;
     };
 }

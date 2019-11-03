@@ -9,7 +9,7 @@ namespace UltraEd
         m_type = ColliderType::Box;
     }
 
-    CBoxCollider::CBoxCollider(vector<Vertex> &vertices) : CBoxCollider()
+    CBoxCollider::CBoxCollider(const vector<Vertex> &vertices) : CBoxCollider()
     {
         D3DXVECTOR3 min, max;
         DistantAABBPoints(min, max, vertices);

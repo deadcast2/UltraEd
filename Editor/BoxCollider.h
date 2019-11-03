@@ -10,7 +10,7 @@ namespace UltraEd
     {
     public:
         CBoxCollider();
-        CBoxCollider(vector<Vertex> &vertices);
+        CBoxCollider(const vector<Vertex> &vertices);
         void Build();
         FLOAT *GetExtents() { return m_extents; }
         Savable Save();
