@@ -7,14 +7,21 @@
 
 namespace UltraEd
 {
-    CActor::CActor()
+    CActor::CActor() :
+        m_vertexBuffer(),
+        m_type(ActorType::Model),
+        m_id(),
+        m_name(),
+        m_vertices(),
+        m_material(),
+        m_position(0, 0, 0),
+        m_scale(1, 1, 1),
+        m_localRot(),
+        m_worldRot(),
+        m_script(),
+        m_collider()
     {
         ResetId();
-        m_type = ActorType::Model;
-        m_vertexBuffer = 0;
-        m_collider = 0;
-        m_position = D3DXVECTOR3(0, 0, 0);
-        m_scale = D3DXVECTOR3(1, 1, 1);
         m_script = string("void @start()\n{\n\n}\n\nvoid @update()\n{\n\n}\n\nvoid @input(NUContData gamepads[4])\n{\n\n}");
         m_script.append("\n\nvoid @collide(actor *other)\n{\n\n}");
         SetDirty(true);
@@ -22,7 +29,6 @@ namespace UltraEd
         D3DXMatrixIdentity(&m_localRot);
         D3DXMatrixIdentity(&m_worldRot);
 
-        ZeroMemory(&m_material, sizeof(D3DMATERIAL8));
         m_material.Diffuse.r = 1;
         m_material.Diffuse.g = 1;
         m_material.Diffuse.b = 1;

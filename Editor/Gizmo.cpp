@@ -283,11 +283,9 @@ namespace UltraEd
                 if (!m_worldSpaceToggled)
                 {
                     // Keep gizmo in-sync with the actor's rotation.
-                    for (int i = 0; i < 3; i++)
+                    for (int i = 0; i < GIZMO_COUNT; i++)
                     {
-                        m_models[i * 3 + 0].SetLocalRotationMatrix(currentActor->GetRotationMatrix());
-                        m_models[i * 3 + 1].SetLocalRotationMatrix(currentActor->GetRotationMatrix());
-                        m_models[i * 3 + 2].SetLocalRotationMatrix(currentActor->GetRotationMatrix());
+                        m_models[i].SetLocalRotationMatrix(currentActor->GetRotationMatrix());
                     }
                 }
             }
@@ -317,11 +315,9 @@ namespace UltraEd
         D3DXMatrixIdentity(&identity);
         D3DXMATRIX mat = m_worldSpaceToggled ? identity : actor->GetRotationMatrix();
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < GIZMO_COUNT; i++)
         {
-            m_models[i * 3 + 0].SetLocalRotationMatrix(mat);
-            m_models[i * 3 + 1].SetLocalRotationMatrix(mat);
-            m_models[i * 3 + 2].SetLocalRotationMatrix(mat);
+            m_models[i].SetLocalRotationMatrix(mat);
         }
 
         return m_worldSpaceToggled;
