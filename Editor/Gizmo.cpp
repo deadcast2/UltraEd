@@ -178,7 +178,19 @@ namespace UltraEd
 
     void CGizmo::Update(CActor *currentActor)
     {
-        if (currentActor != NULL) SetPosition(currentActor->GetPosition());
+        if (currentActor != NULL)
+        {
+            SetPosition(currentActor->GetPosition());
+
+            if (!m_worldSpaceToggled)
+            {
+                // Keep gizmo in-sync with the actor's rotation.
+                for (int i = 0; i < GIZMO_COUNT; i++)
+                {
+                    m_models[i].SetLocalRotationMatrix(currentActor->GetRotationMatrix());
+                }
+            }
+        }
     }
 
     void CGizmo::Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CActor *currentActor, CActor *selectedActor)
@@ -279,15 +291,6 @@ namespace UltraEd
             else
             {
                 currentActor->Rotate(moveDist * modifier, targetDir);
-
-                if (!m_worldSpaceToggled)
-                {
-                    // Keep gizmo in-sync with the actor's rotation.
-                    for (int i = 0; i < GIZMO_COUNT; i++)
-                    {
-                        m_models[i].SetLocalRotationMatrix(currentActor->GetRotationMatrix());
-                    }
-                }
             }
 
             if (selectedActor == currentActor)
@@ -299,7 +302,7 @@ namespace UltraEd
             }
         }
 
-        SetPosition(selectedActor->GetPosition());
+        Update(selectedActor);
     }
 
     void CGizmo::Reset()
