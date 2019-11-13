@@ -40,32 +40,42 @@ namespace UltraEd
             "\n\tinclude \"code\"";
         const char *specIncludeEnd = "\nendwave";
 
+        vector<string> resourceCache;
         int loopCount = 0;
         for (const auto &actor : actors)
         {
             string newResName = CUtil::NewResourceName(loopCount++);
 
             if (actor->GetType() != ActorType::Model) continue;
-
-            string id = CUtil::GuidToString(actor->GetId());
-            id.insert(0, CUtil::RootPath().append("\\"));
-            id.append(".rom.sos");
-
-            string modelName(newResName);
-            modelName.append("_M");
-
-            specSegments.append("\nbeginseg\n\tname \"");
-            specSegments.append(modelName);
-            specSegments.append("\"\n\tflags RAW\n\tinclude \"");
-            specSegments.append(id);
-            specSegments.append("\"\nendseg\n");
-
-            specIncludes.append("\n\tinclude \"");
-            specIncludes.append(modelName);
-            specIncludes.append("\"");
-
+            
             map<string, string> resources = actor->GetResources();
-            if (resources.count("textureDataPath"))
+
+            if (find(resourceCache.begin(), resourceCache.end(), resources["vertexDataPath"]) 
+                == resourceCache.end())
+            {
+                string id = CUtil::GuidToString(actor->GetId());
+                id.insert(0, CUtil::RootPath().append("\\"));
+                id.append(".rom.sos");
+
+                string modelName(newResName);
+                modelName.append("_M");
+
+                specSegments.append("\nbeginseg\n\tname \"");
+                specSegments.append(modelName);
+                specSegments.append("\"\n\tflags RAW\n\tinclude \"");
+                specSegments.append(id);
+                specSegments.append("\"\nendseg\n");
+
+                specIncludes.append("\n\tinclude \"");
+                specIncludes.append(modelName);
+                specIncludes.append("\"");
+
+                resourceCache.push_back(resources["vertexDataPath"]);
+            }
+
+            if (resources.count("textureDataPath") && 
+                find(resourceCache.begin(), resourceCache.end(), resources["textureDataPath"])
+                == resourceCache.end())
             {
                 // Load the set texture and resize to required dimensions.
                 string path = resources["textureDataPath"];
@@ -95,6 +105,8 @@ namespace UltraEd
                 specIncludes.append("\n\tinclude \"");
                 specIncludes.append(textureName);
                 specIncludes.append("\"");
+
+                resourceCache.push_back(resources["textureDataPath"]);
             }
         }
 
@@ -118,6 +130,7 @@ namespace UltraEd
 
     bool CBuild::WriteSegmentsFile(vector<CActor *> actors)
     {
+        vector<string> resourceCache;
         string romSegments;
         int loopCount = 0;
         for (const auto &actor : actors)
@@ -126,18 +139,27 @@ namespace UltraEd
 
             if (actor->GetType() != ActorType::Model) continue;
 
-            string modelName(newResName);
-            modelName.append("_M");
-
-            romSegments.append("extern u8 _");
-            romSegments.append(modelName);
-            romSegments.append("SegmentRomStart[];\n");
-            romSegments.append("extern u8 _");
-            romSegments.append(modelName);
-            romSegments.append("SegmentRomEnd[];\n");
-
             map<string, string> resources = actor->GetResources();
-            if (resources.count("textureDataPath"))
+            
+            if (find(resourceCache.begin(), resourceCache.end(), resources["vertexDataPath"])
+                == resourceCache.end())
+            {
+                string modelName(newResName);
+                modelName.append("_M");
+
+                romSegments.append("extern u8 _");
+                romSegments.append(modelName);
+                romSegments.append("SegmentRomStart[];\n");
+                romSegments.append("extern u8 _");
+                romSegments.append(modelName);
+                romSegments.append("SegmentRomEnd[];\n");
+
+                resourceCache.push_back(resources["vertexDataPath"]);
+            }
+
+            if (resources.count("textureDataPath") && 
+                find(resourceCache.begin(), resourceCache.end(), resources["textureDataPath"])
+                == resourceCache.end())
             {
                 string textureName(newResName);
                 textureName.append("_T");
@@ -148,6 +170,8 @@ namespace UltraEd
                 romSegments.append("extern u8 _");
                 romSegments.append(textureName);
                 romSegments.append("SegmentRomEnd[];\n");
+
+                resourceCache.push_back(resources["textureDataPath"]);
             }
         }
 
@@ -163,6 +187,7 @@ namespace UltraEd
         int actorCount = -1;
         char countBuffer[10];
         string actorInits, modelDraws;
+        map<string, string> resourceCache;
 
         _itoa(actors.size(), countBuffer, 10);
         string actorsArrayDef("const int _UER_ActorCount = ");
@@ -172,12 +197,6 @@ namespace UltraEd
         for (const auto &actor : actors)
         {
             string resourceName = CUtil::NewResourceName(++actorCount);
-
-            string modelName(resourceName);
-            modelName.append("_M");
-
-            string textureName(resourceName);
-            textureName.append("_T");
 
             _itoa(actorCount, countBuffer, 10);
             actorInits.append("\n\t_UER_Actors[").append(countBuffer).append("] = ");
@@ -190,19 +209,31 @@ namespace UltraEd
             {
                 auto resources = actor->GetResources();
 
-                if (resources.count("textureDataPath"))
-                {
-                    actorInits.append("(actor*)load_model_with_texture(_");
-                }
+                if (resourceCache.find(resources["vertexDataPath"]) != resourceCache.end())
+                    resourceName = resourceCache[resources["vertexDataPath"]];
                 else
-                {
+                    resourceCache[resources["vertexDataPath"]] = resourceName;
+
+                string modelName(resourceName);
+                modelName.append("_M");
+
+                if (resources.count("textureDataPath"))
+                    actorInits.append("(actor*)load_model_with_texture(_");
+                else
                     actorInits.append("(actor*)load_model(_");
-                }
 
                 actorInits.append(modelName).append("SegmentRomStart, _").append(modelName).append("SegmentRomEnd");
 
                 if (resources.count("textureDataPath"))
                 {
+                    if (resourceCache.find(resources["textureDataPath"]) != resourceCache.end())
+                        resourceName = resourceCache[resources["textureDataPath"]];
+                    else
+                        resourceCache[resources["textureDataPath"]] = resourceName;
+
+                    string textureName(resourceName);
+                    textureName.append("_T");
+
                     actorInits.append(", _").append(textureName).append("SegmentRomStart, _").append(textureName).append("SegmentRomEnd");
                 }
 
