@@ -20,6 +20,8 @@ namespace UltraEd
         Savable Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
         bool SetTexture(IDirect3DDevice8 *device, const char *filePath);
+        bool HasTexture() { return m_texture != NULL; }
+        void RemoveTexture();
         void Release(ModelRelease::Value type);
         void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
 

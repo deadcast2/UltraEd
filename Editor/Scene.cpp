@@ -256,8 +256,7 @@ namespace UltraEd
 
         if (m_selectedActorIds.empty())
         {
-            MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
-            return;
+            MessageBox(NULL, "An actor must be selected first.", "Error", MB_OK);
         }
 
         for (const auto &selectedActorId : m_selectedActorIds)
@@ -272,6 +271,20 @@ namespace UltraEd
                     MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
                 }
             }
+        }
+    }
+
+    void CScene::OnRemoveTexture()
+    {
+        if (m_selectedActorIds.empty())
+        {
+            MessageBox(NULL, "An actor must be selected first.", "Error", MB_OK);
+        }
+
+        for (const auto &selectedActorId : m_selectedActorIds)
+        {
+            if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
+            dynamic_cast<CModel *>(m_actors[selectedActorId].get())->RemoveTexture();
         }
     }
 

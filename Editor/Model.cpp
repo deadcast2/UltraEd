@@ -54,11 +54,7 @@ namespace UltraEd
 
         if (type == ModelRelease::VertexBufferOnly) return;
 
-        if (m_texture != NULL)
-        {
-            m_texture->Release();
-            m_texture = 0;
-        }
+        RemoveTexture();
     }
 
     bool CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
@@ -71,7 +67,10 @@ namespace UltraEd
         }
 
         // Save location of texture for scene saving.
-        if (info.type == FileType::User) resources["textureDataPath"] = info.path;
+        if (info.type == FileType::User) 
+        {
+            AddResource("textureDataPath", info.path);
+        }
 
         return true;
     }
@@ -81,6 +80,16 @@ namespace UltraEd
         bool result = false;
         Dirty([&] { result = LoadTexture(device, filePath); }, &result);
         return result;
+    }
+
+    void CModel::RemoveTexture()
+    {
+        if (HasTexture())
+        {
+            m_texture->Release();
+            m_texture = 0;
+            RemoveResource("textureDataPath");
+        }
     }
 
     Savable CModel::Save()

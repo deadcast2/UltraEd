@@ -62,7 +62,7 @@ namespace UltraEd
         m_vertices = mesh.GetVertices();
         if (mesh.GetFileInfo().type == FileType::User)
         {
-            resources["vertexDataPath"] = mesh.GetFileInfo().path;
+            AddResource("vertexDataPath", mesh.GetFileInfo().path);
         }
     }
 

@@ -9,6 +9,10 @@ namespace UltraEd
         if (selectedActor != NULL && selectedActor->GetType() == ActorType::Model)
         {
             AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
+            if (reinterpret_cast<CModel *>(selectedActor)->HasTexture())
+            {
+                AppendMenu(menu, MF_STRING, IDM_MENU_REMOVE_TEXTURE, _T("Remove Texture"));
+            }
         }
 
         HMENU colliderMenu = CreatePopupMenu();
@@ -43,6 +47,9 @@ namespace UltraEd
                 break;
             case IDM_MENU_ADD_TEXTURE:
                 scene->OnApplyTexture();
+                break;
+            case IDM_MENU_REMOVE_TEXTURE:
+                scene->OnRemoveTexture();
                 break;
             case IDM_MENU_ADD_BOX_COLLIDER:
                 scene->OnAddCollider(ColliderType::Box);

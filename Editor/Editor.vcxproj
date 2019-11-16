@@ -260,6 +260,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Savable.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="View.cpp" />
     <ClCompile Include="Debug.cpp" />

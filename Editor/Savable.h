@@ -24,14 +24,17 @@ namespace UltraEd
     class CSavable
     {
     public:
-        CSavable() { m_isDirty = false; }
+        CSavable();
         virtual ~CSavable() { }
         virtual Savable Save() = 0;
         virtual bool Load(IDirect3DDevice8 *device, cJSON *root) = 0;
-        map<string, string> GetResources() { return resources; };
-        bool IsDirty() { return m_isDirty; }
+        map<string, string> GetResources();
+        void AddResource(string key, string value);
+        bool RemoveResource(string key);
+        bool IsDirty();
 
     protected:
+        virtual void SetDirty(bool value);
         template<typename T>
         void Dirty(function<void()> set, const T *var)
         {
@@ -39,10 +42,9 @@ namespace UltraEd
             set();
             if (before != *var) m_isDirty = true;
         }
-        virtual void SetDirty(bool value) { m_isDirty = value; }
-        map<string, string> resources;
 
     private:
+        map<string, string> m_resources;
         bool m_isDirty;
     };
 }
