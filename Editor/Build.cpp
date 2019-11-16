@@ -128,9 +128,8 @@ namespace UltraEd
         return true;
     }
 
-    bool CBuild::WriteSegmentsFile(vector<CActor *> actors)
+    bool CBuild::WriteSegmentsFile(vector<CActor *> actors, map<string, string> *resourceCache)
     {
-        vector<string> resourceCache;
         string romSegments;
         int loopCount = 0;
         for (const auto &actor : actors)
@@ -141,8 +140,7 @@ namespace UltraEd
 
             map<string, string> resources = actor->GetResources();
             
-            if (find(resourceCache.begin(), resourceCache.end(), resources["vertexDataPath"])
-                == resourceCache.end())
+            if (resourceCache->find(resources["vertexDataPath"]) == resourceCache->end())
             {
                 string modelName(newResName);
                 modelName.append("_M");
@@ -154,12 +152,11 @@ namespace UltraEd
                 romSegments.append(modelName);
                 romSegments.append("SegmentRomEnd[];\n");
 
-                resourceCache.push_back(resources["vertexDataPath"]);
+                (*resourceCache)[resources["vertexDataPath"]] = newResName;
             }
 
             if (resources.count("textureDataPath") && 
-                find(resourceCache.begin(), resourceCache.end(), resources["textureDataPath"])
-                == resourceCache.end())
+                resourceCache->find(resources["textureDataPath"]) == resourceCache->end())
             {
                 string textureName(newResName);
                 textureName.append("_T");
@@ -171,7 +168,7 @@ namespace UltraEd
                 romSegments.append(textureName);
                 romSegments.append("SegmentRomEnd[];\n");
 
-                resourceCache.push_back(resources["textureDataPath"]);
+                (*resourceCache)[resources["textureDataPath"]] = newResName;
             }
         }
 
@@ -182,12 +179,11 @@ namespace UltraEd
         return true;
     }
 
-    bool CBuild::WriteActorsFile(vector<CActor *> actors)
+    bool CBuild::WriteActorsFile(vector<CActor *> actors, const map<string, string> &resourceCache)
     {
         int actorCount = -1;
         char countBuffer[10];
         string actorInits, modelDraws;
-        map<string, string> resourceCache;
 
         _itoa(actors.size(), countBuffer, 10);
         string actorsArrayDef("const int _UER_ActorCount = ");
@@ -207,12 +203,10 @@ namespace UltraEd
 
             if (actor->GetType() == ActorType::Model)
             {
-                auto resources = actor->GetResources();
+                const auto resources = actor->GetResources();
 
-                if (resourceCache.find(resources["vertexDataPath"]) != resourceCache.end())
-                    resourceName = resourceCache[resources["vertexDataPath"]];
-                else
-                    resourceCache[resources["vertexDataPath"]] = resourceName;
+                if (resourceCache.find(resources.at("vertexDataPath")) != resourceCache.end())
+                    resourceName = resourceCache.at(resources.at("vertexDataPath"));
 
                 string modelName(resourceName);
                 modelName.append("_M");
@@ -226,10 +220,8 @@ namespace UltraEd
 
                 if (resources.count("textureDataPath"))
                 {
-                    if (resourceCache.find(resources["textureDataPath"]) != resourceCache.end())
-                        resourceName = resourceCache[resources["textureDataPath"]];
-                    else
-                        resourceCache[resources["textureDataPath"]] = resourceName;
+                    if (resourceCache.find(resources.at("textureDataPath")) != resourceCache.end())
+                        resourceName = resourceCache.at(resources.at("textureDataPath"));
 
                     string textureName(resourceName);
                     textureName.append("_T");
@@ -244,7 +236,7 @@ namespace UltraEd
                 actor->GetAxisAngle(&axis, &angle);
                 sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
                     position.x, position.y, position.z,
-                    axis.x, axis.y, axis.z, angle * (180 / D3DX_PI),
+                    axis.x, axis.y, axis.z, angle * (180.0 / D3DX_PI),
                     scale.x, scale.y, scale.z,
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius);
                 actorInits.append(vectorBuffer).append(");\n");
@@ -277,7 +269,7 @@ namespace UltraEd
                 actor->GetAxisAngle(&axis, &angle);
                 sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
                     position.x, position.y, position.z,
-                    axis.x, axis.y, axis.z, angle * (180 / D3DX_PI),
+                    axis.x, axis.y, axis.z, angle * (180.0 / D3DX_PI),
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius);
                 actorInits.append(vectorBuffer).append(");\n");
             }
@@ -429,8 +421,13 @@ namespace UltraEd
     bool CBuild::Start(vector<CActor *> actors, HWND hWnd)
     {
         WriteSpecFile(actors);
-        WriteSegmentsFile(actors);
-        WriteActorsFile(actors);
+
+        // Share texture and model data to reduce ROM size. Resource use is tracked during
+        // segment generation and the actor script generator uses that info. 
+        map<string, string> resourceCache;
+        WriteSegmentsFile(actors, &resourceCache);
+        WriteActorsFile(actors, resourceCache);
+        
         WriteCollisionFile(actors);
         WriteScriptsFile(actors);
         WriteMappingsFile(actors);
