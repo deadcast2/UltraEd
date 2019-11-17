@@ -12,8 +12,6 @@ namespace UltraEd
     CModel::CModel(const CModel &model)
     {
         *this = model;
-        m_vertexBuffer = 0;
-        m_texture = 0;
         ResetId();
     }
 

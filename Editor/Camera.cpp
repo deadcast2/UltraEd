@@ -3,17 +3,16 @@
 
 namespace UltraEd
 {
-    CCamera::CCamera()
+    CCamera::CCamera() :
+        m_fov(60.0f)
     {
         Import("Assets/camera.dae");
         m_type = ActorType::Camera;
-        m_fov = 60.0f;
     }
 
     CCamera::CCamera(const CCamera &camera)
     {
         *this = camera;
-        m_vertexBuffer = 0;
         ResetId();
     }
 
