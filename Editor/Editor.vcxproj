@@ -262,6 +262,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Savable.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="View.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Dialog.cpp" />
@@ -296,6 +297,7 @@
     <ClInclude Include="handlers\ScriptEditor.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Tabs.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="View.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Debug.h" />

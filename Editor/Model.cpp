@@ -26,7 +26,7 @@ namespace UltraEd
 
     void CModel::Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack)
     {
-        IDirect3DVertexBuffer8 *buffer = GetBuffer(device);
+        IDirect3DVertexBuffer8 *buffer = m_vertexBuffer->GetBuffer(device, GetVertices());
 
         if (buffer != NULL)
         {

@@ -1,8 +1,9 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include "Savable.h"
-#include "Vertex.h"
+#include "VertexBuffer.h"
 
 using namespace std;
 
@@ -34,7 +35,6 @@ namespace UltraEd
 
     private:
         D3DMATERIAL8 m_material;
-        IDirect3DVertexBuffer8 *m_vertexBuffer;
-        IDirect3DVertexBuffer8 *GetBuffer(IDirect3DDevice8 *device);
+        shared_ptr<CVertexBuffer> m_vertexBuffer;
     };
 }

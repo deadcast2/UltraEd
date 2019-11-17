@@ -396,7 +396,7 @@ namespace UltraEd
             if (!SUCCEEDED(m_device->BeginScene())) return;
 
             m_grid.Render(m_device);
-            CDebug::Instance().Render(m_device);
+            CDebug::Instance()->Render(m_device);
 
             // Render all actors with selected fill mode.
             m_device->SetMaterial(&m_defaultMaterial);
@@ -586,7 +586,7 @@ namespace UltraEd
     {
         m_grid.Release();
         m_gizmo.Release();
-        CDebug::Instance().Release();
+        CDebug::Instance()->Release();
         for (const auto &actor : m_actors)
         {
             if (auto model = dynamic_cast<CModel *>(actor.second.get()))

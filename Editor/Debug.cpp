@@ -2,32 +2,27 @@
 
 namespace UltraEd
 {
-    CDebug* CDebug::m_instance = &Instance();
+    shared_ptr<CDebug> CDebug::m_instance = Instance();
 
-    CDebug::CDebug()
+    CDebug::CDebug() :
+        m_material(),
+        m_vertexBuffer(make_shared<CVertexBuffer>()),
+        m_vertices()
     {
-        m_vertexBuffer = 0;
-
-        ZeroMemory(&m_material, sizeof(D3DMATERIAL8));
         m_material.Emissive.r = 0.55f;
         m_material.Emissive.g = 1.0f;
         m_material.Emissive.b = 0.55f;
     }
 
-    CDebug::~CDebug()
+    shared_ptr<CDebug> CDebug::Instance()
     {
-        Release();
-    }
-
-    CDebug& CDebug::Instance()
-    {
-        if (m_instance == NULL) m_instance = new CDebug;
-        return *m_instance;
+        if (m_instance == NULL) m_instance = make_shared<CDebug>();
+        return m_instance;
     }
 
     void CDebug::DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to)
     {
-        Instance()._DrawLine(from, to);
+        Instance()->_DrawLine(from, to);
     }
 
     void CDebug::Log(const char *format, ...)
@@ -56,37 +51,9 @@ namespace UltraEd
         Release();
     }
 
-    IDirect3DVertexBuffer8 *CDebug::GetBuffer(IDirect3DDevice8 *device)
-    {
-        if (m_vertexBuffer == NULL)
-        {
-            if (FAILED(device->CreateVertexBuffer(
-                m_vertices.size() * sizeof(Vertex),
-                0,
-                D3DFVF_XYZ,
-                D3DPOOL_DEFAULT,
-                &m_vertexBuffer)))
-            {
-                return NULL;
-            }
-
-            VOID *pVertices;
-            if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(Vertex),
-                (BYTE**)&pVertices, 0)))
-            {
-                return NULL;
-            }
-
-            memcpy(pVertices, &m_vertices[0], m_vertices.size() * sizeof(Vertex));
-            m_vertexBuffer->Unlock();
-        }
-
-        return m_vertexBuffer;
-    }
-
     void CDebug::Render(IDirect3DDevice8 *device)
     {
-        IDirect3DVertexBuffer8 *buffer = GetBuffer(device);
+        IDirect3DVertexBuffer8 *buffer = m_vertexBuffer->GetBuffer(device, m_vertices);
 
         if (buffer != NULL)
         {
@@ -102,7 +69,6 @@ namespace UltraEd
         if (m_vertexBuffer != NULL)
         {
             m_vertexBuffer->Release();
-            m_vertexBuffer = 0;
         }
     }
 }

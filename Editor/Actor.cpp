@@ -8,7 +8,7 @@
 namespace UltraEd
 {
     CActor::CActor() :
-        m_vertexBuffer(),
+        m_vertexBuffer(make_shared<CVertexBuffer>()),
         m_type(ActorType::Model),
         m_id(),
         m_name(),
@@ -40,13 +40,11 @@ namespace UltraEd
         if (m_vertexBuffer != NULL)
         {
             m_vertexBuffer->Release();
-            m_vertexBuffer = 0;
         }
 
         if (m_collider != NULL)
         {
             m_collider->Release();
-            m_collider = 0;
         }
     }
 
@@ -64,34 +62,6 @@ namespace UltraEd
         {
             AddResource("vertexDataPath", mesh.GetFileInfo().path);
         }
-    }
-
-    IDirect3DVertexBuffer8 *CActor::GetBuffer(IDirect3DDevice8 *device)
-    {
-        if (m_vertexBuffer == NULL)
-        {
-            if (FAILED(device->CreateVertexBuffer(
-                m_vertices.size() * sizeof(Vertex),
-                0,
-                D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1,
-                D3DPOOL_DEFAULT,
-                &m_vertexBuffer)))
-            {
-                return NULL;
-            }
-
-            VOID *pVertices;
-            if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(Vertex),
-                (BYTE **)& pVertices, 0)))
-            {
-                return NULL;
-            }
-
-            memcpy(pVertices, &m_vertices[0], m_vertices.size() * sizeof(Vertex));
-            m_vertexBuffer->Unlock();
-        }
-
-        return m_vertexBuffer;
     }
 
     ActorType::Value CActor::GetType(cJSON *item)

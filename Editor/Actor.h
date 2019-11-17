@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "Vertex.h"
+#include "VertexBuffer.h"
 #include "Savable.h"
 #include "Util.h"
 #include "Collider.h"
@@ -51,10 +51,9 @@ namespace UltraEd
         bool Load(IDirect3DDevice8 *device, cJSON *root);
 
     protected:
-        IDirect3DVertexBuffer8 *m_vertexBuffer;
+        shared_ptr<CVertexBuffer> m_vertexBuffer;
         ActorType::Value m_type;
         void Import(const char *filePath);
-        IDirect3DVertexBuffer8 *GetBuffer(IDirect3DDevice8 *device);
 
     private:
         GUID m_id;

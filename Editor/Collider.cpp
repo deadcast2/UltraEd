@@ -8,39 +8,16 @@ namespace UltraEd
         m_vertices(),
         m_center(0, 0, 0), 
         m_material(),
-        m_vertexBuffer()
+        m_vertexBuffer(make_shared<CVertexBuffer>())
     {
         m_material.Emissive.r = 0;
         m_material.Emissive.g = 1;
         m_material.Emissive.b = 0;
     }
 
-    IDirect3DVertexBuffer8 *CCollider::GetBuffer(IDirect3DDevice8 *device)
-    {
-        if (m_vertexBuffer == NULL)
-        {
-            if (FAILED(device->CreateVertexBuffer(m_vertices.size() * sizeof(Vertex), 0, D3DFVF_XYZ,
-                D3DPOOL_DEFAULT, &m_vertexBuffer)))
-            {
-                return NULL;
-            }
-
-            void *pVertices;
-            if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(Vertex), (BYTE **)&pVertices, 0)))
-            {
-                return NULL;
-            }
-
-            memcpy(pVertices, &m_vertices[0], m_vertices.size() * sizeof(Vertex));
-            m_vertexBuffer->Unlock();
-        }
-
-        return m_vertexBuffer;
-    }
-
     void CCollider::Render(IDirect3DDevice8 *device)
     {
-        IDirect3DVertexBuffer8 *buffer = GetBuffer(device);
+        IDirect3DVertexBuffer8 *buffer = m_vertexBuffer->GetBuffer(device, m_vertices);
 
         if (buffer != NULL)
         {
@@ -56,7 +33,6 @@ namespace UltraEd
         if (m_vertexBuffer != NULL)
         {
             m_vertexBuffer->Release();
-            m_vertexBuffer = 0;
         }
     }
 

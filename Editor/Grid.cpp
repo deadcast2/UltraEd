@@ -2,10 +2,11 @@
 
 namespace UltraEd
 {
-    CGrid::CGrid()
+    CGrid::CGrid() :
+        m_material(),
+        m_vertexBuffer(make_shared<CVertexBuffer>()),
+        m_vertices()
     {
-        m_vertexBuffer = 0;
-
         int i = 0;
         const FLOAT size = 30.0f;
 
@@ -35,47 +36,14 @@ namespace UltraEd
             m_vertices.push_back(v2);
         }
 
-        ZeroMemory(&m_material, sizeof(D3DMATERIAL8));
         m_material.Emissive.r = 0.55f;
         m_material.Emissive.g = 0.55f;
         m_material.Emissive.b = 0.55f;
     }
 
-    CGrid::~CGrid()
-    {
-    }
-
-    IDirect3DVertexBuffer8 *CGrid::GetBuffer(IDirect3DDevice8 *device)
-    {
-        if (m_vertexBuffer == NULL)
-        {
-            if (FAILED(device->CreateVertexBuffer(
-                m_vertices.size() * sizeof(Vertex),
-                0,
-                D3DFVF_XYZ,
-                D3DPOOL_DEFAULT,
-                &m_vertexBuffer)))
-            {
-                return NULL;
-            }
-
-            VOID* pVertices;
-            if (FAILED(m_vertexBuffer->Lock(0, m_vertices.size() * sizeof(Vertex),
-                (BYTE**)&pVertices, 0)))
-            {
-                return NULL;
-            }
-
-            memcpy(pVertices, &m_vertices[0], m_vertices.size() * sizeof(Vertex));
-            m_vertexBuffer->Unlock();
-        }
-
-        return m_vertexBuffer;
-    }
-
     void CGrid::Render(IDirect3DDevice8 *device)
     {
-        IDirect3DVertexBuffer8 *buffer = GetBuffer(device);
+        IDirect3DVertexBuffer8 *buffer = m_vertexBuffer->GetBuffer(device, m_vertices);
 
         if (buffer != NULL)
         {
@@ -91,7 +59,6 @@ namespace UltraEd
         if (m_vertexBuffer != NULL)
         {
             m_vertexBuffer->Release();
-            m_vertexBuffer = 0;
         }
     }
 }
