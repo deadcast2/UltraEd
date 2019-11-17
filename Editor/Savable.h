@@ -29,8 +29,8 @@ namespace UltraEd
         virtual Savable Save() = 0;
         virtual bool Load(IDirect3DDevice8 *device, cJSON *root) = 0;
         map<string, string> GetResources();
-        void AddResource(string key, string value);
-        bool RemoveResource(string key);
+        void AddResource(const string &key, const string &value);
+        void RemoveResource(const string &key);
         bool IsDirty();
 
     protected:

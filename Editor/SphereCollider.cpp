@@ -3,9 +3,9 @@
 
 namespace UltraEd
 {
-    CSphereCollider::CSphereCollider()
+    CSphereCollider::CSphereCollider() :
+        m_radius(1)
     {
-        m_radius = 1;
         m_type = ColliderType::Sphere;
     }
 

@@ -26,7 +26,7 @@ namespace UltraEd
         Build();
     }
 
-    void CBoxCollider::DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, vector<Vertex> vertices)
+    void CBoxCollider::DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, const vector<Vertex> &vertices)
     {
         int minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
         for (size_t i = 0; i < vertices.size(); i++)
@@ -78,7 +78,7 @@ namespace UltraEd
             D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
     }
 
-    void CBoxCollider::BuildLine(D3DXVECTOR3 &start, D3DXVECTOR3 &end)
+    void CBoxCollider::BuildLine(const D3DXVECTOR3 &start, const D3DXVECTOR3 &end)
     {
         Vertex v1;
         v1.position = start + m_center;

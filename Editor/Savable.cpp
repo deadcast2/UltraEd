@@ -10,19 +10,14 @@ namespace UltraEd
         return m_resources; 
     }
 
-    void CSavable::AddResource(string key, string value)
+    void CSavable::AddResource(const string &key, const string &value)
     {
         m_resources[key] = value;
     }
 
-    bool CSavable::RemoveResource(string key)
+    void CSavable::RemoveResource(const string &key)
     {
-        if (m_resources.find(key) != m_resources.end())
-        {
-            m_resources.erase(key);
-            return true;
-        }
-        return false;
+        m_resources.erase(key);
     }
 
     bool CSavable::IsDirty() 

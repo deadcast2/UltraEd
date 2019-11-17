@@ -7,7 +7,7 @@
 
 namespace UltraEd
 {
-    bool CFileIO::Save(vector<CSavable *> savables, string &fileName)
+    bool CFileIO::Save(const vector<CSavable *> &savables, string &fileName)
     {
         string file;
 
@@ -191,7 +191,7 @@ namespace UltraEd
         return info;
     }
 
-    bool CFileIO::Compress(string path)
+    bool CFileIO::Compress(const string &path)
     {
         unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "rb"), fclose);
         if (file == NULL) return false;

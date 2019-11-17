@@ -20,9 +20,9 @@ namespace UltraEd
         return m_instance;
     }
 
-    void CDebug::DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to)
+    void CDebug::DrawLine(const D3DXVECTOR3 &from, const D3DXVECTOR3 &to)
     {
-        Instance()->_DrawLine(from, to);
+        Instance()->BuildLine(from, to);
     }
 
     void CDebug::Log(const char *format, ...)
@@ -37,7 +37,7 @@ namespace UltraEd
         va_end(args);
     }
 
-    void CDebug::_DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to)
+    void CDebug::BuildLine(const D3DXVECTOR3 &from, const D3DXVECTOR3 &to)
     {
         Vertex v1;
         v1.position = from;

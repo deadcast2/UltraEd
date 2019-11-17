@@ -14,18 +14,18 @@ namespace UltraEd
     class CBuild
     {
     public:
-        static bool Start(vector<CActor*> actors, HWND hWnd);
+        static bool Start(const vector<CActor*> &actors, const HWND &hWnd);
         static bool Run();
         static bool Load();
-        static bool WriteSpecFile(vector<CActor*> actors);
-        static bool WriteSegmentsFile(vector<CActor*> actors, map<string, string> *resourceCache);
-        static bool WriteActorsFile(vector<CActor*> actors, const map<string, string> &resourceCache);
-        static bool WriteCollisionFile(vector<CActor*> actors);
-        static bool WriteScriptsFile(vector<CActor*> actors);
-        static bool WriteMappingsFile(vector<CActor*> actors);
+        static bool WriteSpecFile(const vector<CActor*> &actors);
+        static bool WriteSegmentsFile(const vector<CActor*> &actors, map<string, string> *resourceCache);
+        static bool WriteActorsFile(const vector<CActor*> &actors, const map<string, string> &resourceCache);
+        static bool WriteCollisionFile(const vector<CActor*> &actors);
+        static bool WriteScriptsFile(const vector<CActor*> &actors);
+        static bool WriteMappingsFile(const vector<CActor*> &actors);
 
     private:
-        static bool Compile(HWND hWnd);
-        static string GetPathFor(string name);
+        static bool Compile(const HWND &hWnd);
+        static string GetPathFor(const string &name);
     };
 }

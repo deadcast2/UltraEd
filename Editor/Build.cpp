@@ -15,7 +15,7 @@
 
 namespace UltraEd
 {
-    bool CBuild::WriteSpecFile(vector<CActor *> actors)
+    bool CBuild::WriteSpecFile(const vector<CActor *> &actors)
     {
         string specSegments, specIncludes;
         const char *specHeader = "#include <nusys.h>\n\n"
@@ -128,7 +128,7 @@ namespace UltraEd
         return true;
     }
 
-    bool CBuild::WriteSegmentsFile(vector<CActor *> actors, map<string, string> *resourceCache)
+    bool CBuild::WriteSegmentsFile(const vector<CActor *> &actors, map<string, string> *resourceCache)
     {
         string romSegments;
         int loopCount = 0;
@@ -179,7 +179,7 @@ namespace UltraEd
         return true;
     }
 
-    bool CBuild::WriteActorsFile(vector<CActor *> actors, const map<string, string> &resourceCache)
+    bool CBuild::WriteActorsFile(const vector<CActor *> &actors, const map<string, string> &resourceCache)
     {
         int actorCount = -1;
         char countBuffer[10];
@@ -293,7 +293,7 @@ namespace UltraEd
         return true;
     }
 
-    bool CBuild::WriteCollisionFile(vector<CActor *> actors)
+    bool CBuild::WriteCollisionFile(const vector<CActor *> &actors)
     {
         string collideSetStart("void _UER_Collide() {");
         string collisions;
@@ -345,7 +345,7 @@ namespace UltraEd
         return true;
     }
 
-    bool CBuild::WriteScriptsFile(vector<CActor *> actors)
+    bool CBuild::WriteScriptsFile(const vector<CActor *> &actors)
     {
         string scriptStartStart("void _UER_Start() {");
         string scriptUpdateStart("\n\nvoid _UER_Update() {");
@@ -398,7 +398,7 @@ namespace UltraEd
         return true;
     }
 
-    bool CBuild::WriteMappingsFile(vector<CActor *> actors)
+    bool CBuild::WriteMappingsFile(const vector<CActor *> &actors)
     {
         string mappingsStart("void _UER_Mappings() {");
         int loopCount = 0;
@@ -407,7 +407,8 @@ namespace UltraEd
         for (const auto &actor : actors)
         {
             _itoa(loopCount++, countBuffer, 10);
-            mappingsStart.append("\n\tinsert(\"").append(actor->GetName()).append("\", ").append(countBuffer).append(");\n");
+            mappingsStart.append("\n\tinsert(\"").append(actor->GetName()).append("\", ")
+                .append(countBuffer).append(");\n");
         }
 
         string mappingsPath = GetPathFor("Engine\\mappings.h");
@@ -418,7 +419,7 @@ namespace UltraEd
         return true;
     }
 
-    bool CBuild::Start(vector<CActor *> actors, HWND hWnd)
+    bool CBuild::Start(const vector<CActor *> &actors, const HWND &hWnd)
     {
         WriteSpecFile(actors);
 
@@ -498,7 +499,7 @@ namespace UltraEd
         return false;
     }
 
-    bool CBuild::Compile(HWND hWnd)
+    bool CBuild::Compile(const HWND &hWnd)
     {
         // Set the root env variable for the N64 build tools.
         SetEnvironmentVariable("ROOT", "..\\Engine\\n64sdk\\ultra");
@@ -567,7 +568,7 @@ namespace UltraEd
         return false;
     }
 
-    string CBuild::GetPathFor(string name)
+    string CBuild::GetPathFor(const string &name)
     {
         char buffer[MAX_PATH];
         if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)

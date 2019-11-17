@@ -15,7 +15,7 @@ namespace UltraEd
         void Release();
         void Render(IDirect3DDevice8 *device);
         static shared_ptr<CDebug> Instance();
-        static void DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to);
+        static void DrawLine(const D3DXVECTOR3 &from, const D3DXVECTOR3 &to);
         static void Log(const char *format, ...);
 
     private:
@@ -23,6 +23,6 @@ namespace UltraEd
         D3DMATERIAL8 m_material;
         shared_ptr<CVertexBuffer> m_vertexBuffer;
         vector<Vertex> m_vertices;
-        void _DrawLine(D3DXVECTOR3 from, D3DXVECTOR3 to);
+        void BuildLine(const D3DXVECTOR3 &from, const D3DXVECTOR3 &to);
     };
 }

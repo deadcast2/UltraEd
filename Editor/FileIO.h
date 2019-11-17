@@ -23,7 +23,7 @@ namespace UltraEd
     class CFileIO
     {
     public:
-        static bool Save(vector<CSavable*> savables, string &fileName);
+        static bool Save(const vector<CSavable*> &savables, string &fileName);
         static bool Load(cJSON **data, string &fileName);
         static FileInfo Import(const char *file);
         static bool Pack(const char *path);
@@ -31,7 +31,7 @@ namespace UltraEd
 
     private:
         CFileIO() {}
-        static bool Compress(string path);
+        static bool Compress(const string &path);
         static bool Decompress(string &path);
         static string CleanFileName(const char *fileName);
         static void TarifyFile(mtar_t *tar, const char *file);
