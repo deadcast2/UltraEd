@@ -47,6 +47,7 @@ namespace UltraEd
         void SetScript(const string &script) { Dirty([&] { m_script = script; }, &m_script); }
         CCollider *GetCollider() { return m_collider.get(); }
         void SetCollider(CCollider *collider) { Dirty([&] { m_collider = shared_ptr<CCollider>(collider); }, &m_collider); }
+        bool HasCollider() { return GetCollider() != NULL; }
         Savable Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
 
