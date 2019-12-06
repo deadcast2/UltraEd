@@ -61,7 +61,7 @@ namespace UltraEd
     private:
         HWND GetWndHandle();
         void CheckChanges();
-        void CheckInput(const float);
+        void CheckInput(const float deltaTime);
         void SetTitle(string title, bool store = true);
         void UpdateViewMatrix();
         void ResetViews();

@@ -375,9 +375,9 @@ namespace UltraEd
     void CScene::Render()
     {
         // Calculate the frame rendering speed.
-        static float lastTime = (float)timeGetTime();
-        float currentTime = (float)timeGetTime();
-        float deltaTime = (currentTime - lastTime) * 0.001f;
+        static double lastTime = (double)timeGetTime();
+        double currentTime = (double)timeGetTime();
+        const float deltaTime = (float)(currentTime - lastTime) * 0.001f;
 
         CheckInput(deltaTime);
         CheckChanges();
@@ -443,7 +443,7 @@ namespace UltraEd
         static DWORD prevTick = GetTickCount();
         static bool prevInScene = false;
         static bool prevGizmo = false;
-        const float smoothingModifier = 16.0f;
+        const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
         const bool mouseReady = GetTickCount() - prevTick < 100;
 
