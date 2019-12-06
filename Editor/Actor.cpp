@@ -22,8 +22,8 @@ namespace UltraEd
         m_collider()
     {
         ResetId();
-        m_script = string("void @start()\n{\n\n}\n\nvoid @update()\n{\n\n}\n\nvoid @input(NUContData gamepads[4])\n{\n\n}");
-        m_script.append("\n\nvoid @collide(actor *other)\n{\n\n}");
+        m_script = string("void $start()\n{\n\n}\n\nvoid $update()\n{\n\n}\n\nvoid $input(NUContData gamepads[4])\n{\n\n}");
+        m_script.append("\n\nvoid $collide(actor *other)\n{\n\n}");
         SetDirty(true);
 
         D3DXMatrixIdentity(&m_localRot);

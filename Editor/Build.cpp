@@ -362,7 +362,7 @@ namespace UltraEd
 
             string newResName = CUtil::NewResourceName(++actorCount);
             string script = actor->GetScript();
-            auto result = unique_ptr<char>(CUtil::ReplaceString(script.c_str(), "@", newResName.c_str()));
+            auto result = unique_ptr<char>(CUtil::ReplaceString(script.c_str(), "$", newResName.c_str()));
 
             _itoa(actorCount, countBuffer, 10);
             actorRef.append(countBuffer).append("]->");
