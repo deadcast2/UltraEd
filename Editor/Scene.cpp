@@ -411,10 +411,10 @@ namespace UltraEd
             if (!m_selectedActorIds.empty())
             {
                 // Highlight the selected actor.
-                m_device->SetMaterial(&m_selectedMaterial);
                 m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
                 for (const auto &selectedActorId : m_selectedActorIds)
                 {
+                    m_device->SetMaterial(&m_selectedMaterial);
                     m_actors[selectedActorId]->Render(m_device, stack);
                 }
 
