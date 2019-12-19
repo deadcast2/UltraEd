@@ -8,17 +8,19 @@
 
 actor *load_model(void *data_start, void *data_end, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
-    double centerX, double centerY, double centerZ, double radius)
+    double centerX, double centerY, double centerZ, double radius,
+    double extentX, double extentY, double extentZ, enum colliderType collider)
 {
     return load_model_with_texture(data_start, data_end,
         NULL, NULL, positionX, positionY, positionZ, rotX, rotY, rotZ, angle, scaleX, scaleY, scaleZ, 
-        centerX, centerY, centerZ, radius);
+        centerX, centerY, centerZ, radius, extentX, extentY, extentZ, collider);
 }
 
 actor *load_model_with_texture(void *data_start, void *data_end, void *texture_start, void *texture_end,
     double positionX, double positionY, double positionZ, double rotX, double rotY, double rotZ, double angle,
     double scaleX, double scaleY, double scaleZ, 
-    double centerX, double centerY, double centerZ, double radius)
+    double centerX, double centerY, double centerZ, double radius,
+    double extentX, double extentY, double extentZ, enum colliderType collider)
 {
     unsigned char data_buffer[200000];
     unsigned char texture_buffer[20000];
@@ -41,12 +43,18 @@ actor *load_model_with_texture(void *data_start, void *data_end, void *texture_s
     new_model->scale = (vector3*)malloc(sizeof(vector3));
     new_model->visible = 1;
     new_model->type = Model;
+    new_model->collider = collider;
 
     new_model->center = (vector3*)malloc(sizeof(vector3));
     new_model->center->x = centerX;
     new_model->center->y = centerY;
     new_model->center->z = centerZ;
     new_model->radius = radius;
+
+    new_model->extents = (vector3 *)malloc(sizeof(vector3));
+    new_model->extents->x = extentX;
+    new_model->extents->y = extentY;
+    new_model->extents->z = extentZ;
 
     // Read how many vertices for this mesh.
     line = (char*)strtok(data_buffer, "\n");
@@ -178,7 +186,8 @@ void model_draw(actor *model, Gfx **display_list)
 
 actor *create_camera(double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, 
-    double centerX, double centerY, double centerZ, double radius)
+    double centerX, double centerY, double centerZ, double radius,
+    double extentX, double extentY, double extentZ, enum colliderType collider)
 {
     actor *camera;
     camera = (actor*)malloc(sizeof(actor));
@@ -186,12 +195,18 @@ actor *create_camera(double positionX, double positionY, double positionZ,
     camera->rotationAxis = (vector3*)malloc(sizeof(vector3));
     camera->visible = 1;
     camera->type = Camera;
+    camera->collider = collider;
 
     camera->center = (vector3*)malloc(sizeof(vector3));
     camera->center->x = centerX;
     camera->center->y = centerY;
     camera->center->z = centerZ;
     camera->radius = radius;
+
+    camera->extents = (vector3 *)malloc(sizeof(vector3));
+    camera->extents->x = extentX;
+    camera->extents->y = extentY;
+    camera->extents->z = extentZ;
 
     if (rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
     camera->position->x = positionX;

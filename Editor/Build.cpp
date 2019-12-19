@@ -10,6 +10,7 @@
 #include "build.h"
 #include "util.h"
 #include "debug.h"
+#include "BoxCollider.h"
 #include "SphereCollider.h"
 #include "resource.h"
 
@@ -197,9 +198,11 @@ namespace UltraEd
             _itoa(actorCount, countBuffer, 10);
             actorInits.append("\n\t_UER_Actors[").append(countBuffer).append("] = ");
 
-            D3DXVECTOR3 colliderCenter = actor->GetCollider() ? actor->GetCollider()->GetCenter() : D3DXVECTOR3(0, 0, 0);
-            FLOAT colliderRadius = actor->GetCollider() && actor->GetCollider()->GetType() == ColliderType::Sphere ?
+            D3DXVECTOR3 colliderCenter = actor->HasCollider() ? actor->GetCollider()->GetCenter() : D3DXVECTOR3(0, 0, 0);
+            FLOAT colliderRadius = actor->HasCollider() && actor->GetCollider()->GetType() == ColliderType::Sphere ?
                 dynamic_cast<CSphereCollider *>(actor->GetCollider())->GetRadius() : 0.0f;
+            D3DXVECTOR3 colliderExtents = actor->HasCollider() && actor->GetCollider()->GetType() == ColliderType::Box ?
+                dynamic_cast<CBoxCollider *>(actor->GetCollider())->GetExtents() : D3DXVECTOR3(0, 0, 0);
 
             if (actor->GetType() == ActorType::Model)
             {
@@ -234,11 +237,13 @@ namespace UltraEd
                 D3DXVECTOR3 position = actor->GetPosition(), scale = actor->GetScale(), axis;
                 float angle;
                 actor->GetAxisAngle(&axis, &angle);
-                sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+                sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %s",
                     position.x, position.y, position.z,
                     axis.x, axis.y, axis.z, angle * (180.0 / D3DX_PI),
                     scale.x, scale.y, scale.z,
-                    colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius);
+                    colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius,
+                    colliderExtents.x, colliderExtents.y, colliderExtents.z, 
+                    actor->HasCollider() ? actor->GetCollider()->GetName() : "None");
                 actorInits.append(vectorBuffer).append(");\n");
 
                 // Write out mesh data.
@@ -267,10 +272,12 @@ namespace UltraEd
                 D3DXVECTOR3 axis;
                 float angle;
                 actor->GetAxisAngle(&axis, &angle);
-                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %s",
                     position.x, position.y, position.z,
                     axis.x, axis.y, axis.z, angle * (180.0 / D3DX_PI),
-                    colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius);
+                    colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius,
+                    colliderExtents.x, colliderExtents.y, colliderExtents.z,
+                    actor->HasCollider() ? actor->GetCollider()->GetName() : "None");
                 actorInits.append(vectorBuffer).append(");\n");
             }
         }

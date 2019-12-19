@@ -14,6 +14,8 @@ namespace UltraEd
         enum Value { Box, Sphere };
     };
 
+    static const char* ColliderTypeNames[] { "Box", "Sphere" };
+
     class CCollider : public CSavable
     {
     public:
@@ -27,6 +29,7 @@ namespace UltraEd
         bool Load(IDirect3DDevice8 *device, cJSON *root);
         ColliderType::Value GetType() { return m_type; };
         static ColliderType::Value GetType(cJSON *item);
+        const char *GetName() { return ColliderTypeNames[m_type]; }
         
     protected:
         ColliderType::Value m_type;

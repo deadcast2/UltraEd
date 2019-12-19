@@ -3,9 +3,9 @@
 
 namespace UltraEd
 {
-    CBoxCollider::CBoxCollider()
-    {
-        m_extents[0] = m_extents[1] = m_extents[2] = 1.0f;
+    CBoxCollider::CBoxCollider() :
+        m_extents(1, 1, 1)
+    { 
         m_type = ColliderType::Box;
     }
 
@@ -19,9 +19,7 @@ namespace UltraEd
         FLOAT midZ = (min.z + max.z) / 2;
 
         m_center = D3DXVECTOR3(midX / 2, midY / 2, midZ / 2);
-        m_extents[0] = min.x - midX;
-        m_extents[1] = min.y - midY;
-        m_extents[2] = min.z - midZ;
+        m_extents = D3DXVECTOR3(min.x - midX, min.y - midY, min.z - midZ);
 
         Build();
     }
@@ -46,36 +44,36 @@ namespace UltraEd
     void CBoxCollider::Build()
     {
         // Top square
-        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]),
-            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]));
-        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]),
-            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]));
-        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]),
-            D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]));
-        BuildLine(D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]),
-            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents.x, m_center.y + m_extents.y, m_center.z + m_extents.z),
+            D3DXVECTOR3(m_center.x + m_extents.x, m_center.y + m_extents.y, m_center.z + m_extents.z));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents.x, m_center.y + m_extents.y, m_center.z - m_extents.z),
+            D3DXVECTOR3(m_center.x + m_extents.x, m_center.y + m_extents.y, m_center.z - m_extents.z));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents.x, m_center.y + m_extents.y, m_center.z + m_extents.z),
+            D3DXVECTOR3(m_center.x - m_extents.x, m_center.y + m_extents.y, m_center.z - m_extents.z));
+        BuildLine(D3DXVECTOR3(m_center.x + m_extents.x, m_center.y + m_extents.y, m_center.z + m_extents.z),
+            D3DXVECTOR3(m_center.x + m_extents.x, m_center.y + m_extents.y, m_center.z - m_extents.z));
 
         // Bottom square
-        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]),
-            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]));
-        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]),
-            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
-        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]),
-            D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
-        BuildLine(D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]),
-            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents.x, m_center.y - m_extents.y, m_center.z + m_extents.z),
+            D3DXVECTOR3(m_center.x + m_extents.x, m_center.y - m_extents.y, m_center.z + m_extents.z));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents.x, m_center.y - m_extents.y, m_center.z - m_extents.z),
+            D3DXVECTOR3(m_center.x + m_extents.x, m_center.y - m_extents.y, m_center.z - m_extents.z));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents.x, m_center.y - m_extents.y, m_center.z + m_extents.z),
+            D3DXVECTOR3(m_center.x - m_extents.x, m_center.y - m_extents.y, m_center.z - m_extents.z));
+        BuildLine(D3DXVECTOR3(m_center.x + m_extents.x, m_center.y - m_extents.y, m_center.z + m_extents.z),
+            D3DXVECTOR3(m_center.x + m_extents.x, m_center.y - m_extents.y, m_center.z - m_extents.z));
 
         // Left square
-        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]),
-            D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]));
-        BuildLine(D3DXVECTOR3(m_center.x - m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]),
-            D3DXVECTOR3(m_center.x - m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents.x, m_center.y + m_extents.y, m_center.z + m_extents.z),
+            D3DXVECTOR3(m_center.x - m_extents.x, m_center.y - m_extents.y, m_center.z + m_extents.z));
+        BuildLine(D3DXVECTOR3(m_center.x - m_extents.x, m_center.y + m_extents.y, m_center.z - m_extents.z),
+            D3DXVECTOR3(m_center.x - m_extents.x, m_center.y - m_extents.y, m_center.z - m_extents.z));
 
         // Right square
-        BuildLine(D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z + m_extents[2]),
-            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z + m_extents[2]));
-        BuildLine(D3DXVECTOR3(m_center.x + m_extents[0], m_center.y + m_extents[1], m_center.z - m_extents[2]),
-            D3DXVECTOR3(m_center.x + m_extents[0], m_center.y - m_extents[1], m_center.z - m_extents[2]));
+        BuildLine(D3DXVECTOR3(m_center.x + m_extents.x, m_center.y + m_extents.y, m_center.z + m_extents.z),
+            D3DXVECTOR3(m_center.x + m_extents.x, m_center.y - m_extents.y, m_center.z + m_extents.z));
+        BuildLine(D3DXVECTOR3(m_center.x + m_extents.x, m_center.y + m_extents.y, m_center.z - m_extents.z),
+            D3DXVECTOR3(m_center.x + m_extents.x, m_center.y - m_extents.y, m_center.z - m_extents.z));
     }
 
     void CBoxCollider::BuildLine(const D3DXVECTOR3 &start, const D3DXVECTOR3 &end)
@@ -93,7 +91,7 @@ namespace UltraEd
     {
         Savable savable = CCollider::Save();
         char buffer[LINE_FORMAT_LENGTH];
-        sprintf(buffer, "%f %f %f", m_extents[0], m_extents[1], m_extents[2]);
+        sprintf(buffer, "%f %f %f", m_extents.x, m_extents.y, m_extents.z);
         cJSON_AddStringToObject(savable.object, "extents", buffer);
         return savable;
     }
@@ -102,7 +100,9 @@ namespace UltraEd
     {
         CCollider::Load(device, root);
         cJSON *extents = cJSON_GetObjectItem(root, "extents");
-        sscanf(extents->valuestring, "%f %f %f", &m_extents[0], &m_extents[1], &m_extents[2]);
+        float x, y, z;
+        sscanf(extents->valuestring, "%f %f %f", &x, &y, &z);
+        m_extents = D3DXVECTOR3(x, y, z);
         Build();
         return true;
     }

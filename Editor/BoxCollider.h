@@ -12,7 +12,7 @@ namespace UltraEd
         CBoxCollider();
         CBoxCollider(const vector<Vertex> &vertices);
         void Build();
-        FLOAT *GetExtents() { return m_extents; }
+        const D3DXVECTOR3 &GetExtents() { return m_extents; }
         Savable Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
 
@@ -21,6 +21,6 @@ namespace UltraEd
         void DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, const vector<Vertex> &vertices);
 
     private:
-        FLOAT m_extents[3];
+        D3DXVECTOR3 m_extents;
     };
 }
