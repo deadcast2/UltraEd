@@ -220,11 +220,6 @@ actor *create_camera(double positionX, double positionY, double positionZ,
     return camera;
 }
 
-float dot(vector3 a, vector3 b)
-{
-    return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
-}
-
 int check_collision(actor *a, actor *b)
 {
     float dist = 0;
@@ -241,10 +236,7 @@ int check_collision(actor *a, actor *b)
     vectorB.y += b->center->y;
     vectorB.z += b->center->z;
 
-    vectorC.x = vectorA.x - vectorB.x;
-    vectorC.y = vectorA.y - vectorB.y;
-    vectorC.z = vectorA.z - vectorB.z;
-
+    vectorC = vec3_sub(vectorA, vectorB);
     dist = dot(vectorC, vectorC);
     radiusSum = a->radius + b->radius;
     return dist <= radiusSum * radiusSum;
