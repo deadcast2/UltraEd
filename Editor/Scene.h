@@ -53,8 +53,8 @@ namespace UltraEd
         bool ToggleFillMode();
         bool ToggleSnapToGrid();
         void SelectActorById(GUID id);
-        Savable Save() { return {}; }
-        bool Load(IDirect3DDevice8 *device, cJSON *root) { return true; }
+        Savable Save();
+        bool Load(IDirect3DDevice8 *device, cJSON *root);
         void SetDirty(bool value);
         bool Confirm();
 

@@ -74,6 +74,10 @@ namespace UltraEd
                 {
                     cJSON_AddItemToArray(actorArray, object);
                 }
+                else if (current.type == SavableType::Scene)
+                {
+                    cJSON_AddItemToObject(root, "scene", object);
+                }
             }
 
             auto rendered = unique_ptr<char>(cJSON_Print(root));

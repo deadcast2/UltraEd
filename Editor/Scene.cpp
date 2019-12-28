@@ -92,6 +92,8 @@ namespace UltraEd
     {
         vector<CSavable *> savables;
 
+        savables.push_back(this);
+
         // Save all editor views.
         for (int i = 0; i < 4; i++) savables.push_back(&m_views[i]);
 
@@ -122,41 +124,7 @@ namespace UltraEd
         {
             OnNew(false);
             SetTitle(loadedName);
-
-            // Restore editor views.
-            int count = 0;
-            cJSON *views = cJSON_GetObjectItem(root, "views");
-            cJSON *viewItem = NULL;
-            cJSON_ArrayForEach(viewItem, views)
-            {
-                m_views[count++].Load(m_device, viewItem);
-            }
-
-            // Restore saved actor.
-            cJSON *actors = cJSON_GetObjectItem(root, "actors");
-            cJSON *actor = NULL;
-            cJSON_ArrayForEach(actor, actors)
-            {
-                switch (CActor::GetType(actor))
-                {
-                    case ActorType::Model:
-                    {
-                        auto model = make_shared<CModel>();
-                        model->Load(m_device, actor);
-                        m_actors[model->GetId()] = model;
-                        break;
-                    }
-                    case ActorType::Camera:
-                    {
-                        auto camera = make_shared<CCamera>();
-                        camera->Load(m_device, actor);
-                        m_actors[camera->GetId()] = camera;
-                        break;
-                    }
-                }
-            }
-
-            cJSON_Delete(root);
+            Load(m_device, root);
             RefreshActorList();
         }
     }
@@ -815,5 +783,65 @@ namespace UltraEd
             SetCursorPos(mousePoint.x, 1);
         else if (mousePoint.y < 1)
             SetCursorPos(mousePoint.x, screenY - 1);
+    }
+
+    Savable CScene::Save()
+    {
+        char buffer[128];
+        cJSON *scene = cJSON_CreateObject();
+
+        sprintf(buffer, "%i", (int)GetActiveView()->GetType());
+        cJSON_AddStringToObject(scene, "active_view", buffer);
+
+        Savable savable = { scene, SavableType::Scene };
+        return savable;
+    }
+
+    bool CScene::Load(IDirect3DDevice8 *device, cJSON *root)
+    {
+        cJSON *scene = cJSON_GetObjectItem(root, "scene");
+
+        // Restore editor views.
+        int count = 0;
+        cJSON *views = cJSON_GetObjectItem(root, "views");
+        cJSON *viewItem = NULL;
+        cJSON_ArrayForEach(viewItem, views)
+        {
+            m_views[count++].Load(m_device, viewItem);
+        }
+
+        // Set the active view.
+        ViewType::Value viewType;
+        cJSON *activeView = cJSON_GetObjectItem(scene, "active_view");
+        sscanf(activeView->valuestring, "%i", &viewType);
+        SetViewType(viewType);
+
+        // Restore saved actors.
+        cJSON *actors = cJSON_GetObjectItem(root, "actors");
+        cJSON *actor = NULL;
+        cJSON_ArrayForEach(actor, actors)
+        {
+            switch (CActor::GetType(actor))
+            {
+                case ActorType::Model:
+                {
+                    auto model = make_shared<CModel>();
+                    model->Load(m_device, actor);
+                    m_actors[model->GetId()] = model;
+                    break;
+                }
+                case ActorType::Camera:
+                {
+                    auto camera = make_shared<CCamera>();
+                    camera->Load(m_device, actor);
+                    m_actors[camera->GetId()] = camera;
+                    break;
+                }
+            }
+        }
+
+        cJSON_Delete(root);
+
+        return true;
     }
 }

@@ -12,7 +12,7 @@ namespace UltraEd
 {
     struct SavableType
     {
-        enum Value { View, Actor };
+        enum Value { Actor, Scene, View };
     };
 
     typedef struct
