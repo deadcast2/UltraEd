@@ -4,9 +4,11 @@ namespace UltraEd
 {
     void MouseMenuCreate(HWND hWnd, const POINT point, CActor *selectedActor)
     {
+        if (selectedActor == NULL) return;
+
         HMENU menu = CreatePopupMenu();
 
-        if (selectedActor != NULL && selectedActor->GetType() == ActorType::Model)
+        if (selectedActor->GetType() == ActorType::Model)
         {
             AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
             if (reinterpret_cast<CModel *>(selectedActor)->HasTexture())
@@ -19,7 +21,7 @@ namespace UltraEd
         AppendMenu(menu, MF_STRING | MF_POPUP, (UINT_PTR)colliderMenu, _T("Collider"));
         AppendMenu(colliderMenu, MF_STRING, IDM_MENU_ADD_BOX_COLLIDER, _T("Add Box"));
         AppendMenu(colliderMenu, MF_STRING, IDM_MENU_ADD_SPHERE_COLLIDER, _T("Add Sphere"));
-        if (selectedActor != NULL && selectedActor->HasCollider())
+        if (selectedActor->HasCollider())
         {
             AppendMenu(colliderMenu, MF_SEPARATOR, NULL, NULL);
             AppendMenu(colliderMenu, MF_STRING, IDM_MENU_DELETE_COLLIDER, _T("Delete"));
