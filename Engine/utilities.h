@@ -12,6 +12,8 @@ unsigned short *image_24_to_16(const unsigned char *data, const int size_x, cons
 
 float dot(vector3 a, vector3 b);
 
+vector3 vec3_add(vector3 a, vector3 b);
+
 vector3 vec3_sub(vector3 a, vector3 b);
 
 #endif

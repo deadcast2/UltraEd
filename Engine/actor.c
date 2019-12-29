@@ -228,15 +228,10 @@ int check_collision(actor *a, actor *b)
     vector3 vectorB = *b->position;
     vector3 vectorC;
 
-    vectorA.x += a->center->x;
-    vectorA.y += a->center->y;
-    vectorA.z += a->center->z;
-
-    vectorB.x += b->center->x;
-    vectorB.y += b->center->y;
-    vectorB.z += b->center->z;
-
+    vectorA = vec3_add(vectorA, *a->center);
+    vectorB = vec3_add(vectorB, *b->center);
     vectorC = vec3_sub(vectorA, vectorB);
+
     dist = dot(vectorC, vectorC);
     radiusSum = a->radius + b->radius;
     return dist <= radiusSum * radiusSum;
