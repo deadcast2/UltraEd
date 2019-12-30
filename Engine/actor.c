@@ -228,8 +228,8 @@ int check_collision(actor *a, actor *b)
     vector3 vectorB = *b->position;
     vector3 vectorC;
 
-    vectorA = vec3_add(vectorA, *a->center);
-    vectorB = vec3_add(vectorB, *b->center);
+    vectorA = vec3_add(vectorA, vec3_rot(*a->center, a->transform.rotation));
+    vectorB = vec3_add(vectorB, vec3_rot(*b->center, b->transform.rotation));
     vectorC = vec3_sub(vectorA, vectorB);
 
     dist = dot(vectorC, vectorC);

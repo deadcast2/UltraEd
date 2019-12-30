@@ -16,4 +16,6 @@ vector3 vec3_add(vector3 a, vector3 b);
 
 vector3 vec3_sub(vector3 a, vector3 b);
 
+vector3 vec3_rot(vector3 a, Mtx mat);
+
 #endif

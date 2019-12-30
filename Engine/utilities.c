@@ -47,3 +47,14 @@ vector3 vec3_sub(vector3 a, vector3 b)
     a.z -= b.z;
     return a;
 }
+
+vector3 vec3_rot(vector3 a, Mtx mat)
+{
+    float fMat[4][4];
+    guMtxL2F(fMat, &mat);
+    vector3 newVector;
+    newVector.x = (a.x * fMat[0][0]) + (a.y * fMat[1][0]) + (a.z * fMat[2][0]);
+    newVector.y = (a.x * fMat[0][1]) + (a.y * fMat[1][1]) + (a.z * fMat[2][1]);
+    newVector.z = (a.x * fMat[0][2]) + (a.y * fMat[1][2]) + (a.z * fMat[2][2]);
+    return newVector;
+}
