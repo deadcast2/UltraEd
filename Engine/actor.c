@@ -222,17 +222,29 @@ actor *create_camera(double positionX, double positionY, double positionZ,
 
 int check_collision(actor *a, actor *b)
 {
-    float dist = 0;
+    if (a->collider == Sphere && b->collider == Sphere)
+        return sphere_sphere_collision(a, b);
+    else if (a->collider == Box && b->collider == Sphere)
+        return 0; // TODO
+    else if (a->collider == Sphere && b->collider == Box)
+        return 0; // TODO
+    else if (a->collider == Box && b->collider == Box)
+        return 0; // TODO
+    
+    return 0;
+}
+
+int sphere_sphere_collision(actor *a, actor *b)
+{
     float radiusSum = 0;
-    vector3 vectorA = *a->position;
-    vector3 vectorB = *b->position;
-    vector3 vectorC;
+    vector3 aPos = *a->position;
+    vector3 bPos = *b->position;
+    vector3 dist;
 
-    vectorA = vec3_add(vectorA, vec3_rot(*a->center, a->transform.rotation));
-    vectorB = vec3_add(vectorB, vec3_rot(*b->center, b->transform.rotation));
-    vectorC = vec3_sub(vectorA, vectorB);
+    aPos = vec3_add(aPos, vec3_rot(*a->center, a->transform.rotation));
+    bPos = vec3_add(bPos, vec3_rot(*b->center, b->transform.rotation));
+    dist = vec3_sub(aPos, bPos);
 
-    dist = dot(vectorC, vectorC);
     radiusSum = a->radius + b->radius;
-    return dist <= radiusSum * radiusSum;
+    return dot(dist, dist) <= radiusSum * radiusSum;
 }

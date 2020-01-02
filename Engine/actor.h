@@ -69,4 +69,6 @@ void model_draw(actor *model, Gfx **display_list);
 
 int check_collision(actor *a, actor *b);
 
+int sphere_sphere_collision(actor *a, actor *b);
+
 #endif
