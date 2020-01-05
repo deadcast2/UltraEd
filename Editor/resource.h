@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by UltraEd.rc
 //
 #define IDR_MAIN_MENU                   101
@@ -7,9 +7,27 @@
 #define IDB_TOOLBAR                     103
 #define IDD_SETTINGS                    104
 #define IDD_SCRIPT_EDITOR               105
+#define IDD_SCENE_SETTINGS              106
 #define IDC_EDIT_N64_SDK_PATH           1000
 #define IDC_N64_SDK_PATH_BROWSE         1001
 #define IDC_SCRIPT_EDITOR_SAVE_CHANGES  1002
+#define IDM_TOOLBAR_TRANSLATE           5000
+#define IDM_TOOLBAR_ROTATE              5001
+#define IDM_TOOLBAR_SCALE               5002
+#define IDM_TOOLBAR_VIEW_PERSPECTIVE    5003
+#define IDM_TOOLBAR_VIEW_TOP            5004
+#define IDM_TOOLBAR_VIEW_LEFT           5005
+#define IDM_TOOLBAR_VIEW_FRONT          5006
+#define IDM_MENU_DELETE_OBJECT          9001
+#define IDM_MENU_DUPLICATE_OBJECT       9002
+#define IDM_MENU_MODIFY_SCRIPT_OBJECT   9003
+#define IDM_MENU_ADD_TEXTURE            9004
+#define IDM_MENU_REMOVE_TEXTURE         9005
+#define IDM_MENU_ADD_BOX_COLLIDER       9006
+#define IDM_MENU_ADD_SPHERE_COLLIDER    9007
+#define IDM_MENU_DELETE_COLLIDER        9008
+#define IDM_STATUS_BAR                  9999
+#define IDM_TREEVIEW                    10000
 #define ID_FILE_IMPORTMODEL             40001
 #define ID_TOOL_APPLYTEXTURE            40002
 #define ID_MOVEMENT_WORLDSPACE          40003
@@ -27,24 +45,7 @@
 #define ID_FILE_SETTINGS                40017
 #define ID_INSTALL_BUILD_TOOLS          40017
 #define ID_FILE_BUILDROM_AND_LOAD       40018
-
-#define IDM_TOOLBAR_TRANSLATE 5000
-#define IDM_TOOLBAR_ROTATE 5001
-#define IDM_TOOLBAR_SCALE 5002
-#define IDM_TOOLBAR_VIEW_PERSPECTIVE 5003
-#define IDM_TOOLBAR_VIEW_TOP 5004
-#define IDM_TOOLBAR_VIEW_LEFT 5005
-#define IDM_TOOLBAR_VIEW_FRONT 5006
-#define IDM_MENU_DELETE_OBJECT 9001
-#define IDM_MENU_DUPLICATE_OBJECT 9002
-#define IDM_MENU_MODIFY_SCRIPT_OBJECT 9003
-#define IDM_MENU_ADD_TEXTURE 9004
-#define IDM_MENU_REMOVE_TEXTURE 9005
-#define IDM_MENU_ADD_BOX_COLLIDER 9006
-#define IDM_MENU_ADD_SPHERE_COLLIDER 9007
-#define IDM_MENU_DELETE_COLLIDER 9008
-#define IDM_STATUS_BAR 9999
-#define IDM_TREEVIEW 10000
+#define ID_FILE_SCENESETTINGS           40019
 
 #define TV_ADD_ACTOR WM_USER + 0
 #define TV_CLEAR_ACTORS WM_USER + 1
@@ -56,8 +57,8 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        106
-#define _APS_NEXT_COMMAND_VALUE         40019
+#define _APS_NEXT_RESOURCE_VALUE        108
+#define _APS_NEXT_COMMAND_VALUE         40020
 #define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

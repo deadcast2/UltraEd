@@ -290,11 +290,12 @@
     <ClInclude Include="handlers\KeyDown.h" />
     <ClInclude Include="handlers\Menu.h" />
     <ClInclude Include="handlers\MouseMenu.h" />
+    <ClInclude Include="handlers\SceneSettings.h" />
+    <ClInclude Include="handlers\ScriptEditor.h" />
     <ClInclude Include="handlers\Treeview.h" />
     <ClInclude Include="handlers\Window.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="handlers\Toolbar.h" />
-    <ClInclude Include="handlers\ScriptEditor.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Tabs.h" />
     <ClInclude Include="VertexBuffer.h" />

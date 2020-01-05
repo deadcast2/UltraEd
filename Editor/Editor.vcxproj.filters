@@ -193,9 +193,6 @@
     <ClInclude Include="handlers\Treeview.h">
       <Filter>Header Files\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="handlers\ScriptEditor.h">
-      <Filter>Header Files\handlers</Filter>
-    </ClInclude>
     <ClInclude Include="handlers\Window.h">
       <Filter>Header Files\handlers</Filter>
     </ClInclude>
@@ -216,6 +213,12 @@
     </ClInclude>
     <ClInclude Include="VertexBuffer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="handlers\SceneSettings.h">
+      <Filter>Header Files\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="handlers\ScriptEditor.h">
+      <Filter>Header Files\handlers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
