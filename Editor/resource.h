@@ -8,9 +8,13 @@
 #define IDD_SETTINGS                    104
 #define IDD_SCRIPT_EDITOR               105
 #define IDD_SCENE_SETTINGS              106
-#define IDC_EDIT_N64_SDK_PATH           1000
+#define IDC_EDIT_SCENE_COLOR_RED        1000
 #define IDC_N64_SDK_PATH_BROWSE         1001
 #define IDC_SCRIPT_EDITOR_SAVE_CHANGES  1002
+#define IDC_EDIT_SCENE_COLOR_BLUE       1003
+#define IDC_EDIT_SCENE_COLOR_PREVIEW    1004
+#define IDC_EDIT_SCENE_COLOR_GREEN      1005
+#define IDC_BUTTON_SCENE_COLOR_CHOOSE   1006
 #define IDM_TOOLBAR_TRANSLATE           5000
 #define IDM_TOOLBAR_ROTATE              5001
 #define IDM_TOOLBAR_SCALE               5002
@@ -46,6 +50,7 @@
 #define ID_INSTALL_BUILD_TOOLS          40017
 #define ID_FILE_BUILDROM_AND_LOAD       40018
 #define ID_FILE_SCENESETTINGS           40019
+#define IDC_STATIC                      -1
 
 #define TV_ADD_ACTOR WM_USER + 0
 #define TV_CLEAR_ACTORS WM_USER + 1
@@ -59,7 +64,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        108
 #define _APS_NEXT_COMMAND_VALUE         40020
-#define _APS_NEXT_CONTROL_VALUE         1004
+#define _APS_NEXT_CONTROL_VALUE         1007
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
