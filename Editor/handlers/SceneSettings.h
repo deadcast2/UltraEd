@@ -12,6 +12,10 @@ namespace UltraEd
         {
             case WM_INITDIALOG:
             {
+                // Limit RGB fields to 3 characters max.
+                SendDlgItemMessage(hWndDlg, IDC_EDIT_SCENE_COLOR_RED, EM_SETLIMITTEXT, 3, 0);
+                SendDlgItemMessage(hWndDlg, IDC_EDIT_SCENE_COLOR_GREEN, EM_SETLIMITTEXT, 3, 0);
+                SendDlgItemMessage(hWndDlg, IDC_EDIT_SCENE_COLOR_BLUE, EM_SETLIMITTEXT, 3, 0);
             }
             break;
             case WM_COMMAND:
