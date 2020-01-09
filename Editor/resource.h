@@ -51,7 +51,6 @@
 #define ID_FILE_BUILDROM_AND_LOAD       40018
 #define ID_FILE_SCENESETTINGS           40019
 #define IDC_STATIC                      -1
-
 #define TV_ADD_ACTOR WM_USER + 0
 #define TV_CLEAR_ACTORS WM_USER + 1
 #define TV_SELECT_ACTOR WM_USER + 2
@@ -64,7 +63,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        108
 #define _APS_NEXT_COMMAND_VALUE         40020
-#define _APS_NEXT_CONTROL_VALUE         1007
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
