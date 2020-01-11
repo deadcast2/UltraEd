@@ -68,18 +68,9 @@ namespace UltraEd
                             char buffer[4];
                             GetDlgItemText(hWndDlg, LOWORD(wParam), buffer, 4);
 
-                            // Build new string of only numbers.
-                            string cleanedValue;
-                            for (size_t i = 0; i < strlen(buffer); i++)
-                            {
-                                if (isdigit(buffer[i]))
-                                    cleanedValue.append(1, buffer[i]);
-                            }
-
-                            if (cleanedValue.size() > 0 && stoi(cleanedValue) > 255)
-                                cleanedValue = "255";
-                            else if (cleanedValue.size() == 0)
-                                cleanedValue = "0";
+                            int val = atoi(buffer);
+                            string cleanedValue = to_string(val);
+                            if (val > 255) cleanedValue = "255";
 
                             // Stop sending update message when strings finally match.
                             if (strncmp(cleanedValue.c_str(), buffer, 3) != 0)
