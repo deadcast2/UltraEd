@@ -30,6 +30,8 @@ namespace UltraEd
         void FocusSelected();
         void SetScript(string script);
         string GetScript();
+        void SetBackgroundColor(COLORREF color);
+        COLORREF GetBackgroundColor();
         void Render();
         void Resize();
         void OnMouseWheel(short zDelta);
@@ -85,5 +87,6 @@ namespace UltraEd
         float m_mouseSmoothX, m_mouseSmoothY;
         ViewType::Value m_activeViewType;
         string m_sceneName;
+        int m_backgroundColorRGB[3];
     };
 }

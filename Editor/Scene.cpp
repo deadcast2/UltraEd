@@ -26,7 +26,8 @@ namespace UltraEd
         m_mouseSmoothX(0),
         m_mouseSmoothY(0),
         m_activeViewType(ViewType::Perspective),
-        m_sceneName()
+        m_sceneName(),
+        m_backgroundColorRGB()
     {
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
@@ -43,6 +44,8 @@ namespace UltraEd
         m_worldLight.Diffuse.g = 1.0f;
         m_worldLight.Diffuse.b = 1.0f;
         m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
+
+        m_backgroundColorRGB[0] = m_backgroundColorRGB[1] = m_backgroundColorRGB[2] = 255;
     }
 
     CScene::~CScene()
@@ -636,6 +639,18 @@ namespace UltraEd
             return m_actors[m_selectedActorIds[0]]->GetScript();
         }
         return string("");
+    }
+
+    void CScene::SetBackgroundColor(COLORREF color)
+    {
+        m_backgroundColorRGB[0] = GetRValue(color);
+        m_backgroundColorRGB[1] = GetGValue(color);
+        m_backgroundColorRGB[2] = GetBValue(color);
+    }
+
+    COLORREF CScene::GetBackgroundColor()
+    {
+        return RGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]);
     }
 
     HWND CScene::GetWndHandle()

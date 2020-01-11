@@ -22,7 +22,7 @@ namespace UltraEd
                 scene->OnLoad();
                 break;
             case ID_FILE_SCENESETTINGS:
-                DialogBox(NULL, MAKEINTRESOURCE(IDD_SCENE_SETTINGS), hWnd, (DLGPROC)SceneSettingsProc);
+                DialogBoxParam(NULL, MAKEINTRESOURCE(IDD_SCENE_SETTINGS), hWnd, (DLGPROC)SceneSettingsProc, (LPARAM)scene);
                 break;
             case ID_FILE_EXIT:
                 SendMessage(hWnd, WM_CLOSE, 0, 0);

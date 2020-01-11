@@ -3,6 +3,7 @@
 #include <commdlg.h>
 #include <stdio.h>
 #include <string>
+#include "../Scene.h"
 #include "../resource.h"
 
 using namespace std;
@@ -30,15 +31,32 @@ namespace UltraEd
         return RGB(red, green, blue);
     }
 
+    void SetSceneSettingsRGBValue(HWND hWnd, COLORREF color)
+    {
+        char buffer[4];
+
+        sprintf(buffer, "%i", GetRValue(color));
+        SetDlgItemText(hWnd, IDC_EDIT_SCENE_COLOR_RED, buffer);
+
+        sprintf(buffer, "%i", GetGValue(color));
+        SetDlgItemText(hWnd, IDC_EDIT_SCENE_COLOR_GREEN, buffer);
+
+        sprintf(buffer, "%i", GetBValue(color));
+        SetDlgItemText(hWnd, IDC_EDIT_SCENE_COLOR_BLUE, buffer);
+    }
+
     BOOL CALLBACK SceneSettingsProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)
         {
             case WM_INITDIALOG:
             {
-                SetDlgItemText(hWndDlg, IDC_EDIT_SCENE_COLOR_RED, "255");
-                SetDlgItemText(hWndDlg, IDC_EDIT_SCENE_COLOR_GREEN, "255");
-                SetDlgItemText(hWndDlg, IDC_EDIT_SCENE_COLOR_BLUE, "255");
+                CScene *scene = (CScene *)lParam;
+                SetWindowLongPtr(hWndDlg, GWLP_USERDATA, (LPARAM)scene);
+                if (scene)
+                {
+                    SetSceneSettingsRGBValue(hWndDlg, scene->GetBackgroundColor());
+                }
 
                 // Limit RGB fields to 3 characters max.
                 SendDlgItemMessage(hWndDlg, IDC_EDIT_SCENE_COLOR_RED, EM_SETLIMITTEXT, 3, 0);
@@ -84,7 +102,7 @@ namespace UltraEd
                     }
                     case IDC_BUTTON_SCENE_COLOR_CHOOSE:
                     {
-                        DWORD rgbCurrent = GetSceneSettingsRGBValue(hWndDlg);
+                        COLORREF rgbCurrent = GetSceneSettingsRGBValue(hWndDlg);
                         COLORREF acrCustClr[16];
                         CHOOSECOLOR cc;
                         ZeroMemory(&cc, sizeof(cc));
@@ -96,25 +114,21 @@ namespace UltraEd
 
                         if (ChooseColor(&cc) == TRUE)
                         {
-                            char buffer[4];
-                            rgbCurrent = cc.rgbResult;
-                            
-                            sprintf(buffer, "%i", GetRValue(rgbCurrent));
-                            SetDlgItemText(hWndDlg, IDC_EDIT_SCENE_COLOR_RED, buffer);
-
-                            sprintf(buffer, "%i", GetGValue(rgbCurrent));
-                            SetDlgItemText(hWndDlg, IDC_EDIT_SCENE_COLOR_GREEN, buffer);
-
-                            sprintf(buffer, "%i", GetBValue(rgbCurrent));
-                            SetDlgItemText(hWndDlg, IDC_EDIT_SCENE_COLOR_BLUE, buffer);
+                            SetSceneSettingsRGBValue(hWndDlg, cc.rgbResult);
                         }
                         break;
                     }
                     case IDOK:
+                    {
+                        CScene *scene = (CScene *)GetWindowLongPtr(hWndDlg, GWLP_USERDATA);
+                        if (scene) scene->SetBackgroundColor(GetSceneSettingsRGBValue(hWndDlg));
+                    }
                     case IDCANCEL:
+                    {
                         DeleteObject(settingsBrush);
                         EndDialog(hWndDlg, wParam);
                         return TRUE;
+                    }
                 }
         }
         return FALSE;
