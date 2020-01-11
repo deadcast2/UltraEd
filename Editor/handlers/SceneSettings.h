@@ -2,7 +2,10 @@
 
 #include <commdlg.h>
 #include <stdio.h>
+#include <string>
 #include "../resource.h"
+
+using namespace std;
 
 namespace UltraEd
 {
@@ -20,8 +23,8 @@ namespace UltraEd
                 SendDlgItemMessage(hWndDlg, IDC_EDIT_SCENE_COLOR_RED, EM_SETLIMITTEXT, 3, 0);
                 SendDlgItemMessage(hWndDlg, IDC_EDIT_SCENE_COLOR_GREEN, EM_SETLIMITTEXT, 3, 0);
                 SendDlgItemMessage(hWndDlg, IDC_EDIT_SCENE_COLOR_BLUE, EM_SETLIMITTEXT, 3, 0);
+                break;
             }
-            break;
             case WM_CTLCOLORSTATIC:
             {
                 if ((HWND)lParam == GetDlgItem(hWndDlg, IDC_EDIT_SCENE_COLOR_PREVIEW)
@@ -29,11 +32,38 @@ namespace UltraEd
                 {
                     return (INT_PTR)settingsBrush;
                 }
+                break;
             }
-            break;
             case WM_COMMAND:
                 switch (LOWORD(wParam))
                 {
+                    case IDC_EDIT_SCENE_COLOR_RED:
+                    case IDC_EDIT_SCENE_COLOR_GREEN:
+                    case IDC_EDIT_SCENE_COLOR_BLUE:
+                    {
+                        // Remove non-numerical characters and limit color value < 256.
+                        if (HIWORD(wParam) == EN_CHANGE)
+                        {
+                            char buffer[4];
+                            GetDlgItemText(hWndDlg, LOWORD(wParam), buffer, 4);
+
+                            // Build new string of only numbers.
+                            string cleanedValue;
+                            for (int i = 0; i < strlen(buffer); i++)
+                            {
+                                if (isdigit(buffer[i]))
+                                    cleanedValue.append(1, buffer[i]);
+                            }
+
+                            if (cleanedValue.size() > 0 && stoi(cleanedValue) > 255)
+                                cleanedValue = "255";
+
+                            // Stop sending update message when strings finally match.
+                            if (strncmp(cleanedValue.c_str(), buffer, 3) != 0)
+                                SetDlgItemText(hWndDlg, LOWORD(wParam), cleanedValue.c_str());
+                        }
+                        break;
+                    }
                     case IDC_BUTTON_SCENE_COLOR_CHOOSE:
                     {
                         DWORD rgbCurrent = 0;
