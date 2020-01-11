@@ -808,6 +808,10 @@ namespace UltraEd
         sprintf(buffer, "%i", (int)GetActiveView()->GetType());
         cJSON_AddStringToObject(scene, "active_view", buffer);
 
+        sprintf(buffer, "%i %i %i", m_backgroundColorRGB[0], m_backgroundColorRGB[1], 
+            m_backgroundColorRGB[2]);
+        cJSON_AddStringToObject(scene, "background_color", buffer);
+
         Savable savable = { scene, SavableType::Scene };
         return savable;
     }
@@ -830,6 +834,11 @@ namespace UltraEd
         cJSON *activeView = cJSON_GetObjectItem(scene, "active_view");
         sscanf(activeView->valuestring, "%i", &viewType);
         SetViewType(viewType);
+
+        // Set the background color.
+        cJSON *backgroundColor = cJSON_GetObjectItem(scene, "background_color");
+        sscanf(backgroundColor->valuestring, "%i %i %i", &m_backgroundColorRGB[0],
+            &m_backgroundColorRGB[1], &m_backgroundColorRGB[2]);
 
         // Restore saved actors.
         cJSON *actors = cJSON_GetObjectItem(root, "actors");
