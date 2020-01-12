@@ -60,9 +60,10 @@ namespace UltraEd
         bool Load(IDirect3DDevice8 *device, cJSON *root);
         void SetDirty(bool value);
         bool Confirm();
+        HWND GetWndHandle();
+        vector<CActor *> GetActors();
 
     private:
-        HWND GetWndHandle();
         void CheckChanges();
         void CheckInput(const float deltaTime);
         void SetTitle(string title, bool store = true);

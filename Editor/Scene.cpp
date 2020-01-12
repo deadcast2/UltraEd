@@ -181,18 +181,9 @@ namespace UltraEd
         }
     }
 
-
     void CScene::OnBuildROM(BuildFlag::Value flag)
-    {
-        vector<CActor *> actors;
-
-        // Gather all of the actors in the scene.
-        for (const auto &actor : m_actors)
-        {
-            actors.push_back(actor.second.get());
-        }
-
-        if (CBuild::Start(actors, GetWndHandle()))
+    {       
+        if (CBuild::Start(this))
         {
             if (flag & BuildFlag::Run)
             {
@@ -665,6 +656,16 @@ namespace UltraEd
             return params.hFocusWindow;
         }
         return NULL;
+    }
+
+    vector<CActor *> CScene::GetActors()
+    {
+        vector<CActor *> actors;
+        for (const auto &actor : m_actors)
+        {
+            actors.push_back(actor.second.get());
+        }
+        return actors;
     }
 
     void CScene::ResetViews()

@@ -3,6 +3,7 @@
 #include "utilities.h"
 #include "hashtable.h"
 #include "actor.h"
+#include "scene.h"
 #include "segments.h"
 #include "actors.h"
 #include "mappings.h"
@@ -52,6 +53,9 @@ void rcpInit()
 
 void clearFramBuffer()
 {
+    unsigned int backgroundColor = GPACK_RGBA5551(_UER_SceneBackgroundColor[0],
+        _UER_SceneBackgroundColor[1], _UER_SceneBackgroundColor[2], 1);
+
     gDPSetDepthImage(glistp++, OS_K0_TO_PHYSICAL(nuGfxZBuffer));
     gDPSetCycleType(glistp++, G_CYC_FILL);
     gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD,
@@ -63,8 +67,7 @@ void clearFramBuffer()
 
     gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD,
         osVirtualToPhysical(nuGfxCfb_ptr));
-    gDPSetFillColor(glistp++, (GPACK_RGBA5551(207, 239, 252, 1) << 16 |
-        GPACK_RGBA5551(207, 239, 252, 1)));
+    gDPSetFillColor(glistp++, (backgroundColor << 16 | backgroundColor));
     gDPFillRectangle(glistp++, 0, 0, SCREEN_WD - 1, SCREEN_HT - 1);
     gDPPipeSync(glistp++);
 }

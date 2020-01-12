@@ -180,6 +180,20 @@ namespace UltraEd
         return true;
     }
 
+    bool CBuild::WriteSceneFile(CScene *scene)
+    {
+        char buffer[128];
+        COLORREF bgColor = scene->GetBackgroundColor();
+        sprintf(buffer, "int _UER_SceneBackgroundColor[3] = { %i, %i, %i };\n", GetRValue(bgColor),
+            GetGValue(bgColor), GetBValue(bgColor));
+
+        string scenePath = GetPathFor("Engine\\scene.h");
+        unique_ptr<FILE, decltype(fclose) *> file(fopen(scenePath.c_str(), "w"), fclose);
+        if (file == NULL) return false;
+        fwrite(buffer, 1, strlen(buffer), file.get());
+        return true;
+    }
+
     bool CBuild::WriteActorsFile(const vector<CActor *> &actors, const map<string, string> &resourceCache)
     {
         int actorCount = -1;
@@ -426,9 +440,9 @@ namespace UltraEd
         return true;
     }
 
-    bool CBuild::Start(const vector<CActor *> &actors, const HWND &hWnd)
+    bool CBuild::Start(CScene *scene)
     {
-        WriteSpecFile(actors);
+        auto actors = scene->GetActors();
 
         // Share texture and model data to reduce ROM size. Resource use is tracked during
         // segment generation and the actor script generator uses that info. 
@@ -436,10 +450,13 @@ namespace UltraEd
         WriteSegmentsFile(actors, &resourceCache);
         WriteActorsFile(actors, resourceCache);
         
+        WriteSpecFile(actors);
         WriteCollisionFile(actors);
         WriteScriptsFile(actors);
         WriteMappingsFile(actors);
-        return Compile(hWnd);
+        WriteSceneFile(scene);
+        
+        return Compile(scene->GetWndHandle());
     }
 
     bool CBuild::Run()
