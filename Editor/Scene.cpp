@@ -44,8 +44,6 @@ namespace UltraEd
         m_worldLight.Diffuse.g = 1.0f;
         m_worldLight.Diffuse.b = 1.0f;
         m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
-
-        m_backgroundColorRGB[0] = m_backgroundColorRGB[1] = m_backgroundColorRGB[2] = 255;
     }
 
     CScene::~CScene()
@@ -88,6 +86,7 @@ namespace UltraEd
         m_actors.clear();
         ResetViews();
         RefreshActorList();
+        m_backgroundColorRGB[0] = m_backgroundColorRGB[1] = m_backgroundColorRGB[2] = 0;
         SetDirty(false);
     }
 
@@ -360,7 +359,8 @@ namespace UltraEd
             stack->LoadMatrix(&GetActiveView()->GetViewMatrix());
 
             m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
-            m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(90, 90, 90), 1.0f, 0);
+            m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 
+                D3DCOLOR_XRGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]), 1.0f, 0);
             m_device->SetLight(0, &m_worldLight);
             m_device->LightEnable(0, TRUE);
 
@@ -475,12 +475,14 @@ namespace UltraEd
 
     void CScene::CheckChanges()
     {
+        SetDirty(this->IsDirty());
+
         for (const auto &actor : m_actors)
         {
             if (actor.second->IsDirty())
             {
                 SetDirty(true);
-                return;
+                break;
             }
         }
     }
@@ -643,9 +645,11 @@ namespace UltraEd
 
     void CScene::SetBackgroundColor(COLORREF color)
     {
-        m_backgroundColorRGB[0] = GetRValue(color);
-        m_backgroundColorRGB[1] = GetGValue(color);
-        m_backgroundColorRGB[2] = GetBValue(color);
+        Dirty([&] { 
+            m_backgroundColorRGB[0] = GetRValue(color);
+            m_backgroundColorRGB[1] = GetGValue(color);
+            m_backgroundColorRGB[2] = GetBValue(color);
+        }, &m_backgroundColorRGB);
     }
 
     COLORREF CScene::GetBackgroundColor()

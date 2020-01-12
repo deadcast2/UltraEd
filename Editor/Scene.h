@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <map>
 #include "deps/DXSDK/include/d3d8.h"
 #include "deps/DXSDK/include/d3dx8.h"
@@ -87,6 +88,6 @@ namespace UltraEd
         float m_mouseSmoothX, m_mouseSmoothY;
         ViewType::Value m_activeViewType;
         string m_sceneName;
-        int m_backgroundColorRGB[3];
+        array<int, 3> m_backgroundColorRGB;
     };
 }
