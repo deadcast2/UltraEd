@@ -48,9 +48,6 @@ namespace UltraEd
         GizmoAxisState::Value m_axisState;
         GizmoModifierState::Value m_modifierState;
         D3DXVECTOR3 m_updateStartPoint;
-        D3DXVECTOR3 m_xAxisRot;
-        D3DXVECTOR3 m_yAxisRot;
-        D3DXVECTOR3 m_zAxisRot;
         bool m_worldSpaceToggled;
         bool m_snapToGridToggled;
     };

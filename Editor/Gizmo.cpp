@@ -12,9 +12,6 @@ namespace UltraEd
         m_axisState(GizmoAxisState::XAxis), 
         m_modifierState(GizmoModifierState::Translate),
         m_updateStartPoint(-999, -999, -999),
-        m_xAxisRot(0, -D3DX_PI / 2, 0), 
-        m_yAxisRot(D3DX_PI / 2, 0, 0), 
-        m_zAxisRot(0, D3DX_PI, 0),
         m_worldSpaceToggled(true), 
         m_snapToGridToggled(false)
     {
@@ -138,42 +135,38 @@ namespace UltraEd
 
     void CGizmo::SetupTransHandles()
     {
-        m_models[0] = CModel("Assets/trans-gizmo.dae");
-        m_models[0].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
-        m_models[1] = CModel("Assets/trans-gizmo.dae");
-        m_models[1].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
-        m_models[2] = CModel("Assets/trans-gizmo.dae");
-        m_models[2].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
+        m_models[0] = CModel("Assets/trans-gizmo.fbx");
+        m_models[0].Rotate(-D3DX_PI / 2, D3DXVECTOR3(0, 0, 1));
+        m_models[1] = CModel("Assets/trans-gizmo.fbx");
+        m_models[2] = CModel("Assets/trans-gizmo.fbx");
+        m_models[2].Rotate(D3DX_PI / 2, D3DXVECTOR3(1, 0, 0));
     }
 
     void CGizmo::SetupScaleHandles()
     {
-        m_models[3] = CModel("Assets/scale-gizmo.dae");
-        m_models[3].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
-        m_models[4] = CModel("Assets/scale-gizmo.dae");
-        m_models[4].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
-        m_models[5] = CModel("Assets/scale-gizmo.dae");
-        m_models[5].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
+        m_models[3] = CModel("Assets/scale-gizmo.fbx");
+        m_models[3].Rotate(-D3DX_PI / 2, D3DXVECTOR3(0, 0, 1));
+        m_models[4] = CModel("Assets/scale-gizmo.fbx");
+        m_models[5] = CModel("Assets/scale-gizmo.fbx");
+        m_models[5].Rotate(D3DX_PI / 2, D3DXVECTOR3(1, 0, 0));
     }
 
     void CGizmo::SetupRotateHandles()
     {
-        m_models[6] = CModel("Assets/rot-gizmo.dae");
-        m_models[6].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
-        m_models[7] = CModel("Assets/rot-gizmo.dae");
-        m_models[7].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
-        m_models[8] = CModel("Assets/rot-gizmo.dae");
-        m_models[8].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
+        m_models[6] = CModel("Assets/rot-gizmo.fbx");
+        m_models[6].Rotate(-D3DX_PI / 2, D3DXVECTOR3(0, 0, 1));
+        m_models[7] = CModel("Assets/rot-gizmo.fbx");
+        m_models[8] = CModel("Assets/rot-gizmo.fbx");
+        m_models[8].Rotate(D3DX_PI / 2, D3DXVECTOR3(1, 0, 0));
     }
 
     void CGizmo::SetupSelectorHandles()
     {
-        m_models[9] = CModel("Assets/selector-gizmo.dae");
-        m_models[9].Rotate(m_xAxisRot.y, D3DXVECTOR3(0, 1, 0));
-        m_models[10] = CModel("Assets/selector-gizmo.dae");
-        m_models[10].Rotate(m_yAxisRot.x, D3DXVECTOR3(1, 0, 0));
-        m_models[11] = CModel("Assets/selector-gizmo.dae");
-        m_models[11].Rotate(m_zAxisRot.y, D3DXVECTOR3(0, 1, 0));
+        m_models[9] = CModel("Assets/selector-gizmo.fbx");
+        m_models[9].Rotate(-D3DX_PI / 2, D3DXVECTOR3(0, 0, 1));
+        m_models[10] = CModel("Assets/selector-gizmo.fbx");
+        m_models[11] = CModel("Assets/selector-gizmo.fbx");
+        m_models[11].Rotate(D3DX_PI / 2, D3DXVECTOR3(1, 0, 0));
     }
 
     void CGizmo::Update(CActor *currentActor)
