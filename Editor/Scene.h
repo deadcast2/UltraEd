@@ -12,6 +12,7 @@
 #include "Grid.h"
 #include "Model.h"
 #include "Camera.h"
+#include "Action.h"
 
 namespace UltraEd
 {
@@ -46,6 +47,8 @@ namespace UltraEd
         void OnAddCollider(ColliderType::Value type);
         void OnDeleteCollider();
         void OnBuildROM(BuildFlag::Value flag);
+        void Undo();
+        void Redo();
         bool Pick(POINT mousePoint, CActor **selectedActor = NULL);
         void ReleaseResources(ModelRelease::Value type);
         void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
@@ -90,5 +93,6 @@ namespace UltraEd
         ViewType::Value m_activeViewType;
         string m_sceneName;
         array<int, 3> m_backgroundColorRGB;
+        CAction m_action;
     };
 }

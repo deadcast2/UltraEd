@@ -27,7 +27,8 @@ namespace UltraEd
         m_mouseSmoothY(0),
         m_activeViewType(ViewType::Perspective),
         m_sceneName(),
-        m_backgroundColorRGB()
+        m_backgroundColorRGB(),
+        m_action()
     {
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
@@ -803,6 +804,16 @@ namespace UltraEd
             SetCursorPos(mousePoint.x, 1);
         else if (mousePoint.y < 1)
             SetCursorPos(mousePoint.x, screenY - 1);
+    }
+
+    void CScene::Undo()
+    {
+        m_action.Undo();
+    }
+
+    void CScene::Redo()
+    {
+        m_action.Redo();
     }
 
     Savable CScene::Save()

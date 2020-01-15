@@ -254,6 +254,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Action.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="Build.cpp" />
     <ClCompile Include="Actor.cpp" />
@@ -282,6 +283,7 @@
     <ResourceCompile Include="UltraEd.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Action.h" />
     <ClInclude Include="Actor.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Build.h" />

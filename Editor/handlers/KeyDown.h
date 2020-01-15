@@ -16,6 +16,12 @@ namespace UltraEd
             case 'D':
                 if (GetKeyState(VK_CONTROL) & 0x8000) scene->Duplicate();
                 break;
+            case 'Z':
+                if (GetKeyState(VK_CONTROL) & 0x8000) scene->Undo();
+                break;
+            case 'Y':
+                if (GetKeyState(VK_CONTROL) & 0x8000) scene->Redo();
+                break;
             case 'F':
                 scene->FocusSelected();
                 break;
