@@ -41,7 +41,7 @@ namespace UltraEd
         bool OnSave();
         void OnLoad();
         void OnAddCamera();
-        void OnApplyTexture();
+        void OnAddTexture();
         void OnRemoveTexture();
         void OnImportModel();
         void OnAddCollider(ColliderType::Value type);

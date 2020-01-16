@@ -51,7 +51,7 @@ namespace UltraEd
                 DialogBoxParam(NULL, MAKEINTRESOURCE(IDD_SCRIPT_EDITOR), hWnd, ScriptEditorProc, (LPARAM)scene);
                 break;
             case IDM_MENU_ADD_TEXTURE:
-                scene->OnApplyTexture();
+                scene->OnAddTexture();
                 break;
             case IDM_MENU_REMOVE_TEXTURE:
                 scene->OnRemoveTexture();

@@ -59,7 +59,7 @@ namespace UltraEd
                 scene->OnImportModel();
                 break;
             case ID_ADD_TEXTURE:
-                scene->OnApplyTexture();
+                scene->OnAddTexture();
                 break;
             case ID_RENDER_SOLID:
             {
