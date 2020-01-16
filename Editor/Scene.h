@@ -35,7 +35,7 @@ namespace UltraEd
         void SetBackgroundColor(COLORREF color);
         COLORREF GetBackgroundColor();
         void Render();
-        void Resize();
+        void Resize();       
         void OnMouseWheel(short zDelta);
         void OnNew(bool confirm = true);
         bool OnSave();
@@ -75,6 +75,8 @@ namespace UltraEd
         void RefreshActorList();
         bool MouseInScene(const POINT &mousePoint);
         void WrapCursor();
+        void Delete(CActor* actor);
+        void Restore(cJSON* item);
 
     private:
         D3DLIGHT8 m_worldLight;

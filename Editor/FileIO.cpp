@@ -36,21 +36,12 @@ namespace UltraEd
                 Savable current = savable->Save();
                 cJSON *object = current.object;
 
-                // Add array to hold all attached resources.
-                cJSON *resourceArray = cJSON_CreateArray();
-                cJSON_AddItemToObject(object, "resources", resourceArray);
-
                 // Rewrite and archive the attached resources.
-                map<string, string> resources = savable->GetResources();
-                for (const auto &resource : resources)
+                for (const auto &resource : savable->GetResources())
                 {
                     const char *fileName = PathFindFileName(resource.second.c_str());
                     unique_ptr<FILE, decltype(fclose) *> file(fopen(resource.second.c_str(), "rb"), fclose);
                     if (file == NULL) continue;
-
-                    cJSON *item = cJSON_CreateObject();
-                    cJSON_AddStringToObject(item, resource.first.c_str(), fileName);
-                    cJSON_AddItemToArray(resourceArray, item);
 
                     // Calculate resource length.
                     fseek(file.get(), 0, SEEK_END);
@@ -124,7 +115,7 @@ namespace UltraEd
                 cJSON_ArrayForEach(resource, resources)
                 {
                     char target[128];
-                    const char *fileName = resource->child->valuestring;
+                    const char *fileName = PathFindFileName(resource->child->valuestring);
 
                     // Locate the resource to extract.
                     mtar_find(&tar, fileName, &header);

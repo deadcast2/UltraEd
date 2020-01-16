@@ -212,6 +212,16 @@ namespace UltraEd
             cJSON_AddItemToObject(actor, "collider", m_collider->Save().object);
         }
 
+        // Add array to hold all attached resources.
+        cJSON *resourceArray = cJSON_CreateArray();
+        cJSON_AddItemToObject(actor, "resources", resourceArray);
+        for (const auto &resource : GetResources())
+        {
+            cJSON *item = cJSON_CreateObject();
+            cJSON_AddStringToObject(item, resource.first.c_str(), resource.second.c_str());
+            cJSON_AddItemToArray(resourceArray, item);
+        }
+
         SetDirty(false);
 
         Savable savable = { actor, SavableType::Actor };

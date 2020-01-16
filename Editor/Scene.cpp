@@ -569,19 +569,29 @@ namespace UltraEd
     {
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            if (auto model = dynamic_cast<CModel *>(m_actors[selectedActorId].get()))
-            {
-                model->Release(ModelRelease::AllResources);
-            }
-            else
-            {
-                m_actors[selectedActorId]->Release();
-            }
-            m_actors.erase(selectedActorId);
+            Delete(m_actors[selectedActorId].get());
             SetDirty(true);
         }
-        m_selectedActorIds.clear();
+
         RefreshActorList();
+    }
+
+    void CScene::Delete(CActor *actor)
+    {
+        if (auto model = dynamic_cast<CModel*>(actor))
+        {
+            model->Release(ModelRelease::AllResources);
+        }
+        else
+        {
+           actor->Release();
+        }
+
+        // Unselect actor if selected.
+        auto it = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor->GetId());
+        if (it != m_selectedActorIds.end()) m_selectedActorIds.erase(it);
+
+        m_actors.erase(actor->GetId());
     }
 
     void CScene::Duplicate()
@@ -861,27 +871,32 @@ namespace UltraEd
         cJSON *actor = NULL;
         cJSON_ArrayForEach(actor, actors)
         {
-            switch (CActor::GetType(actor))
-            {
-                case ActorType::Model:
-                {
-                    auto model = make_shared<CModel>();
-                    model->Load(m_device, actor);
-                    m_actors[model->GetId()] = model;
-                    break;
-                }
-                case ActorType::Camera:
-                {
-                    auto camera = make_shared<CCamera>();
-                    camera->Load(m_device, actor);
-                    m_actors[camera->GetId()] = camera;
-                    break;
-                }
-            }
+            Restore(actor);
         }
 
         cJSON_Delete(root);
 
         return true;
+    }
+
+    void CScene::Restore(cJSON* item)
+    {
+        switch (CActor::GetType(item))
+        {
+            case ActorType::Model:
+            {
+                auto model = make_shared<CModel>();
+                model->Load(m_device, item);
+                m_actors[model->GetId()] = model;
+                break;
+            }
+            case ActorType::Camera:
+            {
+                auto camera = make_shared<CCamera>();
+                camera->Load(m_device, item);
+                m_actors[camera->GetId()] = camera;
+                break;
+            }
+        }
     }
 }
