@@ -132,7 +132,7 @@ namespace UltraEd
         }
     }
 
-    void CScene::OnImportModel()
+    void CScene::OnAddModel()
     {
         string file;
         if (CDialog::Open("Add Model",
@@ -145,6 +145,8 @@ namespace UltraEd
             char buffer[1024];
             sprintf(buffer, "Actor %u", m_actors.size());
             m_actors[model->GetId()]->SetName(string(buffer));
+            m_action.AddActor(this, m_actors[model->GetId()]);
+
             RefreshActorList();
         }
     }
@@ -568,16 +570,17 @@ namespace UltraEd
     {
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            Delete(m_actors[selectedActorId].get());
+            m_action.DeleteActor(this, m_actors[selectedActorId]);
+            Delete(m_actors[selectedActorId]);
             SetDirty(true);
         }
 
         RefreshActorList();
     }
 
-    void CScene::Delete(CActor *actor)
+    void CScene::Delete(shared_ptr<CActor> actor)
     {
-        if (auto model = dynamic_cast<CModel*>(actor))
+        if (auto model = dynamic_cast<CModel*>(actor.get()))
         {
             model->Release(ModelRelease::AllResources);
         }

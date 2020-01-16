@@ -1,4 +1,5 @@
 #include "Action.h"
+#include "Scene.h"
 
 namespace UltraEd
 {
@@ -35,5 +36,25 @@ namespace UltraEd
 
         m_actions.push_back({ undo, redo });
         m_position = m_actions.size();
+    }
+
+    void CAction::AddActor(CScene *scene, shared_ptr<CActor> actor)
+    {
+        auto state = actor->Save();
+        Add([=]() {
+            scene->Delete(actor);
+        }, [=]() {
+            scene->Restore(state.object);
+        });
+    }
+
+    void CAction::DeleteActor(CScene *scene, shared_ptr<CActor> actor)
+    {
+        auto state = actor->Save();
+        Add([=]() {
+            scene->Restore(state.object);
+        }, [=]() {
+            scene->Delete(actor);
+        });
     }
 }

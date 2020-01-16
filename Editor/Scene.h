@@ -43,7 +43,7 @@ namespace UltraEd
         void OnAddCamera();
         void OnAddTexture();
         void OnRemoveTexture();
-        void OnImportModel();
+        void OnAddModel();
         void OnAddCollider(ColliderType::Value type);
         void OnDeleteCollider();
         void OnBuildROM(BuildFlag::Value flag);
@@ -65,6 +65,8 @@ namespace UltraEd
         bool Confirm();
         HWND GetWndHandle();
         vector<CActor *> GetActors();
+        void Delete(shared_ptr<CActor> actor);
+        void Restore(cJSON *item);
 
     private:
         void CheckChanges();
@@ -75,8 +77,6 @@ namespace UltraEd
         void RefreshActorList();
         bool MouseInScene(const POINT &mousePoint);
         void WrapCursor();
-        void Delete(CActor* actor);
-        void Restore(cJSON* item);
 
     private:
         D3DLIGHT8 m_worldLight;

@@ -56,7 +56,7 @@ namespace UltraEd
                 scene->OnAddCamera();
                 break;
             case ID_ADD_MODEL:
-                scene->OnImportModel();
+                scene->OnAddModel();
                 break;
             case ID_ADD_TEXTURE:
                 scene->OnAddTexture();
