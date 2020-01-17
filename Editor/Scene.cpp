@@ -160,6 +160,8 @@ namespace UltraEd
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
+            m_action.ChangeActor(this, m_actors[selectedActorId]);
+
             if (type == ColliderType::Box)
             {
                 m_actors[selectedActorId]->SetCollider(new CBoxCollider(m_actors[selectedActorId]->GetVertices()));
@@ -180,6 +182,8 @@ namespace UltraEd
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
+            m_action.ChangeActor(this, m_actors[selectedActorId]);
+
             m_actors[selectedActorId]->SetCollider(NULL);
         }
     }
@@ -229,6 +233,9 @@ namespace UltraEd
             for (const auto &selectedActorId : m_selectedActorIds)
             {
                 if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
+
+                m_action.ChangeActor(this, m_actors[selectedActorId]);
+
                 if (!dynamic_cast<CModel *>(m_actors[selectedActorId].get())->SetTexture(m_device, file.c_str()))
                 {
                     MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
@@ -247,6 +254,9 @@ namespace UltraEd
         for (const auto &selectedActorId : m_selectedActorIds)
         {
             if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
+
+            m_action.ChangeActor(this, m_actors[selectedActorId]);
+
             dynamic_cast<CModel *>(m_actors[selectedActorId].get())->RemoveTexture();
         }
     }
@@ -608,12 +618,14 @@ namespace UltraEd
                     string texturePath = model->GetResources()["textureDataPath"];
                     model->SetTexture(m_device, texturePath.c_str());
                     m_actors[model->GetId()] = model;
+                    m_action.AddActor(this, m_actors[model->GetId()]);
                     break;
                 }
                 case ActorType::Camera:
                 {
                     auto camera = make_shared<CCamera>(*dynamic_cast<CCamera *>(m_actors[selectedActorId].get()));
                     m_actors[camera->GetId()] = camera;
+                    m_action.AddActor(this, m_actors[camera->GetId()]);
                     break;
                 }
             }
@@ -724,6 +736,8 @@ namespace UltraEd
         m_actors[newCamera->GetId()] = newCamera;
         sprintf(buffer, "Camera %u", m_actors.size());
         m_actors[newCamera->GetId()]->SetName(string(buffer));
+        m_action.AddActor(this, m_actors[newCamera->GetId()]);
+
         RefreshActorList();
     }
 

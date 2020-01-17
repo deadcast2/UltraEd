@@ -13,7 +13,8 @@ namespace UltraEd
         if (m_position > 0)
         {
             m_position--;
-            m_actions[m_position][0]();
+            auto state = get<0>(m_actions[m_position])();
+            get<2>(m_actions[m_position]) = state;
         }
     }
 
@@ -21,12 +22,13 @@ namespace UltraEd
     {
         if (m_position < m_actions.size())
         {
-            m_actions[m_position][1]();
+            auto state = get<2>(m_actions[m_position]);
+            get<1>(m_actions[m_position])(state);
             m_position++;
         }
     }
 
-    void CAction::Add(function<void()> undo, function<void()> redo)
+    void CAction::Add(function<Savable()> undo, function<void(Savable)> redo)
     {
         // Clear redo history when adding new action and not at head.
         while (m_actions.size() != m_position)
@@ -34,7 +36,8 @@ namespace UltraEd
             m_actions.pop_back();
         }
 
-        m_actions.push_back({ undo, redo });
+        Savable emptyState;
+        m_actions.push_back({ undo, redo, emptyState });
         m_position = m_actions.size();
     }
 
@@ -43,7 +46,8 @@ namespace UltraEd
         auto state = actor->Save();
         Add([=]() {
             scene->Delete(actor);
-        }, [=]() {
+            return state;
+        }, [=](Savable savable) {
             scene->Restore(state.object);
         });
     }
@@ -53,8 +57,21 @@ namespace UltraEd
         auto state = actor->Save();
         Add([=]() {
             scene->Restore(state.object);
-        }, [=]() {
+            return state;
+        }, [=](Savable savable) {
             scene->Delete(actor);
+        });
+    }
+
+    void CAction::ChangeActor(CScene *scene, shared_ptr<CActor> actor)
+    {
+        auto state = actor->Save();
+        Add([=]() {
+            auto futureState = actor->Save();
+            scene->Restore(state.object);
+            return futureState;
+        }, [=](Savable savable) {
+            scene->Restore(savable.object);
         });
     }
 }
