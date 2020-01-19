@@ -148,6 +148,7 @@ namespace UltraEd
             m_actors[model->GetId()]->SetName(string(buffer));
             m_action.AddActor("Model", this, m_actors[model->GetId()]);
 
+            SelectActorById(model->GetId());
             RefreshActorList();
         }
     }
@@ -752,6 +753,7 @@ namespace UltraEd
         m_actors[newCamera->GetId()]->SetName(string(buffer));
         m_action.AddActor("Camera", this, m_actors[newCamera->GetId()]);
 
+        SelectActorById(newCamera->GetId());
         RefreshActorList();
     }
 
