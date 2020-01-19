@@ -63,14 +63,16 @@ namespace UltraEd
         });
     }
 
-    void CAction::ChangeActor(CScene *scene, shared_ptr<CActor> actor)
+    void CAction::ChangeActor(CScene *scene, GUID actorId)
     {
-        auto state = actor->Save();
+        auto state = scene->GetActor(actorId)->Save();
         Add([=]() {
+            auto actor = scene->GetActor(actorId);
             auto futureState = actor->Save();
             scene->Restore(state.object);
             return futureState;
         }, [=](Savable savable) {
+            auto actor = scene->GetActor(actorId);
             scene->Restore(savable.object);
         });
     }

@@ -160,7 +160,7 @@ namespace UltraEd
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            m_action.ChangeActor(this, m_actors[selectedActorId]);
+            m_action.ChangeActor(this, selectedActorId);
 
             if (type == ColliderType::Box)
             {
@@ -182,7 +182,7 @@ namespace UltraEd
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            m_action.ChangeActor(this, m_actors[selectedActorId]);
+            m_action.ChangeActor(this, selectedActorId);
 
             m_actors[selectedActorId]->SetCollider(NULL);
         }
@@ -234,7 +234,7 @@ namespace UltraEd
             {
                 if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
 
-                m_action.ChangeActor(this, m_actors[selectedActorId]);
+                m_action.ChangeActor(this, selectedActorId);
 
                 if (!dynamic_cast<CModel *>(m_actors[selectedActorId].get())->SetTexture(m_device, file.c_str()))
                 {
@@ -255,7 +255,7 @@ namespace UltraEd
         {
             if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
 
-            m_action.ChangeActor(this, m_actors[selectedActorId]);
+            m_action.ChangeActor(this, selectedActorId);
 
             dynamic_cast<CModel *>(m_actors[selectedActorId].get())->RemoveTexture();
         }
@@ -417,6 +417,8 @@ namespace UltraEd
         static DWORD prevTick = GetTickCount();
         static bool prevInScene = false;
         static bool prevGizmo = false;
+        static bool changeTracked = false;
+
         const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
         const bool mouseReady = GetTickCount() - prevTick < 100;
@@ -435,8 +437,12 @@ namespace UltraEd
                 GUID lastSelectedActorId = m_selectedActorIds.back();
                 for (const auto &selectedActorId : m_selectedActorIds)
                 {
-                    m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
-                        m_actors[lastSelectedActorId].get());
+                    if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
+                        m_actors[lastSelectedActorId].get()) && !changeTracked)
+                    {
+                        changeTracked = true;
+                        m_action.ChangeActor(this, selectedActorId);
+                    }
                 }
             }
         }
@@ -468,7 +474,7 @@ namespace UltraEd
             // Reset smoothing values for new mouse view movement.
             m_mouseSmoothX = m_mouseSmoothX = 0;
 
-            prevInScene = prevGizmo = false;
+            prevInScene = prevGizmo = changeTracked = false;
         }
 
         // Remember the last position so we know how much to move the view.
@@ -691,6 +697,13 @@ namespace UltraEd
             actors.push_back(actor.second.get());
         }
         return actors;
+    }
+
+    shared_ptr<CActor> CScene::GetActor(GUID id)
+    {
+        if (m_actors.find(id) != m_actors.end())
+            return m_actors[id];
+        return NULL;
     }
 
     void CScene::ResetViews()

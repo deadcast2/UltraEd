@@ -36,11 +36,19 @@ namespace UltraEd
     protected:
         virtual void SetDirty(bool value);
         template<typename T>
-        void Dirty(function<void()> set, const T *var)
+        bool Dirty(function<void()> set, const T *var)
         {
             const T before = *var;
+            
             set();
-            if (before != *var) m_isDirty = true;
+            
+            if (before != *var)
+            {
+                m_isDirty = true;
+                return true;
+            }
+
+            return false;
         }
 
     private:

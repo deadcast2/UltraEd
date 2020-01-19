@@ -186,8 +186,9 @@ namespace UltraEd
         }
     }
 
-    void CGizmo::Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CActor *currentActor, CActor *selectedActor)
+    bool CGizmo::Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CActor *currentActor, CActor *selectedActor)
     {
+        bool changeDetected = false;
         D3DXVECTOR3 targetDir = D3DXVECTOR3(0, 0, 0);
         D3DXVECTOR3 v0, v1, v2, intersectPoint;
         D3DXVECTOR3 look = selectedActor->GetPosition() - view->GetPosition();
@@ -274,7 +275,7 @@ namespace UltraEd
                 }
                 else if (!m_snapToGridToggled)
                 {
-                    currentActor->Move(targetDir * (moveDist * modifier));
+                    changeDetected = currentActor->Move(targetDir * (moveDist * modifier));
                 }
             }
             else if (m_modifierState == GizmoModifierState::Scale)
@@ -296,6 +297,7 @@ namespace UltraEd
         }
 
         Update(selectedActor);
+        return changeDetected;
     }
 
     void CGizmo::Reset()
