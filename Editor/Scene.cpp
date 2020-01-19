@@ -849,11 +849,13 @@ namespace UltraEd
     void CScene::Undo()
     {
         m_action.Undo();
+        RefreshActorList();
     }
 
     void CScene::Redo()
     {
         m_action.Redo();
+        RefreshActorList();
     }
 
     Savable CScene::Save()
