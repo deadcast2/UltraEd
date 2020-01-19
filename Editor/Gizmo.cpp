@@ -280,11 +280,11 @@ namespace UltraEd
             }
             else if (m_modifierState == GizmoModifierState::Scale)
             {
-                currentActor->Scale(targetDir * (moveDist * modifier));
+                changeDetected = currentActor->Scale(targetDir * (moveDist * modifier));
             }
             else
             {
-                currentActor->Rotate(moveDist * modifier, targetDir);
+                changeDetected = currentActor->Rotate(moveDist * modifier, targetDir);
             }
 
             if (selectedActor == currentActor)

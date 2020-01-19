@@ -105,11 +105,11 @@ namespace UltraEd
         D3DXQuaternionToAxisAngle(&quat, axis, angle);
     }
 
-    void CActor::Rotate(const float &angle, const D3DXVECTOR3 &dir)
+    bool CActor::Rotate(const float &angle, const D3DXVECTOR3 &dir)
     {
         D3DXMATRIX newWorld;
         D3DXMatrixRotationAxis(&newWorld, &dir, angle);
-        Dirty([&] { m_worldRot *= newWorld; }, &m_worldRot);
+        return Dirty([&] { m_worldRot *= newWorld; }, &m_worldRot);
     }
 
     D3DXMATRIX CActor::GetMatrix()

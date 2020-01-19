@@ -30,8 +30,8 @@ namespace UltraEd
         const D3DXMATRIX &GetRotationMatrix() { return m_worldRot; }
         void SetLocalRotationMatrix(const D3DXMATRIX &mat) { m_localRot = mat; }
         bool Move(const D3DXVECTOR3 &position) { return Dirty([&] { m_position += position; }, &m_position); }
-        void Scale(const D3DXVECTOR3 &position) { Dirty([&] { m_scale += position; }, &m_scale); }
-        void Rotate(const float &angle, const D3DXVECTOR3 &dir);
+        bool Scale(const D3DXVECTOR3 &position) { return Dirty([&] { m_scale += position; }, &m_scale); }
+        bool Rotate(const float &angle, const D3DXVECTOR3 &dir);
         const D3DXVECTOR3 &GetPosition() { return m_position; }
         void SetPosition(const D3DXVECTOR3 &position) { m_position = position; }
         void SetRotation(const D3DXVECTOR3 &rotation);
