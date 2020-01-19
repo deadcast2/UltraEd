@@ -11,6 +11,14 @@ namespace UltraEd
 {
     class CScene;
 
+    struct Action
+    {
+        string name;
+        function<Savable()> undo;
+        function<void(Savable)> redo;
+        Savable state;
+    };
+
     class CAction
     {
     public:
@@ -18,13 +26,13 @@ namespace UltraEd
         void Undo();
         void Redo();
         void Reset();
-        void AddActor(CScene *scene, shared_ptr<CActor> actor);
-        void DeleteActor(CScene *scene, shared_ptr<CActor> actor);
-        void ChangeActor(CScene *scene, GUID actorId);
+        void AddActor(string name, CScene *scene, shared_ptr<CActor> actor);
+        void DeleteActor(string name, CScene *scene, shared_ptr<CActor> actor);
+        void ChangeActor(string name, CScene *scene, GUID actorId);
 
     private:
-        void Add(function<Savable()> undo, function<void(Savable)> redo);
-        vector<tuple<function<Savable()>, function<void(Savable)>, Savable>> m_actions;
+        void Add(Action action);
+        vector<Action> m_actions;
         size_t m_position;
     };
 }

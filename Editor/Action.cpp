@@ -13,8 +13,8 @@ namespace UltraEd
         if (m_position > 0)
         {
             m_position--;
-            auto state = get<0>(m_actions[m_position])();
-            get<2>(m_actions[m_position]) = state;
+            auto state = m_actions[m_position].undo();
+            m_actions[m_position].state = state;
         }
     }
 
@@ -22,8 +22,8 @@ namespace UltraEd
     {
         if (m_position < m_actions.size())
         {
-            auto state = get<2>(m_actions[m_position]);
-            get<1>(m_actions[m_position])(state);
+            auto state = m_actions[m_position].state;
+            m_actions[m_position].redo(state);
             m_position++;
         }
     }
@@ -34,7 +34,7 @@ namespace UltraEd
         m_position = 0;
     }
 
-    void CAction::Add(function<Savable()> undo, function<void(Savable)> redo)
+    void CAction::Add(Action action)
     {
         // Clear redo history when adding new action and not at head.
         while (m_actions.size() != m_position)
@@ -42,44 +42,58 @@ namespace UltraEd
             m_actions.pop_back();
         }
 
-        Savable emptyState;
-        m_actions.push_back({ undo, redo, emptyState });
+        m_actions.push_back(action);
         m_position = m_actions.size();
     }
 
-    void CAction::AddActor(CScene *scene, shared_ptr<CActor> actor)
+    void CAction::AddActor(string name, CScene *scene, shared_ptr<CActor> actor)
     {
         auto state = actor->Save();
-        Add([=]() {
-            scene->Delete(actor);
-            return state;
-        }, [=](Savable savable) {
-            scene->Restore(state.object);
-        });
+        Action action = {
+            string("Add ").append(name),
+            [=]() {
+                scene->Delete(actor);
+                return state;
+            },
+            [=](Savable savable) {
+                scene->Restore(state.object);
+            }
+        };
+        Add(action);
     }
 
-    void CAction::DeleteActor(CScene *scene, shared_ptr<CActor> actor)
+    void CAction::DeleteActor(string name, CScene *scene, shared_ptr<CActor> actor)
     {
         auto state = actor->Save();
-        Add([=]() {
-            scene->Restore(state.object);
-            return state;
-        }, [=](Savable savable) {
-            scene->Delete(actor);
-        });
+        Action action = {
+            string("Delete ").append(name),
+            [=]() {
+                scene->Restore(state.object);
+                return state;
+            },
+            [=](Savable savable) {
+                scene->Delete(actor);
+            }
+        };
+        Add(action);
     }
 
-    void CAction::ChangeActor(CScene *scene, GUID actorId)
+    void CAction::ChangeActor(string name, CScene *scene, GUID actorId)
     {
         auto state = scene->GetActor(actorId)->Save();
-        Add([=]() {
-            auto actor = scene->GetActor(actorId);
-            auto futureState = actor->Save();
-            scene->Restore(state.object);
-            return futureState;
-        }, [=](Savable savable) {
-            auto actor = scene->GetActor(actorId);
-            scene->Restore(savable.object);
-        });
+        Action action = {
+            name,
+            [=]() {
+                auto actor = scene->GetActor(actorId);
+                auto futureState = actor->Save();
+                scene->Restore(state.object);
+                return futureState;
+            },
+            [=](Savable savable) {
+                auto actor = scene->GetActor(actorId);
+                scene->Restore(savable.object);
+            }
+        };
+        Add(action);
     }
 }
