@@ -28,6 +28,17 @@ namespace UltraEd
         m_modifierState = state;
     }
 
+    string CGizmo::GetModifierName()
+    {
+        switch (m_modifierState)
+        {
+            case GizmoModifierState::Translate: return "Translate";
+            case GizmoModifierState::Rotate: return "Rotate";
+            case GizmoModifierState::Scale: return "Scale";
+            default: return "Unknown";
+        }
+    }
+
     D3DXVECTOR3 CGizmo::GetModifyVector()
     {
         switch (m_axisState)

@@ -442,7 +442,7 @@ namespace UltraEd
                         m_actors[lastSelectedActorId].get()) && !changeTracked)
                     {
                         changeTracked = true;
-                        m_action.ChangeActor("Move", this, selectedActorId);
+                        m_action.ChangeActor(m_gizmo.GetModifierName(), this, selectedActorId);
                     }
                 }
             }

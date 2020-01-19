@@ -20,6 +20,7 @@ namespace UltraEd
     public:
         CGizmo();
         void SetModifier(GizmoModifierState::Value state);
+        string GetModifierName();
         bool ToggleSpace(CActor *actor);
         bool ToggleSnapping();
         void Update(CActor *currentActor);
