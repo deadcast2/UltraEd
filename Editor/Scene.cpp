@@ -85,6 +85,7 @@ namespace UltraEd
         m_selectedActorIds.clear();
         ReleaseResources(ModelRelease::AllResources);
         m_actors.clear();
+        m_action.Reset();
         ResetViews();
         RefreshActorList();
         m_backgroundColorRGB[0] = m_backgroundColorRGB[1] = m_backgroundColorRGB[2] = 0;

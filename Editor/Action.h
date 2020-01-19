@@ -17,9 +17,10 @@ namespace UltraEd
         CAction();
         void Undo();
         void Redo();
+        void Reset();
         void AddActor(CScene *scene, shared_ptr<CActor> actor);
         void DeleteActor(CScene *scene, shared_ptr<CActor> actor);
-        void CAction::ChangeActor(CScene *scene, GUID actorId);
+        void ChangeActor(CScene *scene, GUID actorId);
 
     private:
         void Add(function<Savable()> undo, function<void(Savable)> redo);

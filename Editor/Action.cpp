@@ -28,6 +28,11 @@ namespace UltraEd
         }
     }
 
+    void CAction::Reset()
+    {
+        m_actions.clear();
+    }
+
     void CAction::Add(function<Savable()> undo, function<void(Savable)> redo)
     {
         // Clear redo history when adding new action and not at head.
