@@ -30,7 +30,7 @@ namespace UltraEd
         virtual bool Load(IDirect3DDevice8 *device, cJSON *root) = 0;
         map<string, string> GetResources();
         void AddResource(const string &key, const string &value);
-        void RemoveResource(const string &key);
+        void DeleteResource(const string &key);
         bool IsDirty();
 
     protected:

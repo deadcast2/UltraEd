@@ -52,7 +52,7 @@ namespace UltraEd
 
         if (type == ModelRelease::VertexBufferOnly) return;
 
-        RemoveTexture();
+        DeleteTexture();
     }
 
     bool CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
@@ -80,13 +80,13 @@ namespace UltraEd
         return result;
     }
 
-    void CModel::RemoveTexture()
+    void CModel::DeleteTexture()
     {
         if (HasTexture())
         {
             m_texture->Release();
             m_texture = 0;
-            RemoveResource("textureDataPath");
+            DeleteResource("textureDataPath");
         }
     }
 

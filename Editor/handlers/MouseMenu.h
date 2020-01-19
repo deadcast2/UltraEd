@@ -13,7 +13,7 @@ namespace UltraEd
             AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
             if (reinterpret_cast<CModel *>(selectedActor)->HasTexture())
             {
-                AppendMenu(menu, MF_STRING, IDM_MENU_REMOVE_TEXTURE, _T("Remove Texture"));
+                AppendMenu(menu, MF_STRING, IDM_MENU_REMOVE_TEXTURE, _T("Delete Texture"));
             }
         }
 
@@ -54,7 +54,7 @@ namespace UltraEd
                 scene->OnAddTexture();
                 break;
             case IDM_MENU_REMOVE_TEXTURE:
-                scene->OnRemoveTexture();
+                scene->OnDeleteTexture();
                 break;
             case IDM_MENU_ADD_BOX_COLLIDER:
                 scene->OnAddCollider(ColliderType::Box);

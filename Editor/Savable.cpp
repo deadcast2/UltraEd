@@ -15,7 +15,7 @@ namespace UltraEd
         m_resources[key] = value;
     }
 
-    void CSavable::RemoveResource(const string &key)
+    void CSavable::DeleteResource(const string &key)
     {
         m_resources.erase(key);
     }

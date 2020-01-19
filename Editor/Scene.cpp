@@ -245,7 +245,7 @@ namespace UltraEd
         }
     }
 
-    void CScene::OnRemoveTexture()
+    void CScene::OnDeleteTexture()
     {
         if (m_selectedActorIds.empty())
         {
@@ -256,9 +256,9 @@ namespace UltraEd
         {
             if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
 
-            m_action.ChangeActor("Remove Texture", this, selectedActorId);
+            m_action.ChangeActor("Delete Texture", this, selectedActorId);
 
-            dynamic_cast<CModel *>(m_actors[selectedActorId].get())->RemoveTexture();
+            dynamic_cast<CModel *>(m_actors[selectedActorId].get())->DeleteTexture();
         }
     }
 
