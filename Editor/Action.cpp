@@ -31,6 +31,7 @@ namespace UltraEd
     void CAction::Reset()
     {
         m_actions.clear();
+        m_position = 0;
     }
 
     void CAction::Add(function<Savable()> undo, function<void(Savable)> redo)
