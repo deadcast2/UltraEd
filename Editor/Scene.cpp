@@ -295,7 +295,7 @@ namespace UltraEd
             {
                 closestDist = pickDist;
 
-                SelectActorById(actor.first, !(GetAsyncKeyState(VK_SHIFT) & 0x8000));
+                SelectActorById(actor.first, !(GetAsyncKeyState(VK_SHIFT) & 0x8000), true);
 
                 if (selectedActor != NULL)
                     *selectedActor = actor.second.get();
@@ -749,7 +749,7 @@ namespace UltraEd
         }
     }
 
-    void CScene::SelectActorById(GUID id, bool clearAll)
+    void CScene::SelectActorById(GUID id, bool clearAll, bool undo)
     {
         if (clearAll) m_selectedActorIds.clear();
 
@@ -758,6 +758,7 @@ namespace UltraEd
         {
             // Unselect actor when already selected and clicked on again.
             m_selectedActorIds.erase(it);
+            if (undo) m_action.SelectActor("Unselect", this, id);
 
             // Select previous selected actor if any available.
             if (!m_selectedActorIds.empty())
@@ -768,6 +769,7 @@ namespace UltraEd
             // Add to selection and move gizmo to its location.
             m_selectedActorIds.push_back(id);
             m_gizmo.Update(m_actors[id].get());
+            if (undo) m_action.SelectActor("Select", this, id);
         }
     }
 

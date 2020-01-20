@@ -96,4 +96,20 @@ namespace UltraEd
         };
         Add(action);
     }
+
+    void CAction::SelectActor(string name, CScene *scene, GUID actorId)
+    {
+        auto state = scene->GetActor(actorId)->Save();
+        Action action = {
+            name,
+            [=]() {
+                scene->SelectActorById(actorId, false, false);
+                return state;
+            },
+            [=](Savable savable) {
+                scene->SelectActorById(actorId, false, false);
+            }
+        };
+        Add(action);
+    }
 }
