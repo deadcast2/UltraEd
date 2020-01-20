@@ -298,8 +298,7 @@ namespace UltraEd
                 auto found = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor.first);
                 if (found == m_selectedActorIds.end())
                 {
-                    if (!GetAsyncKeyState(VK_SHIFT)) m_selectedActorIds.clear();
-                    m_selectedActorIds.push_back(actor.first);
+                    SelectActorById(actor.first, !GetAsyncKeyState(VK_SHIFT));
                 }
                 else
                 {
@@ -311,15 +310,12 @@ namespace UltraEd
                     else
                     {
                         // Unselected everything and only select what was clicked.
-                        m_selectedActorIds.clear();
-                        m_selectedActorIds.push_back(actor.first);
+                        SelectActorById(actor.first);
                     }
                 }
 
                 if (selectedActor != NULL)
                     *selectedActor = actor.second.get();
-
-                m_gizmo.Update(actor.second.get());
             }
         }
 
@@ -453,7 +449,7 @@ namespace UltraEd
             stack->LoadMatrix(&GetActiveView()->GetViewMatrix());
 
             m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
-            m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 
+            m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
                 D3DCOLOR_XRGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]), 1.0f, 0);
             m_device->SetLight(0, &m_worldLight);
             m_device->LightEnable(0, TRUE);
@@ -642,13 +638,13 @@ namespace UltraEd
 
     void CScene::Delete(shared_ptr<CActor> actor)
     {
-        if (auto model = dynamic_cast<CModel*>(actor.get()))
+        if (auto model = dynamic_cast<CModel *>(actor.get()))
         {
             model->Release(ModelRelease::AllResources);
         }
         else
         {
-           actor->Release();
+            actor->Release();
         }
 
         // Unselect actor if selected.
@@ -713,7 +709,7 @@ namespace UltraEd
 
     void CScene::SetBackgroundColor(COLORREF color)
     {
-        Dirty([&] { 
+        Dirty([&] {
             m_backgroundColorRGB[0] = GetRValue(color);
             m_backgroundColorRGB[1] = GetGValue(color);
             m_backgroundColorRGB[2] = GetBValue(color);
@@ -770,9 +766,9 @@ namespace UltraEd
         }
     }
 
-    void CScene::SelectActorById(GUID id)
+    void CScene::SelectActorById(GUID id, bool clearAll)
     {
-        m_selectedActorIds.clear();
+        if (clearAll) m_selectedActorIds.clear();
         m_selectedActorIds.push_back(id);
         m_gizmo.Update(m_actors[id].get());
     }
@@ -868,7 +864,7 @@ namespace UltraEd
         sprintf(buffer, "%i", (int)GetActiveView()->GetType());
         cJSON_AddStringToObject(scene, "active_view", buffer);
 
-        sprintf(buffer, "%i %i %i", m_backgroundColorRGB[0], m_backgroundColorRGB[1], 
+        sprintf(buffer, "%i %i %i", m_backgroundColorRGB[0], m_backgroundColorRGB[1],
             m_backgroundColorRGB[2]);
         cJSON_AddStringToObject(scene, "background_color", buffer);
 
@@ -913,7 +909,7 @@ namespace UltraEd
         return true;
     }
 
-    void CScene::Restore(cJSON* item)
+    void CScene::Restore(cJSON *item)
     {
         switch (CActor::GetType(item))
         {
