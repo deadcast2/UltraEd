@@ -133,6 +133,36 @@ namespace UltraEd
         }
     }
 
+    void CScene::OnBuildROM(BuildFlag::Value flag)
+    {
+        if (CBuild::Start(this))
+        {
+            if (flag & BuildFlag::Run)
+            {
+                CBuild::Run();
+            }
+            else if (flag & BuildFlag::Load)
+            {
+                if (CBuild::Load())
+                {
+                    MessageBox(NULL, "The ROM has been successfully loaded to the cart!", "Success", MB_OK);
+                }
+                else
+                {
+                    MessageBox(NULL, "Could not load ROM onto cart. Make sure your cart is connected via USB.", "Error", MB_OK);
+                }
+            }
+            else
+            {
+                MessageBox(NULL, "The ROM has been successfully built!", "Success", MB_OK);
+            }
+        }
+        else
+        {
+            MessageBox(NULL, "The ROM build has failed. Make sure the build tools have been installed.", "Error", MB_OK);
+        }
+    }
+
     void CScene::OnAddModel()
     {
         string file;
@@ -151,6 +181,19 @@ namespace UltraEd
             SelectActorById(model->GetId());
             RefreshActorList();
         }
+    }
+
+    void CScene::OnAddCamera()
+    {
+        char buffer[1024];
+        auto newCamera = make_shared<CCamera>();
+        m_actors[newCamera->GetId()] = newCamera;
+        sprintf(buffer, "Camera %u", m_actors.size());
+        m_actors[newCamera->GetId()]->SetName(string(buffer));
+        m_action.AddActor("Camera", this, m_actors[newCamera->GetId()]);
+
+        SelectActorById(newCamera->GetId());
+        RefreshActorList();
     }
 
     void CScene::OnAddCollider(ColliderType::Value type)
@@ -187,36 +230,6 @@ namespace UltraEd
             m_action.ChangeActor("Delete Collider", this, selectedActorId);
 
             m_actors[selectedActorId]->SetCollider(NULL);
-        }
-    }
-
-    void CScene::OnBuildROM(BuildFlag::Value flag)
-    {       
-        if (CBuild::Start(this))
-        {
-            if (flag & BuildFlag::Run)
-            {
-                CBuild::Run();
-            }
-            else if (flag & BuildFlag::Load)
-            {
-                if (CBuild::Load())
-                {
-                    MessageBox(NULL, "The ROM has been successfully loaded to the cart!", "Success", MB_OK);
-                }
-                else
-                {
-                    MessageBox(NULL, "Could not load ROM onto cart. Make sure your cart is connected via USB.", "Error", MB_OK);
-                }
-            }
-            else
-            {
-                MessageBox(NULL, "The ROM has been successfully built!", "Success", MB_OK);
-            }
-        }
-        else
-        {
-            MessageBox(NULL, "The ROM build has failed. Make sure the build tools have been installed.", "Error", MB_OK);
         }
     }
 
@@ -316,6 +329,82 @@ namespace UltraEd
         return false;
     }
 
+    void CScene::CheckInput(const float deltaTime)
+    {
+        POINT mousePoint;
+        GetCursorPos(&mousePoint);
+        ScreenToClient(GetWndHandle(), &mousePoint);
+        CView *view = GetActiveView();
+
+        static POINT prevMousePoint = mousePoint;
+        static DWORD prevTick = GetTickCount();
+        static bool prevInScene = false;
+        static bool prevGizmo = false;
+        static bool changeTracked = false;
+
+        const float smoothingModifier = 20.0f;
+        const float mouseSpeedModifier = 0.55f;
+        const bool mouseReady = GetTickCount() - prevTick < 100;
+
+        // Only accept input when mouse in scene or when pressed mouse leaves scene.
+        if (!prevInScene && !(prevInScene = MouseInScene(mousePoint))) return;
+
+        WrapCursor();
+
+        if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
+        {
+            D3DXVECTOR3 rayOrigin, rayDir;
+            ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
+            if (prevGizmo || (prevGizmo = m_gizmo.Select(rayOrigin, rayDir)))
+            {
+                GUID lastSelectedActorId = m_selectedActorIds.back();
+                for (const auto &selectedActorId : m_selectedActorIds)
+                {
+                    if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
+                        m_actors[lastSelectedActorId].get()) && !changeTracked)
+                    {
+                        changeTracked = true;
+                        m_action.ChangeActor(m_gizmo.GetModifierName(), this, selectedActorId);
+                    }
+                }
+            }
+        }
+        else if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective && mouseReady)
+        {
+            if (GetAsyncKeyState('W')) view->Walk(4.0f * deltaTime);
+            if (GetAsyncKeyState('S')) view->Walk(-4.0f * deltaTime);
+            if (GetAsyncKeyState('A')) view->Strafe(-4.0f * deltaTime);
+            if (GetAsyncKeyState('D')) view->Strafe(4.0f * deltaTime);
+
+            m_mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(mousePoint.x - prevMousePoint.x));
+            m_mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
+
+            view->Yaw(m_mouseSmoothX * mouseSpeedModifier * deltaTime);
+            view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
+        }
+        else if (GetAsyncKeyState(VK_MBUTTON) && mouseReady)
+        {
+            m_mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(prevMousePoint.x - mousePoint.x));
+            m_mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
+
+            view->Strafe(m_mouseSmoothX * deltaTime);
+            view->Fly(m_mouseSmoothY * deltaTime);
+        }
+        else
+        {
+            m_gizmo.Reset();
+
+            // Reset smoothing values for new mouse view movement.
+            m_mouseSmoothX = m_mouseSmoothX = 0;
+
+            prevInScene = prevGizmo = changeTracked = false;
+        }
+
+        // Remember the last position so we know how much to move the view.
+        prevMousePoint = mousePoint;
+        prevTick = GetTickCount();
+    }
+
     void CScene::Resize()
     {
         if (m_device)
@@ -408,82 +497,6 @@ namespace UltraEd
         lastTime = currentTime;
     }
 
-    void CScene::CheckInput(const float deltaTime)
-    {
-        POINT mousePoint;
-        GetCursorPos(&mousePoint);
-        ScreenToClient(GetWndHandle(), &mousePoint);
-        CView *view = GetActiveView();
-
-        static POINT prevMousePoint = mousePoint;
-        static DWORD prevTick = GetTickCount();
-        static bool prevInScene = false;
-        static bool prevGizmo = false;
-        static bool changeTracked = false;
-
-        const float smoothingModifier = 20.0f;
-        const float mouseSpeedModifier = 0.55f;
-        const bool mouseReady = GetTickCount() - prevTick < 100;
-
-        // Only accept input when mouse in scene or when pressed mouse leaves scene.
-        if (!prevInScene && !(prevInScene = MouseInScene(mousePoint))) return;
-
-        WrapCursor();
-
-        if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
-        {
-            D3DXVECTOR3 rayOrigin, rayDir;
-            ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
-            if (prevGizmo || (prevGizmo = m_gizmo.Select(rayOrigin, rayDir)))
-            {
-                GUID lastSelectedActorId = m_selectedActorIds.back();
-                for (const auto &selectedActorId : m_selectedActorIds)
-                {
-                    if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
-                        m_actors[lastSelectedActorId].get()) && !changeTracked)
-                    {
-                        changeTracked = true;
-                        m_action.ChangeActor(m_gizmo.GetModifierName(), this, selectedActorId);
-                    }
-                }
-            }
-        }
-        else if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective && mouseReady)
-        {
-            if (GetAsyncKeyState('W')) view->Walk(4.0f * deltaTime);
-            if (GetAsyncKeyState('S')) view->Walk(-4.0f * deltaTime);
-            if (GetAsyncKeyState('A')) view->Strafe(-4.0f * deltaTime);
-            if (GetAsyncKeyState('D')) view->Strafe(4.0f * deltaTime);
-
-            m_mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(mousePoint.x - prevMousePoint.x));
-            m_mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
-
-            view->Yaw(m_mouseSmoothX * mouseSpeedModifier * deltaTime);
-            view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
-        }
-        else if (GetAsyncKeyState(VK_MBUTTON) && mouseReady)
-        {
-            m_mouseSmoothX = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(prevMousePoint.x - mousePoint.x));
-            m_mouseSmoothY = CUtil::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
-
-            view->Strafe(m_mouseSmoothX * deltaTime);
-            view->Fly(m_mouseSmoothY * deltaTime);
-        }
-        else
-        {
-            m_gizmo.Reset();
-
-            // Reset smoothing values for new mouse view movement.
-            m_mouseSmoothX = m_mouseSmoothX = 0;
-
-            prevInScene = prevGizmo = changeTracked = false;
-        }
-
-        // Remember the last position so we know how much to move the view.
-        prevMousePoint = mousePoint;
-        prevTick = GetTickCount();
-    }
-
     void CScene::CheckChanges()
     {
         SetDirty(this->IsDirty());
@@ -529,20 +542,51 @@ namespace UltraEd
         D3DXVec3Normalize(dir, &(v2 - v1));
     }
 
+    CView *CScene::GetActiveView()
+    {
+        return &m_views[m_activeViewType];
+    }
+
     void CScene::SetViewType(ViewType::Value type)
     {
         m_activeViewType = type;
         UpdateViewMatrix();
     }
 
+    void CScene::ResetViews()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            m_views[i].Reset();
+            switch (i)
+            {
+                case ViewType::Perspective:
+                    m_views[i].Fly(2);
+                    m_views[i].Walk(-5);
+                    m_views[i].SetViewType(ViewType::Perspective);
+                    break;
+                case ViewType::Top:
+                    m_views[i].Fly(12);
+                    m_views[i].Pitch(D3DX_PI / 2);
+                    m_views[i].SetViewType(ViewType::Top);
+                    break;
+                case ViewType::Left:
+                    m_views[i].Yaw(D3DX_PI / 2);
+                    m_views[i].Walk(-12);
+                    m_views[i].SetViewType(ViewType::Left);
+                    break;
+                case ViewType::Front:
+                    m_views[i].Yaw(D3DX_PI);
+                    m_views[i].Walk(-12);
+                    m_views[i].SetViewType(ViewType::Front);
+                    break;
+            }
+        }
+    }
+
     void CScene::SetGizmoModifier(GizmoModifierState::Value state)
     {
         m_gizmo.SetModifier(state);
-    }
-
-    CView *CScene::GetActiveView()
-    {
-        return &m_views[m_activeViewType];
     }
 
     bool CScene::ToggleMovementSpace()
@@ -708,53 +752,9 @@ namespace UltraEd
         return NULL;
     }
 
-    void CScene::ResetViews()
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            m_views[i].Reset();
-            switch (i)
-            {
-                case ViewType::Perspective:
-                    m_views[i].Fly(2);
-                    m_views[i].Walk(-5);
-                    m_views[i].SetViewType(ViewType::Perspective);
-                    break;
-                case ViewType::Top:
-                    m_views[i].Fly(12);
-                    m_views[i].Pitch(D3DX_PI / 2);
-                    m_views[i].SetViewType(ViewType::Top);
-                    break;
-                case ViewType::Left:
-                    m_views[i].Yaw(D3DX_PI / 2);
-                    m_views[i].Walk(-12);
-                    m_views[i].SetViewType(ViewType::Left);
-                    break;
-                case ViewType::Front:
-                    m_views[i].Yaw(D3DX_PI);
-                    m_views[i].Walk(-12);
-                    m_views[i].SetViewType(ViewType::Front);
-                    break;
-            }
-        }
-    }
-
     bool CScene::ToggleSnapToGrid()
     {
         return m_gizmo.ToggleSnapping();
-    }
-
-    void CScene::OnAddCamera()
-    {
-        char buffer[1024];
-        auto newCamera = make_shared<CCamera>();
-        m_actors[newCamera->GetId()] = newCamera;
-        sprintf(buffer, "Camera %u", m_actors.size());
-        m_actors[newCamera->GetId()]->SetName(string(buffer));
-        m_action.AddActor("Camera", this, m_actors[newCamera->GetId()]);
-
-        SelectActorById(newCamera->GetId());
-        RefreshActorList();
     }
 
     void CScene::RefreshActorList()
