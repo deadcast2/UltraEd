@@ -15,6 +15,7 @@ namespace UltraEd
             m_position--;
             auto state = m_actions[m_position].undo();
             m_actions[m_position].state = state;
+            CDebug::Log("Undo - %s\n", m_actions[m_position].name.c_str());
         }
     }
 
@@ -24,6 +25,7 @@ namespace UltraEd
         {
             auto state = m_actions[m_position].state;
             m_actions[m_position].redo(state);
+            CDebug::Log("Redo - %s\n", m_actions[m_position].name.c_str());
             m_position++;
         }
     }
