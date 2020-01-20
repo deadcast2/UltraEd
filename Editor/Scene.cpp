@@ -295,24 +295,7 @@ namespace UltraEd
             {
                 closestDist = pickDist;
 
-                auto found = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor.first);
-                if (found == m_selectedActorIds.end())
-                {
-                    SelectActorById(actor.first, !GetAsyncKeyState(VK_SHIFT));
-                }
-                else
-                {
-                    // Shift clicking an already selected actors so unselect it.
-                    if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
-                    {
-                        m_selectedActorIds.erase(found);
-                    }
-                    else
-                    {
-                        // Unselected everything and only select what was clicked.
-                        SelectActorById(actor.first);
-                    }
-                }
+                SelectActorById(actor.first, !(GetAsyncKeyState(VK_SHIFT) & 0x8000));
 
                 if (selectedActor != NULL)
                     *selectedActor = actor.second.get();
@@ -769,8 +752,23 @@ namespace UltraEd
     void CScene::SelectActorById(GUID id, bool clearAll)
     {
         if (clearAll) m_selectedActorIds.clear();
-        m_selectedActorIds.push_back(id);
-        m_gizmo.Update(m_actors[id].get());
+
+        auto it = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), id);
+        if (it != m_selectedActorIds.end())
+        {
+            // Unselect actor when already selected and clicked on again.
+            m_selectedActorIds.erase(it);
+
+            // Select previous selected actor if any available.
+            if (!m_selectedActorIds.empty())
+                m_gizmo.Update(m_actors[m_selectedActorIds.back()].get());
+        }
+        else
+        {
+            // Add to selection and move gizmo to its location.
+            m_selectedActorIds.push_back(id);
+            m_gizmo.Update(m_actors[id].get());
+        }
     }
 
     void CScene::SetTitle(string title, bool store)
