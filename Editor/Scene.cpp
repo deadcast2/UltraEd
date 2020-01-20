@@ -240,6 +240,7 @@ namespace UltraEd
         if (m_selectedActorIds.empty())
         {
             MessageBox(NULL, "An actor must be selected first.", "Error", MB_OK);
+            return;
         }
 
         if (CDialog::Open("Select a texture",
