@@ -759,7 +759,6 @@ namespace UltraEd
         {
             // Unselect actor when already selected and clicked on again.
             m_selectedActorIds.erase(it);
-            if (undo) m_action.SelectActor("Unselect", this, id);
 
             // Select previous selected actor if any available.
             if (!m_selectedActorIds.empty())
@@ -770,7 +769,6 @@ namespace UltraEd
             // Add to selection and move gizmo to its location.
             m_selectedActorIds.push_back(id);
             m_gizmo.Update(m_actors[id].get());
-            if (undo) m_action.SelectActor("Select", this, id);
         }
     }
 

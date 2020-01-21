@@ -29,7 +29,6 @@ namespace UltraEd
         void AddActor(string name, CScene *scene, shared_ptr<CActor> actor);
         void DeleteActor(string name, CScene *scene, shared_ptr<CActor> actor);
         void ChangeActor(string name, CScene *scene, GUID actorId);
-        void SelectActor(string name, CScene *scene, GUID actorId);
 
     private:
         void Add(Action action);
