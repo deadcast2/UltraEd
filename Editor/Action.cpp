@@ -50,15 +50,15 @@ namespace UltraEd
 
     void CAction::AddActor(string name, CScene *scene, shared_ptr<CActor> actor)
     {
-        auto state = actor->Save();
         Action action = {
             string("Add ").append(name),
             [=]() {
+                auto state = actor->Save();
                 scene->Delete(actor);
                 return state;
             },
             [=](Savable savable) {
-                scene->Restore(state.object);
+                scene->Restore(savable.object);
                 scene->SelectActorById(actor->GetId());
             }
         };
@@ -67,10 +67,10 @@ namespace UltraEd
 
     void CAction::DeleteActor(string name, CScene *scene, shared_ptr<CActor> actor)
     {
-        auto state = actor->Save();
         Action action = {
             string("Delete ").append(name),
             [=]() {
+                auto state = actor->Save();
                 scene->Restore(state.object);
                 scene->SelectActorById(actor->GetId());
                 return state;
