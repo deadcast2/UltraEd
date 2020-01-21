@@ -176,7 +176,7 @@ namespace UltraEd
             char buffer[1024];
             sprintf(buffer, "Actor %u", m_actors.size());
             m_actors[model->GetId()]->SetName(string(buffer));
-            m_action.AddActor("Model", this, m_actors[model->GetId()]);
+            m_action.AddActor("Model", this, model->GetId());
 
             SelectActorById(model->GetId());
             RefreshActorList();
@@ -190,7 +190,7 @@ namespace UltraEd
         m_actors[newCamera->GetId()] = newCamera;
         sprintf(buffer, "Camera %u", m_actors.size());
         m_actors[newCamera->GetId()]->SetName(string(buffer));
-        m_action.AddActor("Camera", this, m_actors[newCamera->GetId()]);
+        m_action.AddActor("Camera", this, newCamera->GetId());
 
         SelectActorById(newCamera->GetId());
         RefreshActorList();
@@ -612,7 +612,7 @@ namespace UltraEd
     {
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            m_action.DeleteActor("Actor", this, m_actors[selectedActorId]);
+            m_action.DeleteActor("Actor", this, selectedActorId);
             Delete(m_actors[selectedActorId]);
             SetDirty(true);
         }
@@ -650,14 +650,14 @@ namespace UltraEd
                     string texturePath = model->GetResources()["textureDataPath"];
                     model->SetTexture(m_device, texturePath.c_str());
                     m_actors[model->GetId()] = model;
-                    m_action.AddActor("Model", this, m_actors[model->GetId()]);
+                    m_action.AddActor("Model", this, model->GetId());
                     break;
                 }
                 case ActorType::Camera:
                 {
                     auto camera = make_shared<CCamera>(*dynamic_cast<CCamera *>(m_actors[selectedActorId].get()));
                     m_actors[camera->GetId()] = camera;
-                    m_action.AddActor("Camera", this, m_actors[camera->GetId()]);
+                    m_action.AddActor("Camera", this, camera->GetId());
                     break;
                 }
             }

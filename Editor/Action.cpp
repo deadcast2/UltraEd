@@ -48,35 +48,36 @@ namespace UltraEd
         m_position = m_actions.size();
     }
 
-    void CAction::AddActor(string name, CScene *scene, shared_ptr<CActor> actor)
+    void CAction::AddActor(string name, CScene *scene, GUID actorId)
     {
         Action action = {
             string("Add ").append(name),
             [=]() {
+                auto actor = scene->GetActor(actorId);
                 auto state = actor->Save();
                 scene->Delete(actor);
                 return state;
             },
             [=](Savable savable) {
                 scene->Restore(savable.object);
-                scene->SelectActorById(actor->GetId());
+                scene->SelectActorById(actorId);
             }
         };
         Add(action);
     }
 
-    void CAction::DeleteActor(string name, CScene *scene, shared_ptr<CActor> actor)
+    void CAction::DeleteActor(string name, CScene *scene, GUID actorId)
     {
+        auto state = scene->GetActor(actorId)->Save();
         Action action = {
             string("Delete ").append(name),
             [=]() {
-                auto state = actor->Save();
                 scene->Restore(state.object);
-                scene->SelectActorById(actor->GetId());
+                scene->SelectActorById(actorId);
                 return state;
             },
             [=](Savable savable) {
-                scene->Delete(actor);
+                scene->Delete(scene->GetActor(actorId));
             }
         };
         Add(action);
@@ -91,11 +92,13 @@ namespace UltraEd
                 auto actor = scene->GetActor(actorId);
                 auto futureState = actor->Save();
                 scene->Restore(state.object);
+                scene->SelectActorById(actorId);
                 return futureState;
             },
             [=](Savable savable) {
                 auto actor = scene->GetActor(actorId);
                 scene->Restore(savable.object);
+                scene->SelectActorById(actorId);
             }
         };
         Add(action);

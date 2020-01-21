@@ -26,8 +26,8 @@ namespace UltraEd
         void Undo();
         void Redo();
         void Reset();
-        void AddActor(string name, CScene *scene, shared_ptr<CActor> actor);
-        void DeleteActor(string name, CScene *scene, shared_ptr<CActor> actor);
+        void AddActor(string name, CScene *scene, GUID actorId);
+        void DeleteActor(string name, CScene *scene, GUID actorId);
         void ChangeActor(string name, CScene *scene, GUID actorId);
 
     private:
