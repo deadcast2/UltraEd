@@ -16,6 +16,14 @@ namespace UltraEd
             auto state = m_actions[m_position].undo();
             m_actions[m_position].state = state;
             CDebug::Log("Undo - %s\n", m_actions[m_position].name.c_str());
+
+            int nextUndoPos = m_position - 1;
+            if (nextUndoPos >= 0
+                && m_actions[nextUndoPos].groupId != GUID_NULL
+                && m_actions[nextUndoPos].groupId == m_actions[m_position].groupId)
+            {
+                Undo();
+            }
         }
     }
 
@@ -27,6 +35,13 @@ namespace UltraEd
             m_actions[m_position].redo(state);
             CDebug::Log("Redo - %s\n", m_actions[m_position].name.c_str());
             m_position++;
+
+            if (m_position < m_actions.size()
+                && m_actions[m_position].groupId != GUID_NULL
+                && m_actions[m_position - 1].groupId == m_actions[m_position].groupId)
+            {
+                Redo();
+            }
         }
     }
 
@@ -83,7 +98,7 @@ namespace UltraEd
         Add(action);
     }
 
-    void CAction::ChangeActor(string name, CScene *scene, GUID actorId)
+    void CAction::ChangeActor(string name, CScene *scene, GUID actorId, GUID groupId)
     {
         auto state = scene->GetActor(actorId)->Save();
         Action action = {
@@ -96,10 +111,10 @@ namespace UltraEd
                 return futureState;
             },
             [=](Savable savable) {
-                auto actor = scene->GetActor(actorId);
                 scene->Restore(savable.object);
                 scene->SelectActorById(actorId);
-            }
+            },
+            groupId
         };
         Add(action);
     }

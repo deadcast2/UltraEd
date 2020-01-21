@@ -246,11 +246,13 @@ namespace UltraEd
         if (CDialog::Open("Select a texture",
             "PNG (*.png)\0*.png\0JPEG (*.jpg)\0*.jpg\0BMP (*.bmp)\0*.bmp\0TGA (*.tga)\0*.tga", file))
         {
+            GUID groupId = CUtil::NewGuid();
+
             for (const auto &selectedActorId : m_selectedActorIds)
             {
                 if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
 
-                m_action.ChangeActor("Add Texture", this, selectedActorId);
+                m_action.ChangeActor("Add Texture", this, selectedActorId, groupId);
 
                 if (!dynamic_cast<CModel *>(m_actors[selectedActorId].get())->SetTexture(m_device, file.c_str()))
                 {

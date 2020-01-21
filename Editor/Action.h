@@ -16,6 +16,7 @@ namespace UltraEd
         string name;
         function<Savable()> undo;
         function<void(Savable)> redo;
+        GUID groupId;
         Savable state;
     };
 
@@ -28,7 +29,7 @@ namespace UltraEd
         void Reset();
         void AddActor(string name, CScene *scene, GUID actorId);
         void DeleteActor(string name, CScene *scene, GUID actorId);
-        void ChangeActor(string name, CScene *scene, GUID actorId);
+        void ChangeActor(string name, CScene *scene, GUID actorId, GUID groupId = GUID_NULL);
 
     private:
         void Add(Action action);
