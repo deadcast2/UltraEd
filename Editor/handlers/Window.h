@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+#include "../ResourceExt.h"
 #include "SceneSettings.h"
 #include "Menu.h"
 #include "MouseMenu.h"

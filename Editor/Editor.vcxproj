@@ -298,6 +298,7 @@
     <ClInclude Include="handlers\Window.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="handlers\Toolbar.h" />
+    <ClInclude Include="ResourceExt.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Tabs.h" />
     <ClInclude Include="VertexBuffer.h" />

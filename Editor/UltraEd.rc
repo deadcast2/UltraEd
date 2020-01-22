@@ -67,6 +67,14 @@ BEGIN
         MENUITEM "Install Build Tools",         ID_INSTALL_BUILD_TOOLS
         MENUITEM "Exit",                        ID_FILE_EXIT
     END
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Undo",                        ID_EDIT_UNDO
+        MENUITEM "Redo",                        ID_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM "Duplicate",                   ID_EDIT_DUPLICATE
+        MENUITEM "Delete",                      ID_EDIT_DELETE
+    END
     POPUP "Add"
     BEGIN
         MENUITEM "Camera",                      ID_ADD_CAMERA

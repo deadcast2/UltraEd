@@ -12,7 +12,7 @@
 #include "debug.h"
 #include "BoxCollider.h"
 #include "SphereCollider.h"
-#include "resource.h"
+#include "ResourceExt.h"
 
 namespace UltraEd
 {

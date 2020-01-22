@@ -1,0 +1,7 @@
+#pragma once
+
+#define TV_ADD_ACTOR WM_USER + 0
+#define TV_CLEAR_ACTORS WM_USER + 1
+#define TV_SELECT_ACTOR WM_USER + 2
+#define TAB_BUILD_OUTPUT WM_USER + 3
+#define TAB_BUILD_OUTPUT_CLEAR WM_USER + 4

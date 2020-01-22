@@ -52,6 +52,18 @@ namespace UltraEd
                 });
                 break;
             }
+            case ID_EDIT_UNDO:
+                scene->Undo();
+                break;
+            case ID_EDIT_REDO:
+                scene->Redo();
+                break;
+            case ID_EDIT_DUPLICATE:
+                scene->Duplicate();
+                break;
+            case ID_EDIT_DELETE:
+                scene->Delete();
+                break;
             case ID_ADD_CAMERA:
                 scene->OnAddCamera();
                 break;

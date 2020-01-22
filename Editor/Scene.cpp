@@ -4,7 +4,7 @@
 #include "FileIO.h"
 #include "Dialog.h"
 #include "Util.h"
-#include "resource.h"
+#include "ResourceExt.h"
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 
@@ -612,7 +612,9 @@ namespace UltraEd
 
     void CScene::Delete()
     {
-        for (const auto &selectedActorId : m_selectedActorIds)
+        // Copy selected ids since loop modifies the master selected actor id vector.
+        auto selectedActorIds = m_selectedActorIds;
+        for (const auto &selectedActorId : selectedActorIds)
         {
             m_action.DeleteActor("Actor", this, selectedActorId);
             Delete(m_actors[selectedActorId]);

@@ -50,19 +50,18 @@
 #define ID_INSTALL_BUILD_TOOLS          40017
 #define ID_FILE_BUILDROM_AND_LOAD       40018
 #define ID_FILE_SCENESETTINGS           40019
+#define ID_EDIT_UNDO                    40020
+#define ID_EDIT_REDO                    40021
+#define ID_EDIT_DUPLICATE               40022
+#define ID_EDIT_DELETE                  40023
 #define IDC_STATIC                      -1
-#define TV_ADD_ACTOR WM_USER + 0
-#define TV_CLEAR_ACTORS WM_USER + 1
-#define TV_SELECT_ACTOR WM_USER + 2
-#define TAB_BUILD_OUTPUT WM_USER + 3
-#define TAB_BUILD_OUTPUT_CLEAR WM_USER + 4
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        108
-#define _APS_NEXT_COMMAND_VALUE         40020
+#define _APS_NEXT_COMMAND_VALUE         40024
 #define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
