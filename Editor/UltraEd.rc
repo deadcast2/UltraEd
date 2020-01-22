@@ -69,11 +69,11 @@ BEGIN
     END
     POPUP "Edit"
     BEGIN
-        MENUITEM "Undo",                        ID_EDIT_UNDO
-        MENUITEM "Redo",                        ID_EDIT_REDO
+        MENUITEM "Undo\tCtrl+Z",                ID_EDIT_UNDO
+        MENUITEM "Redo\tCtrl+Y",                ID_EDIT_REDO
         MENUITEM SEPARATOR
-        MENUITEM "Duplicate",                   ID_EDIT_DUPLICATE
-        MENUITEM "Delete",                      ID_EDIT_DELETE
+        MENUITEM "Duplicate\tCtrl+D",           ID_EDIT_DUPLICATE
+        MENUITEM "Delete\tDel",                 ID_EDIT_DELETE
     END
     POPUP "Actor"
     BEGIN
