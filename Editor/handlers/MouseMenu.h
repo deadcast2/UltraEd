@@ -10,17 +10,19 @@ namespace UltraEd
 
         if (selectedActor->GetType() == ActorType::Model)
         {
-            AppendMenu(menu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add Texture"));
+            HMENU textureMenu = CreatePopupMenu();
+            AppendMenu(menu, MF_STRING | MF_POPUP, (UINT_PTR)textureMenu, _T("Texture"));
+            AppendMenu(textureMenu, MF_STRING, IDM_MENU_ADD_TEXTURE, _T("Add"));
             if (reinterpret_cast<CModel *>(selectedActor)->HasTexture())
             {
-                AppendMenu(menu, MF_STRING, IDM_MENU_REMOVE_TEXTURE, _T("Delete Texture"));
+                AppendMenu(textureMenu, MF_STRING, IDM_MENU_REMOVE_TEXTURE, _T("Delete"));
             }
         }
 
         HMENU colliderMenu = CreatePopupMenu();
         AppendMenu(menu, MF_STRING | MF_POPUP, (UINT_PTR)colliderMenu, _T("Collider"));
-        AppendMenu(colliderMenu, MF_STRING, IDM_MENU_ADD_BOX_COLLIDER, _T("Add Box"));
-        AppendMenu(colliderMenu, MF_STRING, IDM_MENU_ADD_SPHERE_COLLIDER, _T("Add Sphere"));
+        AppendMenu(colliderMenu, MF_STRING, IDM_MENU_ADD_BOX_COLLIDER, _T("Box"));
+        AppendMenu(colliderMenu, MF_STRING, IDM_MENU_ADD_SPHERE_COLLIDER, _T("Sphere"));
         if (selectedActor->HasCollider())
         {
             AppendMenu(colliderMenu, MF_SEPARATOR, NULL, NULL);

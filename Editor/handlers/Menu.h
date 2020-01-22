@@ -64,14 +64,26 @@ namespace UltraEd
             case ID_EDIT_DELETE:
                 scene->Delete();
                 break;
-            case ID_ADD_CAMERA:
+            case ID_ACTOR_CAMERA:
                 scene->OnAddCamera();
                 break;
-            case ID_ADD_MODEL:
+            case ID_ACTOR_MODEL:
                 scene->OnAddModel();
                 break;
-            case ID_ADD_TEXTURE:
+            case ID_ACTOR_TEXTURE_ADD:
                 scene->OnAddTexture();
+                break;
+            case ID_ACTOR_TEXTURE_DELETE:
+                scene->OnDeleteTexture();
+                break;
+            case ID_ACTOR_COLLIDER_BOX:
+                scene->OnAddCollider(ColliderType::Box);
+                break;
+            case ID_ACTOR_COLLIDER_SPHERE:
+                scene->OnAddCollider(ColliderType::Sphere);
+                break;
+            case ID_ACTOR_COLLIDER_DELETE:
+                scene->OnDeleteCollider();
                 break;
             case ID_RENDER_SOLID:
             {

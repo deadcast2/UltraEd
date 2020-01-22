@@ -75,11 +75,21 @@ BEGIN
         MENUITEM "Duplicate",                   ID_EDIT_DUPLICATE
         MENUITEM "Delete",                      ID_EDIT_DELETE
     END
-    POPUP "Add"
+    POPUP "Actor"
     BEGIN
-        MENUITEM "Camera",                      ID_ADD_CAMERA
-        MENUITEM "Model",                       ID_ADD_MODEL
-        MENUITEM "Texture",                     ID_ADD_TEXTURE
+        MENUITEM "Camera",                      ID_ACTOR_CAMERA
+        MENUITEM "Model",                       ID_ACTOR_MODEL
+        POPUP "Texture"
+        BEGIN
+            MENUITEM "Add",                         ID_ACTOR_TEXTURE_ADD
+            MENUITEM "Delete",                      ID_ACTOR_TEXTURE_DELETE
+        END
+        POPUP "Collider"
+        BEGIN
+            MENUITEM "Box",                         ID_ACTOR_COLLIDER_BOX
+            MENUITEM "Sphere",                      ID_ACTOR_COLLIDER_SPHERE
+            MENUITEM "Delete",                      ID_ACTOR_COLLIDER_DELETE
+        END
     END
     POPUP "Render"
     BEGIN
