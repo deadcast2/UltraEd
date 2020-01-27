@@ -229,12 +229,18 @@
     <ClInclude Include="ResourceExt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IconLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="toolbar.bmp">
+    <Image Include="assets\save.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="ultraed.ico">
+    <Image Include="assets\ultraed.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\toolbar.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -2,10 +2,13 @@
 
 #include <windows.h>
 #include "../FileIO.h"
+#include "../IconLoader.h"
 #include "../resource.h"
 
 namespace UltraEd
 {
+    IconLoader iconLoader;
+
     void MenuHandler(HWND statusBar, HWND hWnd, WPARAM wParam, CScene *scene)
     {
         if (scene == NULL) return;
@@ -116,5 +119,10 @@ namespace UltraEd
                 break;
             }
         }
+    }
+
+    void LoadIcons(HWND hWnd)
+    {
+        iconLoader.SetMenuIcon(hWnd, ID_FILE_SAVESCENE, IDB_SAVE);
     }
 }

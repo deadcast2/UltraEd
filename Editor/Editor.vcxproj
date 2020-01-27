@@ -289,6 +289,7 @@
     <ClInclude Include="Build.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
+    <ClInclude Include="IconLoader.h" />
     <ClInclude Include="handlers\KeyDown.h" />
     <ClInclude Include="handlers\Menu.h" />
     <ClInclude Include="handlers\MouseMenu.h" />
@@ -327,8 +328,9 @@
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="toolbar.bmp" />
-    <Image Include="ultraed.ico" />
+    <Image Include="assets\save.bmp" />
+    <Image Include="assets\toolbar.bmp" />
+    <Image Include="assets\ultraed.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

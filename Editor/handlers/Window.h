@@ -26,7 +26,7 @@ namespace UltraEd
         {
             case WM_CREATE:
             {
-                hcSizeCursor = LoadCursor(NULL, IDC_SIZEWE);
+                hcSizeCursor = LoadCursor(NULL, IDC_SIZEWE);               
                 break;
             }
             case WM_KEYDOWN:
@@ -184,9 +184,7 @@ namespace UltraEd
                 if (scene == NULL || scene->Confirm()) PostQuitMessage(0);
                 break;
             default:
-            {
                 return DefWindowProc(hWnd, message, wParam, lParam);
-            }
         }
 
         return 0;

@@ -52,6 +52,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         MessageBox(NULL, "Could not create parent window.", "Error", NULL);
         return 1;
     }
+    
+    UltraEd::LoadIcons(UltraEd::parentWindow);
 
     UltraEd::toolbarWindow = UltraEd::CreateToolbar(UltraEd::parentWindow, hInstance);
 

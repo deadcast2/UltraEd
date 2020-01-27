@@ -110,7 +110,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_MAIN_ICON           ICON                    "ultraed.ico"
+IDI_MAIN_ICON           ICON                    "assets\\ultraed.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -118,7 +118,9 @@ IDI_MAIN_ICON           ICON                    "ultraed.ico"
 // Bitmap
 //
 
-IDB_TOOLBAR             BITMAP                  "toolbar.bmp"
+IDB_TOOLBAR             BITMAP                  "assets\\toolbar.bmp"
+
+IDB_SAVE                BITMAP                  "assets\\save.bmp"
 
 
 /////////////////////////////////////////////////////////////////////////////
