@@ -7,7 +7,6 @@
 #define IDB_TOOLBAR                     103
 #define IDD_SCRIPT_EDITOR               104
 #define IDD_SCENE_SETTINGS              105
-#define IDB_SAVE                        106
 #define IDC_SCRIPT_EDITOR_SAVE_CHANGES  1000
 #define IDC_EDIT_SCENE_COLOR_RED        1001
 #define IDC_EDIT_SCENE_COLOR_BLUE       1002
@@ -61,7 +60,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        107
+#define _APS_NEXT_RESOURCE_VALUE        106
 #define _APS_NEXT_COMMAND_VALUE         40024
 #define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           101

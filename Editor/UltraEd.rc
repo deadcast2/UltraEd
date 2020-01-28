@@ -120,8 +120,6 @@ IDI_MAIN_ICON           ICON                    "assets\\ultraed.ico"
 
 IDB_TOOLBAR             BITMAP                  "assets\\toolbar.bmp"
 
-IDB_SAVE                BITMAP                  "assets\\save.bmp"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
