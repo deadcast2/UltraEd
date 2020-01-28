@@ -203,9 +203,11 @@ namespace UltraEd
             MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
         }
 
+        GUID groupId = CUtil::NewGuid();
+
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            m_action.ChangeActor("Add Collider", this, selectedActorId);
+            m_action.ChangeActor("Add Collider", this, selectedActorId, groupId);
 
             if (type == ColliderType::Box)
             {
@@ -225,9 +227,11 @@ namespace UltraEd
             MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
         }
 
+        GUID groupId = CUtil::NewGuid();
+
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            m_action.ChangeActor("Delete Collider", this, selectedActorId);
+            m_action.ChangeActor("Delete Collider", this, selectedActorId, groupId);
 
             m_actors[selectedActorId]->SetCollider(NULL);
         }
@@ -267,13 +271,16 @@ namespace UltraEd
         if (m_selectedActorIds.empty())
         {
             MessageBox(NULL, "An actor must be selected first.", "Error", MB_OK);
+            return;
         }
+
+        GUID groupId = CUtil::NewGuid();
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
             if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
 
-            m_action.ChangeActor("Delete Texture", this, selectedActorId);
+            m_action.ChangeActor("Delete Texture", this, selectedActorId, groupId);
 
             dynamic_cast<CModel *>(m_actors[selectedActorId].get())->DeleteTexture();
         }
