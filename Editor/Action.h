@@ -30,6 +30,7 @@ namespace UltraEd
         void AddActor(string name, CScene *scene, GUID actorId);
         void DeleteActor(string name, CScene *scene, GUID actorId);
         void ChangeActor(string name, CScene *scene, GUID actorId, GUID groupId = GUID_NULL);
+        void ChangeActor(string name, CScene *scene, Savable actorState, GUID actorId, GUID groupId = GUID_NULL);
 
     private:
         void Add(Action action);

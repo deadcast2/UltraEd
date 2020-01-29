@@ -329,7 +329,8 @@ namespace UltraEd
         static DWORD prevTick = GetTickCount();
         static bool prevInScene = false;
         static bool prevGizmo = false;
-        static bool changeTracked = false;
+        static GUID groupId = CUtil::NewGuid();
+        static map<GUID, tuple<Savable, bool>> cachedActorStates;
 
         const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
@@ -349,11 +350,15 @@ namespace UltraEd
                 GUID lastSelectedActorId = m_selectedActorIds.back();
                 for (const auto &selectedActorId : m_selectedActorIds)
                 {
+                    if (cachedActorStates.find(selectedActorId) == cachedActorStates.end())
+                        get<0>(cachedActorStates[selectedActorId]) = m_actors[selectedActorId]->Save();
+
                     if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
-                        m_actors[lastSelectedActorId].get()) && !changeTracked)
+                        m_actors[lastSelectedActorId].get()) && !get<1>(cachedActorStates[selectedActorId]))
                     {
-                        changeTracked = true;
-                        m_action.ChangeActor(m_gizmo.GetModifierName(), this, selectedActorId);
+                        get<1>(cachedActorStates[selectedActorId]) = true;
+                        m_action.ChangeActor(m_gizmo.GetModifierName(), this, 
+                            get<0>(cachedActorStates[selectedActorId]), selectedActorId, groupId);
                     }
                 }
             }
@@ -382,11 +387,12 @@ namespace UltraEd
         else
         {
             m_gizmo.Reset();
+            cachedActorStates.clear();
 
             // Reset smoothing values for new mouse view movement.
             m_mouseSmoothX = m_mouseSmoothX = 0;
-
-            prevInScene = prevGizmo = changeTracked = false;
+            prevInScene = prevGizmo = false;
+            groupId = CUtil::NewGuid();
         }
 
         // Remember the last position so we know how much to move the view.

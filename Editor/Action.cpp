@@ -101,12 +101,17 @@ namespace UltraEd
     void CAction::ChangeActor(string name, CScene *scene, GUID actorId, GUID groupId)
     {
         auto state = scene->GetActor(actorId)->Save();
+        ChangeActor(name, scene, state, actorId, groupId);
+    }
+
+    void CAction::ChangeActor(string name, CScene *scene, Savable actorState, GUID actorId, GUID groupId)
+    {
         Action action = {
             name,
             [=]() {
                 auto actor = scene->GetActor(actorId);
                 auto futureState = actor->Save();
-                scene->Restore(state.object);
+                scene->Restore(actorState.object);
                 scene->SelectActorById(actorId);
                 return futureState;
             },
