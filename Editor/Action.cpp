@@ -93,7 +93,7 @@ namespace UltraEd
         Add(action);
     }
 
-    void CAction::DeleteActor(string name, CScene *scene, GUID actorId)
+    void CAction::DeleteActor(string name, CScene *scene, GUID actorId, GUID groupId)
     {
         auto state = scene->GetActor(actorId)->Save();
         Action action = {
@@ -105,7 +105,8 @@ namespace UltraEd
             },
             [=](Savable savable) {
                 scene->Delete(scene->GetActor(actorId));
-            }
+            },
+            groupId
         };
         Add(action);
     }

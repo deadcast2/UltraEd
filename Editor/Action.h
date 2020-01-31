@@ -27,7 +27,7 @@ namespace UltraEd
         void Redo(CScene *scene);
         void Reset();
         void AddActor(string name, CScene *scene, GUID actorId);
-        void DeleteActor(string name, CScene *scene, GUID actorId);
+        void DeleteActor(string name, CScene *scene, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeActor(string name, CScene *scene, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeActor(string name, CScene *scene, Savable actorState, GUID actorId, GUID groupId = GUID_NULL);
 

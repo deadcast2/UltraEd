@@ -626,10 +626,11 @@ namespace UltraEd
     void CScene::Delete()
     {
         // Copy selected ids since loop modifies the master selected actor id vector.
+        GUID groupId = CUtil::NewGuid();
         auto selectedActorIds = m_selectedActorIds;
         for (const auto &selectedActorId : selectedActorIds)
         {
-            m_action.DeleteActor("Actor", this, selectedActorId);
+            m_action.DeleteActor("Actor", this, selectedActorId, groupId);
             Delete(m_actors[selectedActorId]);
             SetDirty(true);
         }
