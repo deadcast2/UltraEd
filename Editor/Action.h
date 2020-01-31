@@ -1,6 +1,5 @@
 #pragma once
 
-#include <tuple>
 #include <functional>
 #include <vector>
 #include "Actor.h"
@@ -24,8 +23,8 @@ namespace UltraEd
     {
     public:
         CAction();
-        void Undo();
-        void Redo();
+        void Undo(CScene *scene);
+        void Redo(CScene *scene);
         void Reset();
         void AddActor(string name, CScene *scene, GUID actorId);
         void DeleteActor(string name, CScene *scene, GUID actorId);
@@ -34,6 +33,8 @@ namespace UltraEd
 
     private:
         void Add(Action action);
+        void Undo();
+        void Redo();
         vector<Action> m_actions;
         size_t m_position;
     };

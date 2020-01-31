@@ -8,6 +8,18 @@ namespace UltraEd
         m_position(0)
     { }
 
+    void CAction::Undo(CScene *scene)
+    {
+        if(m_position > 0) scene->UnselectAll();
+        Undo();
+    }
+
+    void CAction::Redo(CScene *scene)
+    {
+        if (m_position < m_actions.size()) scene->UnselectAll();
+        Redo();
+    }
+
     void CAction::Undo()
     {
         if (m_position > 0)
@@ -112,12 +124,12 @@ namespace UltraEd
                 auto actor = scene->GetActor(actorId);
                 auto futureState = actor->Save();
                 scene->Restore(actorState.object);
-                scene->SelectActorById(actorId);
+                scene->SelectActorById(actorId, false);
                 return futureState;
             },
             [=](Savable savable) {
                 scene->Restore(savable.object);
-                scene->SelectActorById(actorId);
+                scene->SelectActorById(actorId, false);
             },
             groupId
         };

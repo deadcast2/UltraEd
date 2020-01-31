@@ -305,7 +305,7 @@ namespace UltraEd
             {
                 closestDist = pickDist;
 
-                SelectActorById(actor.first, !(GetAsyncKeyState(VK_SHIFT) & 0x8000), true);
+                SelectActorById(actor.first, !(GetAsyncKeyState(VK_SHIFT) & 0x8000));
 
                 if (selectedActor != NULL)
                     *selectedActor = actor.second.get();
@@ -767,9 +767,9 @@ namespace UltraEd
         }
     }
 
-    void CScene::SelectActorById(GUID id, bool clearAll, bool undo)
+    void CScene::SelectActorById(GUID id, bool clearAll)
     {
-        if (clearAll) m_selectedActorIds.clear();
+        if (clearAll) UnselectAll();
 
         auto it = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), id);
         if (it != m_selectedActorIds.end())
@@ -787,6 +787,11 @@ namespace UltraEd
             m_selectedActorIds.push_back(id);
             m_gizmo.Update(m_actors[id].get());
         }
+    }
+
+    void CScene::UnselectAll()
+    {
+        m_selectedActorIds.clear();
     }
 
     void CScene::SetTitle(string title, bool store)
@@ -862,13 +867,13 @@ namespace UltraEd
 
     void CScene::Undo()
     {
-        m_action.Undo();
+        m_action.Undo(this);
         RefreshActorList();
     }
 
     void CScene::Redo()
     {
-        m_action.Redo();
+        m_action.Redo(this);
         RefreshActorList();
     }
 
