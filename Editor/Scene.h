@@ -59,6 +59,7 @@ namespace UltraEd
         bool ToggleFillMode();
         bool ToggleSnapToGrid();
         void SelectActorById(GUID id, bool clearAll = true);
+        void SelectAll();
         void UnselectAll();
         Savable Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);

@@ -793,6 +793,15 @@ namespace UltraEd
         }
     }
 
+    void CScene::SelectAll()
+    {
+        UnselectAll();
+        for (const auto &actor : m_actors)
+        {
+            SelectActorById(actor.first, false);
+        }
+    }
+
     void CScene::UnselectAll()
     {
         m_selectedActorIds.clear();

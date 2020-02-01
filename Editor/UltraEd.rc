@@ -74,6 +74,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Duplicate\tCtrl+D",           ID_EDIT_DUPLICATE
         MENUITEM "Delete\tDel",                 ID_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "Select All\tCtrl+A",          ID_EDIT_SELECTALL
     END
     POPUP "Actor"
     BEGIN

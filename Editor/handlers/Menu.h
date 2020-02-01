@@ -64,6 +64,9 @@ namespace UltraEd
             case ID_EDIT_DELETE:
                 scene->Delete();
                 break;
+            case ID_EDIT_SELECTALL:
+                scene->SelectAll();
+                break;
             case ID_ACTOR_CAMERA:
                 scene->OnAddCamera();
                 break;

@@ -54,6 +54,7 @@
 #define ID_ACTOR_COLLIDER_BOX           40021
 #define ID_ACTOR_COLLIDER_SPHERE        40022
 #define ID_ACTOR_COLLIDER_DELETE        40023
+#define ID_EDIT_SELECTALL               40024
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -61,7 +62,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        106
-#define _APS_NEXT_COMMAND_VALUE         40024
+#define _APS_NEXT_COMMAND_VALUE         40025
 #define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
