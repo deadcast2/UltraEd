@@ -10,12 +10,14 @@ namespace UltraEd
 
     void CUndo::Undo(CScene *scene)
     {
-        if(m_position > 0) scene->UnselectAll();
+        // Don't adjust actor selections when nothing to undo.
+        if (m_position > 0) scene->UnselectAll();
         Undo();
     }
 
     void CUndo::Redo(CScene *scene)
     {
+        // Don't adjust actor selections when nothing to redo.
         if (m_position < m_undoUnits.size()) scene->UnselectAll();
         Redo();
     }
@@ -29,6 +31,7 @@ namespace UltraEd
             m_undoUnits[m_position].state = state;
             CDebug::Log("Undo - %s\n", m_undoUnits[m_position].name.c_str());
 
+            // Keep undoing when this unit is a part of a group.
             int nextUndoPos = m_position - 1;
             if (nextUndoPos >= 0
                 && m_undoUnits[nextUndoPos].groupId != GUID_NULL
@@ -48,6 +51,7 @@ namespace UltraEd
             CDebug::Log("Redo - %s\n", m_undoUnits[m_position].name.c_str());
             m_position++;
 
+            // Keep redoing when this unit is a part of a group.
             if (m_position < m_undoUnits.size()
                 && m_undoUnits[m_position].groupId != GUID_NULL
                 && m_undoUnits[m_position - 1].groupId == m_undoUnits[m_position].groupId)
@@ -63,21 +67,21 @@ namespace UltraEd
         m_position = 0;
     }
 
-    void CUndo::Add(UndoUnit action)
+    void CUndo::Add(UndoUnit unit)
     {
-        // Clear redo history when adding new action and not at head.
+        // Clear redo history when adding new unit and not at head.
         while (m_undoUnits.size() != m_position)
         {
             m_undoUnits.pop_back();
         }
 
-        m_undoUnits.push_back(action);
+        m_undoUnits.push_back(unit);
         m_position = m_undoUnits.size();
     }
 
     void CUndo::AddActor(string name, CScene *scene, GUID actorId)
     {
-        UndoUnit action = {
+        UndoUnit unit = {
             string("Add ").append(name),
             [=]() {
                 auto actor = scene->GetActor(actorId);
@@ -90,13 +94,13 @@ namespace UltraEd
                 scene->SelectActorById(actorId);
             }
         };
-        Add(action);
+        Add(unit);
     }
 
     void CUndo::DeleteActor(string name, CScene *scene, GUID actorId, GUID groupId)
     {
         auto state = scene->GetActor(actorId)->Save();
-        UndoUnit action = {
+        UndoUnit unit = {
             string("Delete ").append(name),
             [=]() {
                 scene->Restore(state.object);
@@ -108,7 +112,7 @@ namespace UltraEd
             },
             groupId
         };
-        Add(action);
+        Add(unit);
     }
 
     void CUndo::ChangeActor(string name, CScene *scene, GUID actorId, GUID groupId)
@@ -119,14 +123,17 @@ namespace UltraEd
 
     void CUndo::ChangeActor(string name, CScene *scene, Savable actorState, GUID actorId, GUID groupId)
     {
-        UndoUnit action = {
+        UndoUnit unit = {
             name,
             [=]() {
                 auto actor = scene->GetActor(actorId);
-                auto futureState = actor->Save();
+                auto oldState = actor->Save();
+
                 scene->Restore(actorState.object);
                 scene->SelectActorById(actorId, false);
-                return futureState;
+
+                // Return state saved before restore so system can "undo" to this point.
+                return oldState;
             },
             [=](Savable savable) {
                 scene->Restore(savable.object);
@@ -134,6 +141,6 @@ namespace UltraEd
             },
             groupId
         };
-        Add(action);
+        Add(unit);
     }
 }

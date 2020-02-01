@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace UltraEd 
+namespace UltraEd
 {
     class CScene;
 
@@ -32,7 +32,7 @@ namespace UltraEd
         void ChangeActor(string name, CScene *scene, Savable actorState, GUID actorId, GUID groupId = GUID_NULL);
 
     private:
-        void Add(UndoUnit action);
+        void Add(UndoUnit unit);
         void Undo();
         void Redo();
         vector<UndoUnit> m_undoUnits;

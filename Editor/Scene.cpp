@@ -350,12 +350,15 @@ namespace UltraEd
                 GUID lastSelectedActorId = m_selectedActorIds.back();
                 for (const auto &selectedActorId : m_selectedActorIds)
                 {
+                    // When gizmo selection starts record the current state of each selected actor.
                     if (cachedActorStates.find(selectedActorId) == cachedActorStates.end())
                         get<0>(cachedActorStates[selectedActorId]) = m_actors[selectedActorId]->Save();
 
+                    // If a change is detected then submit only once the actor's previous state to the undo system.
                     if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
                         m_actors[lastSelectedActorId].get()) && !get<1>(cachedActorStates[selectedActorId]))
                     {
+                        // Mark actor as tracked by undo system.
                         get<1>(cachedActorStates[selectedActorId]) = true;
                         m_action.ChangeActor(m_gizmo.GetModifierName(), this, 
                             get<0>(cachedActorStates[selectedActorId]), selectedActorId, groupId);
