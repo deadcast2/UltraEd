@@ -35,6 +35,7 @@ namespace UltraEd
         void Add(UndoUnit unit);
         void RunUndo();
         void RunRedo();
+        void UpdateMenu();
         vector<UndoUnit> m_undoUnits;
         size_t m_position;
         CScene *m_scene;

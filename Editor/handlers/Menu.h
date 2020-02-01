@@ -6,7 +6,7 @@
 
 namespace UltraEd
 {
-    void MenuHandler(HWND statusBar, HWND hWnd, WPARAM wParam, CScene *scene)
+    void MenuHandler(HWND statusBar, HWND hWnd, WPARAM wParam, LPARAM lParam, CScene *scene)
     {
         if (scene == NULL) return;
 
@@ -115,6 +115,32 @@ namespace UltraEd
                 {
                     bool toggled = scene->ToggleSnapToGrid();
                     CheckMenuItem(menu, wParam, toggled ? MF_CHECKED : MF_UNCHECKED);
+                }
+                break;
+            }
+            case UPDATE_UNDO:
+            {
+                HMENU menu = GetMenu(hWnd);
+                if (menu != NULL)
+                {
+                    MENUITEMINFO info = { 0 };
+                    info.cbSize = sizeof(MENUITEMINFO);
+                    info.fMask = MIIM_STRING;
+                    info.dwTypeData = (LPSTR)lParam;
+                    SetMenuItemInfo(menu, ID_EDIT_UNDO, 0, &info);
+                }
+                break;
+            }
+            case UPDATE_REDO:
+            {
+                HMENU menu = GetMenu(hWnd);
+                if (menu != NULL)
+                {
+                    MENUITEMINFO info = { 0 };
+                    info.cbSize = sizeof(MENUITEMINFO);
+                    info.fMask = MIIM_STRING;
+                    info.dwTypeData = (LPSTR)lParam;
+                    SetMenuItemInfo(menu, ID_EDIT_REDO, 0, &info);
                 }
                 break;
             }

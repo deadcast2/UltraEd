@@ -36,7 +36,7 @@ namespace UltraEd
             }
             case WM_COMMAND:
             {
-                UltraEd::MenuHandler(statusBar, hWnd, wParam, scene);
+                UltraEd::MenuHandler(statusBar, parentWindow, wParam, lParam, scene);
                 UltraEd::ToolbarHandler(wParam, scene);
                 UltraEd::TreeviewHandler(treeview, hWnd, wParam, lParam, scene);
                 UltraEd::MouseMenuHandler(UltraEd::ScriptEditorHandler, hWnd, wParam, scene);

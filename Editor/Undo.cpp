@@ -1,5 +1,6 @@
 #include "Undo.h"
 #include "Scene.h"
+#include "ResourceExt.h"
 
 namespace UltraEd
 {
@@ -30,7 +31,8 @@ namespace UltraEd
             m_position--;
             auto state = m_undoUnits[m_position].undo();
             m_undoUnits[m_position].state = state;
-            CDebug::Log("Undo - %s\n", m_undoUnits[m_position].name.c_str());
+
+            UpdateMenu();
 
             // Keep undoing when this unit is a part of a group.
             int nextUndoPos = m_position - 1;
@@ -49,8 +51,9 @@ namespace UltraEd
         {
             auto state = m_undoUnits[m_position].state;
             m_undoUnits[m_position].redo(state);
-            CDebug::Log("Redo - %s\n", m_undoUnits[m_position].name.c_str());
             m_position++;
+
+            UpdateMenu();
 
             // Keep redoing when this unit is a part of a group.
             if (m_position < m_undoUnits.size()
@@ -59,6 +62,40 @@ namespace UltraEd
             {
                 RunRedo();
             }
+        }
+    }
+
+    void CUndo::UpdateMenu()
+    {
+        char buffer[1024];
+        int lookAhead = m_position + 1;
+
+        // At most recent undo unit so clear redo message.
+        if (m_position == m_undoUnits.size())
+        {
+            sprintf(buffer, "Undo - %s\tCtrl+Z", m_undoUnits[m_position - 1].name.c_str());
+            SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_UNDO, reinterpret_cast<LPARAM>(buffer));
+
+            sprintf(buffer, "Redo\tCtrl+Y");
+            SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_REDO, reinterpret_cast<LPARAM>(buffer));
+        }
+        // At last undo unit so clear undo message.
+        else if (m_position == 0)
+        {
+            sprintf(buffer, "Undo\tCtrl+Z");
+            SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_UNDO, reinterpret_cast<LPARAM>(buffer));
+
+            sprintf(buffer, "Redo - %s\tCtrl+Y", m_undoUnits[m_position].name.c_str());
+            SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_REDO, reinterpret_cast<LPARAM>(buffer));
+        }
+        // In the middle so update both undo and redo messages.
+        else if (m_position < m_undoUnits.size())
+        {
+            sprintf(buffer, "Undo - %s\tCtrl+Z", m_undoUnits[m_position - 1].name.c_str());
+            SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_UNDO, reinterpret_cast<LPARAM>(buffer));
+
+            sprintf(buffer, "Redo - %s\tCtrl+Y", m_undoUnits[m_position].name.c_str());
+            SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_REDO, reinterpret_cast<LPARAM>(buffer));
         }
     }
 
@@ -78,6 +115,7 @@ namespace UltraEd
 
         m_undoUnits.push_back(unit);
         m_position = m_undoUnits.size();
+        UpdateMenu();
     }
 
     void CUndo::AddActor(string name, GUID actorId)
