@@ -98,6 +98,6 @@ namespace UltraEd
         ViewType::Value m_activeViewType;
         string m_sceneName;
         array<int, 3> m_backgroundColorRGB;
-        CUndo m_action;
+        CUndo m_undo;
     };
 }

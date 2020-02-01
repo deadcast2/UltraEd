@@ -28,7 +28,7 @@ namespace UltraEd
         m_activeViewType(ViewType::Perspective),
         m_sceneName(),
         m_backgroundColorRGB(),
-        m_action()
+        m_undo(this)
     {
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
@@ -85,7 +85,7 @@ namespace UltraEd
         m_selectedActorIds.clear();
         ReleaseResources(ModelRelease::AllResources);
         m_actors.clear();
-        m_action.Reset();
+        m_undo.Reset();
         ResetViews();
         RefreshActorList();
         m_backgroundColorRGB[0] = m_backgroundColorRGB[1] = m_backgroundColorRGB[2] = 0;
@@ -176,7 +176,7 @@ namespace UltraEd
             char buffer[1024];
             sprintf(buffer, "Actor %u", m_actors.size());
             m_actors[model->GetId()]->SetName(string(buffer));
-            m_action.AddActor("Model", this, model->GetId());
+            m_undo.AddActor("Model", model->GetId());
 
             SelectActorById(model->GetId());
             RefreshActorList();
@@ -190,7 +190,7 @@ namespace UltraEd
         m_actors[newCamera->GetId()] = newCamera;
         sprintf(buffer, "Camera %u", m_actors.size());
         m_actors[newCamera->GetId()]->SetName(string(buffer));
-        m_action.AddActor("Camera", this, newCamera->GetId());
+        m_undo.AddActor("Camera", newCamera->GetId());
 
         SelectActorById(newCamera->GetId());
         RefreshActorList();
@@ -207,7 +207,7 @@ namespace UltraEd
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            m_action.ChangeActor("Add Collider", this, selectedActorId, groupId);
+            m_undo.ChangeActor("Add Collider", selectedActorId, groupId);
 
             if (type == ColliderType::Box)
             {
@@ -231,7 +231,7 @@ namespace UltraEd
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            m_action.ChangeActor("Delete Collider", this, selectedActorId, groupId);
+            m_undo.ChangeActor("Delete Collider", selectedActorId, groupId);
 
             m_actors[selectedActorId]->SetCollider(NULL);
         }
@@ -256,7 +256,7 @@ namespace UltraEd
             {
                 if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
 
-                m_action.ChangeActor("Add Texture", this, selectedActorId, groupId);
+                m_undo.ChangeActor("Add Texture", selectedActorId, groupId);
 
                 if (!dynamic_cast<CModel *>(m_actors[selectedActorId].get())->SetTexture(m_device, file.c_str()))
                 {
@@ -280,7 +280,7 @@ namespace UltraEd
         {
             if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
 
-            m_action.ChangeActor("Delete Texture", this, selectedActorId, groupId);
+            m_undo.ChangeActor("Delete Texture", selectedActorId, groupId);
 
             dynamic_cast<CModel *>(m_actors[selectedActorId].get())->DeleteTexture();
         }
@@ -360,7 +360,7 @@ namespace UltraEd
                     {
                         // Mark actor as tracked by undo system.
                         get<1>(cachedActorStates[selectedActorId]) = true;
-                        m_action.ChangeActor(m_gizmo.GetModifierName(), this, 
+                        m_undo.ChangeActor(m_gizmo.GetModifierName(), 
                             get<0>(cachedActorStates[selectedActorId]), selectedActorId, groupId);
                     }
                 }
@@ -633,7 +633,7 @@ namespace UltraEd
         auto selectedActorIds = m_selectedActorIds;
         for (const auto &selectedActorId : selectedActorIds)
         {
-            m_action.DeleteActor("Actor", this, selectedActorId, groupId);
+            m_undo.DeleteActor("Actor", selectedActorId, groupId);
             Delete(m_actors[selectedActorId]);
             SetDirty(true);
         }
@@ -671,14 +671,14 @@ namespace UltraEd
                     string texturePath = model->GetResources()["textureDataPath"];
                     model->SetTexture(m_device, texturePath.c_str());
                     m_actors[model->GetId()] = model;
-                    m_action.AddActor("Model", this, model->GetId());
+                    m_undo.AddActor("Model", model->GetId());
                     break;
                 }
                 case ActorType::Camera:
                 {
                     auto camera = make_shared<CCamera>(*dynamic_cast<CCamera *>(m_actors[selectedActorId].get()));
                     m_actors[camera->GetId()] = camera;
-                    m_action.AddActor("Camera", this, camera->GetId());
+                    m_undo.AddActor("Camera", camera->GetId());
                     break;
                 }
             }
@@ -880,13 +880,13 @@ namespace UltraEd
 
     void CScene::Undo()
     {
-        m_action.Undo(this);
+        m_undo.Undo();
         RefreshActorList();
     }
 
     void CScene::Redo()
     {
-        m_action.Redo(this);
+        m_undo.Redo();
         RefreshActorList();
     }
 

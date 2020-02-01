@@ -22,20 +22,21 @@ namespace UltraEd
     class CUndo
     {
     public:
-        CUndo();
-        void Undo(CScene *scene);
-        void Redo(CScene *scene);
+        CUndo(CScene *scene);
+        void Undo();
+        void Redo();
         void Reset();
-        void AddActor(string name, CScene *scene, GUID actorId);
-        void DeleteActor(string name, CScene *scene, GUID actorId, GUID groupId = GUID_NULL);
-        void ChangeActor(string name, CScene *scene, GUID actorId, GUID groupId = GUID_NULL);
-        void ChangeActor(string name, CScene *scene, Savable actorState, GUID actorId, GUID groupId = GUID_NULL);
+        void AddActor(string name, GUID actorId);
+        void DeleteActor(string name, GUID actorId, GUID groupId = GUID_NULL);
+        void ChangeActor(string name, GUID actorId, GUID groupId = GUID_NULL);
+        void ChangeActor(string name, Savable actorState, GUID actorId, GUID groupId = GUID_NULL);
 
     private:
         void Add(UndoUnit unit);
-        void Undo();
-        void Redo();
+        void RunUndo();
+        void RunRedo();
         vector<UndoUnit> m_undoUnits;
         size_t m_position;
+        CScene *m_scene;
     };
 }
