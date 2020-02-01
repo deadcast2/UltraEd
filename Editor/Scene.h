@@ -12,7 +12,7 @@
 #include "Grid.h"
 #include "Model.h"
 #include "Camera.h"
-#include "Action.h"
+#include "Undo.h"
 
 namespace UltraEd
 {
@@ -97,6 +97,6 @@ namespace UltraEd
         ViewType::Value m_activeViewType;
         string m_sceneName;
         array<int, 3> m_backgroundColorRGB;
-        CAction m_action;
+        CUndo m_action;
     };
 }

@@ -1,83 +1,83 @@
-#include "Action.h"
+#include "Undo.h"
 #include "Scene.h"
 
 namespace UltraEd
 {
-    CAction::CAction() :
-        m_actions(),
+    CUndo::CUndo() :
+        m_undoUnits(),
         m_position(0)
     { }
 
-    void CAction::Undo(CScene *scene)
+    void CUndo::Undo(CScene *scene)
     {
         if(m_position > 0) scene->UnselectAll();
         Undo();
     }
 
-    void CAction::Redo(CScene *scene)
+    void CUndo::Redo(CScene *scene)
     {
-        if (m_position < m_actions.size()) scene->UnselectAll();
+        if (m_position < m_undoUnits.size()) scene->UnselectAll();
         Redo();
     }
 
-    void CAction::Undo()
+    void CUndo::Undo()
     {
         if (m_position > 0)
         {
             m_position--;
-            auto state = m_actions[m_position].undo();
-            m_actions[m_position].state = state;
-            CDebug::Log("Undo - %s\n", m_actions[m_position].name.c_str());
+            auto state = m_undoUnits[m_position].undo();
+            m_undoUnits[m_position].state = state;
+            CDebug::Log("Undo - %s\n", m_undoUnits[m_position].name.c_str());
 
             int nextUndoPos = m_position - 1;
             if (nextUndoPos >= 0
-                && m_actions[nextUndoPos].groupId != GUID_NULL
-                && m_actions[nextUndoPos].groupId == m_actions[m_position].groupId)
+                && m_undoUnits[nextUndoPos].groupId != GUID_NULL
+                && m_undoUnits[nextUndoPos].groupId == m_undoUnits[m_position].groupId)
             {
                 Undo();
             }
         }
     }
 
-    void CAction::Redo()
+    void CUndo::Redo()
     {
-        if (m_position < m_actions.size())
+        if (m_position < m_undoUnits.size())
         {
-            auto state = m_actions[m_position].state;
-            m_actions[m_position].redo(state);
-            CDebug::Log("Redo - %s\n", m_actions[m_position].name.c_str());
+            auto state = m_undoUnits[m_position].state;
+            m_undoUnits[m_position].redo(state);
+            CDebug::Log("Redo - %s\n", m_undoUnits[m_position].name.c_str());
             m_position++;
 
-            if (m_position < m_actions.size()
-                && m_actions[m_position].groupId != GUID_NULL
-                && m_actions[m_position - 1].groupId == m_actions[m_position].groupId)
+            if (m_position < m_undoUnits.size()
+                && m_undoUnits[m_position].groupId != GUID_NULL
+                && m_undoUnits[m_position - 1].groupId == m_undoUnits[m_position].groupId)
             {
                 Redo();
             }
         }
     }
 
-    void CAction::Reset()
+    void CUndo::Reset()
     {
-        m_actions.clear();
+        m_undoUnits.clear();
         m_position = 0;
     }
 
-    void CAction::Add(Action action)
+    void CUndo::Add(UndoUnit action)
     {
         // Clear redo history when adding new action and not at head.
-        while (m_actions.size() != m_position)
+        while (m_undoUnits.size() != m_position)
         {
-            m_actions.pop_back();
+            m_undoUnits.pop_back();
         }
 
-        m_actions.push_back(action);
-        m_position = m_actions.size();
+        m_undoUnits.push_back(action);
+        m_position = m_undoUnits.size();
     }
 
-    void CAction::AddActor(string name, CScene *scene, GUID actorId)
+    void CUndo::AddActor(string name, CScene *scene, GUID actorId)
     {
-        Action action = {
+        UndoUnit action = {
             string("Add ").append(name),
             [=]() {
                 auto actor = scene->GetActor(actorId);
@@ -93,10 +93,10 @@ namespace UltraEd
         Add(action);
     }
 
-    void CAction::DeleteActor(string name, CScene *scene, GUID actorId, GUID groupId)
+    void CUndo::DeleteActor(string name, CScene *scene, GUID actorId, GUID groupId)
     {
         auto state = scene->GetActor(actorId)->Save();
-        Action action = {
+        UndoUnit action = {
             string("Delete ").append(name),
             [=]() {
                 scene->Restore(state.object);
@@ -111,15 +111,15 @@ namespace UltraEd
         Add(action);
     }
 
-    void CAction::ChangeActor(string name, CScene *scene, GUID actorId, GUID groupId)
+    void CUndo::ChangeActor(string name, CScene *scene, GUID actorId, GUID groupId)
     {
         auto state = scene->GetActor(actorId)->Save();
         ChangeActor(name, scene, state, actorId, groupId);
     }
 
-    void CAction::ChangeActor(string name, CScene *scene, Savable actorState, GUID actorId, GUID groupId)
+    void CUndo::ChangeActor(string name, CScene *scene, Savable actorState, GUID actorId, GUID groupId)
     {
-        Action action = {
+        UndoUnit action = {
             name,
             [=]() {
                 auto actor = scene->GetActor(actorId);

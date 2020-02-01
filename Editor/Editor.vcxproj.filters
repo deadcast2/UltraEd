@@ -93,7 +93,7 @@
     <ClCompile Include="VertexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Action.cpp">
+    <ClCompile Include="Undo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -223,10 +223,10 @@
     <ClInclude Include="handlers\ScriptEditor.h">
       <Filter>Header Files\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="Action.h">
+    <ClInclude Include="ResourceExt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceExt.h">
+    <ClInclude Include="Undo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

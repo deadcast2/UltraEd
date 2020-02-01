@@ -10,7 +10,7 @@ namespace UltraEd
 {
     class CScene;
 
-    struct Action
+    struct UndoUnit
     {
         string name;
         function<Savable()> undo;
@@ -19,10 +19,10 @@ namespace UltraEd
         Savable state;
     };
 
-    class CAction
+    class CUndo
     {
     public:
-        CAction();
+        CUndo();
         void Undo(CScene *scene);
         void Redo(CScene *scene);
         void Reset();
@@ -32,10 +32,10 @@ namespace UltraEd
         void ChangeActor(string name, CScene *scene, Savable actorState, GUID actorId, GUID groupId = GUID_NULL);
 
     private:
-        void Add(Action action);
+        void Add(UndoUnit action);
         void Undo();
         void Redo();
-        vector<Action> m_actions;
+        vector<UndoUnit> m_undoUnits;
         size_t m_position;
     };
 }
