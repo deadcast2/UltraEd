@@ -702,6 +702,7 @@ namespace UltraEd
     {
         if (!m_selectedActorIds.empty())
         {
+            m_undo.ChangeActor("Script Change", m_selectedActorIds[0]);
             m_actors[m_selectedActorIds[0]]->SetScript(script);
         }
     }
