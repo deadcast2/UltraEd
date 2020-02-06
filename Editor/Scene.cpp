@@ -94,21 +94,8 @@ namespace UltraEd
 
     bool CScene::OnSave()
     {
-        vector<CSavable *> savables;
-
-        savables.push_back(this);
-
-        // Save all editor views.
-        for (int i = 0; i < 4; i++) savables.push_back(&m_views[i]);
-
-        // Save all of the actors in the scene.
-        for (const auto &actor : m_actors)
-        {
-            savables.push_back(actor.second.get());
-        }
-
         string savedName;
-        if (CFileIO::Save(savables, savedName))
+        if (CFileIO::Save(this, savedName))
         {
             SetTitle(savedName);
             SetDirty(false);
@@ -899,6 +886,13 @@ namespace UltraEd
         char buffer[128];
         cJSON *scene = cJSON_CreateObject();
 
+        cJSON *viewArray = cJSON_CreateArray();
+        cJSON_AddItemToObject(scene, "views", viewArray);
+        for (int i = 0; i < 4; i++) 
+        {
+            cJSON_AddItemToArray(viewArray, m_views[i].Save().object);
+        }
+
         sprintf(buffer, "%i", (int)GetActiveView()->GetType());
         cJSON_AddStringToObject(scene, "active_view", buffer);
 
@@ -906,14 +900,19 @@ namespace UltraEd
             m_backgroundColorRGB[2]);
         cJSON_AddStringToObject(scene, "background_color", buffer);
 
+        cJSON *actorArray = cJSON_CreateArray();
+        cJSON_AddItemToObject(scene, "actors", actorArray);
+        for (const auto &actor : m_actors)
+        {
+            cJSON_AddItemToArray(actorArray, actor.second->Save().object);           
+        }
+
         Savable savable = { scene, SavableType::Scene };
         return savable;
     }
 
     bool CScene::Load(IDirect3DDevice8 *device, cJSON *root)
     {
-        cJSON *scene = cJSON_GetObjectItem(root, "scene");
-
         // Restore editor views.
         int count = 0;
         cJSON *views = cJSON_GetObjectItem(root, "views");
@@ -925,12 +924,12 @@ namespace UltraEd
 
         // Set the active view.
         ViewType::Value viewType;
-        cJSON *activeView = cJSON_GetObjectItem(scene, "active_view");
+        cJSON *activeView = cJSON_GetObjectItem(root, "active_view");
         sscanf(activeView->valuestring, "%i", &viewType);
         SetViewType(viewType);
 
         // Set the background color.
-        cJSON *backgroundColor = cJSON_GetObjectItem(scene, "background_color");
+        cJSON *backgroundColor = cJSON_GetObjectItem(root, "background_color");
         sscanf(backgroundColor->valuestring, "%i %i %i", &m_backgroundColorRGB[0],
             &m_backgroundColorRGB[1], &m_backgroundColorRGB[2]);
 

@@ -7,7 +7,7 @@
 
 namespace UltraEd
 {
-    bool CFileIO::Save(const vector<CSavable *> &savables, string &fileName)
+    bool CFileIO::Save(CScene *scene, string &fileName)
     {
         string file;
 
@@ -22,25 +22,19 @@ namespace UltraEd
             mtar_t tar;
             mtar_open(&tar, file.c_str(), "w");
 
-            // Write the scene JSON data.
-            cJSON *root = cJSON_CreateObject();
-
-            cJSON *viewArray = cJSON_CreateArray();
-            cJSON_AddItemToObject(root, "views", viewArray);
-
-            cJSON *actorArray = cJSON_CreateArray();
-            cJSON_AddItemToObject(root, "actors", actorArray);
-
-            for (const auto &savable : savables)
+            cJSON *root = scene->Save().object;
+            cJSON *actors = cJSON_GetObjectItem(root, "actors");
+            cJSON *actor = NULL;
+            cJSON_ArrayForEach(actor, actors)
             {
-                Savable current = savable->Save();
-                cJSON *object = current.object;
-
                 // Rewrite and archive the attached resources.
-                for (const auto &resource : savable->GetResources())
+                cJSON *resource = NULL;
+                cJSON *resources = cJSON_GetObjectItem(actor, "resources");
+                cJSON_ArrayForEach(resource, resources)
                 {
-                    const char *fileName = PathFindFileName(resource.second.c_str());
-                    unique_ptr<FILE, decltype(fclose) *> file(fopen(resource.second.c_str(), "rb"), fclose);
+                    const char *path = resource->child->valuestring;
+                    const char *fileName = PathFindFileName(path);
+                    unique_ptr<FILE, decltype(fclose) *> file(fopen(path, "rb"), fclose);
                     if (file == NULL) continue;
 
                     // Calculate resource length.
@@ -55,19 +49,6 @@ namespace UltraEd
                     // Write the buffer to the tar archive.
                     mtar_write_file_header(&tar, fileName, fileLength);
                     mtar_write_data(&tar, fileContents.get(), fileLength);
-                }
-
-                if (current.type == SavableType::View)
-                {
-                    cJSON_AddItemToArray(viewArray, object);
-                }
-                else if (current.type == SavableType::Actor)
-                {
-                    cJSON_AddItemToArray(actorArray, object);
-                }
-                else if (current.type == SavableType::Scene)
-                {
-                    cJSON_AddItemToObject(root, "scene", object);
                 }
             }
 

@@ -23,7 +23,7 @@ namespace UltraEd
     class CFileIO
     {
     public:
-        static bool Save(const vector<CSavable*> &savables, string &fileName);
+        static bool Save(CScene *scene, string &fileName);
         static bool Load(cJSON **data, string &fileName);
         static FileInfo Import(const char *file);
         static bool Pack(const char *path);
