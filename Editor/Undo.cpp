@@ -116,7 +116,7 @@ namespace UltraEd
         UpdateMenu();
     }
 
-    void CUndo::AddActor(string name, GUID actorId)
+    void CUndo::AddActor(string name, GUID actorId, GUID groupId)
     {
         UndoUnit unit = {
             string("Add ").append(name),
@@ -129,7 +129,8 @@ namespace UltraEd
             [=](Savable savable) {
                 m_scene->Restore(savable.object);
                 m_scene->SelectActorById(actorId);
-            }
+            },
+            groupId
         };
         Add(unit);
     }

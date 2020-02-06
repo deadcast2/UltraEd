@@ -82,7 +82,7 @@ namespace UltraEd
         if (confirm && !Confirm()) return;
 
         SetTitle("Untitled");
-        m_selectedActorIds.clear();
+        UnselectAll();
         ReleaseResources(ModelRelease::AllResources);
         m_actors.clear();
         m_undo.Reset();
@@ -314,7 +314,7 @@ namespace UltraEd
 
         RefreshActorList();
         if (closestDist != FLT_MAX) return true;
-        if (!gizmoSelected) m_selectedActorIds.clear();
+        if (!gizmoSelected) UnselectAll();
         return false;
     }
 
@@ -661,6 +661,8 @@ namespace UltraEd
 
     void CScene::Duplicate()
     {
+        GUID groupId = CUtil::NewGuid();
+
         for (const auto &selectedActorId : m_selectedActorIds)
         {
             switch (m_actors[selectedActorId]->GetType())
@@ -671,18 +673,19 @@ namespace UltraEd
                     string texturePath = model->GetResources()["textureDataPath"];
                     model->SetTexture(m_device, texturePath.c_str());
                     m_actors[model->GetId()] = model;
-                    m_undo.AddActor("Model", model->GetId());
+                    m_undo.AddActor("Model", model->GetId(), groupId);
                     break;
                 }
                 case ActorType::Camera:
                 {
                     auto camera = make_shared<CCamera>(*dynamic_cast<CCamera *>(m_actors[selectedActorId].get()));
                     m_actors[camera->GetId()] = camera;
-                    m_undo.AddActor("Camera", camera->GetId());
+                    m_undo.AddActor("Camera", camera->GetId(), groupId);
                     break;
                 }
             }
         }
+
         RefreshActorList();
     }
 

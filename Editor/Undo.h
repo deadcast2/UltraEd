@@ -26,7 +26,7 @@ namespace UltraEd
         void Undo();
         void Redo();
         void Reset();
-        void AddActor(string name, GUID actorId);
+        void AddActor(string name, GUID actorId, GUID groupId = GUID_NULL);
         void DeleteActor(string name, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeActor(string name, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeActor(string name, Savable actorState, GUID actorId, GUID groupId = GUID_NULL);
