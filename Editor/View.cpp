@@ -122,7 +122,7 @@ namespace UltraEd
         return m_type;
     }
 
-    Savable CView::Save()
+    cJSON *CView::Save()
     {
         char buffer[128];
         cJSON *view = cJSON_CreateObject();
@@ -139,8 +139,7 @@ namespace UltraEd
         sprintf(buffer, "%f %f %f", m_up.x, m_up.y, m_up.z);
         cJSON_AddStringToObject(view, "up", buffer);
 
-        Savable savable = { view, SavableType::View };
-        return savable;
+        return view;
     }
 
     bool CView::Load(IDirect3DDevice8 *device, cJSON *root)

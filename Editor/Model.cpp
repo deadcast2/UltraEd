@@ -90,7 +90,7 @@ namespace UltraEd
         }
     }
 
-    Savable CModel::Save()
+    cJSON *CModel::Save()
     {
         return CActor::Save();
     }

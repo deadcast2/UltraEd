@@ -182,7 +182,7 @@ namespace UltraEd
         return true;
     }
 
-    Savable CActor::Save()
+    cJSON *CActor::Save()
     {
         char buffer[LINE_FORMAT_LENGTH];
         cJSON *actor = cJSON_CreateObject();
@@ -209,7 +209,7 @@ namespace UltraEd
 
         if (m_collider)
         {
-            cJSON_AddItemToObject(actor, "collider", m_collider->Save().object);
+            cJSON_AddItemToObject(actor, "collider", m_collider->Save());
         }
 
         // Add array to hold all attached resources.
@@ -224,8 +224,7 @@ namespace UltraEd
 
         SetDirty(false);
 
-        Savable savable = { actor, SavableType::Actor };
-        return savable;
+        return actor;
     }
 
     bool CActor::Load(IDirect3DDevice8 *device, cJSON *root)

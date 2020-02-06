@@ -61,7 +61,7 @@ namespace UltraEd
         void SelectActorById(GUID id, bool clearAll = true);
         void SelectAll();
         void UnselectAll();
-        Savable Save();
+        cJSON *Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
         void SetDirty(bool value);
         bool Confirm();

@@ -13,7 +13,7 @@ namespace UltraEd
         CSphereCollider(const vector<Vertex> &vertices);
         void Build();
         FLOAT GetRadius() { return m_radius; }
-        Savable Save();
+        cJSON *Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
 
     private:

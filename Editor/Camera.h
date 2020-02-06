@@ -10,7 +10,7 @@ namespace UltraEd
         CCamera();
         CCamera(const CCamera &camera);
         void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
-        Savable Save();
+        cJSON *Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
 
     private:

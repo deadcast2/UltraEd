@@ -13,7 +13,7 @@ namespace UltraEd
         CBoxCollider(const vector<Vertex> &vertices);
         void Build();
         const D3DXVECTOR3 &GetExtents() { return m_extents; }
-        Savable Save();
+        cJSON *Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
 
     private:

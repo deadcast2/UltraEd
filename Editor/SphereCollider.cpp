@@ -114,13 +114,13 @@ namespace UltraEd
         }
     }
 
-    Savable CSphereCollider::Save()
+    cJSON *CSphereCollider::Save()
     {
-        Savable savable = CCollider::Save();
+        auto state = CCollider::Save();
         char buffer[LINE_FORMAT_LENGTH];
         sprintf(buffer, "%f", m_radius);
-        cJSON_AddStringToObject(savable.object, "radius", buffer);
-        return savable;
+        cJSON_AddStringToObject(state, "radius", buffer);
+        return state;
     }
 
     bool CSphereCollider::Load(IDirect3DDevice8 *device, cJSON *root)

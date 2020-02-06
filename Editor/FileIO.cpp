@@ -22,7 +22,7 @@ namespace UltraEd
             mtar_t tar;
             mtar_open(&tar, file.c_str(), "w");
 
-            cJSON *root = scene->Save().object;
+            cJSON *root = scene->Save();
             cJSON *actors = cJSON_GetObjectItem(root, "actors");
             cJSON *actor = NULL;
             cJSON_ArrayForEach(actor, actors)

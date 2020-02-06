@@ -44,7 +44,7 @@ namespace UltraEd
         return (ColliderType::Value)typeValue;
     }
 
-    Savable CCollider::Save()
+    cJSON *CCollider::Save()
     {
         char buffer[LINE_FORMAT_LENGTH];
         cJSON *root = cJSON_CreateObject();
@@ -55,7 +55,7 @@ namespace UltraEd
         sprintf(buffer, "%f %f %f", m_center.x, m_center.y, m_center.z);
         cJSON_AddStringToObject(root, "center", buffer);
 
-        return { root, SavableType::Actor };
+        return root;
     }
 
     bool CCollider::Load(IDirect3DDevice8 *device, cJSON *root)

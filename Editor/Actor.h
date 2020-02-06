@@ -48,7 +48,7 @@ namespace UltraEd
         CCollider *GetCollider() { return m_collider.get(); }
         void SetCollider(CCollider *collider) { Dirty([&] { m_collider = shared_ptr<CCollider>(collider); }, &m_collider); }
         bool HasCollider() { return GetCollider() != NULL; }
-        Savable Save();
+        cJSON *Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
 
     protected:

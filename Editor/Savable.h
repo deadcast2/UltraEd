@@ -10,23 +10,12 @@ using namespace std;
 
 namespace UltraEd
 {
-    struct SavableType
-    {
-        enum Value { Actor, Scene, View };
-    };
-
-    typedef struct
-    {
-        cJSON *object;
-        SavableType::Value type;
-    } Savable;
-
     class CSavable
     {
     public:
         CSavable();
         virtual ~CSavable() { }
-        virtual Savable Save() = 0;
+        virtual cJSON *Save() = 0;
         virtual bool Load(IDirect3DDevice8 *device, cJSON *root) = 0;
         map<string, string> GetResources();
         void AddResource(const string &key, const string &value);

@@ -126,8 +126,8 @@ namespace UltraEd
                 m_scene->Delete(actor);
                 return state;
             },
-            [=](Savable savable) {
-                m_scene->Restore(savable.object);
+            [=](cJSON *oldState) {
+                m_scene->Restore(oldState);
                 m_scene->SelectActorById(actorId);
             },
             groupId
@@ -141,11 +141,11 @@ namespace UltraEd
         UndoUnit unit = {
             string("Delete ").append(name),
             [=]() {
-                m_scene->Restore(state.object);
+                m_scene->Restore(state);
                 m_scene->SelectActorById(actorId);
                 return state;
             },
-            [=](Savable savable) {
+            [=](cJSON *oldState) {
                 m_scene->Delete(m_scene->GetActor(actorId));
             },
             groupId
@@ -159,7 +159,7 @@ namespace UltraEd
         ChangeActor(name, state, actorId, groupId);
     }
 
-    void CUndo::ChangeActor(string name, Savable actorState, GUID actorId, GUID groupId)
+    void CUndo::ChangeActor(string name, cJSON *actorState, GUID actorId, GUID groupId)
     {
         UndoUnit unit = {
             name,
@@ -167,14 +167,14 @@ namespace UltraEd
                 auto actor = m_scene->GetActor(actorId);
                 auto oldState = actor->Save();
 
-                m_scene->Restore(actorState.object);
+                m_scene->Restore(actorState);
                 m_scene->SelectActorById(actorId, false);
 
                 // Return state saved before restore so system can "undo" to this point.
                 return oldState;
             },
-            [=](Savable savable) {
-                m_scene->Restore(savable.object);
+            [=](cJSON *oldState) {
+                m_scene->Restore(oldState);
                 m_scene->SelectActorById(actorId, false);
             },
             groupId

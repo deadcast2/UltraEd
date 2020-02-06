@@ -13,10 +13,10 @@ namespace UltraEd
     struct UndoUnit
     {
         string name;
-        function<Savable()> undo;
-        function<void(Savable)> redo;
+        function<cJSON*()> undo;
+        function<void(cJSON*)> redo;
         GUID groupId;
-        Savable state;
+        cJSON *state;
     };
 
     class CUndo
@@ -29,7 +29,7 @@ namespace UltraEd
         void AddActor(string name, GUID actorId, GUID groupId = GUID_NULL);
         void DeleteActor(string name, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeActor(string name, GUID actorId, GUID groupId = GUID_NULL);
-        void ChangeActor(string name, Savable actorState, GUID actorId, GUID groupId = GUID_NULL);
+        void ChangeActor(string name, cJSON *actorState, GUID actorId, GUID groupId = GUID_NULL);
 
     private:
         void Add(UndoUnit unit);

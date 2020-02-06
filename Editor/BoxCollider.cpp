@@ -87,13 +87,13 @@ namespace UltraEd
         m_vertices.push_back(v2);    
     }
 
-    Savable CBoxCollider::Save()
+    cJSON *CBoxCollider::Save()
     {
-        Savable savable = CCollider::Save();
+        auto state = CCollider::Save();
         char buffer[LINE_FORMAT_LENGTH];
         sprintf(buffer, "%f %f %f", m_extents.x, m_extents.y, m_extents.z);
-        cJSON_AddStringToObject(savable.object, "extents", buffer);
-        return savable;
+        cJSON_AddStringToObject(state, "extents", buffer);
+        return state;
     }
 
     bool CBoxCollider::Load(IDirect3DDevice8 *device, cJSON *root)

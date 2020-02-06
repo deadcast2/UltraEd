@@ -317,7 +317,7 @@ namespace UltraEd
         static bool prevInScene = false;
         static bool prevGizmo = false;
         static GUID groupId = CUtil::NewGuid();
-        static map<GUID, tuple<Savable, bool>> cachedActorStates;
+        static map<GUID, tuple<cJSON*, bool>> cachedActorStates;
 
         const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
@@ -881,7 +881,7 @@ namespace UltraEd
         RefreshActorList();
     }
 
-    Savable CScene::Save()
+    cJSON *CScene::Save()
     {
         char buffer[128];
         cJSON *scene = cJSON_CreateObject();
@@ -890,7 +890,7 @@ namespace UltraEd
         cJSON_AddItemToObject(scene, "views", viewArray);
         for (int i = 0; i < 4; i++) 
         {
-            cJSON_AddItemToArray(viewArray, m_views[i].Save().object);
+            cJSON_AddItemToArray(viewArray, m_views[i].Save());
         }
 
         sprintf(buffer, "%i", (int)GetActiveView()->GetType());
@@ -904,11 +904,10 @@ namespace UltraEd
         cJSON_AddItemToObject(scene, "actors", actorArray);
         for (const auto &actor : m_actors)
         {
-            cJSON_AddItemToArray(actorArray, actor.second->Save().object);           
+            cJSON_AddItemToArray(actorArray, actor.second->Save());           
         }
 
-        Savable savable = { scene, SavableType::Scene };
-        return savable;
+        return scene;
     }
 
     bool CScene::Load(IDirect3DDevice8 *device, cJSON *root)

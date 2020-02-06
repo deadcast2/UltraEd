@@ -17,7 +17,7 @@ namespace UltraEd
         CModel();
         CModel(const char *filePath);
         CModel(const CModel &model);
-        Savable Save();
+        cJSON *Save();
         bool Load(IDirect3DDevice8 *device, cJSON *root);
         bool SetTexture(IDirect3DDevice8 *device, const char *filePath);
         bool HasTexture() { return m_texture != NULL; }

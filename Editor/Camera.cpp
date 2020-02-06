@@ -36,13 +36,13 @@ namespace UltraEd
         CActor::Render(device, stack);
     }
 
-    Savable CCamera::Save()
+    cJSON *CCamera::Save()
     {
-        Savable savable = CActor::Save();
+        auto state = CActor::Save();
         char buffer[LINE_FORMAT_LENGTH];
         sprintf(buffer, "%f", m_fov);
-        cJSON_AddStringToObject(savable.object, "fov", buffer);
-        return savable;
+        cJSON_AddStringToObject(state, "fov", buffer);
+        return state;
     }
 
     bool CCamera::Load(IDirect3DDevice8 *device, cJSON *root)
