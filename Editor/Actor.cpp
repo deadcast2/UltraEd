@@ -227,7 +227,7 @@ namespace UltraEd
         return actor;
     }
 
-    bool CActor::Load(IDirect3DDevice8 *device, cJSON *root)
+    bool CActor::Load(cJSON *root)
     {
         float x, y, z, w;
         cJSON *id = cJSON_GetObjectItem(root, "id");
@@ -261,11 +261,11 @@ namespace UltraEd
             {
                 case ColliderType::Box:
                     SetCollider(new CBoxCollider());
-                    m_collider->Load(device, collider);
+                    m_collider->Load(collider);
                     break;
                 case ColliderType::Sphere:
                     SetCollider(new CSphereCollider());
-                    m_collider->Load(device, collider);
+                    m_collider->Load(collider);
                     break;
             }
         }

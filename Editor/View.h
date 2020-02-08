@@ -17,7 +17,7 @@ namespace UltraEd
     public:
         CView();
         cJSON *Save();
-        bool Load(IDirect3DDevice8 *device, cJSON *root);
+        bool Load(cJSON *root);
         D3DXVECTOR3 GetPosition();
         void SetPosition(D3DXVECTOR3 position);
         D3DXVECTOR3 GetForward();

@@ -14,7 +14,7 @@ namespace UltraEd
         void Build();
         const D3DXVECTOR3 &GetExtents() { return m_extents; }
         cJSON *Save();
-        bool Load(IDirect3DDevice8 *device, cJSON *root);
+        bool Load(cJSON *root);
 
     private:
         void BuildLine(const D3DXVECTOR3 &start, const D3DXVECTOR3 &end);

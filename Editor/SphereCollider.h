@@ -14,7 +14,7 @@ namespace UltraEd
         void Build();
         FLOAT GetRadius() { return m_radius; }
         cJSON *Save();
-        bool Load(IDirect3DDevice8 *device, cJSON *root);
+        bool Load(cJSON *root);
 
     private:
         void DistantAABBPoints(int &min, int &max, vector<Vertex> vertices);

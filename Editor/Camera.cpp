@@ -45,9 +45,9 @@ namespace UltraEd
         return state;
     }
 
-    bool CCamera::Load(IDirect3DDevice8 *device, cJSON *root)
+    bool CCamera::Load(cJSON *root)
     {
-        CActor::Load(device, root);
+        CActor::Load(root);
         if (cJSON *fov = cJSON_GetObjectItem(root, "fov"))
         {
             sscanf(fov->valuestring, "%f", &m_fov);

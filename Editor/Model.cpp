@@ -95,9 +95,9 @@ namespace UltraEd
         return CActor::Save();
     }
 
-    bool CModel::Load(IDirect3DDevice8 *device, cJSON *root)
+    bool CModel::Load(cJSON *root, IDirect3DDevice8 *device)
     {
-        CActor::Load(device, root);
+        CActor::Load(root);
 
         cJSON *resource = NULL;
         cJSON *resources = cJSON_GetObjectItem(root, "resources");

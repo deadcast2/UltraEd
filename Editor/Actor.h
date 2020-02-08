@@ -49,7 +49,7 @@ namespace UltraEd
         void SetCollider(CCollider *collider) { Dirty([&] { m_collider = shared_ptr<CCollider>(collider); }, &m_collider); }
         bool HasCollider() { return GetCollider() != NULL; }
         cJSON *Save();
-        bool Load(IDirect3DDevice8 *device, cJSON *root);
+        bool Load(cJSON *root);
 
     protected:
         shared_ptr<CVertexBuffer> m_vertexBuffer;

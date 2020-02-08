@@ -58,7 +58,7 @@ namespace UltraEd
         return root;
     }
 
-    bool CCollider::Load(IDirect3DDevice8 *device, cJSON *root)
+    bool CCollider::Load(cJSON *root)
     {
         m_type = GetType(root);
 

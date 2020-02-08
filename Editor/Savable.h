@@ -16,7 +16,7 @@ namespace UltraEd
         CSavable();
         virtual ~CSavable() { }
         virtual cJSON *Save() = 0;
-        virtual bool Load(IDirect3DDevice8 *device, cJSON *root) = 0;
+        virtual bool Load(cJSON *root) = 0;
         map<string, string> GetResources();
         void AddResource(const string &key, const string &value);
         void DeleteResource(const string &key);

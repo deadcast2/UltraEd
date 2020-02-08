@@ -96,9 +96,9 @@ namespace UltraEd
         return state;
     }
 
-    bool CBoxCollider::Load(IDirect3DDevice8 *device, cJSON *root)
+    bool CBoxCollider::Load(cJSON *root)
     {
-        CCollider::Load(device, root);
+        CCollider::Load(root);
         cJSON *extents = cJSON_GetObjectItem(root, "extents");
         float x, y, z;
         sscanf(extents->valuestring, "%f %f %f", &x, &y, &z);

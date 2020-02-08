@@ -115,7 +115,7 @@ namespace UltraEd
         {
             OnNew(false);
             SetTitle(loadedName);
-            Load(m_device, root);
+            Load(root);
             RefreshActorList();
         }
     }
@@ -910,7 +910,7 @@ namespace UltraEd
         return scene;
     }
 
-    bool CScene::Load(IDirect3DDevice8 *device, cJSON *root)
+    bool CScene::Load(cJSON *root)
     {
         // Restore editor views.
         int count = 0;
@@ -918,7 +918,7 @@ namespace UltraEd
         cJSON *viewItem = NULL;
         cJSON_ArrayForEach(viewItem, views)
         {
-            m_views[count++].Load(m_device, viewItem);
+            m_views[count++].Load(viewItem);
         }
 
         // Set the active view.
@@ -952,14 +952,14 @@ namespace UltraEd
             case ActorType::Model:
             {
                 auto model = make_shared<CModel>();
-                model->Load(m_device, item);
+                model->Load(item, m_device);
                 m_actors[model->GetId()] = model;
                 break;
             }
             case ActorType::Camera:
             {
                 auto camera = make_shared<CCamera>();
-                camera->Load(m_device, item);
+                camera->Load(item);
                 m_actors[camera->GetId()] = camera;
                 break;
             }

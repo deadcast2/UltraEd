@@ -142,7 +142,7 @@ namespace UltraEd
         return view;
     }
 
-    bool CView::Load(IDirect3DDevice8 *device, cJSON *root)
+    bool CView::Load(cJSON *root)
     {
         float x, y, z;
 

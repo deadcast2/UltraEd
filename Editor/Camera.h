@@ -11,7 +11,7 @@ namespace UltraEd
         CCamera(const CCamera &camera);
         void Render(IDirect3DDevice8 *device, ID3DXMatrixStack *stack);
         cJSON *Save();
-        bool Load(IDirect3DDevice8 *device, cJSON *root);
+        bool Load(cJSON *root);
 
     private:
         float m_fov;

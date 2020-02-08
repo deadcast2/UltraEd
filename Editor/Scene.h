@@ -62,7 +62,7 @@ namespace UltraEd
         void SelectAll();
         void UnselectAll();
         cJSON *Save();
-        bool Load(IDirect3DDevice8 *device, cJSON *root);
+        bool Load(cJSON *root);
         void SetDirty(bool value);
         bool Confirm();
         HWND GetWndHandle();

@@ -26,7 +26,7 @@ namespace UltraEd
         virtual void Build() = 0;
         D3DXVECTOR3 GetCenter() { return m_center; }
         cJSON *Save();
-        bool Load(IDirect3DDevice8 *device, cJSON *root);
+        bool Load(cJSON *root);
         ColliderType::Value GetType() { return m_type; };
         static ColliderType::Value GetType(cJSON *item);
         const char *GetName() { return ColliderTypeNames[m_type]; }

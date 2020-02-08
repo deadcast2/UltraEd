@@ -123,9 +123,9 @@ namespace UltraEd
         return state;
     }
 
-    bool CSphereCollider::Load(IDirect3DDevice8 *device, cJSON *root)
+    bool CSphereCollider::Load(cJSON *root)
     {
-        CCollider::Load(device, root);
+        CCollider::Load(root);
         cJSON *radius = cJSON_GetObjectItem(root, "radius");
         sscanf(radius->valuestring, "%f", &m_radius);
         Build();
