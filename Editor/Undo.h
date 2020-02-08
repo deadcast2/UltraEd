@@ -23,6 +23,7 @@ namespace UltraEd
     {
     public:
         CUndo(CScene *scene);
+        ~CUndo();
         void Undo();
         void Redo();
         void Reset();
@@ -30,14 +31,19 @@ namespace UltraEd
         void DeleteActor(string name, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeActor(string name, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeActor(string name, cJSON *actorState, GUID actorId, GUID groupId = GUID_NULL);
+        void ChangeScene(string name);
 
     private:
         void Add(UndoUnit unit);
         void RunUndo();
         void RunRedo();
         void UpdateMenu();
+        void CleanUp();
+        cJSON *SaveState(GUID id, CSavable *savable);
+        cJSON *SaveState(GUID id, cJSON *state);
         vector<UndoUnit> m_undoUnits;
         size_t m_position;
         CScene *m_scene;
+        map<GUID, cJSON *> m_savedStates;
     };
 }

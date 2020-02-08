@@ -69,7 +69,7 @@ namespace UltraEd
         vector<CActor *> GetActors();
         shared_ptr<CActor> GetActor(GUID id);
         void Delete(shared_ptr<CActor> actor);
-        void Restore(cJSON *item);
+        void RestoreActor(cJSON *item);
 
     private:
         void CheckChanges();

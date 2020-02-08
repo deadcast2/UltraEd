@@ -116,6 +116,7 @@ namespace UltraEd
             OnNew(false);
             SetTitle(loadedName);
             Load(root);
+            cJSON_Delete(root);
             RefreshActorList();
         }
     }
@@ -705,6 +706,8 @@ namespace UltraEd
 
     void CScene::SetBackgroundColor(COLORREF color)
     {
+        m_undo.ChangeScene("Background Color");
+
         Dirty([&] {
             m_backgroundColorRGB[0] = GetRValue(color);
             m_backgroundColorRGB[1] = GetGValue(color);
@@ -937,15 +940,13 @@ namespace UltraEd
         cJSON *actor = NULL;
         cJSON_ArrayForEach(actor, actors)
         {
-            Restore(actor);
+            RestoreActor(actor);
         }
-
-        cJSON_Delete(root);
 
         return true;
     }
 
-    void CScene::Restore(cJSON *item)
+    void CScene::RestoreActor(cJSON *item)
     {
         switch (CActor::GetType(item))
         {

@@ -10,6 +10,11 @@ namespace UltraEd
         m_scene(scene)
     { }
 
+    CUndo::~CUndo()
+    {
+        CleanUp();
+    }
+
     void CUndo::Undo()
     {
         // Don't adjust actor selections when nothing to undo.
@@ -90,10 +95,40 @@ namespace UltraEd
             }
         }
 
-        SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_UNDO, 
+        SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_UNDO,
             reinterpret_cast<LPARAM>(undo.append("\tCtrl+Z").c_str()));
-        SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_REDO, 
+        SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_REDO,
             reinterpret_cast<LPARAM>(redo.append("\tCtrl+Y").c_str()));
+    }
+
+    void CUndo::CleanUp()
+    {
+        for (auto state : m_savedStates)
+        {
+            cJSON_Delete(state.second);
+        }
+        m_savedStates.clear();
+    }
+
+    cJSON *CUndo::SaveState(GUID id, CSavable *savable)
+    {
+        // Identifying states avoids storing duplicates.
+        if (m_savedStates.find(id) == m_savedStates.end())
+        {
+            auto state = savable->Save();
+            m_savedStates[id] = state;
+        }
+        return m_savedStates[id];
+    }
+
+    cJSON *CUndo::SaveState(GUID id, cJSON *state)
+    {
+        // Identifying states avoids storing duplicates.
+        if (m_savedStates.find(id) == m_savedStates.end())
+        {
+            m_savedStates[id] = state;
+        }
+        return m_savedStates[id];
     }
 
     void CUndo::Reset()
@@ -101,6 +136,7 @@ namespace UltraEd
         m_undoUnits.clear();
         m_position = 0;
         UpdateMenu();
+        CleanUp();
     }
 
     void CUndo::Add(UndoUnit unit)
@@ -118,30 +154,30 @@ namespace UltraEd
 
     void CUndo::AddActor(string name, GUID actorId, GUID groupId)
     {
-        UndoUnit unit = {
+        GUID redoStateId = CUtil::NewGuid();
+        Add({
             string("Add ").append(name),
             [=]() {
                 auto actor = m_scene->GetActor(actorId);
-                auto state = actor->Save();
+                auto state = SaveState(redoStateId, actor.get());
                 m_scene->Delete(actor);
                 return state;
             },
             [=](cJSON *oldState) {
-                m_scene->Restore(oldState);
+                m_scene->RestoreActor(oldState);
                 m_scene->SelectActorById(actorId);
             },
             groupId
-        };
-        Add(unit);
+        });
     }
 
     void CUndo::DeleteActor(string name, GUID actorId, GUID groupId)
     {
-        auto state = m_scene->GetActor(actorId)->Save();
-        UndoUnit unit = {
+        auto state = SaveState(CUtil::NewGuid(), m_scene->GetActor(actorId).get());
+        Add({
             string("Delete ").append(name),
             [=]() {
-                m_scene->Restore(state);
+                m_scene->RestoreActor(state);
                 m_scene->SelectActorById(actorId);
                 return state;
             },
@@ -149,36 +185,55 @@ namespace UltraEd
                 m_scene->Delete(m_scene->GetActor(actorId));
             },
             groupId
-        };
-        Add(unit);
+        });
     }
 
     void CUndo::ChangeActor(string name, GUID actorId, GUID groupId)
     {
-        auto state = m_scene->GetActor(actorId)->Save();
-        ChangeActor(name, state, actorId, groupId);
+        ChangeActor(name, m_scene->GetActor(actorId)->Save(), actorId, groupId);
     }
 
     void CUndo::ChangeActor(string name, cJSON *actorState, GUID actorId, GUID groupId)
     {
-        UndoUnit unit = {
+        auto state = SaveState(CUtil::NewGuid(), actorState);
+        GUID redoStateId = CUtil::NewGuid();
+        Add({
             name,
             [=]() {
                 auto actor = m_scene->GetActor(actorId);
-                auto oldState = actor->Save();
+                auto oldState = SaveState(redoStateId, actor.get());
 
-                m_scene->Restore(actorState);
+                m_scene->RestoreActor(state);
                 m_scene->SelectActorById(actorId, false);
 
                 // Return state saved before restore so system can "undo" to this point.
                 return oldState;
             },
             [=](cJSON *oldState) {
-                m_scene->Restore(oldState);
+                m_scene->RestoreActor(oldState);
                 m_scene->SelectActorById(actorId, false);
             },
             groupId
-        };
-        Add(unit);
+        });
+    }
+
+    void CUndo::ChangeScene(string name)
+    {
+        GUID redoStateId = CUtil::NewGuid();
+        auto sceneState = SaveState(CUtil::NewGuid(), m_scene);
+        Add({
+            name,
+            [=]() {
+                auto oldState = SaveState(redoStateId, m_scene);
+
+                m_scene->Load(sceneState);
+
+                // Return state saved before restore so system can "undo" to this point.
+                return oldState;
+            },
+            [=](cJSON *oldState) {
+                m_scene->Load(oldState);
+            }
+        });
     }
 }
