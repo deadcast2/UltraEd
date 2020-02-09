@@ -62,7 +62,9 @@ namespace UltraEd
         void SelectAll();
         void UnselectAll();
         cJSON *Save();
+        cJSON *PartialSave(cJSON *root);
         bool Load(cJSON *root);
+        bool PartialLoad(cJSON *root);
         void SetDirty(bool value);
         bool Confirm();
         HWND GetWndHandle();

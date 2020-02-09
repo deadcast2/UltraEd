@@ -39,7 +39,6 @@ namespace UltraEd
         void RunRedo();
         void UpdateMenu();
         void CleanUp();
-        cJSON *SaveState(GUID id, CSavable *savable);
         cJSON *SaveState(GUID id, cJSON *state);
         vector<UndoUnit> m_undoUnits;
         size_t m_position;

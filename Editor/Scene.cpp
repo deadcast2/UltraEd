@@ -890,16 +890,31 @@ namespace UltraEd
         sprintf(buffer, "%i", (int)GetActiveView()->GetType());
         cJSON_AddStringToObject(scene, "active_view", buffer);
 
-        sprintf(buffer, "%i %i %i", m_backgroundColorRGB[0], m_backgroundColorRGB[1],
-            m_backgroundColorRGB[2]);
-        cJSON_AddStringToObject(scene, "background_color", buffer);
-
         cJSON *actorArray = cJSON_CreateArray();
         cJSON_AddItemToObject(scene, "actors", actorArray);
         for (const auto &actor : m_actors)
         {
             cJSON_AddItemToArray(actorArray, actor.second->Save());           
         }
+
+        PartialSave(scene);
+
+        return scene;
+    }
+
+    cJSON *CScene::PartialSave(cJSON *root)
+    {
+        char buffer[128];
+        cJSON *scene = NULL;
+
+        if (root == NULL)
+            scene = cJSON_CreateObject();
+        else
+            scene = root;
+
+        sprintf(buffer, "%i %i %i", m_backgroundColorRGB[0], m_backgroundColorRGB[1],
+            m_backgroundColorRGB[2]);
+        cJSON_AddStringToObject(scene, "background_color", buffer);
 
         return scene;
     }
@@ -920,12 +935,7 @@ namespace UltraEd
         cJSON *activeView = cJSON_GetObjectItem(root, "active_view");
         sscanf(activeView->valuestring, "%i", &viewType);
         SetViewType(viewType);
-
-        // Set the background color.
-        cJSON *backgroundColor = cJSON_GetObjectItem(root, "background_color");
-        sscanf(backgroundColor->valuestring, "%i %i %i", &m_backgroundColorRGB[0],
-            &m_backgroundColorRGB[1], &m_backgroundColorRGB[2]);
-
+   
         // Restore saved actors.
         cJSON *actors = cJSON_GetObjectItem(root, "actors");
         cJSON *actor = NULL;
@@ -933,6 +943,18 @@ namespace UltraEd
         {
             RestoreActor(actor);
         }
+
+        PartialLoad(root);
+
+        return true;
+    }
+
+    bool CScene::PartialLoad(cJSON *root)
+    {
+        // Set the background color.
+        cJSON *backgroundColor = cJSON_GetObjectItem(root, "background_color");
+        sscanf(backgroundColor->valuestring, "%i %i %i", &m_backgroundColorRGB[0],
+            &m_backgroundColorRGB[1], &m_backgroundColorRGB[2]);
 
         return true;
     }
