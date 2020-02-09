@@ -44,6 +44,6 @@ namespace UltraEd
         size_t m_position;
         CScene *m_scene;
         map<GUID, cJSON *> m_savedStates;
-        map<GUID, tuple<bool, function<void()>>> m_potentials;
+        map<string, tuple<bool, function<void()>>> m_potentials;
     };
 }

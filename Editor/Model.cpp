@@ -57,9 +57,6 @@ namespace UltraEd
 
     bool CModel::LoadTexture(IDirect3DDevice8 *device, const char *filePath)
     {
-        // Free any current loaded texture before loading a new one.
-        DeleteTexture();
-
         FileInfo info = CFileIO::Import(filePath);
 
         if (FAILED(D3DXCreateTextureFromFile(device, info.path.c_str(), &m_texture)))
@@ -101,6 +98,8 @@ namespace UltraEd
     bool CModel::Load(cJSON *root, IDirect3DDevice8 *device)
     {
         CActor::Load(root);
+
+        DeleteTexture();
 
         cJSON *resource = NULL;
         cJSON *resources = cJSON_GetObjectItem(root, "resources");

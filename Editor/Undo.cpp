@@ -204,12 +204,14 @@ namespace UltraEd
 
     function<void()> CUndo::PotentialChangeActor(string name, GUID actorId, GUID groupId)
     {
-        if (m_potentials.find(groupId) != m_potentials.end())
-            return get<1>(m_potentials[groupId]);
+        string uniqueId = CUtil::GuidToString(actorId).append(CUtil::GuidToString(groupId));
 
-        return get<1>(m_potentials[groupId]) = [=]() {
-            if (get<0>(m_potentials[groupId])) return;
-            get<0>(m_potentials[groupId]) = true;
+        if (m_potentials.find(uniqueId) != m_potentials.end())
+            return get<1>(m_potentials[uniqueId]);
+
+        return get<1>(m_potentials[uniqueId]) = [=]() {
+            if (get<0>(m_potentials[uniqueId])) return;
+            get<0>(m_potentials[uniqueId]) = true;
             ChangeActor(name, actorId, groupId);
         };
     }
