@@ -7,7 +7,9 @@ namespace UltraEd
     CUndo::CUndo(CScene *scene) :
         m_undoUnits(),
         m_position(0),
-        m_scene(scene)
+        m_scene(scene),
+        m_savedStates(),
+        m_potentials()
     { }
 
     CUndo::~CUndo()
