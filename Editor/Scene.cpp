@@ -318,7 +318,6 @@ namespace UltraEd
         static bool prevInScene = false;
         static bool prevGizmo = false;
         static GUID groupId = CUtil::NewGuid();
-        static map<GUID, tuple<cJSON*, bool>> cachedActorStates;
 
         const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
@@ -338,18 +337,12 @@ namespace UltraEd
                 GUID lastSelectedActorId = m_selectedActorIds.back();
                 for (const auto &selectedActorId : m_selectedActorIds)
                 {
-                    // When gizmo selection starts record the current state of each selected actor.
-                    if (cachedActorStates.find(selectedActorId) == cachedActorStates.end())
-                        get<0>(cachedActorStates[selectedActorId]) = m_actors[selectedActorId]->Save();
+                    auto action = m_undo.PotentialChangeActor(m_gizmo.GetModifierName(), selectedActorId, groupId);
 
-                    // If a change is detected then submit only once the actor's previous state to the undo system.
                     if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
-                        m_actors[lastSelectedActorId].get()) && !get<1>(cachedActorStates[selectedActorId]))
+                        m_actors[lastSelectedActorId].get()))
                     {
-                        // Mark actor as tracked by undo system.
-                        get<1>(cachedActorStates[selectedActorId]) = true;
-                        m_undo.ChangeActor(m_gizmo.GetModifierName(), 
-                            get<0>(cachedActorStates[selectedActorId]), selectedActorId, groupId);
+                        action();
                     }
                 }
             }
@@ -377,13 +370,11 @@ namespace UltraEd
         }
         else
         {
-            m_gizmo.Reset();
-            cachedActorStates.clear();
-
             // Reset smoothing values for new mouse view movement.
             m_mouseSmoothX = m_mouseSmoothX = 0;
             prevInScene = prevGizmo = false;
             groupId = CUtil::NewGuid();
+            m_gizmo.Reset();
         }
 
         // Remember the last position so we know how much to move the view.

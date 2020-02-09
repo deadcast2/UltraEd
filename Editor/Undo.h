@@ -30,8 +30,8 @@ namespace UltraEd
         void AddActor(string name, GUID actorId, GUID groupId = GUID_NULL);
         void DeleteActor(string name, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeActor(string name, GUID actorId, GUID groupId = GUID_NULL);
-        void ChangeActor(string name, cJSON *actorState, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeScene(string name);
+        function<void()> PotentialChangeActor(string name, GUID actorId, GUID groupId);
 
     private:
         void Add(UndoUnit unit);
@@ -45,5 +45,6 @@ namespace UltraEd
         size_t m_position;
         CScene *m_scene;
         map<GUID, cJSON *> m_savedStates;
+        map<GUID, tuple<bool, function<void()>>> m_potentials;
     };
 }

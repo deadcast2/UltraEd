@@ -134,6 +134,7 @@ namespace UltraEd
     void CUndo::Reset()
     {
         m_undoUnits.clear();
+        m_potentials.clear();
         m_position = 0;
         UpdateMenu();
         CleanUp();
@@ -190,12 +191,7 @@ namespace UltraEd
 
     void CUndo::ChangeActor(string name, GUID actorId, GUID groupId)
     {
-        ChangeActor(name, m_scene->GetActor(actorId)->Save(), actorId, groupId);
-    }
-
-    void CUndo::ChangeActor(string name, cJSON *actorState, GUID actorId, GUID groupId)
-    {
-        auto state = SaveState(CUtil::NewGuid(), actorState);
+        auto state = SaveState(CUtil::NewGuid(), m_scene->GetActor(actorId).get());
         GUID redoStateId = CUtil::NewGuid();
         Add({
             name,
@@ -215,6 +211,18 @@ namespace UltraEd
             },
             groupId
         });
+    }
+
+    function<void()> CUndo::PotentialChangeActor(string name, GUID actorId, GUID groupId)
+    {
+        if (m_potentials.find(groupId) != m_potentials.end())
+            return get<1>(m_potentials[groupId]);
+
+        return get<1>(m_potentials[groupId]) = [=]() {
+            if (get<0>(m_potentials[groupId])) return;
+            get<0>(m_potentials[groupId]) = true;
+            ChangeActor(name, actorId, groupId);
+        };
     }
 
     void CUndo::ChangeScene(string name)
