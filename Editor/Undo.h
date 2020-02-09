@@ -39,7 +39,7 @@ namespace UltraEd
         void RunRedo();
         void UpdateMenu();
         void CleanUp();
-        cJSON *SaveState(GUID id, cJSON *state);
+        cJSON *SaveState(GUID id, function<cJSON*()> save);
         vector<UndoUnit> m_undoUnits;
         size_t m_position;
         CScene *m_scene;
