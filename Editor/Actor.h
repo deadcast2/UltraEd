@@ -25,6 +25,7 @@ namespace UltraEd
         const string &GetName() { return m_name; }
         void SetName(string name) { m_name = name; }
         const ActorType::Value &GetType() { return m_type; }
+        static GUID GetId(cJSON *item);
         static ActorType::Value GetType(cJSON *item);
         D3DXMATRIX GetMatrix();
         const D3DXMATRIX &GetRotationMatrix() { return m_worldRot; }

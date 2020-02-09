@@ -882,7 +882,7 @@ namespace UltraEd
 
         cJSON *viewArray = cJSON_CreateArray();
         cJSON_AddItemToObject(scene, "views", viewArray);
-        for (int i = 0; i < 4; i++) 
+        for (int i = 0; i < 4; i++)
         {
             cJSON_AddItemToArray(viewArray, m_views[i].Save());
         }
@@ -894,7 +894,7 @@ namespace UltraEd
         cJSON_AddItemToObject(scene, "actors", actorArray);
         for (const auto &actor : m_actors)
         {
-            cJSON_AddItemToArray(actorArray, actor.second->Save());           
+            cJSON_AddItemToArray(actorArray, actor.second->Save());
         }
 
         PartialSave(scene);
@@ -935,7 +935,7 @@ namespace UltraEd
         cJSON *activeView = cJSON_GetObjectItem(root, "active_view");
         sscanf(activeView->valuestring, "%i", &viewType);
         SetViewType(viewType);
-   
+
         // Restore saved actors.
         cJSON *actors = cJSON_GetObjectItem(root, "actors");
         cJSON *actor = NULL;
@@ -961,20 +961,22 @@ namespace UltraEd
 
     void CScene::RestoreActor(cJSON *item)
     {
+        // Avoid creation of new actor objects when restoring.
+        auto existingActor = GetActor(CActor::GetId(item));
         switch (CActor::GetType(item))
         {
             case ActorType::Model:
             {
-                auto model = make_shared<CModel>();
+                auto model = existingActor ? static_pointer_cast<CModel>(existingActor) : make_shared<CModel>();
                 model->Load(item, m_device);
-                m_actors[model->GetId()] = model;
+                if (!existingActor) m_actors[model->GetId()] = model;
                 break;
             }
             case ActorType::Camera:
             {
-                auto camera = make_shared<CCamera>();
+                auto camera = existingActor ? static_pointer_cast<CCamera>(existingActor) : make_shared<CCamera>();
                 camera->Load(item);
-                m_actors[camera->GetId()] = camera;
+                if (!existingActor) m_actors[camera->GetId()] = camera;
                 break;
             }
         }

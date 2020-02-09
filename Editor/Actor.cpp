@@ -64,6 +64,12 @@ namespace UltraEd
         }
     }
 
+    GUID CActor::GetId(cJSON *item)
+    {
+        cJSON *id = cJSON_GetObjectItem(item, "id");
+        return CUtil::StringToGuid(id->valuestring);
+    }
+
     ActorType::Value CActor::GetType(cJSON *item)
     {
         int typeValue;
@@ -230,12 +236,11 @@ namespace UltraEd
     bool CActor::Load(cJSON *root)
     {
         float x, y, z, w;
-        cJSON *id = cJSON_GetObjectItem(root, "id");
         cJSON *name = cJSON_GetObjectItem(root, "name");
         cJSON *resources = cJSON_GetObjectItem(root, "resources");
         cJSON *resource = NULL;
 
-        m_id = CUtil::StringToGuid(id->valuestring);
+        m_id = GetId(root);
         m_name = name->valuestring;
         m_type = GetType(root);
 
