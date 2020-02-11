@@ -417,7 +417,7 @@ namespace UltraEd
     {
         // Calculate the frame rendering speed.
         static double lastTime = (double)timeGetTime();
-        double currentTime = (double)timeGetTime();
+        const double currentTime = (double)timeGetTime();
         const float deltaTime = (float)(currentTime - lastTime) * 0.001f;
 
         CheckInput(deltaTime);
