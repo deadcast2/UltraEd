@@ -45,5 +45,6 @@ namespace UltraEd
         CScene *m_scene;
         map<GUID, cJSON *> m_savedStates;
         map<string, tuple<bool, function<void()>>> m_potentials;
+        const int m_maxUnits;
     };
 }

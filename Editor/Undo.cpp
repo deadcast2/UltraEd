@@ -9,7 +9,8 @@ namespace UltraEd
         m_position(0),
         m_scene(scene),
         m_savedStates(),
-        m_potentials()
+        m_potentials(),
+        m_maxUnits(100)
     { }
 
     CUndo::~CUndo()
@@ -139,6 +140,15 @@ namespace UltraEd
             m_undoUnits.pop_back();
         }
 
+        // Prevent recorded undo units from growing too large by 
+        // shifting all units left and replacing the last with newest unit.
+        if (m_undoUnits.size() == m_maxUnits)
+        {
+            rotate(m_undoUnits.begin(), m_undoUnits.begin() + 1, m_undoUnits.end());
+            m_undoUnits.pop_back();
+        }
+
+        // Add new unit and set current position to it.
         m_undoUnits.push_back(unit);
         m_position = m_undoUnits.size();
         UpdateMenu();
