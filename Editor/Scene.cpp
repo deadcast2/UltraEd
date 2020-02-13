@@ -162,7 +162,7 @@ namespace UltraEd
             auto model = make_shared<CModel>(file.c_str());
             m_actors[model->GetId()] = model;
             char buffer[1024];
-            sprintf(buffer, "Actor %u", m_actors.size());
+            sprintf(buffer, "Actor %lu", m_actors.size());
             m_actors[model->GetId()]->SetName(string(buffer));
             m_undo.AddActor("Model", model->GetId());
 
@@ -176,7 +176,7 @@ namespace UltraEd
         char buffer[1024];
         auto newCamera = make_shared<CCamera>();
         m_actors[newCamera->GetId()] = newCamera;
-        sprintf(buffer, "Camera %u", m_actors.size());
+        sprintf(buffer, "Camera %lu", m_actors.size());
         m_actors[newCamera->GetId()]->SetName(string(buffer));
         m_undo.AddActor("Camera", newCamera->GetId());
 
@@ -371,7 +371,7 @@ namespace UltraEd
         else
         {
             // Reset smoothing values for new mouse view movement.
-            m_mouseSmoothX = m_mouseSmoothX = 0;
+            m_mouseSmoothX = m_mouseSmoothY = 0;
             prevInScene = prevGizmo = false;
             groupId = CUtil::NewGuid();
             m_gizmo.Reset();

@@ -154,7 +154,7 @@ namespace UltraEd
         UpdateMenu();
     }
 
-    void CUndo::AddActor(string name, GUID actorId, GUID groupId)
+    void CUndo::AddActor(const string &name, GUID actorId, GUID groupId)
     {
         GUID redoStateId = CUtil::NewGuid();
         Add({
@@ -173,7 +173,7 @@ namespace UltraEd
         });
     }
 
-    void CUndo::DeleteActor(string name, GUID actorId, GUID groupId)
+    void CUndo::DeleteActor(const string &name, GUID actorId, GUID groupId)
     {
         auto state = SaveState(CUtil::NewGuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
         Add({
@@ -190,7 +190,7 @@ namespace UltraEd
         });
     }
 
-    void CUndo::ChangeActor(string name, GUID actorId, GUID groupId)
+    void CUndo::ChangeActor(const string &name, GUID actorId, GUID groupId)
     {
         auto state = SaveState(CUtil::NewGuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
         GUID redoStateId = CUtil::NewGuid();
@@ -214,7 +214,7 @@ namespace UltraEd
         });
     }
 
-    function<void()> CUndo::PotentialChangeActor(string name, GUID actorId, GUID groupId)
+    function<void()> CUndo::PotentialChangeActor(const string &name, GUID actorId, GUID groupId)
     {
         string uniqueId = CUtil::GuidToString(actorId).append(CUtil::GuidToString(groupId));
 
@@ -228,7 +228,7 @@ namespace UltraEd
         };
     }
 
-    void CUndo::ChangeScene(string name)
+    void CUndo::ChangeScene(const string &name)
     {
         GUID redoStateId = CUtil::NewGuid();
         auto sceneState = SaveState(CUtil::NewGuid(), [=]() { return m_scene->PartialSave(NULL); });

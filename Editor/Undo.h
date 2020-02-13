@@ -27,11 +27,11 @@ namespace UltraEd
         void Undo();
         void Redo();
         void Reset();
-        void AddActor(string name, GUID actorId, GUID groupId = GUID_NULL);
-        void DeleteActor(string name, GUID actorId, GUID groupId = GUID_NULL);
-        void ChangeActor(string name, GUID actorId, GUID groupId = GUID_NULL);
-        void ChangeScene(string name);
-        function<void()> PotentialChangeActor(string name, GUID actorId, GUID groupId);
+        void AddActor(const string &name, GUID actorId, GUID groupId = GUID_NULL);
+        void DeleteActor(const string &name, GUID actorId, GUID groupId = GUID_NULL);
+        void ChangeActor(const string &name, GUID actorId, GUID groupId = GUID_NULL);
+        void ChangeScene(const string &name);
+        function<void()> PotentialChangeActor(const string &name, GUID actorId, GUID groupId);
 
     private:
         void Add(UndoUnit unit);
