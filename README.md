@@ -1,6 +1,6 @@
 <img src="https://s3.amazonaws.com/kittypizza/ultraed.png" width="550">
 
-## A WIP level editor/game engine for the Nintendo 64
+## A level editor/game engine for the Nintendo 64
 
 <img src="https://i.imgur.com/etDiBGp.gif" width="600">
 
