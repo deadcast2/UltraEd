@@ -12,10 +12,10 @@ namespace UltraEd
     class CSettings
     {
     public:
-        static bool Set(const char *key, const char *value);
-        static bool Get(const char *key, string &value);
+        static bool Set(const string &key, const string &value);
+        static bool Get(const string &key, string &value);
 
     private:
-        static const char *m_key;
+        static const string m_key;
     };
 }

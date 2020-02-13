@@ -2,18 +2,19 @@
 
 namespace UltraEd
 {
-    const char *CSettings::m_key = "Software\\UltraEd";
+    const string CSettings::m_key = "Software\\UltraEd";
 
-    bool CSettings::Set(const char *key, const char *value)
+    bool CSettings::Set(const string &key, const string &value)
     {
         HKEY regKey;
         bool success = false;
 
-        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, CSettings::m_key, 0, NULL,
-            REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &regKey, NULL) == ERROR_SUCCESS)
+        if (RegCreateKeyEx(HKEY_CURRENT_USER, CSettings::m_key.c_str(), 0, NULL,
+            REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &regKey, NULL) == ERROR_SUCCESS)
         {
-            int valueLength = strnlen(value, REG_DATA_LENGTH);
-            if (valueLength > 0 && RegSetValueEx(regKey, key, 0, REG_SZ, (const BYTE*)value, valueLength) == ERROR_SUCCESS)
+            int valueLength = strnlen(value.c_str(), REG_DATA_LENGTH);
+            if (valueLength > 0 && RegSetValueEx(regKey, key.c_str(), 0, REG_SZ, 
+                (const BYTE*)value.c_str(), valueLength) == ERROR_SUCCESS)
             {
                 success = true;
             }
@@ -24,16 +25,16 @@ namespace UltraEd
         return success;
     }
 
-    bool CSettings::Get(const char *key, string &value)
+    bool CSettings::Get(const string &key, string &value)
     {
         HKEY regKey;
         bool success = false;
 
-        if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, CSettings::m_key, 0, KEY_ALL_ACCESS, &regKey) == ERROR_SUCCESS)
+        if (RegOpenKeyEx(HKEY_CURRENT_USER, CSettings::m_key.c_str(), 0, KEY_QUERY_VALUE, &regKey) == ERROR_SUCCESS)
         {
             char buffer[256];
             DWORD bufferSize = sizeof(buffer);
-            if (RegQueryValueEx(regKey, key, NULL, NULL, (LPBYTE)buffer, &bufferSize) == ERROR_SUCCESS)
+            if (RegQueryValueEx(regKey, key.c_str(), NULL, NULL, (LPBYTE)buffer, &bufferSize) == ERROR_SUCCESS)
             {
                 value = string(buffer);
                 success = true;
