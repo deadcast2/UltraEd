@@ -5,6 +5,7 @@
 #include <string>
 #include "../Scene.h"
 #include "../resource.h"
+#include "../Settings.h"
 
 using namespace std;
 
@@ -43,6 +44,38 @@ namespace UltraEd
 
         sprintf(buffer, "%i", GetBValue(color));
         SetDlgItemText(hWnd, IDC_EDIT_SCENE_COLOR_BLUE, buffer);
+    }
+
+    void LoadSceneSettingsCustomColors(COLORREF *colors)
+    {
+        for (int i = 0; i < 16; i++)
+        {
+            char keyBuffer[16];
+            sprintf(keyBuffer, "CustomColor%i", i);
+
+            string rgb;
+            if (CSettings::Get(keyBuffer, rgb))
+            {
+                int r, g, b;
+                sscanf(rgb.c_str(), "%i %i %i", &r, &g, &b);
+                colors[i] = RGB(r, g, b);
+            }
+        }
+    }
+
+    void SaveSceneSettingsCustomColors(COLORREF *colors)
+    {
+        for (int i = 0; i < 16; i++)
+        {
+            char keyBuffer[16];
+            sprintf(keyBuffer, "CustomColor%i", i);
+
+            char colorBuffer[12];
+            COLORREF color = colors[i];
+            sprintf(colorBuffer, "%i %i %i", GetRValue(color), GetGValue(color), GetBValue(color));
+
+            CSettings::Set(keyBuffer, colorBuffer);
+        }
     }
 
     BOOL CALLBACK SceneSettingsProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -102,19 +135,21 @@ namespace UltraEd
                     }
                     case IDC_BUTTON_SCENE_COLOR_CHOOSE:
                     {
-                        COLORREF rgbCurrent = GetSceneSettingsRGBValue(hWndDlg);
-                        COLORREF acrCustClr[16];
-                        CHOOSECOLOR cc;
-                        ZeroMemory(&cc, sizeof(cc));
-                        cc.lStructSize = sizeof(cc);
-                        cc.hwndOwner = hWndDlg;
-                        cc.lpCustColors = (LPDWORD)acrCustClr;
-                        cc.rgbResult = rgbCurrent;
-                        cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+                        COLORREF customColors[16];
+                        LoadSceneSettingsCustomColors(customColors);
+                        
+                        CHOOSECOLOR chooseColor;
+                        ZeroMemory(&chooseColor, sizeof(chooseColor));
+                        chooseColor.lStructSize = sizeof(chooseColor);
+                        chooseColor.hwndOwner = hWndDlg;
+                        chooseColor.lpCustColors = (LPDWORD)customColors;
+                        chooseColor.rgbResult = GetSceneSettingsRGBValue(hWndDlg);
+                        chooseColor.Flags = CC_FULLOPEN | CC_RGBINIT;
 
-                        if (ChooseColor(&cc) == TRUE)
+                        if (ChooseColor(&chooseColor) == TRUE)
                         {
-                            SetSceneSettingsRGBValue(hWndDlg, cc.rgbResult);
+                            SetSceneSettingsRGBValue(hWndDlg, chooseColor.rgbResult);
+                            SaveSceneSettingsCustomColors(chooseColor.lpCustColors);
                         }
                         break;
                     }
