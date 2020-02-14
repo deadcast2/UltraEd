@@ -72,13 +72,13 @@ namespace UltraEd
         shared_ptr<CActor> GetActor(GUID id);
         void Delete(shared_ptr<CActor> actor);
         void RestoreActor(cJSON *item);
+        void ResetViews();
 
     private:
         void CheckChanges();
         void CheckInput(const float deltaTime);
         void SetTitle(string title, bool store = true);
         void UpdateViewMatrix();
-        void ResetViews();
         void RefreshActorList();
         bool MouseInScene(const POINT &mousePoint);
         void WrapCursor();

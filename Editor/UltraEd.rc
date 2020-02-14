@@ -101,6 +101,9 @@ BEGIN
     BEGIN
         MENUITEM "World Space",                 ID_MOVEMENT_WORLDSPACE, CHECKED
         MENUITEM "Snap to Grid",                ID_MOVEMENT_SNAPTOGRID
+        MENUITEM SEPARATOR
+        MENUITEM "Go To\tF",                    ID_MOVEMENT_GOTO
+        MENUITEM "Home\tH",                     ID_MOVEMENT_HOME
     END
 END
 

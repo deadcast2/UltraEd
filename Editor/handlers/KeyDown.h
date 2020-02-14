@@ -12,7 +12,7 @@ namespace UltraEd
         {
             case VK_DELETE:
                 scene->Delete();
-                break;
+                break;        
             case 'A':
                 if (GetKeyState(VK_CONTROL) & 0x8000) scene->SelectAll();
                 break;
@@ -27,6 +27,9 @@ namespace UltraEd
                 break;
             case 'F':
                 scene->FocusSelected();
+                break;
+            case 'H':
+                scene->ResetViews();
                 break;
             case 0x31: // 1 Key
                 scene->SetGizmoModifier(UltraEd::GizmoModifierState::Translate);

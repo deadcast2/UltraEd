@@ -131,6 +131,12 @@ namespace UltraEd
                 }
                 break;
             }
+            case ID_MOVEMENT_GOTO:
+                scene->FocusSelected();
+                break;
+            case ID_MOVEMENT_HOME:
+                scene->ResetViews();
+                break;
             case UPDATE_UNDO:
                 SetMenuText(hWnd, ID_EDIT_UNDO, reinterpret_cast<LPSTR>(lParam));
                 break;
