@@ -406,8 +406,8 @@ namespace UltraEd
         }
         else
         {
-            const float size = D3DXVec3Length(&GetActiveView()->GetPosition());
-            D3DXMatrixOrthoLH(&viewMat, size * aspect, size, -1000.0f, 1000.0f);
+            const float zoom = GetActiveView()->GetZoom();
+            D3DXMatrixOrthoLH(&viewMat, zoom * aspect, zoom, -1000.0f, 1000.0f);
         }
 
         m_device->SetTransform(D3DTS_PROJECTION, &viewMat);
@@ -490,7 +490,7 @@ namespace UltraEd
 
     void CScene::OnMouseWheel(short zDelta)
     {
-        GetActiveView()->Walk(zDelta * 0.005f);
+        GetActiveView()->SingleStep(zDelta);
         UpdateViewMatrix();
     }
 

@@ -23,6 +23,7 @@ namespace UltraEd
         D3DXVECTOR3 GetForward();
         D3DXVECTOR3 GetRight();
         D3DXVECTOR3 GetUp();
+        float GetZoom();
         D3DXMATRIX GetViewMatrix();
         void SetViewType(ViewType::Value type);
         ViewType::Value GetType();
@@ -32,12 +33,15 @@ namespace UltraEd
         void Walk(float units); // forward/backward
         void Pitch(float angle); // rotate on right vector
         void Yaw(float angle); // rotate on up vector
+        void SingleStep(short delta);
 
     private:
+        bool CanWalk();
+        ViewType::Value m_type;
         D3DXVECTOR3 m_right;
         D3DXVECTOR3 m_up;
         D3DXVECTOR3 m_forward;
         D3DXVECTOR3 m_pos;
-        ViewType::Value m_type;
+        const float m_step;
     };
 }

@@ -2,8 +2,9 @@
 
 namespace UltraEd
 {
-    CView::CView()
-    {       
+    CView::CView() :
+        m_step(0.005f)
+    {
         Reset();
     }
 
@@ -74,7 +75,9 @@ namespace UltraEd
 
     void CView::Walk(float units)
     {
-        m_pos += m_forward * units;
+        // Limit only forward movement.
+        if (CanWalk() || units < 0)
+            m_pos += m_forward * units;
     }
 
     void CView::Strafe(float units)
@@ -120,6 +123,32 @@ namespace UltraEd
     ViewType::Value CView::GetType()
     {
         return m_type;
+    }
+
+    float CView::GetZoom()
+    {
+        switch (m_type)
+        {
+            case ViewType::Top:
+                return m_pos.y;
+            case ViewType::Left:
+                return -m_pos.x;
+            case ViewType::Front:
+                return m_pos.z;
+            default:
+                return 0;
+        }
+    }
+
+    bool CView::CanWalk()
+    {
+        // Perspective view does not need to be limited.
+        return m_type == ViewType::Perspective || GetZoom() > m_step;
+    }
+
+    void CView::SingleStep(short delta)
+    {
+        Walk(delta * m_step);
     }
 
     cJSON *CView::Save()
