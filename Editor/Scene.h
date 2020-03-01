@@ -54,6 +54,8 @@ namespace UltraEd
         void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
         void SetViewType(ViewType::Value type);
         void SetGizmoModifier(GizmoModifierState::Value state);
+        void SetGizmoSnapSize(float size);
+        float GetGizmoSnapSize();
         CView *GetActiveView();
         bool ToggleMovementSpace();
         bool ToggleFillMode();
@@ -89,6 +91,7 @@ namespace UltraEd
         D3DMATERIAL8 m_selectedMaterial;
         D3DFILLMODE m_fillMode;
         CGizmo m_gizmo;
+        float m_gizmoSnapSize;
         CView m_views[4];
         IDirect3DDevice8 *m_device;
         IDirect3D8 *m_d3d8;

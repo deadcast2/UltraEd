@@ -13,6 +13,7 @@
 #define IDC_EDIT_SCENE_COLOR_PREVIEW    1003
 #define IDC_EDIT_SCENE_COLOR_GREEN      1004
 #define IDC_BUTTON_SCENE_COLOR_CHOOSE   1005
+#define IDC_EDIT_GIZMO_SNAP_SIZE        1006
 #define IDM_TOOLBAR_TRANSLATE           5000
 #define IDM_TOOLBAR_ROTATE              5001
 #define IDM_TOOLBAR_SCALE               5002
@@ -65,7 +66,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        106
 #define _APS_NEXT_COMMAND_VALUE         40027
-#define _APS_NEXT_CONTROL_VALUE         1006
+#define _APS_NEXT_CONTROL_VALUE         1007
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -32,6 +32,13 @@ namespace UltraEd
         return RGB(red, green, blue);
     }
 
+    float GetSceneSettingsGizmoSnapSizeValue(HWND hWnd)
+    {
+        char buffer[7];
+        GetDlgItemText(hWnd, IDC_EDIT_GIZMO_SNAP_SIZE, buffer, 7);
+        return (float)atof(buffer);
+    }
+
     void SetSceneSettingsRGBValue(HWND hWnd, COLORREF color)
     {
         char buffer[4];
@@ -44,6 +51,13 @@ namespace UltraEd
 
         sprintf(buffer, "%i", GetBValue(color));
         SetDlgItemText(hWnd, IDC_EDIT_SCENE_COLOR_BLUE, buffer);
+    }
+
+    void SetSceneSettingsGizmoSnapSizeValue(HWND hWnd, float size)
+    {
+        char buffer[7];
+        sprintf(buffer, "%g", size);
+        SetDlgItemText(hWnd, IDC_EDIT_GIZMO_SNAP_SIZE, buffer);
     }
 
     void LoadSceneSettingsCustomColors(COLORREF *colors)
@@ -89,12 +103,14 @@ namespace UltraEd
                 if (scene)
                 {
                     SetSceneSettingsRGBValue(hWndDlg, scene->GetBackgroundColor());
+                    SetSceneSettingsGizmoSnapSizeValue(hWndDlg, scene->GetGizmoSnapSize());
                 }
 
                 // Limit RGB fields to 3 characters max.
                 SendDlgItemMessage(hWndDlg, IDC_EDIT_SCENE_COLOR_RED, EM_SETLIMITTEXT, 3, 0);
                 SendDlgItemMessage(hWndDlg, IDC_EDIT_SCENE_COLOR_GREEN, EM_SETLIMITTEXT, 3, 0);
                 SendDlgItemMessage(hWndDlg, IDC_EDIT_SCENE_COLOR_BLUE, EM_SETLIMITTEXT, 3, 0);
+                SendDlgItemMessage(hWndDlg, IDC_EDIT_GIZMO_SNAP_SIZE, EM_SETLIMITTEXT, 6, 0);
                 break;
             }
             case WM_CTLCOLORSTATIC:
@@ -113,20 +129,8 @@ namespace UltraEd
                     case IDC_EDIT_SCENE_COLOR_GREEN:
                     case IDC_EDIT_SCENE_COLOR_BLUE:
                     {
-                        // Remove non-numerical characters and limit color value < 256.
                         if (HIWORD(wParam) == EN_CHANGE)
                         {
-                            char buffer[4];
-                            GetDlgItemText(hWndDlg, LOWORD(wParam), buffer, 4);
-
-                            int val = atoi(buffer);
-                            string cleanedValue = to_string(val);
-                            if (val > 255) cleanedValue = "255";
-
-                            // Stop sending update message when strings finally match.
-                            if (strncmp(cleanedValue.c_str(), buffer, 3) != 0)
-                                SetDlgItemText(hWndDlg, LOWORD(wParam), cleanedValue.c_str());
-
                             DeleteObject(settingsBrush);
                             settingsBrush = CreateSolidBrush(GetSceneSettingsRGBValue(hWndDlg));
                             InvalidateRect(GetDlgItem(hWndDlg, IDC_EDIT_SCENE_COLOR_PREVIEW), 0, 0);
@@ -156,7 +160,11 @@ namespace UltraEd
                     case IDOK:
                     {
                         CScene *scene = (CScene *)GetWindowLongPtr(hWndDlg, GWLP_USERDATA);
-                        if (scene) scene->SetBackgroundColor(GetSceneSettingsRGBValue(hWndDlg));
+                        if (scene)
+                        {
+                            scene->SetBackgroundColor(GetSceneSettingsRGBValue(hWndDlg));
+                            scene->SetGizmoSnapSize(GetSceneSettingsGizmoSnapSizeValue(hWndDlg));
+                        }
                     }
                     case IDCANCEL:
                     {

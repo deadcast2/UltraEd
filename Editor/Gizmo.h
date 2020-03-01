@@ -23,6 +23,7 @@ namespace UltraEd
         string GetModifierName();
         bool ToggleSpace(CActor *actor);
         bool ToggleSnapping();
+        void SetSnapSize(float size);
         void Update(CActor *currentActor);
         bool Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CActor *currentActor, CActor *selectedActor);
         void Reset();
@@ -51,5 +52,6 @@ namespace UltraEd
         D3DXVECTOR3 m_updateStartPoint;
         bool m_worldSpaceToggled;
         bool m_snapToGridToggled;
+        float m_snapSize;
     };
 }

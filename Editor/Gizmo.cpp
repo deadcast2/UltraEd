@@ -13,7 +13,8 @@ namespace UltraEd
         m_modifierState(GizmoModifierState::Translate),
         m_updateStartPoint(-999, -999, -999),
         m_worldSpaceToggled(true), 
-        m_snapToGridToggled(false)
+        m_snapToGridToggled(false),
+        m_snapSize(0)
     {
         SetupMaterials();
         SetupTransHandles();
@@ -261,9 +262,8 @@ namespace UltraEd
             D3DXVECTOR3 normMouseDir;
             D3DXVec3Normalize(&normMouseDir, &mouseDir);
             FLOAT moveDist = D3DXVec3Length(&mouseDir);
-            const float snapSize = 0.5f;
             const float epsilon = 0.1f;
-            bool shouldSnap = fabs((moveDist > snapSize ? snapSize : moveDist) - snapSize) < epsilon;
+            bool shouldSnap = fabs((moveDist > m_snapSize ? m_snapSize : moveDist) - m_snapSize) < epsilon;
 
             // Clamp the dot product between -1, 1 to not cause a undefined result.
             FLOAT dot = D3DXVec3Dot(&targetDir, &normMouseDir);
@@ -279,10 +279,10 @@ namespace UltraEd
                 if (shouldSnap && m_snapToGridToggled)
                 {
                     D3DXVECTOR3 newPos = currentActor->GetPosition();
-                    newPos.x = snap(newPos.x * (1 / snapSize)) / (1 / snapSize);
-                    newPos.y = snap(newPos.y * (1 / snapSize)) / (1 / snapSize);
-                    newPos.z = snap(newPos.z * (1 / snapSize)) / (1 / snapSize);
-                    currentActor->SetPosition(newPos + (targetDir * snapSize * sign));
+                    newPos.x = snap(newPos.x * (1 / m_snapSize)) / (1 / m_snapSize);
+                    newPos.y = snap(newPos.y * (1 / m_snapSize)) / (1 / m_snapSize);
+                    newPos.z = snap(newPos.z * (1 / m_snapSize)) / (1 / m_snapSize);
+                    currentActor->SetPosition(newPos + (targetDir * m_snapSize * sign));
                 }
                 else if (!m_snapToGridToggled)
                 {
@@ -336,5 +336,10 @@ namespace UltraEd
     {
         m_snapToGridToggled = !m_snapToGridToggled;
         return m_snapToGridToggled;
+    }
+
+    void CGizmo::SetSnapSize(float size)
+    {
+        m_snapSize = size;
     }
 }

@@ -16,6 +16,7 @@ namespace UltraEd
         m_selectedMaterial(),
         m_fillMode(D3DFILL_SOLID),
         m_gizmo(),
+        m_gizmoSnapSize(0.5f),
         m_views(),
         m_device(0),
         m_d3d8(0),
@@ -89,6 +90,7 @@ namespace UltraEd
         ResetViews();
         RefreshActorList();
         m_backgroundColorRGB[0] = m_backgroundColorRGB[1] = m_backgroundColorRGB[2] = 0;
+        SetGizmoSnapSize(m_gizmoSnapSize);
         SetDirty(false);
     }
 
@@ -566,6 +568,17 @@ namespace UltraEd
         m_gizmo.SetModifier(state);
     }
 
+    void CScene::SetGizmoSnapSize(float size)
+    {
+        m_gizmoSnapSize = size;
+        m_gizmo.SetSnapSize(size);
+    }
+
+    float CScene::GetGizmoSnapSize()
+    {
+        return m_gizmoSnapSize;
+    }
+
     bool CScene::ToggleMovementSpace()
     {
         if (!m_selectedActorIds.empty())
@@ -916,6 +929,9 @@ namespace UltraEd
             m_backgroundColorRGB[2]);
         cJSON_AddStringToObject(scene, "background_color", buffer);
 
+        sprintf(buffer, "%f", m_gizmoSnapSize);
+        cJSON_AddStringToObject(scene, "gizmo_snap_size", buffer);
+
         return scene;
     }
 
@@ -955,6 +971,11 @@ namespace UltraEd
         cJSON *backgroundColor = cJSON_GetObjectItem(root, "background_color");
         sscanf(backgroundColor->valuestring, "%i %i %i", &m_backgroundColorRGB[0],
             &m_backgroundColorRGB[1], &m_backgroundColorRGB[2]);
+
+        // Set gizmo snap size.
+        cJSON *gizmoSnapSize = cJSON_GetObjectItem(root, "gizmo_snap_size");
+        sscanf(gizmoSnapSize->valuestring, "%f", &m_gizmoSnapSize);
+        SetGizmoSnapSize(m_gizmoSnapSize);
 
         return true;
     }
