@@ -91,7 +91,6 @@ namespace UltraEd
         D3DMATERIAL8 m_selectedMaterial;
         D3DFILLMODE m_fillMode;
         CGizmo m_gizmo;
-        float m_gizmoSnapSize;
         CView m_views[4];
         IDirect3DDevice8 *m_device;
         IDirect3D8 *m_d3d8;

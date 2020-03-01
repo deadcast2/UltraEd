@@ -342,4 +342,9 @@ namespace UltraEd
     {
         m_snapSize = size;
     }
+
+    float CGizmo::GetSnapSize()
+    {
+        return m_snapSize;
+    }
 }

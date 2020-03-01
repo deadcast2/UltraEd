@@ -24,6 +24,7 @@ namespace UltraEd
         bool ToggleSpace(CActor *actor);
         bool ToggleSnapping();
         void SetSnapSize(float size);
+        float GetSnapSize();
         void Update(CActor *currentActor);
         bool Update(CView *view, D3DXVECTOR3 orig, D3DXVECTOR3 dir, CActor *currentActor, CActor *selectedActor);
         void Reset();
