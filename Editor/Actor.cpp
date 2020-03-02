@@ -259,6 +259,8 @@ namespace UltraEd
         cJSON *script = cJSON_GetObjectItem(root, "script");
         m_script = script->valuestring;
 
+        SetCollider(NULL);
+
         cJSON *collider = cJSON_GetObjectItem(root, "collider");
         if (collider)
         {
