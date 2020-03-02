@@ -46,7 +46,7 @@ namespace UltraEd
         }
     }
 
-    void CSphereCollider::SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, vector<Vertex> vertices)
+    void CSphereCollider::SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, const vector<Vertex> &vertices)
     {
         D3DXVECTOR3 min, max;
         DistantAABBPoints(min, max, vertices);
@@ -54,7 +54,7 @@ namespace UltraEd
         radius = sqrtf(D3DXVec3Dot(&(max - center), &(max - center)));
     }
 
-    void CSphereCollider::AdjustSphere(D3DXVECTOR3 &center, FLOAT &radius, Vertex vertex)
+    void CSphereCollider::AdjustSphere(D3DXVECTOR3 &center, FLOAT &radius, const Vertex &vertex)
     {
         D3DXVECTOR3 dist = vertex.position - center;
         FLOAT dist2 = D3DXVec3Dot(&dist, &dist);
@@ -68,7 +68,7 @@ namespace UltraEd
         }
     }
 
-    void CSphereCollider::FindCenterWithRadius(D3DXVECTOR3 &center, FLOAT &radius, vector<Vertex> vertices)
+    void CSphereCollider::FindCenterWithRadius(D3DXVECTOR3 &center, FLOAT &radius, const vector<Vertex> &vertices)
     {
         SphereFromDistPoints(center, radius, vertices);
         for (size_t i = 0; i < vertices.size(); i++)

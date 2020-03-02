@@ -17,9 +17,9 @@ namespace UltraEd
         bool Load(cJSON *root);
 
     private:
-        void SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, vector<Vertex> vertices);
-        void AdjustSphere(D3DXVECTOR3 &center, FLOAT &radius, Vertex vertex);
-        void FindCenterWithRadius(D3DXVECTOR3 &center, FLOAT &radius, vector<Vertex> vertices);
+        void SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, const vector<Vertex> &vertices);
+        void AdjustSphere(D3DXVECTOR3 &center, FLOAT &radius, const Vertex &vertex);
+        void FindCenterWithRadius(D3DXVECTOR3 &center, FLOAT &radius, const vector<Vertex> &vertices);
 
     private:
         FLOAT m_radius;
