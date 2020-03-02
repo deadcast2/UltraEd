@@ -46,49 +46,12 @@ namespace UltraEd
         }
     }
 
-    void CSphereCollider::DistantAABBPoints(int &min, int &max, vector<Vertex> vertices)
-    {
-        int minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
-        for (size_t i = 0; i < vertices.size(); i++)
-        {
-            if (vertices[i].position.x < vertices[minX].position.x) minX = i;
-            if (vertices[i].position.x > vertices[maxX].position.x) maxX = i;
-            if (vertices[i].position.y < vertices[minY].position.y) minY = i;
-            if (vertices[i].position.y > vertices[maxY].position.y) maxY = i;
-            if (vertices[i].position.z < vertices[minZ].position.z) minZ = i;
-            if (vertices[i].position.z > vertices[maxZ].position.z) maxZ = i;
-        }
-
-        FLOAT distX = D3DXVec3Dot(&(vertices[maxX].position - vertices[minX].position),
-            &(vertices[maxX].position - vertices[minX].position));
-        FLOAT distY = D3DXVec3Dot(&(vertices[maxY].position - vertices[minY].position),
-            &(vertices[maxY].position - vertices[minY].position));
-        FLOAT distZ = D3DXVec3Dot(&(vertices[maxZ].position - vertices[minZ].position),
-            &(vertices[maxZ].position - vertices[minZ].position));
-
-        min = minX;
-        max = maxX;
-
-        if (distY > distX && distY > distZ)
-        {
-            max = maxY;
-            min = minY;
-        }
-
-        if (distZ > distX && distZ > distY)
-        {
-            max = maxZ;
-            min = minZ;
-        }
-    }
-
     void CSphereCollider::SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, vector<Vertex> vertices)
     {
-        int min, max;
+        D3DXVECTOR3 min, max;
         DistantAABBPoints(min, max, vertices);
-        center = (vertices[min].position + vertices[max].position) * 0.5f;
-        radius = D3DXVec3Dot(&(vertices[max].position - center), &(vertices[max].position - center));
-        radius = sqrtf(radius);
+        center = (min + max) * 0.5f;
+        radius = sqrtf(D3DXVec3Dot(&(max - center), &(max - center)));
     }
 
     void CSphereCollider::AdjustSphere(D3DXVECTOR3 &center, FLOAT &radius, Vertex vertex)

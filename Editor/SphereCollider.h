@@ -17,7 +17,6 @@ namespace UltraEd
         bool Load(cJSON *root);
 
     private:
-        void DistantAABBPoints(int &min, int &max, vector<Vertex> vertices);
         void SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, vector<Vertex> vertices);
         void AdjustSphere(D3DXVECTOR3 &center, FLOAT &radius, Vertex vertex);
         void FindCenterWithRadius(D3DXVECTOR3 &center, FLOAT &radius, vector<Vertex> vertices);

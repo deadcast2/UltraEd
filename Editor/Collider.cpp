@@ -44,6 +44,23 @@ namespace UltraEd
         return (ColliderType::Value)typeValue;
     }
 
+    void CCollider::DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, const vector<Vertex> &vertices)
+    {
+        int minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
+        for (size_t i = 0; i < vertices.size(); i++)
+        {
+            if (vertices[i].position.x < vertices[minX].position.x) minX = i;
+            if (vertices[i].position.x > vertices[maxX].position.x) maxX = i;
+            if (vertices[i].position.y < vertices[minY].position.y) minY = i;
+            if (vertices[i].position.y > vertices[maxY].position.y) maxY = i;
+            if (vertices[i].position.z < vertices[minZ].position.z) minZ = i;
+            if (vertices[i].position.z > vertices[maxZ].position.z) maxZ = i;
+        }
+
+        min = D3DXVECTOR3(vertices[minX].position.x, vertices[minY].position.y, vertices[minZ].position.z);
+        max = D3DXVECTOR3(vertices[maxX].position.x, vertices[maxY].position.y, vertices[maxZ].position.z);
+    }
+
     cJSON *CCollider::Save()
     {
         char buffer[LINE_FORMAT_LENGTH];

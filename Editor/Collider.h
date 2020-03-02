@@ -32,6 +32,7 @@ namespace UltraEd
         const char *GetName() { return ColliderTypeNames[m_type]; }
         
     protected:
+        void DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, const vector<Vertex> &vertices);
         ColliderType::Value m_type;
         vector<Vertex> m_vertices;
         D3DXVECTOR3 m_center;
