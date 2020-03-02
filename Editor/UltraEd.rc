@@ -58,8 +58,6 @@ BEGIN
         MENUITEM "Save Scene As...",            ID_FILE_SAVESCENE
         MENUITEM "Load Scene",                  ID_FILE_LOADSCENE
         MENUITEM SEPARATOR
-        MENUITEM "Scene Settings",              ID_FILE_SCENESETTINGS
-        MENUITEM SEPARATOR
         MENUITEM "Build ROM",                   ID_FILE_BUILDROM
         MENUITEM "Build ROM && Run",            ID_FILE_BUILDROM_AND_RUN
         MENUITEM "Build ROM && Load",           ID_FILE_BUILDROM_AND_LOAD
@@ -76,6 +74,7 @@ BEGIN
         MENUITEM "Delete\tDel",                 ID_EDIT_DELETE
         MENUITEM SEPARATOR
         MENUITEM "Select All\tCtrl+A",          ID_EDIT_SELECTALL
+        MENUITEM "Scene Settings",              ID_EDIT_SCENESETTINGS
     END
     POPUP "Actor"
     BEGIN

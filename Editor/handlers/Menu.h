@@ -34,9 +34,6 @@ namespace UltraEd
             case ID_FILE_LOADSCENE:
                 scene->OnLoad();
                 break;
-            case ID_FILE_SCENESETTINGS:
-                DialogBoxParam(NULL, MAKEINTRESOURCE(IDD_SCENE_SETTINGS), hWnd, (DLGPROC)SceneSettingsProc, (LPARAM)scene);
-                break;
             case ID_FILE_EXIT:
                 SendMessage(hWnd, WM_CLOSE, 0, 0);
                 break;
@@ -79,6 +76,9 @@ namespace UltraEd
                 break;
             case ID_EDIT_SELECTALL:
                 scene->SelectAll();
+                break;
+            case ID_EDIT_SCENESETTINGS:
+                DialogBoxParam(NULL, MAKEINTRESOURCE(IDD_SCENE_SETTINGS), hWnd, (DLGPROC)SceneSettingsProc, (LPARAM)scene);
                 break;
             case ID_ACTOR_CAMERA:
                 scene->OnAddCamera();
