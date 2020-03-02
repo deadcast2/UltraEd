@@ -9,10 +9,10 @@ namespace UltraEd
         m_greenMaterial(),
         m_blueMaterial(),
         m_models(),
-        m_axisState(GizmoAxisState::XAxis), 
+        m_axisState(GizmoAxisState::XAxis),
         m_modifierState(GizmoModifierState::Translate),
         m_updateStartPoint(-999, -999, -999),
-        m_worldSpaceToggled(true), 
+        m_worldSpaceToggled(true),
         m_snapToGridToggled(false),
         m_snapSize(0)
     {
@@ -298,12 +298,11 @@ namespace UltraEd
                 changeDetected = currentActor->Rotate(moveDist * modifier, targetDir);
             }
 
-            if (selectedActor == currentActor)
+            // Snapping only applies to translation.
+            if (selectedActor == currentActor && (shouldSnap || !m_snapToGridToggled
+                || m_modifierState != GizmoModifierState::Translate))
             {
-                if (shouldSnap || !m_snapToGridToggled)
-                {
-                    m_updateStartPoint = intersectPoint;
-                }
+                m_updateStartPoint = intersectPoint;
             }
         }
 
