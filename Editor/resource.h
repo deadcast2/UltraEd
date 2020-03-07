@@ -58,6 +58,7 @@
 #define ID_ACTOR_COLLIDER_DELETE        40024
 #define ID_MOVEMENT_GOTO                40025
 #define ID_MOVEMENT_HOME                40026
+#define ID_ACTOR_PRESETS_PUMPKIN        40027
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -65,7 +66,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        106
-#define _APS_NEXT_COMMAND_VALUE         40027
+#define _APS_NEXT_COMMAND_VALUE         40028
 #define _APS_NEXT_CONTROL_VALUE         1007
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

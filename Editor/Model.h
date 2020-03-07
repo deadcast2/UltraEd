@@ -6,6 +6,11 @@ using namespace std;
 
 namespace UltraEd
 {
+    struct ModelPreset
+    {
+        enum Value { Custom, Pumpkin };
+    };
+
     struct ModelRelease
     {
         enum Value { AllResources, VertexBufferOnly };

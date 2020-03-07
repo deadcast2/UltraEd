@@ -152,21 +152,40 @@ namespace UltraEd
         }
     }
 
-    void CScene::OnAddModel()
+    void CScene::OnAddModel(ModelPreset::Value preset)
     {
-        string file;
-        if (CDialog::Open("Add Model",
-            "3D Studio (*.3ds)\0*.3ds\0Blender (*.blend)\0*.blend\0Autodesk (*.fbx)\0*.fbx\0"
-            "Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
-            "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj", file))
-        {
-            auto model = make_shared<CModel>(file.c_str());
-            m_actors[model->GetId()] = model;
-            char buffer[1024];
-            sprintf(buffer, "Actor %lu", m_actors.size());
-            m_actors[model->GetId()]->SetName(string(buffer));
-            m_undo.AddActor("Model", model->GetId());
+        shared_ptr<CModel> model = NULL;
 
+        switch (preset)
+        {
+            case ModelPreset::Custom:
+            {
+                string file;
+                if (CDialog::Open("Add Model",
+                    "3D Studio (*.3ds)\0*.3ds\0Blender (*.blend)\0*.blend\0Autodesk (*.fbx)\0*.fbx\0"
+                    "Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
+                    "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj", file))
+                {
+                    model = make_shared<CModel>(file.c_str());
+                    m_actors[model->GetId()] = model;
+                    model->SetName(string("Actor ").append(to_string(m_actors.size())));
+                    m_undo.AddActor("Model", model->GetId());                    
+                }
+                break;
+            }
+            case ModelPreset::Pumpkin:
+            {
+                model = make_shared<CModel>("Assets/pumpkin.fbx");
+                m_actors[model->GetId()] = model;
+                model->SetName(string("Pumpkin ").append(to_string(m_actors.size())));
+                model->SetTexture(m_device, "Assets/pumpkin.png");
+                m_undo.AddActor("Pumpkin", model->GetId());
+                break;
+            }
+        }
+        
+        if (model != NULL)
+        {
             SelectActorById(model->GetId());
             RefreshActorList();
         }
@@ -174,11 +193,9 @@ namespace UltraEd
 
     void CScene::OnAddCamera()
     {
-        char buffer[1024];
         auto newCamera = make_shared<CCamera>();
         m_actors[newCamera->GetId()] = newCamera;
-        sprintf(buffer, "Camera %lu", m_actors.size());
-        m_actors[newCamera->GetId()]->SetName(string(buffer));
+        newCamera->SetName(string("Camera ").append(to_string(m_actors.size())));
         m_undo.AddActor("Camera", newCamera->GetId());
 
         SelectActorById(newCamera->GetId());

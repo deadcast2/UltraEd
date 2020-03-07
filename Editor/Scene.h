@@ -43,7 +43,7 @@ namespace UltraEd
         void OnAddCamera();
         void OnAddTexture();
         void OnDeleteTexture();
-        void OnAddModel();
+        void OnAddModel(ModelPreset::Value preset);
         void OnAddCollider(ColliderType::Value type);
         void OnDeleteCollider();
         void OnBuildROM(BuildFlag::Value flag);

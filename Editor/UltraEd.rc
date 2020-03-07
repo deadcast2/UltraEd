@@ -91,6 +91,10 @@ BEGIN
             MENUITEM "Sphere",                      ID_ACTOR_COLLIDER_SPHERE
             MENUITEM "Delete",                      ID_ACTOR_COLLIDER_DELETE
         END
+        POPUP "Presets"
+        BEGIN
+            MENUITEM "Pumpkin",                     ID_ACTOR_PRESETS_PUMPKIN
+        END
     END
     POPUP "Render"
     BEGIN

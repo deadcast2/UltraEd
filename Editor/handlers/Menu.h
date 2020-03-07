@@ -84,7 +84,7 @@ namespace UltraEd
                 scene->OnAddCamera();
                 break;
             case ID_ACTOR_MODEL:
-                scene->OnAddModel();
+                scene->OnAddModel(ModelPreset::Custom);
                 break;
             case ID_ACTOR_TEXTURE_ADD:
                 scene->OnAddTexture();
@@ -100,6 +100,9 @@ namespace UltraEd
                 break;
             case ID_ACTOR_COLLIDER_DELETE:
                 scene->OnDeleteCollider();
+                break;
+            case ID_ACTOR_PRESETS_PUMPKIN:
+                scene->OnAddModel(ModelPreset::Pumpkin);
                 break;
             case ID_RENDER_SOLID:
             {
