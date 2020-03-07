@@ -147,37 +147,37 @@ namespace UltraEd
 
     void CGizmo::SetupTransHandles()
     {
-        m_models[0] = CModel("Assets/trans-gizmo.fbx");
+        m_models[0] = CModel("assets/trans-gizmo.fbx");
         m_models[0].Rotate(-D3DX_PI / 2, D3DXVECTOR3(0, 0, 1));
-        m_models[1] = CModel("Assets/trans-gizmo.fbx");
-        m_models[2] = CModel("Assets/trans-gizmo.fbx");
+        m_models[1] = CModel("assets/trans-gizmo.fbx");
+        m_models[2] = CModel("assets/trans-gizmo.fbx");
         m_models[2].Rotate(D3DX_PI / 2, D3DXVECTOR3(1, 0, 0));
     }
 
     void CGizmo::SetupScaleHandles()
     {
-        m_models[3] = CModel("Assets/scale-gizmo.fbx");
+        m_models[3] = CModel("assets/scale-gizmo.fbx");
         m_models[3].Rotate(-D3DX_PI / 2, D3DXVECTOR3(0, 0, 1));
-        m_models[4] = CModel("Assets/scale-gizmo.fbx");
-        m_models[5] = CModel("Assets/scale-gizmo.fbx");
+        m_models[4] = CModel("assets/scale-gizmo.fbx");
+        m_models[5] = CModel("assets/scale-gizmo.fbx");
         m_models[5].Rotate(D3DX_PI / 2, D3DXVECTOR3(1, 0, 0));
     }
 
     void CGizmo::SetupRotateHandles()
     {
-        m_models[6] = CModel("Assets/rot-gizmo.fbx");
+        m_models[6] = CModel("assets/rot-gizmo.fbx");
         m_models[6].Rotate(-D3DX_PI / 2, D3DXVECTOR3(0, 0, 1));
-        m_models[7] = CModel("Assets/rot-gizmo.fbx");
-        m_models[8] = CModel("Assets/rot-gizmo.fbx");
+        m_models[7] = CModel("assets/rot-gizmo.fbx");
+        m_models[8] = CModel("assets/rot-gizmo.fbx");
         m_models[8].Rotate(D3DX_PI / 2, D3DXVECTOR3(1, 0, 0));
     }
 
     void CGizmo::SetupSelectorHandles()
     {
-        m_models[9] = CModel("Assets/selector-gizmo.fbx");
+        m_models[9] = CModel("assets/selector-gizmo.fbx");
         m_models[9].Rotate(-D3DX_PI / 2, D3DXVECTOR3(0, 0, 1));
-        m_models[10] = CModel("Assets/selector-gizmo.fbx");
-        m_models[11] = CModel("Assets/selector-gizmo.fbx");
+        m_models[10] = CModel("assets/selector-gizmo.fbx");
+        m_models[11] = CModel("assets/selector-gizmo.fbx");
         m_models[11].Rotate(D3DX_PI / 2, D3DXVECTOR3(1, 0, 0));
     }
 

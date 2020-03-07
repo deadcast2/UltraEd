@@ -6,7 +6,7 @@ namespace UltraEd
     CCamera::CCamera() :
         m_fov(60.0f)
     {
-        Import("Assets/camera.fbx");
+        Import("assets/camera.fbx");
         m_type = ActorType::Camera;
     }
 

@@ -175,10 +175,10 @@ namespace UltraEd
             }
             case ModelPreset::Pumpkin:
             {
-                model = make_shared<CModel>("Assets/pumpkin.fbx");
+                model = make_shared<CModel>("presets/pumpkin.fbx");
                 m_actors[model->GetId()] = model;
                 model->SetName(string("Pumpkin ").append(to_string(m_actors.size())));
-                model->SetTexture(m_device, "Assets/pumpkin.png");
+                model->SetTexture(m_device, "presets/pumpkin.png");
                 m_undo.AddActor("Pumpkin", model->GetId());
                 break;
             }

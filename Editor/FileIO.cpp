@@ -143,7 +143,7 @@ namespace UltraEd
         {
             char target[MAX_PATH];
 
-            const char *assets = "Assets/";
+            const char *assets = "assets/";
             if (strncmp(file, assets, strlen(assets)) == 0)
             {
                 info.path = file;
