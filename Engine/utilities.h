@@ -21,6 +21,8 @@ vector3 vec3_add(vector3 a, vector3 b);
 
 vector3 vec3_sub(vector3 a, vector3 b);
 
+vector3 vec3_mul(float scalar, vector3 vector);
+
 vector3 vec3_mul_mat3x3(vector3 a, Mtx mat);
 
 vector3 vec3_mul_mat4x4(vector3 a, Mtx mat);

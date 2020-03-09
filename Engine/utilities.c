@@ -59,6 +59,15 @@ vector3 vec3_sub(vector3 a, vector3 b)
     return a;
 }
 
+vector3 vec3_mul(float scalar, vector3 vector)
+{
+    vector3 newVector;
+    newVector.x = vector.x * scalar;
+    newVector.y = vector.y * scalar;
+    newVector.z = vector.z * scalar;
+    return newVector;
+}
+
 vector3 vec3_mul_mat3x3(vector3 a, Mtx mat)
 {
     float fMat[4][4];

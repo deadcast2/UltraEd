@@ -225,9 +225,9 @@ int check_collision(actor *a, actor *b)
     if (a->collider == Sphere && b->collider == Sphere)
         return sphere_sphere_collision(a, b);
     else if (a->collider == Box && b->collider == Sphere)
-        return 0; // TODO
+        return box_sphere_collision(a, b);
     else if (a->collider == Sphere && b->collider == Box)
-        return 0; // TODO
+        return box_sphere_collision(b, a);
     else if (a->collider == Box && b->collider == Box)
         return box_box_collision(a, b);
     
@@ -339,4 +339,34 @@ int box_box_collision(actor *a, actor *b)
     if (fabs(ta[1] * R[0][2] - ta[0] * R[1][2]) > ra + rb) return 0;
 
     return 1;
+}
+
+int box_sphere_collision(actor *a, actor *b)
+{
+    vector3 aPos = *a->position;
+    vector3 bPos = *b->position;
+
+    aPos = vec3_add(aPos, vec3_mul_mat3x3(*a->center, a->transform.rotation));
+    bPos = vec3_add(bPos, vec3_mul_mat3x3(*b->center, b->transform.rotation));
+
+    vector3 aAxis[3] = {
+        vec3_mul_mat3x3((vector3) { 1, 0, 0 }, a->transform.rotation),
+        vec3_mul_mat3x3((vector3) { 0, 1, 0 }, a->transform.rotation),
+        vec3_mul_mat3x3((vector3) { 0, 0, 1 }, a->transform.rotation)
+    };
+
+    float aExt[3] = { fabs(a->extents->x), fabs(a->extents->y), fabs(a->extents->z) };
+
+    vector3 d = vec3_sub(bPos, aPos);
+    vector3 cp = aPos;
+    for (int i = 0; i < 3; i++)
+    {
+        float dist = vec3_dot(d, aAxis[i]);
+        if (dist > aExt[i]) dist = aExt[i];
+        if (dist < -aExt[i]) dist = -aExt[i];
+        cp = vec3_add(cp, vec3_mul(dist, aAxis[i]));
+    }
+
+    vector3 v = vec3_sub(cp, bPos);
+    return vec3_dot(v, v) <= b->radius * b->radius;
 }
