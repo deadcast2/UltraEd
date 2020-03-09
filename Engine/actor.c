@@ -229,7 +229,7 @@ int check_collision(actor *a, actor *b)
     else if (a->collider == Sphere && b->collider == Box)
         return 0; // TODO
     else if (a->collider == Box && b->collider == Box)
-        return 0; // TODO
+        return box_box_collision(a, b);
     
     return 0;
 }
@@ -241,10 +241,102 @@ int sphere_sphere_collision(actor *a, actor *b)
     vector3 bPos = *b->position;
     vector3 dist;
 
-    aPos = vec3_add(aPos, vec3_rot(*a->center, a->transform.rotation));
-    bPos = vec3_add(bPos, vec3_rot(*b->center, b->transform.rotation));
+    aPos = vec3_add(aPos, vec3_mul_mat3x3(*a->center, a->transform.rotation));
+    bPos = vec3_add(bPos, vec3_mul_mat3x3(*b->center, b->transform.rotation));
     dist = vec3_sub(aPos, bPos);
 
     radiusSum = a->radius + b->radius;
-    return dot(dist, dist) <= radiusSum * radiusSum;
+    return vec3_dot(dist, dist) <= radiusSum * radiusSum;
+}
+
+int box_box_collision(actor *a, actor *b)
+{
+    vector3 aPos = *a->position;
+    vector3 bPos = *b->position;
+
+    aPos = vec3_add(aPos, vec3_mul_mat3x3(*a->center, a->transform.rotation));
+    bPos = vec3_add(bPos, vec3_mul_mat3x3(*b->center, b->transform.rotation));
+
+    vector3 aAxis[3] = { 
+        vec3_mul_mat3x3((vector3) { 1, 0, 0 }, a->transform.rotation),
+        vec3_mul_mat3x3((vector3) { 0, 1, 0 }, a->transform.rotation),
+        vec3_mul_mat3x3((vector3) { 0, 0, 1 }, a->transform.rotation)
+    };
+
+    float aExt[3] = { fabs(a->extents->x), fabs(a->extents->y), fabs(a->extents->z) };
+
+    vector3 bAxis[3] = {
+        vec3_mul_mat3x3((vector3) { 1, 0, 0 }, b->transform.rotation),
+        vec3_mul_mat3x3((vector3) { 0, 1, 0 }, b->transform.rotation),
+        vec3_mul_mat3x3((vector3) { 0, 0, 1 }, b->transform.rotation)
+    };
+
+    float bExt[3] = { fabs(b->extents->x), fabs(b->extents->y), fabs(b->extents->z) };
+
+    float ra, rb;
+    float R[3][3], AbsR[3][3];
+    const float EPSILON = 0.0001;
+
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            R[i][j] = vec3_dot(aAxis[i], bAxis[j]);
+
+    vector3 t = vec3_sub(bPos, aPos);
+    float ta[3] = { vec3_dot(t, aAxis[0]), vec3_dot(t, aAxis[1]), vec3_dot(t, aAxis[2]) };
+
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            AbsR[i][j] = fabs(R[i][j]) + EPSILON;
+
+    for (int i = 0; i < 3; i++)
+    {
+        ra = aExt[i];
+        rb = bExt[0] * AbsR[i][0] + bExt[1] * AbsR[i][1] + bExt[2] * AbsR[i][2];
+        if (fabs(ta[i]) > ra + rb) return 0;
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        ra = aExt[0] * AbsR[0][i] + aExt[1] * AbsR[1][i] + aExt[2] * AbsR[2][i];
+        rb = bExt[i];
+        if (fabs(ta[0] * R[0][i] + ta[1] * R[1][i] + ta[2] * R[2][i]) > ra + rb) return 0;
+    }
+
+    ra = aExt[1] * AbsR[2][0] + aExt[2] * AbsR[1][0];
+    rb = bExt[1] * AbsR[0][2] + bExt[2] * AbsR[0][1];
+    if (fabs(ta[2] * R[1][0] - ta[1] * R[2][0]) > ra + rb) return 0;
+
+    ra = aExt[1] * AbsR[2][1] + aExt[2] * AbsR[1][1];
+    rb = bExt[0] * AbsR[0][2] + bExt[2] * AbsR[0][0];
+    if (fabs(ta[2] * R[1][1] - ta[1] * R[2][1]) > ra + rb) return 0;
+
+    ra = aExt[1] * AbsR[2][2] + aExt[2] * AbsR[1][2];
+    rb = bExt[0] * AbsR[0][1] + bExt[1] * AbsR[0][0];
+    if (fabs(ta[2] * R[1][2] - ta[1] * R[2][2]) > ra + rb) return 0;
+
+    ra = aExt[0] * AbsR[2][0] + aExt[2] * AbsR[0][0];
+    rb = bExt[1] * AbsR[1][2] + bExt[2] * AbsR[1][1];
+    if (fabs(ta[0] * R[2][0] - ta[2] * R[0][0]) > ra + rb) return 0;
+
+    ra = aExt[0] * AbsR[2][1] + aExt[2] * AbsR[0][1];
+    rb = bExt[0] * AbsR[1][2] + bExt[2] * AbsR[1][0];
+    if (fabs(ta[0] * R[2][1] - ta[2] * R[0][1]) > ra + rb) return 0;
+
+    ra = aExt[0] * AbsR[2][2] + aExt[2] * AbsR[0][2];
+    rb = bExt[0] * AbsR[1][1] + bExt[1] * AbsR[1][0];
+    if (fabs(ta[0] * R[2][2] - ta[2] * R[0][2]) > ra + rb) return 0;
+
+    ra = aExt[0] * AbsR[1][0] + aExt[1] * AbsR[0][0];
+    rb = bExt[1] * AbsR[2][2] + bExt[2] * AbsR[2][1];
+    if (fabs(ta[1] * R[0][0] - ta[0] * R[1][0]) > ra + rb) return 0;
+
+    ra = aExt[0] * AbsR[1][1] + aExt[1] * AbsR[0][1];
+    rb = bExt[0] * AbsR[2][2] + bExt[2] * AbsR[2][0];
+    if (fabs(ta[1] * R[0][1] - ta[0] * R[1][1]) > ra + rb) return 0;
+
+    ra = aExt[0] * AbsR[1][2] + aExt[1] * AbsR[0][2];
+    rb = bExt[0] * AbsR[2][1] + bExt[1] * AbsR[2][0];
+    if (fabs(ta[1] * R[0][2] - ta[0] * R[1][2]) > ra + rb) return 0;
+
+    return 1;
 }

@@ -123,11 +123,14 @@ void updateCamera()
 
 void gfxCallback(int pendingGfx)
 {
-    checkInputs();
-    updateCamera();
-    _UER_Update();
-    _UER_Collide();
-    if (pendingGfx < 1) createDisplayList();
+    if (pendingGfx < 1)
+    {
+        createDisplayList();
+        checkInputs();
+        updateCamera();
+        _UER_Update();
+        _UER_Collide();
+    }
 }
 
 int initHeapMemory()
