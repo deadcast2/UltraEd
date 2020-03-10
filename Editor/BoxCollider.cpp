@@ -19,7 +19,7 @@ namespace UltraEd
         FLOAT midZ = (min.z + max.z) / 2;
 
         m_center = D3DXVECTOR3(midX / 2, midY / 2, midZ / 2);
-        m_extents = D3DXVECTOR3(min.x - midX, min.y - midY, min.z - midZ);
+        m_extents = D3DXVECTOR3(midX - min.x, midY - min.y, midZ - min.z);
 
         Build();
     }
