@@ -3,7 +3,10 @@
 #include "utilities.h"
 #include "hashtable.h"
 #include "actor.h"
+#include "collision.h"
 #include "scene.h"
+
+// User generated includes.
 #include "segments.h"
 #include "actors.h"
 #include "mappings.h"

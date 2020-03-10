@@ -64,12 +64,4 @@ actor *create_camera(double positionX, double positionY, double positionZ,
 
 void model_draw(actor *model, Gfx **display_list);
 
-int check_collision(actor *a, actor *b);
-
-int sphere_sphere_collision(actor *a, actor *b);
-
-int box_box_collision(actor *a, actor *b);
-
-int box_sphere_collision(actor *a, actor *b);
-
 #endif
