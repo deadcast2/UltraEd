@@ -11,6 +11,8 @@
 #include "scripts.h"
 #include "collisions.h"
 
+#define SCREEN_WD 320
+#define SCREEN_HT 240
 #define GFX_GLIST_LEN 2048
 
 char mem_heep[1024 * 512];

@@ -4,9 +4,6 @@
 #include <nusys.h>
 #include "upng.h"
 
-#define SCREEN_WD 320
-#define SCREEN_HT 240
-
 enum actorType { Model, Camera };
 
 enum colliderType { None, Sphere, Box };

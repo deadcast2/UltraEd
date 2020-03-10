@@ -24,13 +24,9 @@ actor *load_model_with_texture(void *data_start, void *data_end, void *texture_s
 {
     unsigned char data_buffer[200000];
     unsigned char texture_buffer[20000];
-    char *line;
     int data_size = data_end - data_start;
     int texture_size = texture_end - texture_start;
-    int i = 0;
-    int vertex_count = 0;
     actor *new_model;
-    upng_t *png;
 
     // Transfer from ROM the model mesh data and texture.
     rom_2_ram(data_start, data_buffer, data_size);
@@ -57,13 +53,14 @@ actor *load_model_with_texture(void *data_start, void *data_end, void *texture_s
     new_model->extents->z = extentZ;
 
     // Read how many vertices for this mesh.
-    line = (char*)strtok(data_buffer, "\n");
+    int vertex_count = 0;
+    char *line = (char*)strtok(data_buffer, "\n");
     sscanf(line, "%i", &vertex_count);
     new_model->mesh->vertices = (Vtx*)malloc(vertex_count * sizeof(Vtx));
     new_model->mesh->vertex_count = vertex_count;
 
     // Gather all of the X, Y, and Z vertex info.
-    for (i = 0; i < vertex_count; i++)
+    for (int i = 0; i < vertex_count; i++)
     {
         double x, y, z, r, g, b, a, s, t;
         line = (char*)strtok(NULL, "\n");
@@ -96,7 +93,7 @@ actor *load_model_with_texture(void *data_start, void *data_end, void *texture_s
     new_model->rotationAngle = -angle;
 
     // Load in the png texture data.
-    png = upng_new_from_bytes(texture_buffer, texture_size);
+    upng_t *png = upng_new_from_bytes(texture_buffer, texture_size);
     if (png != NULL)
     {
         upng_decode(png);
@@ -113,10 +110,6 @@ actor *load_model_with_texture(void *data_start, void *data_end, void *texture_s
 
 void model_draw(actor *model, Gfx **display_list)
 {
-    int i;
-    int remaining_vertices = model->mesh->vertex_count;
-    int offset = 0;
-
     if (!model->visible) return;
 
     guTranslate(&model->transform.translation, model->position->x,
@@ -154,13 +147,16 @@ void model_draw(actor *model, Gfx **display_list)
             G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     }
 
+    int offset = 0;
+    int remaining_vertices = model->mesh->vertex_count;
+
     // Send vertex data in batches of 30.
     while (remaining_vertices >= 30)
     {
         gSPVertex((*display_list)++, &(model->mesh->vertices[offset]), 30, 0);
         gDPPipeSync((*display_list)++);
 
-        for (i = 0; i < 30 / 3; i++)
+        for (int i = 0; i < 30 / 3; i++)
         {
             gSP1Triangle((*display_list)++, i * 3, i * 3 + 1, i * 3 + 2, 0);
         }
@@ -175,7 +171,7 @@ void model_draw(actor *model, Gfx **display_list)
         gSPVertex((*display_list)++, &(model->mesh->vertices[offset]), remaining_vertices, 0);
         gDPPipeSync((*display_list)++);
 
-        for (i = 0; i < remaining_vertices / 3; i++)
+        for (int i = 0; i < remaining_vertices / 3; i++)
         {
             gSP1Triangle((*display_list)++, i * 3, i * 3 + 1, i * 3 + 2, 0);
         }
@@ -189,8 +185,7 @@ actor *create_camera(double positionX, double positionY, double positionZ,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider)
 {
-    actor *camera;
-    camera = (actor*)malloc(sizeof(actor));
+    actor *camera = (actor*)malloc(sizeof(actor));
     camera->position = (vector3*)malloc(sizeof(vector3));
     camera->rotationAxis = (vector3*)malloc(sizeof(vector3));
     camera->visible = 1;
@@ -236,27 +231,19 @@ int check_collision(actor *a, actor *b)
 
 int sphere_sphere_collision(actor *a, actor *b)
 {
-    float radiusSum = 0;
-    vector3 aPos = *a->position;
-    vector3 bPos = *b->position;
-    vector3 dist;
+    const float radiusSum = a->radius + b->radius;
+    vector3 aPos = vec3_add(*a->position, vec3_mul_mat3x3(*a->center, a->transform.rotation));
+    vector3 bPos = vec3_add(*b->position, vec3_mul_mat3x3(*b->center, b->transform.rotation));
+    vector3 dist = vec3_sub(aPos, bPos);
 
-    aPos = vec3_add(aPos, vec3_mul_mat3x3(*a->center, a->transform.rotation));
-    bPos = vec3_add(bPos, vec3_mul_mat3x3(*b->center, b->transform.rotation));
-    dist = vec3_sub(aPos, bPos);
-
-    radiusSum = a->radius + b->radius;
     return vec3_dot(dist, dist) <= radiusSum * radiusSum;
 }
 
 int box_box_collision(actor *a, actor *b)
 {
-    vector3 aPos = *a->position;
-    vector3 bPos = *b->position;
-
-    aPos = vec3_add(aPos, vec3_mul_mat3x3(*a->center, a->transform.rotation));
-    bPos = vec3_add(bPos, vec3_mul_mat3x3(*b->center, b->transform.rotation));
-
+    vector3 aPos = vec3_add(*a->position, vec3_mul_mat3x3(*a->center, a->transform.rotation));
+    vector3 bPos = vec3_add(*b->position, vec3_mul_mat3x3(*b->center, b->transform.rotation));
+    
     vector3 aAxis[3] = { 
         vec3_mul_mat3x3((vector3) { 1, 0, 0 }, a->transform.rotation),
         vec3_mul_mat3x3((vector3) { 0, 1, 0 }, a->transform.rotation),
@@ -343,11 +330,8 @@ int box_box_collision(actor *a, actor *b)
 
 int box_sphere_collision(actor *a, actor *b)
 {
-    vector3 aPos = *a->position;
-    vector3 bPos = *b->position;
-
-    aPos = vec3_add(aPos, vec3_mul_mat3x3(*a->center, a->transform.rotation));
-    bPos = vec3_add(bPos, vec3_mul_mat3x3(*b->center, b->transform.rotation));
+    vector3 aPos = vec3_add(*a->position, vec3_mul_mat3x3(*a->center, a->transform.rotation));
+    vector3 bPos = vec3_add(*b->position, vec3_mul_mat3x3(*b->center, b->transform.rotation));
 
     vector3 aAxis[3] = {
         vec3_mul_mat3x3((vector3) { 1, 0, 0 }, a->transform.rotation),
@@ -357,16 +341,16 @@ int box_sphere_collision(actor *a, actor *b)
 
     float aExt[3] = { fabs(a->extents->x), fabs(a->extents->y), fabs(a->extents->z) };
 
-    vector3 d = vec3_sub(bPos, aPos);
-    vector3 cp = aPos;
+    vector3 abDir = vec3_sub(bPos, aPos);
+    vector3 closestPoint = aPos;
     for (int i = 0; i < 3; i++)
     {
-        float dist = vec3_dot(d, aAxis[i]);
+        float dist = vec3_dot(abDir, aAxis[i]);
         if (dist > aExt[i]) dist = aExt[i];
         if (dist < -aExt[i]) dist = -aExt[i];
-        cp = vec3_add(cp, vec3_mul(dist, aAxis[i]));
+        closestPoint = vec3_add(closestPoint, vec3_mul(aAxis[i], dist));
     }
 
-    vector3 v = vec3_sub(cp, bPos);
-    return vec3_dot(v, v) <= b->radius * b->radius;
+    vector3 closestDir = vec3_sub(closestPoint, bPos);
+    return vec3_dot(closestDir, closestDir) <= b->radius * b->radius;
 }

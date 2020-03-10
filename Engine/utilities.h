@@ -9,7 +9,7 @@
 
 void rom_2_ram(void *from_addr, void *to_addr, s32 seq_size);
 
-unsigned short *image_24_to_16(const unsigned char *data, const int size_x, const int size_y);
+unsigned short *image_24_to_16(const unsigned char *data, int size_x, int size_y);
 
 float vec3_dot(vector3 a, vector3 b);
 
@@ -21,10 +21,10 @@ vector3 vec3_add(vector3 a, vector3 b);
 
 vector3 vec3_sub(vector3 a, vector3 b);
 
-vector3 vec3_mul(float scalar, vector3 vector);
+vector3 vec3_mul(vector3 vector, float scalar);
 
-vector3 vec3_mul_mat3x3(vector3 a, Mtx mat);
+vector3 vec3_mul_mat3x3(vector3 vector, Mtx mat);
 
-vector3 vec3_mul_mat4x4(vector3 a, Mtx mat);
+vector3 vec3_mul_mat4x4(vector3 vector, Mtx mat);
 
 #endif
