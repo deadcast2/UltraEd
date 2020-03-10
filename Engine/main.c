@@ -22,25 +22,24 @@ char mem_heep[1024 * 512];
 Gfx *glistp;
 Gfx gfx_glist[GFX_GLIST_LEN];
 transform world;
-u16 perspNormal;
 NUContData contdata[4];
 
-static Vp viewPort =
+static Vp view_port =
 {
   SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
   SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
 };
 
-Gfx rspState[] =
+Gfx rsp_state[] =
 {
-  gsSPViewport(&viewPort),
+  gsSPViewport(&view_port),
   gsSPClearGeometryMode(0xFFFFFFFF),
   gsSPSetGeometryMode(G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH | G_CULL_BACK),
   gsSPTexture(0, 0, 0, 0, G_OFF),
   gsSPEndDisplayList()
 };
 
-Gfx rdpState[] =
+Gfx rdp_state[] =
 {
   gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
   gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
@@ -49,14 +48,14 @@ Gfx rdpState[] =
   gsSPEndDisplayList()
 };
 
-void rcpInit()
+void rcp_init()
 {
     gSPSegment(glistp++, 0, 0x0);
-    gSPDisplayList(glistp++, OS_K0_TO_PHYSICAL(rspState));
-    gSPDisplayList(glistp++, OS_K0_TO_PHYSICAL(rdpState));
+    gSPDisplayList(glistp++, OS_K0_TO_PHYSICAL(rsp_state));
+    gSPDisplayList(glistp++, OS_K0_TO_PHYSICAL(rdp_state));
 }
 
-void clearFramBuffer()
+void clear_frame_buffer()
 {
     unsigned int backgroundColor = GPACK_RGBA5551(_UER_SceneBackgroundColor[0],
         _UER_SceneBackgroundColor[1], _UER_SceneBackgroundColor[2], 1);
@@ -79,12 +78,14 @@ void clearFramBuffer()
 
 void setup_world_matrix(Gfx **display_list)
 {
+    u16 persp_normal;
+
     guPerspective(&world.projection,
-        &perspNormal,
+        &persp_normal,
         80.0F, SCREEN_WD / SCREEN_HT,
         0.1F, 1000.0F, 1.0F);
 
-    gSPPerspNormalize((*display_list)++, perspNormal);
+    gSPPerspNormalize((*display_list)++, persp_normal);
 
     gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.projection),
         G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -96,11 +97,11 @@ void setup_world_matrix(Gfx **display_list)
         G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
 }
 
-void createDisplayList()
+void create_display_list()
 {
     glistp = gfx_glist;
-    rcpInit();
-    clearFramBuffer();
+    rcp_init();
+    clear_frame_buffer();
     setup_world_matrix(&glistp);
     _UER_Draw(&glistp);
     gDPFullSync(glistp++);
@@ -109,13 +110,13 @@ void createDisplayList()
         NU_GFX_UCODE_F3DEX, NU_SC_SWAPBUFFER);
 }
 
-void checkInputs()
+void check_inputs()
 {
     nuContDataGetEx(contdata, 0);
     _UER_Input(contdata);
 }
 
-void updateCamera()
+void update_camera()
 {
     actor *camera = _UER_ActiveCamera;
     if (camera != NULL)
@@ -126,25 +127,24 @@ void updateCamera()
     }
 }
 
-void gfxCallback(int pendingGfx)
+void gfx_callback(int pendingGfx)
 {
     if (pendingGfx < 1)
     {
-        createDisplayList();
-        checkInputs();
-        updateCamera();
+        create_display_list();
+        check_inputs();
+        update_camera();
         _UER_Update();
         _UER_Collide();
     }
 }
 
-int initHeapMemory()
+int init_heap_memory()
 {
-    if (InitHeap(mem_heep, sizeof(mem_heep)) == -1) return -1;
-    return 0;
+    return InitHeap(mem_heep, sizeof(mem_heep));
 }
 
-void setDefaultCamera()
+void set_default_camera()
 {
     for (int i = 0; i < _UER_ActorCount; i++)
     {
@@ -161,17 +161,17 @@ void mainproc()
     nuGfxInit();
     nuContInit();
 
-    if (initHeapMemory() > -1)
+    if (init_heap_memory() > -1)
     {
         _UER_Load();
-        setDefaultCamera();
+        set_default_camera();
         _UER_Mappings();
         _UER_Start();
     }
 
     while (1)
     {
-        nuGfxFuncSet((NUGfxFunc)gfxCallback);
+        nuGfxFuncSet((NUGfxFunc)gfx_callback);
         nuGfxDisplayOn();
     }
 }
