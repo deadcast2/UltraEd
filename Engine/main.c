@@ -161,6 +161,11 @@ void mainproc()
     nuGfxInit();
     nuContInit();
 
+    osViSetMode(&osViModeTable[OS_VI_NTSC_LAN1]);
+    osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON | OS_VI_GAMMA_OFF 
+        | OS_VI_GAMMA_DITHER_OFF | OS_VI_DIVOT_ON);
+    nuGfxDisplayOff();
+
     if (init_heap_memory() > -1)
     {
         _UER_Load();
@@ -169,9 +174,8 @@ void mainproc()
         _UER_Start();
     }
 
-    while (1)
-    {
-        nuGfxFuncSet((NUGfxFunc)gfx_callback);
-        nuGfxDisplayOn();
-    }
+    nuGfxFuncSet((NUGfxFunc)gfx_callback);
+    nuGfxDisplayOn();
+
+    while (1) { }
 }
