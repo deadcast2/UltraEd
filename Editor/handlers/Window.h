@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include "../ResourceExt.h"
+#include "Options.h"
 #include "SceneSettings.h"
 #include "Menu.h"
 #include "MouseMenu.h"

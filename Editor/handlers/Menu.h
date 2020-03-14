@@ -46,6 +46,9 @@ namespace UltraEd
             case ID_FILE_BUILDROM_AND_LOAD:
                 CUtil::RunAction(statusBar, "Building ROM...", [scene] { scene->OnBuildROM(BuildFlag::Load); });
                 break;
+            case ID_FILE_OPTIONS:
+                DialogBoxParam(NULL, MAKEINTRESOURCE(IDD_FILE_OPTIONS), hWnd, (DLGPROC)OptionsProc, 0);
+                break;
             case ID_INSTALL_BUILD_TOOLS:
             {
                 CUtil::RunAction(statusBar, "Installing build tools...", [hWnd] {

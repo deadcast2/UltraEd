@@ -7,6 +7,7 @@
 #define IDB_TOOLBAR                     103
 #define IDD_SCRIPT_EDITOR               104
 #define IDD_SCENE_SETTINGS              105
+#define IDD_FILE_OPTIONS                106
 #define IDC_SCRIPT_EDITOR_SAVE_CHANGES  1000
 #define IDC_EDIT_SCENE_COLOR_RED        1001
 #define IDC_EDIT_SCENE_COLOR_BLUE       1002
@@ -14,6 +15,7 @@
 #define IDC_EDIT_SCENE_COLOR_GREEN      1004
 #define IDC_BUTTON_SCENE_COLOR_CHOOSE   1005
 #define IDC_EDIT_GIZMO_SNAP_SIZE        1006
+#define IDC_VIDEO_MODE                  1007
 #define IDM_TOOLBAR_TRANSLATE           5000
 #define IDM_TOOLBAR_ROTATE              5001
 #define IDM_TOOLBAR_SCALE               5002
@@ -59,15 +61,16 @@
 #define ID_MOVEMENT_GOTO                40025
 #define ID_MOVEMENT_HOME                40026
 #define ID_ACTOR_PRESETS_PUMPKIN        40027
+#define ID_FILE_OPTIONS                 40028
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        106
-#define _APS_NEXT_COMMAND_VALUE         40028
-#define _APS_NEXT_CONTROL_VALUE         1007
+#define _APS_NEXT_RESOURCE_VALUE        107
+#define _APS_NEXT_COMMAND_VALUE         40029
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

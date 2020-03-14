@@ -229,6 +229,9 @@
     <ClInclude Include="Undo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="handlers\Options.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\ultraed.ico">
