@@ -16,11 +16,21 @@ namespace UltraEd
         {
             case WM_INITDIALOG:
             {
-                HWND comboBox = GetDlgItem(hWndDlg, IDC_VIDEO_MODE);
-                SendMessage(comboBox, CB_ADDSTRING, 0, (LPARAM)_T("NTSC"));
-                SendMessage(comboBox, CB_ADDSTRING, 0, (LPARAM)_T("PAL"));
-                SendMessage(comboBox, CB_SETCURSEL, static_cast<int>(CSettings::GetVideoMode()), 0);
-                SetWindowPos(comboBox, NULL, 0, 0, 80, 80, SWP_NOMOVE);
+                HWND videoMode = GetDlgItem(hWndDlg, IDC_VIDEO_MODE);
+                if (videoMode != NULL)
+                {
+                    SendMessage(videoMode, CB_ADDSTRING, 0, (LPARAM)_T("NTSC"));
+                    SendMessage(videoMode, CB_ADDSTRING, 0, (LPARAM)_T("PAL"));
+                    SendMessage(videoMode, CB_SETCURSEL, static_cast<int>(CSettings::GetVideoMode()), 0);
+                }
+
+                HWND buildCart = GetDlgItem(hWndDlg, IDC_BUILD_CART);
+                if (buildCart != NULL)
+                {
+                    SendMessage(buildCart, CB_ADDSTRING, 0, (LPARAM)_T("64drive"));
+                    SendMessage(buildCart, CB_ADDSTRING, 0, (LPARAM)_T("EverDrive-64 X7"));
+                    SendMessage(buildCart, CB_SETCURSEL, static_cast<int>(CSettings::GetBuildCart()), 0);
+                }
                 break;
             }
             case WM_COMMAND:
@@ -29,9 +39,19 @@ namespace UltraEd
                 {
                     case IDOK:
                     {
-                        HWND comboBox = GetDlgItem(hWndDlg, IDC_VIDEO_MODE);
-                        int index = SendMessage(comboBox, CB_GETCURSEL, 0, 0);
-                        CSettings::SetVideoMode(static_cast<VideoMode>(index));
+                        HWND videoMode = GetDlgItem(hWndDlg, IDC_VIDEO_MODE);
+                        if (videoMode != NULL)
+                        {
+                            int index = SendMessage(videoMode, CB_GETCURSEL, 0, 0);
+                            CSettings::SetVideoMode(static_cast<VideoMode>(index));
+                        }
+
+                        HWND buildCart = GetDlgItem(hWndDlg, IDC_BUILD_CART);
+                        if (buildCart != NULL)
+                        {
+                            int index = SendMessage(buildCart, CB_GETCURSEL, 0, 0);
+                            CSettings::SetBuildCart(static_cast<BuildCart>(index));
+                        }
                     }
                     case IDCANCEL:
                     {

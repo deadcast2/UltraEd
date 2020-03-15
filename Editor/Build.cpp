@@ -525,7 +525,10 @@ namespace UltraEd
             string currDir = GetPathFor("Player\\USB");
 
             // Start the USB loader with no window.
-            CreateProcess(NULL, "cmd /c 64drive_usb.exe -l ..\\..\\Engine\\main.n64 -c 6102", NULL, NULL, FALSE,
+            string command = CSettings::GetBuildCart() == BuildCart::_64drive ? 
+                "cmd /c 64drive_usb.exe -l ..\\..\\Engine\\main.n64 -c 6102" : 
+                "cmd /c usb64.exe -rom=..\\..\\Engine\\main.n64 && usb64.exe -start";
+            CreateProcess(NULL, const_cast<LPSTR>(command.c_str()), NULL, NULL, FALSE, 
                 CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
 
             WaitForSingleObject(pi.hProcess, INFINITE);

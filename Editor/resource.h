@@ -16,6 +16,7 @@
 #define IDC_BUTTON_SCENE_COLOR_CHOOSE   1005
 #define IDC_EDIT_GIZMO_SNAP_SIZE        1006
 #define IDC_VIDEO_MODE                  1007
+#define IDC_BUILD_CART                  1008
 #define IDM_TOOLBAR_TRANSLATE           5000
 #define IDM_TOOLBAR_ROTATE              5001
 #define IDM_TOOLBAR_SCALE               5002
@@ -70,7 +71,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        107
 #define _APS_NEXT_COMMAND_VALUE         40029
-#define _APS_NEXT_CONTROL_VALUE         1008
+#define _APS_NEXT_CONTROL_VALUE         1009
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
