@@ -15,7 +15,7 @@ namespace UltraEd
     public:
         static bool Start(CScene *scene);
         static bool Run();
-        static bool Load();
+        static bool Load(const HWND &hWnd);
         static bool WriteSpecFile(const vector<CActor*> &actors);
         static bool WriteDefinitionsFile();
         static bool WriteSegmentsFile(const vector<CActor*> &actors, map<string, string> *resourceCache);

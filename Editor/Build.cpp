@@ -507,18 +507,35 @@ namespace UltraEd
         return false;
     }
 
-    bool CBuild::Load()
+    bool CBuild::Load(const HWND &hWnd)
     {
         // Get the path to where the program is running.
         char buffer[MAX_PATH];
         if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
         {
+            HANDLE stdOutRead = NULL;
+            HANDLE stdOutWrite = NULL;
+
+            SECURITY_ATTRIBUTES securityAttrs;
+            securityAttrs.nLength = sizeof(SECURITY_ATTRIBUTES);
+            securityAttrs.bInheritHandle = TRUE;
+            securityAttrs.lpSecurityDescriptor = NULL;
+
+            if (!CreatePipe(&stdOutRead, &stdOutWrite, &securityAttrs, 0))
+                MessageBox(NULL, "Could not create pipe", "Pipe Error", NULL);
+
+            if (!SetHandleInformation(stdOutRead, HANDLE_FLAG_INHERIT, 0))
+                MessageBox(NULL, "Could set handle information for pipe", "Pipe Error", NULL);
+
             DWORD exitCode;
             STARTUPINFO si;
             PROCESS_INFORMATION pi;
 
             ZeroMemory(&si, sizeof(si));
             si.cb = sizeof(si);
+            si.hStdError = stdOutWrite;
+            si.hStdOutput = stdOutWrite;
+            si.dwFlags |= STARTF_USESTDHANDLES;
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
@@ -527,14 +544,31 @@ namespace UltraEd
             // Start the USB loader with no window.
             string command = CSettings::GetBuildCart() == BuildCart::_64drive ? 
                 "cmd /c 64drive_usb.exe -l ..\\..\\Engine\\main.n64 -c 6102" : 
-                "cmd /c usb64.exe -rom=..\\..\\Engine\\main.n64 && usb64.exe -start";
-            CreateProcess(NULL, const_cast<LPSTR>(command.c_str()), NULL, NULL, FALSE, 
+                "cmd /c usb64.exe -rom=..\\..\\Engine\\main.n64";
+            CreateProcess(NULL, const_cast<LPSTR>(command.c_str()), NULL, NULL, TRUE, 
                 CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
+
+            DWORD dwRead;
+            CHAR chBuf[4096];
+            CloseHandle(stdOutWrite);
+
+            // Send the cart loading results to the output window.
+            while (ReadFile(stdOutRead, chBuf, 4096, &dwRead, NULL))
+            {
+                if (dwRead == 0) break;
+                auto buffer = make_unique<char[]>(dwRead + 1); // Add 1 to prevent garbage.
+                if (buffer)
+                {
+                    memcpy(buffer.get(), chBuf, dwRead);
+                    SendMessage(hWnd, WM_COMMAND, TAB_BUILD_OUTPUT, reinterpret_cast<LPARAM>(buffer.release()));
+                }
+            }
 
             WaitForSingleObject(pi.hProcess, INFINITE);
             GetExitCodeProcess(pi.hProcess, &exitCode);
             CloseHandle(pi.hProcess);
             CloseHandle(pi.hThread);
+            CloseHandle(stdOutRead);
 
             return exitCode == 0;
         }

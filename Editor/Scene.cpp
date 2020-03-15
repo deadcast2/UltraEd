@@ -131,18 +131,7 @@ namespace UltraEd
             }
             else if (flag & BuildFlag::Load)
             {
-                if (CBuild::Load())
-                {
-                    MessageBox(NULL, "The ROM has been successfully loaded to the cart!", "Success", MB_OK);
-                }
-                else
-                {
-                    MessageBox(NULL, "Could not load ROM onto cart. Make sure your cart is connected via USB.", "Error", MB_OK);
-                }
-            }
-            else
-            {
-                MessageBox(NULL, "The ROM has been successfully built!", "Success", MB_OK);
+                CBuild::Load(GetWndHandle());
             }
         }
         else
