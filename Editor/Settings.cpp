@@ -1,48 +1,20 @@
 #include "Settings.h"
+#include "Registry.h"
 
-namespace UltraEd
+namespace UltraEd 
 {
-    const string CSettings::m_key = "Software\\UltraEd";
-
-    bool CSettings::Set(const string &key, const string &value)
+    void CSettings::SetVideoMode(VideoMode mode)
     {
-        HKEY regKey;
-        bool success = false;
-
-        if (RegCreateKeyEx(HKEY_CURRENT_USER, CSettings::m_key.c_str(), 0, NULL,
-            REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &regKey, NULL) == ERROR_SUCCESS)
-        {
-            int valueLength = strnlen(value.c_str(), REG_DATA_LENGTH);
-            if (valueLength > 0 && RegSetValueEx(regKey, key.c_str(), 0, REG_SZ, 
-                (const BYTE*)value.c_str(), valueLength) == ERROR_SUCCESS)
-            {
-                success = true;
-            }
-
-            RegCloseKey(regKey);
-        }
-
-        return success;
+        CRegistry::Set("VideoMode", to_string(static_cast<int>(mode)));
     }
 
-    bool CSettings::Get(const string &key, string &value)
+    VideoMode CSettings::GetVideoMode()
     {
-        HKEY regKey;
-        bool success = false;
-
-        if (RegOpenKeyEx(HKEY_CURRENT_USER, CSettings::m_key.c_str(), 0, KEY_QUERY_VALUE, &regKey) == ERROR_SUCCESS)
+        string mode;
+        if (CRegistry::Get("VideoMode", mode))
         {
-            char buffer[256];
-            DWORD bufferSize = sizeof(buffer);
-            if (RegQueryValueEx(regKey, key.c_str(), NULL, NULL, (LPBYTE)buffer, &bufferSize) == ERROR_SUCCESS)
-            {
-                value = string(buffer);
-                success = true;
-            }
-
-            RegCloseKey(regKey);
+            return static_cast<VideoMode>(atoi(mode.c_str()));
         }
-
-        return success;
+        return VideoMode::NTSC;
     }
 }

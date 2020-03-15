@@ -6,6 +6,7 @@ Player/Config
 Player/Logs
 Engine/scene.h
 Engine/segments.h
+Engine/definitions.h
 Engine/actors.h
 Engine/collisions.h
 Engine/scripts.h

@@ -13,6 +13,8 @@
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 #include "ResourceExt.h"
+#include "Settings.h"
+#include "shlwapi.h"
 
 namespace UltraEd
 {
@@ -126,6 +128,19 @@ namespace UltraEd
         fwrite(specIncludeStart, 1, strlen(specIncludeStart), file.get());
         fwrite(specIncludes.c_str(), 1, specIncludes.size(), file.get());
         fwrite(specIncludeEnd, 1, strlen(specIncludeEnd), file.get());
+        return true;
+    }
+
+    bool CBuild::WriteDefinitionsFile()
+    {
+        char buffer[128];
+        string mode = CSettings::GetVideoMode() == VideoMode::NTSC ? "OS_VI_NTSC_LAN1" : "OS_VI_PAL_LAN1";
+        sprintf(buffer, "#define _UER_VIDEO_MODE %s\n", mode.c_str());
+
+        string path = GetPathFor("Engine\\definitions.h");
+        unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "w"), fclose);
+        if (file == NULL) return false;
+        fwrite(buffer, 1, strlen(buffer), file.get());
         return true;
     }
 
@@ -451,6 +466,7 @@ namespace UltraEd
         WriteActorsFile(actors, resourceCache);
         
         WriteSpecFile(actors);
+        WriteDefinitionsFile();
         WriteCollisionFile(actors);
         WriteScriptsFile(actors);
         WriteMappingsFile(actors);

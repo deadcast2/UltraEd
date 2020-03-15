@@ -254,6 +254,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Undo.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="Build.cpp" />
@@ -273,7 +274,7 @@
     <ClCompile Include="Gizmo.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="vendor\cJSON.c" />
     <ClCompile Include="vendor\fastlz.c" />
@@ -284,6 +285,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="handlers\Options.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="Undo.h" />
     <ClInclude Include="Actor.h" />
     <ClInclude Include="BoxCollider.h" />
@@ -314,7 +316,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Savable.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="Settings.h" />
+    <ClInclude Include="Registry.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="vendor\cJSON.h" />
     <ClInclude Include="vendor\fastlz.h" />

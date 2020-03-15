@@ -9,13 +9,12 @@ using namespace std;
 
 namespace UltraEd
 {
+    enum class VideoMode { NTSC, PAL };
+
     class CSettings
     {
     public:
-        static bool Set(const string &key, const string &value);
-        static bool Get(const string &key, string &value);
-
-    private:
-        static const string m_key;
+        static void SetVideoMode(VideoMode mode);
+        static VideoMode GetVideoMode();
     };
 }

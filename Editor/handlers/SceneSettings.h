@@ -5,7 +5,7 @@
 #include <string>
 #include "../Scene.h"
 #include "../resource.h"
-#include "../Settings.h"
+#include "../Registry.h"
 
 using namespace std;
 
@@ -68,7 +68,7 @@ namespace UltraEd
             sprintf(keyBuffer, "CustomColor%i", i);
 
             string rgb;
-            if (CSettings::Get(keyBuffer, rgb))
+            if (CRegistry::Get(keyBuffer, rgb))
             {
                 int r, g, b;
                 sscanf(rgb.c_str(), "%i %i %i", &r, &g, &b);
@@ -88,7 +88,7 @@ namespace UltraEd
             COLORREF color = colors[i];
             sprintf(colorBuffer, "%i %i %i", GetRValue(color), GetGValue(color), GetBValue(color));
 
-            CSettings::Set(keyBuffer, colorBuffer);
+            CRegistry::Set(keyBuffer, colorBuffer);
         }
     }
 

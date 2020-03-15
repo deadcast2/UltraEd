@@ -6,7 +6,8 @@
 #include "collision.h"
 #include "scene.h"
 
-// User generated includes.
+// Generated includes.
+#include "definitions.h"
 #include "segments.h"
 #include "actors.h"
 #include "mappings.h"
@@ -161,7 +162,7 @@ void mainproc()
     nuGfxInit();
     nuContInit();
 
-    osViSetMode(&osViModeTable[OS_VI_NTSC_LAN1]);
+    osViSetMode(&osViModeTable[_UER_VIDEO_MODE]);
     osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON | OS_VI_GAMMA_OFF 
         | OS_VI_GAMMA_DITHER_OFF | OS_VI_DIVOT_ON);
     nuGfxDisplayOff();

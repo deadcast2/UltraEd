@@ -1,6 +1,5 @@
 #include "Build.h"
 #include "Scene.h"
-#include "Settings.h"
 #include "FileIO.h"
 #include "Dialog.h"
 #include "Util.h"
