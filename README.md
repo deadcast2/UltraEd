@@ -8,7 +8,7 @@
 
 ### Recent screenshot
 
-<img src="https://i.imgur.com/Z64XkBD.png" width="600" />
+<img src="https://i.imgur.com/WwC50Yb.png" width="600" />
 
 ### Setup
 
