@@ -544,7 +544,7 @@ namespace UltraEd
             // Start the USB loader with no window.
             string command = CSettings::GetBuildCart() == BuildCart::_64drive ? 
                 "cmd /c 64drive_usb.exe -l ..\\..\\Engine\\main.n64 -c 6102" : 
-                "cmd /c usb64.exe -rom=..\\..\\Engine\\main.n64";
+                "cmd /c usb64.exe -rom=..\\..\\Engine\\main.n64 -start";
             CreateProcess(NULL, const_cast<LPSTR>(command.c_str()), NULL, NULL, TRUE, 
                 CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
 
