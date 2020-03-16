@@ -61,6 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 1;
     }
 
+    RECT parentRect;
+    GetClientRect(UltraEd::parentWindow, &parentRect);
     UltraEd::statusBar = CreateStatusWindow(WS_VISIBLE | WS_CHILD, "Welcome to UltraEd",
         UltraEd::parentWindow, IDM_STATUS_BAR);
 
@@ -70,10 +72,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 1;
     }
 
+    const int partWidth = parentRect.right / 4;
+    int statusParts[2] = { partWidth * 3, partWidth * 4 };
+    SendMessage(UltraEd::statusBar, SB_SETPARTS, 2, (LPARAM)&statusParts);
+
     ShowWindow(UltraEd::parentWindow, nCmdShow);
 
     // Create treeview that shows objects in scene.   
-    RECT parentRect;
     GetClientRect(UltraEd::parentWindow, &parentRect);
     RECT toolbarRect;
     GetClientRect(UltraEd::toolbarWindow, &toolbarRect);
@@ -148,6 +153,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     // Pass scene pointers to handles that need it during event handling.
     SetWindowLongPtr(UltraEd::renderWindow, GWLP_USERDATA, (LPARAM)& scene);
     SetWindowLongPtr(UltraEd::parentWindow, GWLP_USERDATA, (LPARAM)& scene);
+
+    // Send command to force status bar update with scene stats.
+    SendMessage(UltraEd::parentWindow, WM_COMMAND, 0, 0);
 
     MSG msg = { 0 };
     while (WM_QUIT != msg.message)

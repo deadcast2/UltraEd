@@ -567,6 +567,20 @@ namespace UltraEd
         }
     }
 
+    string CScene::GetStats()
+    {
+        size_t triCount = 0;
+        for (const auto &actor : m_actors)
+        {
+            if (actor.second->GetType() == ActorType::Model)
+            {
+                triCount += actor.second->GetVertices().size();
+            }
+        }
+        return string("Actors:").append(to_string(m_actors.size()))
+            .append(" | Tris:").append(to_string(triCount));
+    }
+
     void CScene::SetGizmoModifier(GizmoModifierState::Value state)
     {
         m_gizmo.SetModifier(state);

@@ -37,22 +37,27 @@ namespace UltraEd
             }
             case WM_COMMAND:
             {
-                UltraEd::MenuHandler(statusBar, parentWindow, wParam, lParam, scene);
-                UltraEd::ToolbarHandler(wParam, scene);
-                UltraEd::TreeviewHandler(treeview, hWnd, wParam, lParam, scene);
-                UltraEd::MouseMenuHandler(UltraEd::ScriptEditorHandler, hWnd, wParam, scene);
-                UltraEd::TabHandler(wParam, lParam);
+                MenuHandler(statusBar, parentWindow, wParam, lParam, scene);
+                ToolbarHandler(wParam, scene);
+                TreeviewHandler(treeview, hWnd, wParam, lParam, scene);
+                MouseMenuHandler(ScriptEditorHandler, hWnd, wParam, scene);
+                TabHandler(wParam, lParam);
+
+                if (scene != NULL)
+                {
+                    SendMessage(statusBar, SB_SETTEXT, MAKEWPARAM(1, 0), (LPARAM)scene->GetStats().c_str());
+                }
                 break;
             }
             case WM_NOTIFY:
             {
-                UltraEd::TreeviewHandler(treeview, hWnd, ((LPNMHDR)lParam)->code, lParam, scene);
+                TreeviewHandler(treeview, hWnd, ((LPNMHDR)lParam)->code, lParam, scene);
                 break;
             }
             case WM_MOUSEMOVE:
             {
-                if (UltraEd::IsMouseOverSplitter(treeview, wParam, lParam)) SetCursor(hcSizeCursor);
-                if (UltraEd::resizingTreeView && wParam == MK_LBUTTON)
+                if (IsMouseOverSplitter(treeview, wParam, lParam)) SetCursor(hcSizeCursor);
+                if (resizingTreeView && wParam == MK_LBUTTON)
                 {
                     // Track new width of treeview.
                     RECT parentRect;
@@ -61,7 +66,7 @@ namespace UltraEd
                     GetClientRect(treeview, &treeviewRect);
                     int xPosition = LOWORD(lParam);
                     if (xPosition > parentRect.right) xPosition -= USHRT_MAX;
-                    UltraEd::treeviewWidth = treeviewRect.right + xPosition;
+                    treeviewWidth = treeviewRect.right + xPosition;
 
                     // Draw resize preview rectangle.
                     RECT toolbarRect;
@@ -84,11 +89,11 @@ namespace UltraEd
             }
             case WM_LBUTTONDOWN:
             {
-                if (UltraEd::IsMouseOverSplitter(treeview, wParam, lParam))
+                if (IsMouseOverSplitter(treeview, wParam, lParam))
                 {
                     SetCursor(hcSizeCursor);
                     SetCapture(hWnd);
-                    UltraEd::resizingTreeView = true;
+                    resizingTreeView = true;
                     break;
                 }
                 POINT point = { LOWORD(lParam), HIWORD(lParam) };
@@ -97,13 +102,13 @@ namespace UltraEd
             }
             case WM_LBUTTONUP:
             {
-                if (UltraEd::resizingTreeView)
+                if (resizingTreeView)
                 {
                     RECT parentRect;
                     ReleaseCapture();
                     GetClientRect(parentWindow, &parentRect);
                     PostMessage(parentWindow, WM_SIZE, wParam, MAKELPARAM(parentRect.right, parentRect.bottom));
-                    UltraEd::resizingTreeView = false;
+                    resizingTreeView = false;
                 }
                 break;
             }
@@ -149,14 +154,18 @@ namespace UltraEd
                     RECT treeviewRect;
                     GetClientRect(treeview, &treeviewRect);
 
+                    const int partWidth = parentRect.right / 4;
+                    int statusParts[2] = { partWidth * 3, partWidth * 4 };
+                    SendMessage(statusBar, SB_SETPARTS, 2, (LPARAM)&statusParts);
+
                     MoveWindow(tabsWindow, treeviewRect.right,
-                        parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight,
+                        parentRect.bottom - statusRect.bottom - tabsWindowHeight,
                         parentRect.right - treeviewRect.right + tabsBorder, parentRect.bottom, 1);
 
                     RECT tabsWindowRect;
                     GetClientRect(tabsWindow, &tabsWindowRect);
 
-                    MoveWindow(buildOutput, 8, 28, tabsWindowRect.right - 14, UltraEd::tabsWindowHeight -
+                    MoveWindow(buildOutput, 8, 28, tabsWindowRect.right - 14, tabsWindowHeight -
                         statusRect.bottom - 8, 1);
 
                     const int renderWidth = LOWORD(lParam) - treeviewRect.right;

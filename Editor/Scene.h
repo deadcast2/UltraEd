@@ -75,6 +75,7 @@ namespace UltraEd
         void Delete(shared_ptr<CActor> actor);
         void RestoreActor(cJSON *item);
         void ResetViews();
+        string GetStats();
 
     private:
         void CheckChanges();
