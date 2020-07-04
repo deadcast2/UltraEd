@@ -592,6 +592,9 @@ typedef struct DIDEVCAPS {
 #define DIDFT_VENDORDEFINED     0x04000000
 #define DIDFT_ALIAS             0x08000000
 #endif /* DIRECTINPUT_VERSION >= 0x050a */
+#ifndef DIDFT_OPTIONAL
+#define DIDFT_OPTIONAL          0x80000000
+#endif
 
 #define DIDFT_ENUMCOLLECTION(n) ((WORD)(n) << 8)
 #define DIDFT_NOCOLLECTION      0x00FFFF00
@@ -4316,6 +4319,21 @@ extern "C" {
  * dwFlags is reserved and should be set to zero
  */
 WINMMAPI MMRESULT WINAPI joyConfigChanged( DWORD dwFlags );
+
+#ifndef DIJ_RINGZERO
+/*
+ * Invoke the joystick control panel directly, using the passed window handle 
+ * as the parent of the dialog.  This API is only supported for compatibility 
+ * purposes; new applications should use the RunControlPanel method of a 
+ * device interface for a game controller.
+ * The API is called by using the function pointer returned by
+ * GetProcAddress( hCPL, TEXT("ShowJoyCPL") ) where hCPL is a HMODULE returned 
+ * by LoadLibrary( TEXT("joy.cpl") ).  The typedef is provided to allow 
+ * declaration and casting of an appropriately typed variable.
+ */
+void WINAPI ShowJoyCPL( HWND hWnd );
+typedef void (WINAPI* LPFNSHOWJOYCPL)( HWND hWnd );
+#endif /* DIJ_RINGZERO */
 
 
 /*

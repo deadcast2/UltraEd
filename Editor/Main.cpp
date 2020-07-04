@@ -1,175 +1,233 @@
-#define WIN32_LEAN_AND_MEAN
-#define _WIN32_WINDOWS 0x0501 // Enable mouse wheel scrolling.
+// dear imgui: standalone example application for DirectX 9
+// If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
 
-#pragma comment(lib, "deps/DXSDK/lib/d3dx8.lib")
-#pragma comment(lib, "deps/DXSDK/lib/d3d8.lib")
-#pragma comment(lib, "deps/Assimp/lib/assimp-vc140-mt.lib")
-
+#include "vendor/ImGui/imgui.h"
+#include "vendor/ImGui/imgui_impl_dx9.h"
+#include "vendor/ImGui/imgui_impl_win32.h"
+#include <d3d9.h>
+#define DIRECTINPUT_VERSION 0x0800
+#include <dinput.h>
 #include <tchar.h>
-#include "handlers/Window.h"
 
-const int windowWidth = 800;
-const int windowHeight = 600;
-const TCHAR szWindowClass[] = APP_NAME;
-const TCHAR szTitle[] = _T("Loading");
+// Data
+static LPDIRECT3D9              g_pD3D = NULL;
+static LPDIRECT3DDEVICE9        g_pd3dDevice = NULL;
+static D3DPRESENT_PARAMETERS    g_d3dpp = {};
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+// Forward declarations of helper functions
+bool CreateDeviceD3D(HWND hWnd);
+void CleanupDeviceD3D();
+void ResetDevice();
+LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+// Main code
+int main(int, char **)
 {
-    if (LoadLibrary("SciLexer.dll") == NULL)
+    // Create application window
+    WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("ImGui Example"), NULL };
+    ::RegisterClassEx(&wc);
+    HWND hwnd = ::CreateWindow(wc.lpszClassName, _T("Dear ImGui DirectX9 Example"), WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, NULL, NULL, wc.hInstance, NULL);
+
+    // Initialize Direct3D
+    if (!CreateDeviceD3D(hwnd))
     {
-        MessageBox(NULL, "Could not load SciLexer.dll", "Error", NULL);
+        CleanupDeviceD3D();
+        ::UnregisterClass(wc.lpszClassName, wc.hInstance);
         return 1;
     }
 
-    WNDCLASSEX wcex;
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = UltraEd::WindowHandler;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MAIN_ICON));
-    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = MAKEINTRESOURCE(IDR_MAIN_MENU);
-    wcex.lpszClassName = szWindowClass;
-    wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
+    // Show the window
+    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
+    ::UpdateWindow(hwnd);
 
-    if (!RegisterClassEx(&wcex))
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsClassic();
+
+    // Setup Platform/Renderer bindings
+    ImGui_ImplWin32_Init(hwnd);
+    ImGui_ImplDX9_Init(g_pd3dDevice);
+
+    // Load Fonts
+    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
+    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
+    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+    // - Read 'docs/FONTS.md' for more instructions and details.
+    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
+    //io.Fonts->AddFontDefault();
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
+    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+    //IM_ASSERT(font != NULL);
+
+    // Our state
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    // Main loop
+    MSG msg;
+    ZeroMemory(&msg, sizeof(msg));
+    while (msg.message != WM_QUIT)
     {
-        MessageBox(NULL, "Call to RegisterClassEx failed!", "Error", NULL);
-        return 1;
-    }
-
-    // Create the main window which we'll add the toolbar and renderer to.
-    UltraEd::parentWindow = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-        (GetSystemMetrics(SM_CXSCREEN) / 2) - (windowWidth / 2),
-        (GetSystemMetrics(SM_CYSCREEN) / 2) - (windowHeight / 2),
-        windowWidth, windowHeight, NULL, NULL, hInstance, NULL);
-
-    if (!UltraEd::parentWindow)
-    {
-        MessageBox(NULL, "Could not create parent window.", "Error", NULL);
-        return 1;
-    }
-    
-    UltraEd::toolbarWindow = UltraEd::CreateToolbar(UltraEd::parentWindow, hInstance);
-
-    if (!UltraEd::toolbarWindow)
-    {
-        MessageBox(NULL, "Could not create toolbar.", "Error", NULL);
-        return 1;
-    }
-
-    RECT parentRect;
-    GetClientRect(UltraEd::parentWindow, &parentRect);
-    UltraEd::statusBar = CreateStatusWindow(WS_VISIBLE | WS_CHILD, "Welcome to UltraEd",
-        UltraEd::parentWindow, IDM_STATUS_BAR);
-
-    if (!UltraEd::statusBar)
-    {
-        MessageBox(NULL, "Could not create status bar.", "Error", NULL);
-        return 1;
-    }
-
-    const int partWidth = parentRect.right / 4;
-    int statusParts[2] = { partWidth * 3, partWidth * 4 };
-    SendMessage(UltraEd::statusBar, SB_SETPARTS, 2, (LPARAM)&statusParts);
-
-    ShowWindow(UltraEd::parentWindow, nCmdShow);
-
-    // Create treeview that shows objects in scene.   
-    GetClientRect(UltraEd::parentWindow, &parentRect);
-    RECT toolbarRect;
-    GetClientRect(UltraEd::toolbarWindow, &toolbarRect);
-    RECT statusRect;
-    GetClientRect(UltraEd::statusBar, &statusRect);
-    UltraEd::treeview = CreateWindowEx(WS_EX_CLIENTEDGE, WC_TREEVIEW, TEXT("Tree View"),
-        WS_VISIBLE | WS_CHILD | WS_BORDER | TVS_HASLINES,
-        0, toolbarRect.bottom + UltraEd::treeviewBorder,
-        UltraEd::treeviewWidth, parentRect.bottom - (toolbarRect.bottom + statusRect.bottom + UltraEd::treeviewBorder),
-        UltraEd::parentWindow, (HMENU)IDM_TREEVIEW, hInstance, NULL);
-
-    if (!UltraEd::treeview)
-    {
-        MessageBox(NULL, "Could not create treeview.", "Error", NULL);
-        return 1;
-    }
-
-    // Create the tabbed window.
-    RECT treeviewRect;
-    GetClientRect(UltraEd::treeview, &treeviewRect);
-    UltraEd::tabsWindow = CreateWindow(WC_TABCONTROL, "Tabs", WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
-        treeviewRect.right, parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight,
-        parentRect.right - treeviewRect.right + UltraEd::tabsBorder, parentRect.bottom,
-        UltraEd::parentWindow, NULL, hInstance, NULL);
-
-    if (UltraEd::tabsWindow == NULL)
-    {
-        MessageBox(NULL, "Could not create tabs window.", "Error", NULL);
-        return 1;
-    }
-
-    TCITEM tie;
-    tie.mask = TCIF_TEXT;
-    tie.pszText = "Build Output";
-    if (TabCtrl_InsertItem(UltraEd::tabsWindow, 0, &tie) == -1)
-    {
-        MessageBox(NULL, "Could not add tab to tabs windows.", "Error", NULL);
-        return 1;
-    }
-
-    RECT tabbedWindowRect;
-    GetClientRect(UltraEd::tabsWindow, &tabbedWindowRect);
-    UltraEd::buildOutput = CreateWindowEx(0, "EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL |
-        ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL,
-        8, 28, tabbedWindowRect.right - 14, UltraEd::tabsWindowHeight - statusRect.bottom - 8,
-        UltraEd::tabsWindow, NULL, hInstance, NULL);
-
-    SendMessage(UltraEd::buildOutput, EM_SETREADONLY, TRUE, NULL);
-
-    // Create the window for rendering the scene.
-    UltraEd::renderWindow = CreateWindow(szWindowClass, szTitle, WS_CLIPSIBLINGS | WS_CHILD,
-        treeviewRect.right + UltraEd::treeviewBorder, toolbarRect.bottom + UltraEd::treeviewBorder,
-        parentRect.right - treeviewRect.right, parentRect.bottom - statusRect.bottom - UltraEd::tabsWindowHeight - 
-        UltraEd::tabsBorder - toolbarRect.bottom,
-        UltraEd::parentWindow, NULL, hInstance, NULL);
-
-    if (!UltraEd::renderWindow)
-    {
-        MessageBox(NULL, "Could not create render child window.", "Error", NULL);
-        return 1;
-    }
-
-    ShowWindow(UltraEd::renderWindow, nCmdShow);
-
-    UltraEd::CScene scene;
-    if (!scene.Create(UltraEd::renderWindow))
-    {
-        MessageBox(NULL, "Could not create Direct3D device.", "Error", NULL);
-        return 1;
-    }
-
-    // Pass scene pointers to handles that need it during event handling.
-    SetWindowLongPtr(UltraEd::renderWindow, GWLP_USERDATA, (LPARAM)& scene);
-    SetWindowLongPtr(UltraEd::parentWindow, GWLP_USERDATA, (LPARAM)& scene);
-
-    // Send command to force status bar update with scene stats.
-    SendMessage(UltraEd::parentWindow, WM_COMMAND, 0, 0);
-
-    MSG msg = { 0 };
-    while (WM_QUIT != msg.message)
-    {
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        // Poll and handle messages (inputs, window resize, etc.)
+        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+        if (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            ::TranslateMessage(&msg);
+            ::DispatchMessage(&msg);
+            continue;
         }
-        else
+
+        // Start the Dear ImGui frame
+        ImGui_ImplDX9_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+
+        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
+
+        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
-            scene.Render();
+            static float f = 0.0f;
+            static int counter = 0;
+
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::Checkbox("Another Window", &show_another_window);
+
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::ColorEdit3("clear color", (float *)&clear_color); // Edit 3 floats representing a color
+
+            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                counter++;
+            ImGui::SameLine();
+            ImGui::Text("counter = %d", counter);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::End();
         }
+
+        // 3. Show another simple window.
+        if (show_another_window)
+        {
+            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Hello from another window!");
+            if (ImGui::Button("Close Me"))
+                show_another_window = false;
+            ImGui::End();
+        }
+
+        // Rendering
+        ImGui::EndFrame();
+        g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+        g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+        g_pd3dDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+        D3DCOLOR clear_col_dx = D3DCOLOR_RGBA((int)(clear_color.x * 255.0f), (int)(clear_color.y * 255.0f), (int)(clear_color.z * 255.0f), (int)(clear_color.w * 255.0f));
+        g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clear_col_dx, 1.0f, 0);
+        if (g_pd3dDevice->BeginScene() >= 0)
+        {
+            ImGui::Render();
+            ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+            g_pd3dDevice->EndScene();
+        }
+        HRESULT result = g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
+
+        // Handle loss of D3D9 device
+        if (result == D3DERR_DEVICELOST && g_pd3dDevice->TestCooperativeLevel() == D3DERR_DEVICENOTRESET)
+            ResetDevice();
     }
 
-    return msg.wParam;
+    ImGui_ImplDX9_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+
+    CleanupDeviceD3D();
+    ::DestroyWindow(hwnd);
+    ::UnregisterClass(wc.lpszClassName, wc.hInstance);
+
+    return 0;
+}
+
+// Helper functions
+
+bool CreateDeviceD3D(HWND hWnd)
+{
+    if ((g_pD3D = Direct3DCreate9(D3D_SDK_VERSION)) == NULL)
+        return false;
+
+    // Create the D3DDevice
+    ZeroMemory(&g_d3dpp, sizeof(g_d3dpp));
+    g_d3dpp.Windowed = TRUE;
+    g_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+    g_d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+    g_d3dpp.EnableAutoDepthStencil = TRUE;
+    g_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+    g_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;           // Present with vsync
+    //g_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;   // Present without vsync, maximum unthrottled framerate
+    if (g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &g_d3dpp, &g_pd3dDevice) < 0)
+        return false;
+
+    return true;
+}
+
+void CleanupDeviceD3D()
+{
+    if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
+    if (g_pD3D) { g_pD3D->Release(); g_pD3D = NULL; }
+}
+
+void ResetDevice()
+{
+    ImGui_ImplDX9_InvalidateDeviceObjects();
+    HRESULT hr = g_pd3dDevice->Reset(&g_d3dpp);
+    if (hr == D3DERR_INVALIDCALL)
+        IM_ASSERT(0);
+    ImGui_ImplDX9_CreateDeviceObjects();
+}
+
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+// Win32 message handler
+LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+        return true;
+
+    switch (msg)
+    {
+        case WM_SIZE:
+            if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
+            {
+                g_d3dpp.BackBufferWidth = LOWORD(lParam);
+                g_d3dpp.BackBufferHeight = HIWORD(lParam);
+                ResetDevice();
+            }
+            return 0;
+        case WM_SYSCOMMAND:
+            if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+                return 0;
+            break;
+        case WM_DESTROY:
+            ::PostQuitMessage(0);
+            return 0;
+    }
+    return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }

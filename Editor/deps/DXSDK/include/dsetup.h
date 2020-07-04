@@ -11,13 +11,6 @@
 
 #include <windows.h>      // windows stuff
 
-#ifdef _WIN32
-#define COM_NO_WINDOWS_H
-#include <objbase.h>
-#else
-#endif
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,28 +22,28 @@ extern "C" {
 #define DSETUPERR_SUCCESS                0
 #define DSETUPERR_BADWINDOWSVERSION     -1
 #define DSETUPERR_SOURCEFILENOTFOUND    -2
-#define DSETUPERR_BADSOURCESIZE         -3
-#define DSETUPERR_BADSOURCETIME         -4
 #define DSETUPERR_NOCOPY                -5
 #define DSETUPERR_OUTOFDISKSPACE        -6
 #define DSETUPERR_CANTFINDINF           -7
 #define DSETUPERR_CANTFINDDIR           -8
 #define DSETUPERR_INTERNAL              -9
-#define DSETUPERR_NTWITHNO3D            -10  /* REM: obsolete, you'll never see this */
 #define DSETUPERR_UNKNOWNOS             -11
-#define DSETUPERR_USERHITCANCEL         -12
-#define DSETUPERR_NOTPREINSTALLEDONNT   -13
 #define DSETUPERR_NEWERVERSION          -14
 #define DSETUPERR_NOTADMIN              -15
 #define DSETUPERR_UNSUPPORTEDPROCESSOR  -16
+#define DSETUPERR_MISSINGCAB_MANAGEDDX  -17
+#define DSETUPERR_NODOTNETFRAMEWORKINSTALLED -18
+#define DSETUPERR_CABDOWNLOADFAIL       -19
+#define DSETUPERR_DXCOMPONENTFILEINUSE  -20
+#define DSETUPERR_UNTRUSTEDCABINETFILE  -21
 
 // DSETUP flags. DirectX 5.0 apps should use these flags only.
 #define DSETUP_DDRAWDRV         0x00000008      /* install DirectDraw Drivers           */
 #define DSETUP_DSOUNDDRV        0x00000010      /* install DirectSound Drivers          */
-#define DSETUP_DXCORE           0x00010000	/* install DirectX runtime              */
+#define DSETUP_DXCORE           0x00010000      /* install DirectX runtime              */
 #define DSETUP_DIRECTX  (DSETUP_DXCORE|DSETUP_DDRAWDRV|DSETUP_DSOUNDDRV)
+#define DSETUP_MANAGEDDX        0x00004000      /* OBSOLETE. install managed DirectX    */
 #define DSETUP_TESTINSTALL      0x00020000      /* just test install, don't do anything */
-#define DSETUP_USEROLDERFLAG	0x02000000		/* enable return DSETUPERR_NEWERVERSION */
 
 // These OBSOLETE flags are here for compatibility with pre-DX5 apps only.
 // They are present to allow DX3 apps to be recompiled with DX5 and still work.
@@ -75,49 +68,34 @@ extern "C" {
 
 // DSETUP Message Info Codes, passed to callback as Reason parameter.
 #define DSETUP_CB_MSG_NOMESSAGE                     0
-#define DSETUP_CB_MSG_CANTINSTALL_UNKNOWNOS         1
-#define DSETUP_CB_MSG_CANTINSTALL_NT                2
-#define DSETUP_CB_MSG_CANTINSTALL_BETA              3
-#define DSETUP_CB_MSG_CANTINSTALL_NOTWIN32          4
-#define DSETUP_CB_MSG_CANTINSTALL_WRONGLANGUAGE     5
-#define DSETUP_CB_MSG_CANTINSTALL_WRONGPLATFORM     6
-#define DSETUP_CB_MSG_PREINSTALL_NT                 7
-#define DSETUP_CB_MSG_NOTPREINSTALLEDONNT           8
-#define DSETUP_CB_MSG_SETUP_INIT_FAILED             9
 #define DSETUP_CB_MSG_INTERNAL_ERROR                10
-#define DSETUP_CB_MSG_CHECK_DRIVER_UPGRADE          11
-#define DSETUP_CB_MSG_OUTOFDISKSPACE                12
 #define DSETUP_CB_MSG_BEGIN_INSTALL                 13
 #define DSETUP_CB_MSG_BEGIN_INSTALL_RUNTIME         14
-#define DSETUP_CB_MSG_BEGIN_INSTALL_DRIVERS         15
-#define DSETUP_CB_MSG_BEGIN_RESTORE_DRIVERS         16
-#define DSETUP_CB_MSG_FILECOPYERROR                 17
+#define DSETUP_CB_MSG_PROGRESS                      18
+#define DSETUP_CB_MSG_WARNING_DISABLED_COMPONENT    19
 
 
-#define DSETUP_CB_UPGRADE_TYPE_MASK             0x000F
-#define DSETUP_CB_UPGRADE_KEEP                  0x0001
-#define DSETUP_CB_UPGRADE_SAFE                  0x0002
-#define DSETUP_CB_UPGRADE_FORCE                 0x0004
-#define DSETUP_CB_UPGRADE_UNKNOWN               0x0008
-
-#define DSETUP_CB_UPGRADE_HASWARNINGS           0x0100
-#define DSETUP_CB_UPGRADE_CANTBACKUP            0x0200
-
-#define DSETUP_CB_UPGRADE_DEVICE_ACTIVE         0x0800
-
-#define DSETUP_CB_UPGRADE_DEVICE_DISPLAY        0x1000
-#define DSETUP_CB_UPGRADE_DEVICE_MEDIA          0x2000
 
 
-typedef struct _DSETUP_CB_UPGRADEINFO
+
+
+typedef struct _DSETUP_CB_PROGRESS
 {
-    DWORD UpgradeFlags;
-} DSETUP_CB_UPGRADEINFO;
+    DWORD dwPhase;
+    DWORD dwInPhaseMaximum;
+    DWORD dwInPhaseProgress;
+    DWORD dwOverallMaximum;
+    DWORD dwOverallProgress;
+} DSETUP_CB_PROGRESS;
 
-typedef struct _DSETUP_CB_FILECOPYERROR
+ 
+enum _DSETUP_CB_PROGRESS_PHASE
 {
-    DWORD dwError;
-} DSETUP_CB_FILECOPYERROR;
+    DSETUP_INITIALIZING,
+    DSETUP_EXTRACTING,
+    DSETUP_COPYING,
+    DSETUP_FINALIZING
+};
 
 
 #ifdef _WIN32
@@ -200,18 +178,18 @@ typedef LPDIRECTXREGISTERAPP2A LPDIRECTXREGISTERAPP2;
 INT
 WINAPI
 DirectXSetupA(
-    HWND  hWnd,
-    LPSTR lpszRootPath,
-    DWORD dwFlags
+             HWND  hWnd,
+    __in_opt LPSTR lpszRootPath,
+             DWORD dwFlags
     );
 #endif //!UNICODE_ONLY
 #ifndef ANSI_ONLY
 INT
 WINAPI
 DirectXSetupW(
-    HWND   hWnd,
-    LPWSTR lpszRootPath,
-    DWORD  dwFlags
+             HWND   hWnd,
+    __in_opt LPWSTR lpszRootPath,
+             DWORD  dwFlags
     );
 #endif //!ANSI_ONLY
 #ifdef UNICODE
@@ -220,39 +198,12 @@ DirectXSetupW(
 #define DirectXSetup  DirectXSetupA
 #endif // !UNICODE
 
-
-#ifndef UNICODE_ONLY
-INT
-WINAPI
-DirectXDeviceDriverSetupA(
-    HWND  hWnd,
-    LPSTR lpszDriverClass,
-    LPSTR lpszDriverPath,
-    DWORD dwFlags
-    );
-#endif //!UNICODE_ONLY
-#ifndef ANSI_ONLY
-INT
-WINAPI
-DirectXDeviceDriverSetupW(
-    HWND   hWnd,
-    LPWSTR lpszDriverClass,
-    LPWSTR lpszDriverPath,
-    DWORD  dwFlags
-    );
-#endif //!ANSI_ONLY
-#ifdef UNICODE
-#define DirectXDeviceDriverSetup  DirectXDeviceDriverSetupW
-#else
-#define DirectXDeviceDriverSetup  DirectXDeviceDriverSetupA
-#endif // !UNICODE
-
 #ifndef UNICODE_ONLY
 INT
 WINAPI
 DirectXRegisterApplicationA(
     HWND                  hWnd,
-    LPVOID				  lpDXRegApp
+    LPVOID                lpDXRegApp
     );
 #endif //!UNICODE_ONLY
 #ifndef ANSI_ONLY
@@ -260,7 +211,7 @@ INT
 WINAPI
 DirectXRegisterApplicationW(
     HWND                  hWnd,
-    LPVOID				  lpDXRegApp
+    LPVOID                lpDXRegApp
     );
 #endif //!ANSI_ONLY
 #ifdef UNICODE
@@ -281,11 +232,9 @@ DirectXUnRegisterApplication(
 //
 #ifdef UNICODE
 typedef INT (WINAPI * LPDIRECTXSETUP)(HWND, LPWSTR, DWORD);
-typedef INT (WINAPI * LPDIRECTXDEVICEDRIVERSETUP)(HWND, LPWSTR, LPSTR, DWORD);
 typedef INT (WINAPI * LPDIRECTXREGISTERAPPLICATION)(HWND, LPVOID);
 #else
 typedef INT (WINAPI * LPDIRECTXSETUP)(HWND, LPSTR, DWORD);
-typedef INT (WINAPI * LPDIRECTXDEVICEDRIVERSETUP)(HWND, LPSTR, LPSTR, DWORD);
 typedef INT (WINAPI * LPDIRECTXREGISTERAPPLICATION)(HWND, LPVOID);
 #endif // UNICODE
 
@@ -297,6 +246,32 @@ typedef DWORD (FAR PASCAL * DSETUP_CALLBACK)(DWORD Reason,
 
 INT WINAPI DirectXSetupSetCallback(DSETUP_CALLBACK Callback);
 INT WINAPI DirectXSetupGetVersion(DWORD *lpdwVersion, DWORD *lpdwMinorVersion);
+INT WINAPI DirectXSetupShowEULA(HWND hWndParent);
+#ifndef UNICODE_ONLY
+UINT
+WINAPI
+DirectXSetupGetEULAA(
+    __out_ecount(cchEULA) LPSTR lpszEULA,
+                          UINT  cchEULA,
+                          WORD  LangID
+    );
+#endif //!UNICODE_ONLY
+#ifndef ANSI_ONLY
+UINT
+WINAPI
+DirectXSetupGetEULAW(
+    __out_ecount(cchEULA) LPWSTR lpszEULA,
+                          UINT   cchEULA,
+                          WORD   LangID
+    );
+#endif //!ANSI_ONLY
+#ifdef UNICODE
+#define DirectXSetupGetEULA  DirectXSetupGetEULAW
+typedef UINT (WINAPI * LPDIRECTXSETUPGETEULA)(LPWSTR, UINT, WORD);
+#else
+#define DirectXSetupGetEULA  DirectXSetupGetEULAA
+typedef UINT (WINAPI * LPDIRECTXSETUPGETEULA)(LPSTR, UINT, WORD);
+#endif // !UNICODE
 
 #endif // WIN32
 
