@@ -65,14 +65,24 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
-        case WM_SIZE:
-            PubSub::Publish("Resize", static_cast<void *>(&make_tuple<int, int>(LOWORD(lParam), HIWORD(lParam))));
+        case WM_MOUSEWHEEL:
+        {
+            int delta = HIWORD(wParam);
+            PubSub::Publish("MouseWheel", static_cast<void *>(&delta));
             return 0;
+        }
+        case WM_SIZE:
+        {
+            auto rect = make_tuple<int, int>(LOWORD(lParam), HIWORD(lParam));
+            PubSub::Publish("Resize", static_cast<void *>(&rect));
+            return 0;
+        }
         case WM_SYSCOMMAND:
+        {
             // Disable ALT application menu
-            if ((wParam & 0xfff0) == SC_KEYMENU)
-                return 0;
+            if ((wParam & 0xfff0) == SC_KEYMENU) return 0;
             break;
+        }
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;

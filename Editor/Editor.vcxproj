@@ -24,6 +24,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PubSub.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Util.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_demo.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_draw.cpp" />
@@ -38,6 +39,7 @@
     <ClInclude Include="Gui.h" />
     <ClInclude Include="PubSub.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Util.h" />
     <ClInclude Include="Vendor\ImGui\imconfig.h" />
     <ClInclude Include="Vendor\ImGui\imgui.h" />
     <ClInclude Include="Vendor\ImGui\imgui_impl_dx9.h" />

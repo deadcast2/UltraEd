@@ -17,9 +17,11 @@ namespace UltraEd
         void Reset();
         void SetViewType(ViewType type);
         void Fly(float units);
+        void Strafe(float units);
         void Walk(float units);
         void Pitch(float angle);
         void Yaw(float angle);
+        void SingleStep(short delta);
 
     private:
         bool CanWalk();

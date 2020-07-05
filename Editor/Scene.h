@@ -23,8 +23,11 @@ namespace UltraEd
         void Render();
 
     private:
+        void CheckInput(float deltaTime);
+        void OnMouseWheel(short delta);
+        void WrapCursor();
         void Resize(int width, int height);
-        void UpdateViewMatrix(int width, int height);
+        void UpdateViewMatrix();
         HWND GetWndHandle();
         View *GetActiveView();
         void OnNew(bool confirm = true);
@@ -41,6 +44,7 @@ namespace UltraEd
         array<int, 3> m_backgroundColorRGB;
         D3DLIGHT9 m_worldLight;
         Grid m_grid;
+        float m_mouseSmoothX, m_mouseSmoothY;
     };
 }
 

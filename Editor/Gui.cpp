@@ -7,7 +7,6 @@ namespace UltraEd
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGuiIO &io = ImGui::GetIO();
         ImGui::StyleColorsDark();
         ImGui_ImplWin32_Init(hWnd);
         ImGui_ImplDX9_Init(device);
@@ -30,7 +29,7 @@ namespace UltraEd
         {
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("Exit")) 
+                if (ImGui::MenuItem("Exit"))
                 {
                     PubSub::Publish("Exit");
                 }
@@ -46,5 +45,19 @@ namespace UltraEd
     {
         ImGui::Render();
         ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+    }
+
+    bool Gui::WantsMouse()
+    {
+        return ImGui::GetIO().WantCaptureMouse;
+    }
+
+    void Gui::RebuildWith(function<void()> inner)
+    {
+        ImGui_ImplDX9_InvalidateDeviceObjects();
+
+        if (inner) inner();
+
+        ImGui_ImplDX9_CreateDeviceObjects();
     }
 }

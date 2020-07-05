@@ -81,6 +81,11 @@ namespace UltraEd
         m_pos += m_up * units;
     }
 
+    void View::Strafe(float units)
+    {
+        m_pos += m_right * units;
+    }
+
     void View::Walk(float units)
     {
         // Limit only forward movement.
@@ -106,6 +111,11 @@ namespace UltraEd
         // rotate _right and _look around _up or y-axis
         D3DXVec3TransformCoord(&m_right, &m_right, &T);
         D3DXVec3TransformCoord(&m_forward, &m_forward, &T);
+    }
+
+    void View::SingleStep(short delta)
+    {
+        Walk(delta * m_step);
     }
 
     bool View::CanWalk()

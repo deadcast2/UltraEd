@@ -1,16 +1,21 @@
 #include "Scene.h"
 #include "PubSub.h"
+#include "Util.h"
 
 namespace UltraEd
 {
     Scene::Scene() :
         m_d3d9(),
         m_device(),
+        m_gui(),
         m_d3dpp(),
         m_activeViewType(ViewType::Perspective),
         m_views(),
         m_backgroundColorRGB(),
-        m_grid()
+        m_worldLight(),
+        m_grid(),
+        m_mouseSmoothX(0),
+        m_mouseSmoothY(0)
     {
         m_worldLight.Type = D3DLIGHT_DIRECTIONAL;
         m_worldLight.Diffuse.r = 1.0f;
@@ -20,7 +25,12 @@ namespace UltraEd
 
         PubSub::Subscribe({ "Resize", [&](void *data) {
             auto rect = static_cast<tuple<int, int> *>(data);
-            Resize(get<0>(*rect), get<1>(*rect));
+            if (rect) Resize(get<0>(*rect), get<1>(*rect));
+        } });
+
+        PubSub::Subscribe({ "MouseWheel", [&](void *data) {
+            auto delta = static_cast<int *>(data);
+            if (delta) OnMouseWheel(*delta);
         } });
     }
 
@@ -60,6 +70,85 @@ namespace UltraEd
         return true;
     }
 
+    void Scene::CheckInput(float deltaTime)
+    {
+        POINT mousePoint;
+        GetCursorPos(&mousePoint);
+        ScreenToClient(GetWndHandle(), &mousePoint);
+        View *view = GetActiveView();
+
+        static POINT prevMousePoint = mousePoint;
+        static DWORD prevTick = GetTickCount();
+        static bool prevGizmo = false;
+        static GUID groupId = Util::NewGuid();
+
+        const float smoothingModifier = 20.0f;
+        const float mouseSpeedModifier = 0.55f;
+        const bool mouseReady = GetTickCount() - prevTick < 100;
+
+        // Only accept input when mouse in scene.
+        if (m_gui->WantsMouse()) return;
+
+        WrapCursor();
+
+        if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective && mouseReady)
+        {
+            if (GetAsyncKeyState('W')) view->Walk(4.0f * deltaTime);
+            if (GetAsyncKeyState('S')) view->Walk(-4.0f * deltaTime);
+            if (GetAsyncKeyState('A')) view->Strafe(-4.0f * deltaTime);
+            if (GetAsyncKeyState('D')) view->Strafe(4.0f * deltaTime);
+
+            m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(mousePoint.x - prevMousePoint.x));
+            m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
+
+            view->Yaw(m_mouseSmoothX * mouseSpeedModifier * deltaTime);
+            view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
+        }
+        else if (GetAsyncKeyState(VK_MBUTTON) && mouseReady)
+        {
+            m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(prevMousePoint.x - mousePoint.x));
+            m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
+
+            view->Strafe(m_mouseSmoothX * deltaTime);
+            view->Fly(m_mouseSmoothY * deltaTime);
+        }
+        else
+        {
+            // Reset smoothing values for new mouse view movement.
+            m_mouseSmoothX = m_mouseSmoothY = 0;
+            prevGizmo = false;
+            groupId = Util::NewGuid();
+        }
+
+        // Remember the last position so we know how much to move the view.
+        prevMousePoint = mousePoint;
+        prevTick = GetTickCount();
+    }
+
+    void Scene::OnMouseWheel(short delta)
+    {
+        GetActiveView()->SingleStep(delta);
+        UpdateViewMatrix();
+    }
+
+    void Scene::WrapCursor()
+    {
+        const int screenX = GetSystemMetrics(SM_CXVIRTUALSCREEN) - 1;
+        const int screenY = GetSystemMetrics(SM_CYVIRTUALSCREEN) - 1;
+
+        POINT mousePoint;
+        GetCursorPos(&mousePoint);
+
+        if (mousePoint.x >= screenX)
+            SetCursorPos(1, mousePoint.y);
+        else if (mousePoint.x < 1)
+            SetCursorPos(screenX - 1, mousePoint.y);
+        else if (mousePoint.y >= screenY)
+            SetCursorPos(mousePoint.x, 1);
+        else if (mousePoint.y < 1)
+            SetCursorPos(mousePoint.x, screenY - 1);
+    }
+
     void Scene::OnNew(bool confirm)
     {
         ResetViews();
@@ -74,18 +163,18 @@ namespace UltraEd
             m_d3dpp.BackBufferWidth = width;
             m_d3dpp.BackBufferHeight = height;
 
-            ImGui_ImplDX9_InvalidateDeviceObjects();
-            ReleaseResources();
-            m_device->Reset(&m_d3dpp);
-            UpdateViewMatrix(width, height);
-            ImGui_ImplDX9_CreateDeviceObjects();
+            m_gui->RebuildWith([&]() {
+                ReleaseResources();
+                m_device->Reset(&m_d3dpp);
+                UpdateViewMatrix();
+            });
         }
     }
 
-    void Scene::UpdateViewMatrix(int width, int height)
+    void Scene::UpdateViewMatrix()
     {
         D3DXMATRIX viewMat;
-        const float aspect = static_cast<float>(width) / static_cast<float>(height);
+        const float aspect = static_cast<float>(m_d3dpp.BackBufferWidth) / static_cast<float>(m_d3dpp.BackBufferHeight);
 
         if (GetActiveView()->GetType() == ViewType::Perspective)
         {
@@ -122,6 +211,8 @@ namespace UltraEd
         static double lastTime = (double)timeGetTime();
         const double currentTime = (double)timeGetTime();
         const float deltaTime = (float)(currentTime - lastTime) * 0.001f;
+
+        CheckInput(deltaTime);
 
         if (m_gui && m_device)
         {
