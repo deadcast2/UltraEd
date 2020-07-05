@@ -89,8 +89,6 @@ namespace UltraEd
         // Only accept input when mouse in scene.
         if (m_gui->WantsMouse()) return;
 
-        WrapCursor();
-
         if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective && mouseReady)
         {
             if (GetAsyncKeyState('W')) view->Walk(4.0f * deltaTime);
@@ -103,6 +101,7 @@ namespace UltraEd
 
             view->Yaw(m_mouseSmoothX * mouseSpeedModifier * deltaTime);
             view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
+            WrapCursor();
         }
         else if (GetAsyncKeyState(VK_MBUTTON) && mouseReady)
         {
@@ -111,6 +110,7 @@ namespace UltraEd
 
             view->Strafe(m_mouseSmoothX * deltaTime);
             view->Fly(m_mouseSmoothY * deltaTime);
+            WrapCursor();
         }
         else
         {
@@ -127,8 +127,11 @@ namespace UltraEd
 
     void Scene::OnMouseWheel(short delta)
     {
-        GetActiveView()->SingleStep(delta);
-        UpdateViewMatrix();
+        if (!m_gui->WantsMouse())
+        {
+            GetActiveView()->SingleStep(delta);
+            UpdateViewMatrix();
+        }
     }
 
     void Scene::WrapCursor()
