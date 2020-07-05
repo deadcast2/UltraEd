@@ -19,8 +19,12 @@ int main(int, char **)
 
     RegisterClassEx(&wc);
 
+    const int windowWidth = 800;
+    const int windowHeight = 600;
     HWND hWnd = CreateWindow(wc.lpszClassName, _T("UltraEd v1.0"), WS_OVERLAPPEDWINDOW,
-        100, 100, 800, 600, NULL, NULL, wc.hInstance, NULL);
+        (GetSystemMetrics(SM_CXSCREEN) / 2) - (windowWidth / 2),
+        (GetSystemMetrics(SM_CYSCREEN) / 2) - (windowHeight / 2),
+        windowWidth, windowHeight, NULL, NULL, wc.hInstance, NULL);
 
     if (!scene.Create(hWnd))
     {
