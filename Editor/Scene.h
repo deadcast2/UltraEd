@@ -21,9 +21,9 @@ namespace UltraEd
         Scene();
         bool Create(HWND hWnd);
         void Render();
-        void Resize(int width, int height);
 
     private:
+        void Resize(int width, int height);
         void UpdateViewMatrix(int width, int height);
         HWND GetWndHandle();
         View *GetActiveView();

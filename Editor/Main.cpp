@@ -1,12 +1,12 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <tchar.h>
+#include <tuple>
 #include "PubSub.h"
 #include "Scene.h"
 
 using namespace UltraEd;
 
-Scene scene;
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -26,6 +26,7 @@ int main(int, char **)
         (GetSystemMetrics(SM_CYSCREEN) / 2) - (windowHeight / 2),
         windowWidth, windowHeight, NULL, NULL, wc.hInstance, NULL);
 
+    Scene scene;
     if (!scene.Create(hWnd))
     {
         UnregisterClass(wc.lpszClassName, wc.hInstance);
@@ -65,7 +66,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         case WM_SIZE:
-            scene.Resize(LOWORD(lParam), HIWORD(lParam));
+            PubSub::Publish("Resize", static_cast<void *>(&make_tuple<int, int>(LOWORD(lParam), HIWORD(lParam))));
             return 0;
         case WM_SYSCOMMAND:
             // Disable ALT application menu

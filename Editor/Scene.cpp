@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "PubSub.h"
 
 namespace UltraEd
 {
@@ -16,6 +17,11 @@ namespace UltraEd
         m_worldLight.Diffuse.g = 1.0f;
         m_worldLight.Diffuse.b = 1.0f;
         m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
+
+        PubSub::Subscribe({ "Resize", [&](void *data) {
+            auto rect = static_cast<tuple<int, int> *>(data);
+            Resize(get<0>(*rect), get<1>(*rect));
+        } });
     }
 
     bool Scene::Create(HWND hWnd)
@@ -24,7 +30,7 @@ namespace UltraEd
             return false;
 
         m_d3d9 = unique_ptr<IDirect3D9, function<void(IDirect3D9 *)>>(Direct3DCreate9(D3D_SDK_VERSION),
-                                                                      [](IDirect3D9 *d3d) { d3d->Release(); });
+            [](IDirect3D9 *d3d) { d3d->Release(); });
 
         if (m_d3d9 == NULL)
             return false;
@@ -41,11 +47,11 @@ namespace UltraEd
 
         IDirect3DDevice9 *tempDevice;
         if (FAILED(m_d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-                                        D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &tempDevice)))
+            D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &tempDevice)))
             return false;
 
         m_device = unique_ptr<IDirect3DDevice9, function<void(IDirect3DDevice9 *)>>(tempDevice,
-                                                                                    [](IDirect3DDevice9 *device) { device->Release(); });
+            [](IDirect3DDevice9 *device) { device->Release(); });
 
         m_gui = make_unique<Gui>(hWnd, m_device.get());
 
@@ -130,7 +136,7 @@ namespace UltraEd
 
             m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
             m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-                            D3DCOLOR_XRGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]), 1.0f, 0);
+                D3DCOLOR_XRGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]), 1.0f, 0);
             m_device->SetLight(0, &m_worldLight);
             m_device->LightEnable(0, TRUE);
 
