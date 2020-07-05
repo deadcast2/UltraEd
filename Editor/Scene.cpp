@@ -32,6 +32,12 @@ namespace UltraEd
             auto delta = static_cast<int *>(data);
             if (delta) OnMouseWheel(*delta);
         } });
+
+        PubSub::Subscribe({ "ViewChange", [&](void *data) {
+            auto type = static_cast<ViewType *>(data);
+            m_activeViewType = *type;
+            UpdateViewMatrix();
+        } });
     }
 
     bool Scene::Create(HWND hWnd)

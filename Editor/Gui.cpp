@@ -1,5 +1,6 @@
 #include "Gui.h"
 #include "PubSub.h"
+#include "View.h"
 
 namespace UltraEd
 {
@@ -33,8 +34,39 @@ namespace UltraEd
                 {
                     PubSub::Publish("Exit");
                 }
+
                 ImGui::EndMenu();
             }
+
+            if (ImGui::BeginMenu("View"))
+            {
+                if (ImGui::MenuItem("Perspective"))
+                {
+                    ViewType type = ViewType::Perspective;
+                    PubSub::Publish("ViewChange", static_cast<void*>(&type));
+                }
+
+                if (ImGui::MenuItem("Top"))
+                {
+                    ViewType type = ViewType::Top;
+                    PubSub::Publish("ViewChange", static_cast<void *>(&type));
+                }
+
+                if (ImGui::MenuItem("Left"))
+                {
+                    ViewType type = ViewType::Left;
+                    PubSub::Publish("ViewChange", static_cast<void *>(&type));
+                }
+
+                if (ImGui::MenuItem("Front"))
+                {
+                    ViewType type = ViewType::Front;
+                    PubSub::Publish("ViewChange", static_cast<void *>(&type));
+                }
+
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMainMenuBar();
         }
 
