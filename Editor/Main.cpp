@@ -1,9 +1,12 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <tchar.h>
+#include "PubSub.h"
 #include "Scene.h"
 
-UltraEd::Scene scene;
+using namespace UltraEd;
+
+Scene scene;
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -27,6 +30,8 @@ int main(int, char **)
 
     ShowWindow(hWnd, SW_SHOWDEFAULT);
     UpdateWindow(hWnd);
+
+    PubSub::Subscribe({ "Exit", [](void *data) { PostQuitMessage(0); } });
 
     MSG msg;
     ZeroMemory(&msg, sizeof(msg));

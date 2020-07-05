@@ -22,6 +22,7 @@
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="PubSub.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_demo.cpp" />
@@ -35,6 +36,7 @@
   <ItemGroup>
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="PubSub.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Vendor\ImGui\imconfig.h" />
     <ClInclude Include="Vendor\ImGui\imgui.h" />
