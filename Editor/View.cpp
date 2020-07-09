@@ -4,11 +4,8 @@ namespace UltraEd
 {
     View::View() :
         m_step(0.005f)
-    { }
-
-    ViewType View::GetType()
     {
-        return m_type;
+        Reset();
     }
 
     void View::Reset()
@@ -18,21 +15,6 @@ namespace UltraEd
         m_up = D3DXVECTOR3(0, 1, 0);
         m_forward = D3DXVECTOR3(0, 0, 1);
         m_pos = D3DXVECTOR3(0, 0, 0);
-    }
-
-    float View::GetZoom()
-    {
-        switch (m_type)
-        {
-            case ViewType::Top:
-                return m_pos.y;
-            case ViewType::Left:
-                return -m_pos.x;
-            case ViewType::Front:
-                return m_pos.z;
-            default:
-                return 0;
-        }
     }
 
     D3DXMATRIX View::GetViewMatrix()
@@ -71,28 +53,6 @@ namespace UltraEd
         return view;
     }
 
-    void View::SetViewType(ViewType type)
-    {
-        m_type = type;
-    }
-
-    void View::Fly(float units)
-    {
-        m_pos += m_up * units;
-    }
-
-    void View::Strafe(float units)
-    {
-        m_pos += m_right * units;
-    }
-
-    void View::Walk(float units)
-    {
-        // Limit only forward movement.
-        if (CanWalk() || units < 0)
-            m_pos += m_forward * units;
-    }
-
     void View::Pitch(float angle)
     {
         D3DXMATRIX T;
@@ -113,14 +73,124 @@ namespace UltraEd
         D3DXVec3TransformCoord(&m_forward, &m_forward, &T);
     }
 
-    void View::SingleStep(short delta)
+    void View::Walk(float units)
     {
-        Walk(delta * m_step);
+        // Limit only forward movement.
+        if (CanWalk() || units < 0)
+            m_pos += m_forward * units;
+    }
+
+    void View::Strafe(float units)
+    {
+        m_pos += m_right * units;
+    }
+
+    void View::Fly(float units)
+    {
+        m_pos += m_up * units;
+    }
+
+    D3DXVECTOR3 View::GetPosition()
+    {
+        return m_pos;
+    }
+
+    void View::SetPosition(D3DXVECTOR3 position)
+    {
+        m_pos = position;
+    }
+
+    D3DXVECTOR3 View::GetForward()
+    {
+        return m_forward;
+    }
+
+    D3DXVECTOR3 View::GetRight()
+    {
+        return m_right;
+    }
+
+    D3DXVECTOR3 View::GetUp()
+    {
+        return m_up;
+    }
+
+    void View::SetViewType(ViewType type)
+    {
+        m_type = type;
+    }
+
+    ViewType View::GetType()
+    {
+        return m_type;
+    }
+
+    float View::GetZoom()
+    {
+        switch (m_type)
+        {
+            case ViewType::Top:
+                return m_pos.y;
+            case ViewType::Left:
+                return -m_pos.x;
+            case ViewType::Front:
+                return m_pos.z;
+            default:
+                return 0;
+        }
     }
 
     bool View::CanWalk()
     {
         // Perspective view does not need to be limited.
         return m_type == ViewType::Perspective || GetZoom() > m_step;
+    }
+
+    void View::SingleStep(short delta)
+    {
+        Walk(delta * m_step);
+    }
+
+    cJSON *View::Save()
+    {
+        char buffer[128];
+        cJSON *view = cJSON_CreateObject();
+
+        sprintf(buffer, "%f %f %f", m_pos.x, m_pos.y, m_pos.z);
+        cJSON_AddStringToObject(view, "position", buffer);
+
+        sprintf(buffer, "%f %f %f", m_forward.x, m_forward.y, m_forward.z);
+        cJSON_AddStringToObject(view, "forward", buffer);
+
+        sprintf(buffer, "%f %f %f", m_right.x, m_right.y, m_right.z);
+        cJSON_AddStringToObject(view, "right", buffer);
+
+        sprintf(buffer, "%f %f %f", m_up.x, m_up.y, m_up.z);
+        cJSON_AddStringToObject(view, "up", buffer);
+
+        return view;
+    }
+
+    bool View::Load(cJSON *root)
+    {
+        float x, y, z;
+
+        cJSON *position = cJSON_GetObjectItem(root, "position");
+        sscanf(position->valuestring, "%f %f %f", &x, &y, &z);
+        m_pos = D3DXVECTOR3(x, y, z);
+
+        cJSON *forward = cJSON_GetObjectItem(root, "forward");
+        sscanf(forward->valuestring, "%f %f %f", &x, &y, &z);
+        m_forward = D3DXVECTOR3(x, y, z);
+
+        cJSON *right = cJSON_GetObjectItem(root, "right");
+        sscanf(right->valuestring, "%f %f %f", &x, &y, &z);
+        m_right = D3DXVECTOR3(x, y, z);
+
+        cJSON *up = cJSON_GetObjectItem(root, "up");
+        sscanf(up->valuestring, "%f %f %f", &x, &y, &z);
+        m_up = D3DXVECTOR3(x, y, z);
+
+        return true;
     }
 }

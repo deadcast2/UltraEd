@@ -19,11 +19,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="BoxCollider.cpp" />
+    <ClCompile Include="Build.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="Dialog.cpp" />
+    <ClCompile Include="FileIO.cpp" />
+    <ClCompile Include="Gizmo.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="PubSub.cpp" />
+    <ClCompile Include="Registry.cpp" />
+    <ClCompile Include="Savable.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="SphereCollider.cpp" />
+    <ClCompile Include="Auditor.cpp" />
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="Vendor\cJSON\cJSON.c" />
     <ClCompile Include="Vendor\FastLZ\fastlz.c" />
@@ -38,10 +54,27 @@
     <ClCompile Include="View.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor.h" />
+    <ClInclude Include="BoxCollider.h" />
+    <ClInclude Include="Build.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Collider.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="Debug.h" />
+    <ClInclude Include="Dialog.h" />
+    <ClInclude Include="FileIO.h" />
+    <ClInclude Include="Gizmo.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="PubSub.h" />
+    <ClInclude Include="Registry.h" />
+    <ClInclude Include="Savable.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Settings.h" />
+    <ClInclude Include="SphereCollider.h" />
+    <ClInclude Include="Auditor.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Vendor\cJSON\cJSON.h" />
     <ClInclude Include="Vendor\FastLZ\fastlz.h" />
@@ -126,7 +159,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\caleb\Workspace\UltraEd\Editor\Deps\DXSDK\Lib\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\caleb\Workspace\UltraEd\Editor\Deps\Assimp\lib;C:\Users\caleb\Workspace\UltraEd\Editor\Deps\DXSDK\Lib\x64;$(LibraryPath)</LibraryPath>
     <IncludePath>C:\Users\caleb\Workspace\UltraEd\Editor\Deps\Assimp\include;C:\Users\caleb\Workspace\UltraEd\Editor\Vendor;C:\Users\caleb\Workspace\UltraEd\Editor\Deps\DXSDK\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -172,7 +205,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d9.lib;d3dx9.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;d3dx9.lib;winmm.lib;assimp-vc140-mt.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
