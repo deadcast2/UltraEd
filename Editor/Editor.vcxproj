@@ -25,12 +25,15 @@
     <ClCompile Include="PubSub.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Vendor\cJSON\cJSON.c" />
+    <ClCompile Include="Vendor\FastLZ\fastlz.c" />
     <ClCompile Include="Vendor\ImGui\imgui.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_demo.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_impl_dx9.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Vendor\MicroTar\microtar.c" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="View.cpp" />
   </ItemGroup>
@@ -40,6 +43,8 @@
     <ClInclude Include="PubSub.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="Vendor\cJSON\cJSON.h" />
+    <ClInclude Include="Vendor\FastLZ\fastlz.h" />
     <ClInclude Include="Vendor\ImGui\imconfig.h" />
     <ClInclude Include="Vendor\ImGui\imgui.h" />
     <ClInclude Include="Vendor\ImGui\imgui_impl_dx9.h" />
@@ -48,6 +53,10 @@
     <ClInclude Include="Vendor\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Vendor\ImGui\imstb_textedit.h" />
     <ClInclude Include="Vendor\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Vendor\MicroTar\microtar.h" />
+    <ClInclude Include="Vendor\STB\stb_image.h" />
+    <ClInclude Include="Vendor\STB\stb_image_resize.h" />
+    <ClInclude Include="Vendor\STB\stb_image_write.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="View.h" />
@@ -118,7 +127,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>C:\Users\caleb\Workspace\UltraEd\Editor\Deps\DXSDK\Lib\x64;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Users\caleb\Workspace\UltraEd\Editor\Deps\DXSDK\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\caleb\Workspace\UltraEd\Editor\Deps\Assimp\include;C:\Users\caleb\Workspace\UltraEd\Editor\Vendor;C:\Users\caleb\Workspace\UltraEd\Editor\Deps\DXSDK\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -157,7 +166,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
