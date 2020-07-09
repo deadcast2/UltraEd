@@ -61,6 +61,10 @@ namespace UltraEd
             m_activeViewType = *type;
             UpdateViewMatrix();
         } });
+
+        PubSub::Subscribe({ "AddPumpkin", [&](void *data) {
+            OnAddModel(ModelPreset::Pumpkin);
+        } });
     }
 
     Scene::~Scene()

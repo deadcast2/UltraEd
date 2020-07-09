@@ -28,44 +28,9 @@ namespace UltraEd
 
         if (ImGui::BeginMainMenuBar())
         {
-            if (ImGui::BeginMenu("File"))
-            {
-                if (ImGui::MenuItem("Exit"))
-                {
-                    PubSub::Publish("Exit");
-                }
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("View"))
-            {
-                if (ImGui::MenuItem("Perspective"))
-                {
-                    ViewType type = ViewType::Perspective;
-                    PubSub::Publish("ViewChange", static_cast<void*>(&type));
-                }
-
-                if (ImGui::MenuItem("Top"))
-                {
-                    ViewType type = ViewType::Top;
-                    PubSub::Publish("ViewChange", static_cast<void *>(&type));
-                }
-
-                if (ImGui::MenuItem("Left"))
-                {
-                    ViewType type = ViewType::Left;
-                    PubSub::Publish("ViewChange", static_cast<void *>(&type));
-                }
-
-                if (ImGui::MenuItem("Front"))
-                {
-                    ViewType type = ViewType::Front;
-                    PubSub::Publish("ViewChange", static_cast<void *>(&type));
-                }
-
-                ImGui::EndMenu();
-            }
+            FileMenu();
+            ActorMenu();
+            ViewMenu();
 
             ImGui::EndMainMenuBar();
         }
@@ -91,5 +56,68 @@ namespace UltraEd
         if (inner) inner();
 
         ImGui_ImplDX9_CreateDeviceObjects();
+    }
+
+    void Gui::FileMenu()
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Exit"))
+            {
+                PubSub::Publish("Exit");
+            }
+
+            ImGui::EndMenu();
+        }
+    }
+
+    void Gui::ActorMenu()
+    {
+        if (ImGui::BeginMenu("Actor"))
+        {
+            if (ImGui::BeginMenu("Presets"))
+            {
+                if (ImGui::MenuItem("Pumpkin"))
+                {
+                    PubSub::Publish("AddPumpkin");
+                }
+
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMenu();
+        }
+    }
+
+    void Gui::ViewMenu()
+    {
+        if (ImGui::BeginMenu("View"))
+        {
+            if (ImGui::MenuItem("Perspective"))
+            {
+                ViewType type = ViewType::Perspective;
+                PubSub::Publish("ViewChange", static_cast<void *>(&type));
+            }
+
+            if (ImGui::MenuItem("Top"))
+            {
+                ViewType type = ViewType::Top;
+                PubSub::Publish("ViewChange", static_cast<void *>(&type));
+            }
+
+            if (ImGui::MenuItem("Left"))
+            {
+                ViewType type = ViewType::Left;
+                PubSub::Publish("ViewChange", static_cast<void *>(&type));
+            }
+
+            if (ImGui::MenuItem("Front"))
+            {
+                ViewType type = ViewType::Front;
+                PubSub::Publish("ViewChange", static_cast<void *>(&type));
+            }
+
+            ImGui::EndMenu();
+        }
     }
 }

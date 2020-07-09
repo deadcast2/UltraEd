@@ -21,6 +21,11 @@ namespace UltraEd
         void RenderFrame();
         bool WantsMouse();
         void RebuildWith(function<void()> inner);
+
+    private:
+        void FileMenu();
+        void ActorMenu();
+        void ViewMenu();
     };
 }
 
