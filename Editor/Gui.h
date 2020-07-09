@@ -4,9 +4,9 @@
 #include <windows.h>
 #include <functional>
 #include <memory>
-#include "vendor/ImGui/imgui.h"
-#include "vendor/ImGui/imgui_impl_dx9.h"
-#include "vendor/ImGui/imgui_impl_win32.h"
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_dx9.h>
+#include <ImGui/imgui_impl_win32.h>
 
 using namespace std;
 
