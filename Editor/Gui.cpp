@@ -77,6 +77,16 @@ namespace UltraEd
     {
         if (ImGui::BeginMenu("Actor"))
         {
+            if (ImGui::MenuItem("Camera"))
+            {
+                m_scene->OnAddCamera();
+            }
+
+            if (ImGui::MenuItem("Model"))
+            {
+                m_scene->OnAddModel(ModelPreset::Custom);
+            }
+
             if (ImGui::BeginMenu("Presets"))
             {
                 if (ImGui::MenuItem("Pumpkin"))
