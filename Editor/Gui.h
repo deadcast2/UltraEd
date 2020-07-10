@@ -12,10 +12,12 @@ using namespace std;
 
 namespace UltraEd
 {
+    class Scene;
+
     class Gui
     {
     public:
-        Gui(HWND hWnd, IDirect3DDevice9 *device);
+        Gui(Scene *scene, HWND hWnd, IDirect3DDevice9 *device);
         ~Gui();
         void PrepareFrame();
         void RenderFrame();
@@ -26,6 +28,9 @@ namespace UltraEd
         void FileMenu();
         void ActorMenu();
         void ViewMenu();
+
+    private:
+        Scene *m_scene;
     };
 }
 

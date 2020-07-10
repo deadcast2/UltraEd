@@ -87,7 +87,6 @@ namespace UltraEd
         void SetTitle(string title, bool store = true);
         void UpdateViewMatrix();
         void RefreshActorList();
-        bool MouseInScene(const POINT &mousePoint);
         void WrapCursor();
 
     private:

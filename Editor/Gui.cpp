@@ -1,10 +1,12 @@
 #include "Gui.h"
 #include "PubSub.h"
+#include "Scene.h"
 #include "View.h"
 
 namespace UltraEd
 {
-    Gui::Gui(HWND hWnd, IDirect3DDevice9 *device)
+    Gui::Gui(Scene *scene, HWND hWnd, IDirect3DDevice9 *device) : 
+        m_scene(scene)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -79,7 +81,7 @@ namespace UltraEd
             {
                 if (ImGui::MenuItem("Pumpkin"))
                 {
-                    PubSub::Publish("AddPumpkin");
+                    m_scene->OnAddModel(ModelPreset::Pumpkin);
                 }
 
                 ImGui::EndMenu();
@@ -95,26 +97,22 @@ namespace UltraEd
         {
             if (ImGui::MenuItem("Perspective"))
             {
-                ViewType type = ViewType::Perspective;
-                PubSub::Publish("ViewChange", static_cast<void *>(&type));
+                m_scene->SetViewType(ViewType::Perspective);
             }
 
             if (ImGui::MenuItem("Top"))
             {
-                ViewType type = ViewType::Top;
-                PubSub::Publish("ViewChange", static_cast<void *>(&type));
+                m_scene->SetViewType(ViewType::Top);
             }
 
             if (ImGui::MenuItem("Left"))
             {
-                ViewType type = ViewType::Left;
-                PubSub::Publish("ViewChange", static_cast<void *>(&type));
+                m_scene->SetViewType(ViewType::Left);
             }
 
             if (ImGui::MenuItem("Front"))
             {
-                ViewType type = ViewType::Front;
-                PubSub::Publish("ViewChange", static_cast<void *>(&type));
+                m_scene->SetViewType(ViewType::Front);
             }
 
             ImGui::EndMenu();

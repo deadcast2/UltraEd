@@ -55,16 +55,6 @@ namespace UltraEd
             auto delta = static_cast<int *>(data);
             if (delta) OnMouseWheel(*delta);
         } });
-
-        PubSub::Subscribe({ "ViewChange", [&](void *data) {
-            auto type = static_cast<ViewType *>(data);
-            m_activeViewType = *type;
-            UpdateViewMatrix();
-        } });
-
-        PubSub::Subscribe({ "AddPumpkin", [&](void *data) {
-            OnAddModel(ModelPreset::Pumpkin);
-        } });
     }
 
     Scene::~Scene()
@@ -91,7 +81,7 @@ namespace UltraEd
         if (FAILED(m_d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
             D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device))) return false;
 
-        m_gui = make_unique<Gui>(hWnd, m_device);
+        m_gui = make_unique<Gui>(this, hWnd, m_device);
 
         OnNew();
 
@@ -894,16 +884,6 @@ namespace UltraEd
             }
         }
         return true;
-    }
-
-    bool Scene::MouseInScene(const POINT &mousePoint)
-    {
-        if (GetActiveWindow() != GetParent(GetWndHandle())) return false;
-
-        RECT rect = { 0 };
-        GetClientRect(GetWndHandle(), &rect);
-        return mousePoint.x > 0 && mousePoint.x < rect.right
-            &&mousePoint.y > 0 && mousePoint.y < rect.bottom;
     }
 
     void Scene::WrapCursor()
