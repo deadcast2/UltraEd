@@ -28,6 +28,7 @@ namespace UltraEd
         void FileMenu();
         void ActorMenu();
         void RenderMenu();
+        void MovementMenu();
         void ViewMenu();
 
     private:

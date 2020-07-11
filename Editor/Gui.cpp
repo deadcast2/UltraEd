@@ -33,6 +33,7 @@ namespace UltraEd
             FileMenu();
             ActorMenu();
             RenderMenu();
+            MovementMenu();
             ViewMenu();
 
             ImGui::EndMainMenuBar();
@@ -161,6 +162,36 @@ namespace UltraEd
             if (ImGui::MenuItem("Solid", 0, m_scene->IsSolidRender()))
             {
                 m_scene->ToggleFillMode();
+            }
+
+            ImGui::EndMenu();
+        }
+    }
+
+    void Gui::MovementMenu()
+    {
+        if (ImGui::BeginMenu("Movement"))
+        {
+            if (ImGui::MenuItem("World Space"))
+            {
+                m_scene->ToggleMovementSpace();
+            }
+
+            if (ImGui::MenuItem("Snap to Grid"))
+            {
+                m_scene->ToggleSnapToGrid();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Go To", "F"))
+            {
+                m_scene->FocusSelected();
+            }
+
+            if (ImGui::MenuItem("Home", "H"))
+            {
+                m_scene->ResetViews();
             }
 
             ImGui::EndMenu();
