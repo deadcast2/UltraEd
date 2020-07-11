@@ -32,6 +32,7 @@ namespace UltraEd
         {
             FileMenu();
             ActorMenu();
+            RenderMenu();
             ViewMenu();
 
             ImGui::EndMainMenuBar();
@@ -153,26 +154,41 @@ namespace UltraEd
         }
     }
 
+    void Gui::RenderMenu()
+    {
+        if (ImGui::BeginMenu("Render"))
+        {
+            if (ImGui::MenuItem("Solid", 0, m_scene->IsSolidRender()))
+            {
+                m_scene->ToggleFillMode();
+            }
+
+            ImGui::EndMenu();
+        }
+    }
+
     void Gui::ViewMenu()
     {
         if (ImGui::BeginMenu("View"))
         {
-            if (ImGui::MenuItem("Perspective"))
+            auto viewType = m_scene->GetActiveView()->GetType();
+
+            if (ImGui::MenuItem("Perspective", 0, viewType == ViewType::Perspective))
             {
                 m_scene->SetViewType(ViewType::Perspective);
             }
 
-            if (ImGui::MenuItem("Top"))
+            if (ImGui::MenuItem("Top", 0, viewType == ViewType::Top))
             {
                 m_scene->SetViewType(ViewType::Top);
             }
 
-            if (ImGui::MenuItem("Left"))
+            if (ImGui::MenuItem("Left", 0, viewType == ViewType::Left))
             {
                 m_scene->SetViewType(ViewType::Left);
             }
 
-            if (ImGui::MenuItem("Front"))
+            if (ImGui::MenuItem("Front", 0, viewType == ViewType::Front))
             {
                 m_scene->SetViewType(ViewType::Front);
             }

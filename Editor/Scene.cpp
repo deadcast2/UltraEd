@@ -629,7 +629,7 @@ namespace UltraEd
 
     bool Scene::ToggleFillMode()
     {
-        if (m_fillMode == D3DFILL_SOLID)
+        if (IsSolidRender())
         {
             m_fillMode = D3DFILL_WIREFRAME;
             return false;
@@ -637,6 +637,11 @@ namespace UltraEd
 
         m_fillMode = D3DFILL_SOLID;
         return true;
+    }
+
+    bool Scene::IsSolidRender() 
+    {
+        return m_fillMode == D3DFILL_SOLID;
     }
 
     void Scene::ReleaseResources(ModelRelease type)

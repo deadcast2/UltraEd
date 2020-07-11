@@ -63,6 +63,7 @@ namespace UltraEd
         View *GetActiveView();
         bool ToggleMovementSpace();
         bool ToggleFillMode();
+        bool IsSolidRender();
         bool ToggleSnapToGrid();
         void SelectActorById(GUID id, bool clearAll = true);
         void SelectAll();
