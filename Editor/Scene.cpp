@@ -459,7 +459,6 @@ namespace UltraEd
 
             if (!SUCCEEDED(m_device->BeginScene())) return;
 
-            m_gui->RenderFrame();
             m_grid.Render(m_device);
             Debug::Instance()->Render(m_device);
 
@@ -488,6 +487,8 @@ namespace UltraEd
                 m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
                 m_gizmo.Render(m_device, stack, GetActiveView());
             }
+
+            m_gui->RenderFrame();
 
             m_device->EndScene();
             m_device->Present(NULL, NULL, NULL, NULL);
