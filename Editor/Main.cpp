@@ -36,7 +36,12 @@ int main(int, char **)
     ShowWindow(hWnd, SW_SHOWDEFAULT);
     UpdateWindow(hWnd);
 
-    PubSub::Subscribe({ "Exit", [](void *data) { PostQuitMessage(0); } });
+    PubSub::Subscribe({ "Exit", [&](void *data) { 
+        if (scene.Confirm())
+        {
+            PostQuitMessage(0);
+        }
+    } });
 
     MSG msg;
     ZeroMemory(&msg, sizeof(msg));
@@ -83,6 +88,9 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             if ((wParam & 0xfff0) == SC_KEYMENU) return 0;
             break;
         }
+        case WM_CLOSE:
+            PubSub::Publish("Exit");
+            return 0;
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;

@@ -64,6 +64,23 @@ namespace UltraEd
     {
         if (ImGui::BeginMenu("File"))
         {
+            if (ImGui::MenuItem("New Scene"))
+            {
+                m_scene->OnNew();
+            }
+
+            if (ImGui::MenuItem("Save Scene As..."))
+            {
+                m_scene->OnSave();
+            }
+
+            if (ImGui::MenuItem("Load Scene"))
+            {
+                m_scene->OnLoad();
+            }
+
+            ImGui::Separator();
+
             if (ImGui::MenuItem("Exit"))
             {
                 PubSub::Publish("Exit");
@@ -85,6 +102,41 @@ namespace UltraEd
             if (ImGui::MenuItem("Model"))
             {
                 m_scene->OnAddModel(ModelPreset::Custom);
+            }
+
+            if (ImGui::BeginMenu("Texture"))
+            {
+                if (ImGui::MenuItem("Add"))
+                {
+                    m_scene->OnAddTexture();
+                }
+
+                if (ImGui::MenuItem("Delete"))
+                {
+                    m_scene->OnDeleteTexture();
+                }
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Collider"))
+            {
+                if (ImGui::MenuItem("Box"))
+                {
+                    m_scene->OnAddCollider(ColliderType::Box);
+                }
+
+                if (ImGui::MenuItem("Sphere"))
+                {
+                    m_scene->OnAddCollider(ColliderType::Sphere);
+                }
+
+                if (ImGui::MenuItem("Delete"))
+                {
+                    m_scene->OnDeleteCollider();
+                }
+
+                ImGui::EndMenu();
             }
 
             if (ImGui::BeginMenu("Presets"))
