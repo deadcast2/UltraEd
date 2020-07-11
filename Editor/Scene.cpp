@@ -488,6 +488,7 @@ namespace UltraEd
                 m_gizmo.Render(m_device, stack, GetActiveView());
             }
 
+            m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
             m_gui->RenderFrame();
 
             m_device->EndScene();
