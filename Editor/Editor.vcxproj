@@ -70,6 +70,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="PubSub.h" />
     <ClInclude Include="Registry.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Savable.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Settings.h" />
@@ -96,6 +97,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\ImGui\imgui.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ultraed.ico">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Editor.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -2,6 +2,7 @@
 
 #include <tchar.h>
 #include <tuple>
+#include "resource.h"
 #include "PubSub.h"
 #include "Scene.h"
 
@@ -13,15 +14,16 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 int main(int, char **)
 {
     WNDCLASSEX wc = {
-        sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL,
-        NULL, NULL, NULL, _T("UltraEd"), NULL
+        sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), 
+        LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN_ICON)),
+        NULL, NULL, NULL, APP_CLASS, NULL
     };
 
     RegisterClassEx(&wc);
 
     const int windowWidth = 800;
     const int windowHeight = 600;
-    HWND hWnd = CreateWindow(wc.lpszClassName, _T("UltraEd v1.0"), WS_OVERLAPPEDWINDOW,
+    HWND hWnd = CreateWindow(wc.lpszClassName, APP_NAME, WS_OVERLAPPEDWINDOW,
         (GetSystemMetrics(SM_CXSCREEN) / 2) - (windowWidth / 2),
         (GetSystemMetrics(SM_CYSCREEN) / 2) - (windowHeight / 2),
         windowWidth, windowHeight, NULL, NULL, wc.hInstance, NULL);
