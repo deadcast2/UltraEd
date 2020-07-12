@@ -32,9 +32,8 @@ namespace UltraEd
         {
             FileMenu();
             ActorMenu();
-            RenderMenu();
-            MovementMenu();
             ViewMenu();
+            GizmoMenu();
 
             ImGui::EndMainMenuBar();
         }
@@ -155,49 +154,6 @@ namespace UltraEd
         }
     }
 
-    void Gui::RenderMenu()
-    {
-        if (ImGui::BeginMenu("Render"))
-        {
-            if (ImGui::MenuItem("Solid", 0, m_scene->m_fillMode == D3DFILL_SOLID))
-            {
-                m_scene->ToggleFillMode();
-            }
-
-            ImGui::EndMenu();
-        }
-    }
-
-    void Gui::MovementMenu()
-    {
-        if (ImGui::BeginMenu("Movement"))
-        {
-            if (ImGui::MenuItem("World Space", 0, m_scene->m_gizmo.m_worldSpaceToggled))
-            {
-                m_scene->ToggleMovementSpace();
-            }
-
-            if (ImGui::MenuItem("Snap to Grid", 0, m_scene->m_gizmo.m_snapToGridToggled))
-            {
-                m_scene->ToggleSnapToGrid();
-            }
-
-            ImGui::Separator();
-
-            if (ImGui::MenuItem("Go To", "F"))
-            {
-                m_scene->FocusSelected();
-            }
-
-            if (ImGui::MenuItem("Home", "H"))
-            {
-                m_scene->ResetViews();
-            }
-
-            ImGui::EndMenu();
-        }
-    }
-
     void Gui::ViewMenu()
     {
         if (ImGui::BeginMenu("View"))
@@ -222,6 +178,60 @@ namespace UltraEd
             if (ImGui::MenuItem("Front", 0, viewType == ViewType::Front))
             {
                 m_scene->SetViewType(ViewType::Front);
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Go To", "F"))
+            {
+                m_scene->FocusSelected();
+            }
+
+            if (ImGui::MenuItem("Home", "H"))
+            {
+                m_scene->ResetViews();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Solid", 0, m_scene->m_fillMode == D3DFILL_SOLID))
+            {
+                m_scene->ToggleFillMode();
+            }
+
+            ImGui::EndMenu();
+        }
+    }
+
+    void Gui::GizmoMenu()
+    {
+        if (ImGui::BeginMenu("Gizmo"))
+        {
+            if (ImGui::MenuItem("Translate", "1", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Translate))
+            {
+                m_scene->SetGizmoModifier(GizmoModifierState::Translate);
+            }
+
+            if (ImGui::MenuItem("Rotate", "2", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Rotate))
+            {
+                m_scene->SetGizmoModifier(GizmoModifierState::Rotate);
+            }
+
+            if (ImGui::MenuItem("Scale", "3", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Scale))
+            {
+                m_scene->SetGizmoModifier(GizmoModifierState::Scale);
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("World Space", 0, m_scene->m_gizmo.m_worldSpaceToggled))
+            {
+                m_scene->ToggleMovementSpace();
+            }
+
+            if (ImGui::MenuItem("Snap to Grid", 0, m_scene->m_gizmo.m_snapToGridToggled))
+            {
+                m_scene->ToggleSnapToGrid();
             }
 
             ImGui::EndMenu();
