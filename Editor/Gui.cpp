@@ -159,7 +159,7 @@ namespace UltraEd
     {
         if (ImGui::BeginMenu("Render"))
         {
-            if (ImGui::MenuItem("Solid", 0, m_scene->IsSolidRender()))
+            if (ImGui::MenuItem("Solid", 0, m_scene->m_fillMode == D3DFILL_SOLID))
             {
                 m_scene->ToggleFillMode();
             }

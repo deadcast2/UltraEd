@@ -27,18 +27,27 @@ namespace UltraEd
 
     class Scene : public Savable
     {
+        friend Auditor;
+        friend Gui;
+
     public:
         Scene();
         ~Scene();
         bool Create(HWND hWnd);
+        bool Confirm();
+        vector<Actor *> GetActors();
+        COLORREF GetBackgroundColor();
+        HWND GetWndHandle();
+        void Render();
+        cJSON *Save();
+     
+    private:
         void Delete();
         void Duplicate();
         void FocusSelected();
         void SetScript(string script);
         string GetScript();
         void SetBackgroundColor(COLORREF color);
-        COLORREF GetBackgroundColor();
-        void Render();
         void Resize(int width, int height);
         void OnMouseWheel(short zDelta);
         void OnNew(bool confirm = true);
@@ -62,27 +71,20 @@ namespace UltraEd
         float GetGizmoSnapSize();
         View *GetActiveView();
         bool ToggleMovementSpace();
-        bool ToggleFillMode();
-        bool IsSolidRender();
         bool ToggleSnapToGrid();
         void SelectActorById(GUID id, bool clearAll = true);
         void SelectAll();
         void UnselectAll();
-        cJSON *Save();
         cJSON *PartialSave(cJSON *root);
         bool Load(cJSON *root);
         bool PartialLoad(cJSON *root);
         void SetDirty(bool value);
-        bool Confirm();
-        HWND GetWndHandle();
-        vector<Actor *> GetActors();
         shared_ptr<Actor> GetActor(GUID id);
         void Delete(shared_ptr<Actor> actor);
         void RestoreActor(cJSON *item);
         void ResetViews();
         string GetStats();
-
-    private:
+        bool ToggleFillMode();
         void CheckChanges();
         void CheckInput(const float deltaTime);
         void SetTitle(string title, bool store = true);
