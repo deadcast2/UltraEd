@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <functional>
 #include <memory>
+#include <string>
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_dx9.h>
 #include <ImGui/imgui_impl_win32.h>
@@ -32,6 +33,8 @@ namespace UltraEd
 
     private:
         Scene *m_scene;
+        string m_buildOutput;
+        bool m_moveBuildOutputToBottom;
     };
 }
 

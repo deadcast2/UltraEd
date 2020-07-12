@@ -14,6 +14,7 @@
 #include "SphereCollider.h"
 #include "Settings.h"
 #include "shlwapi.h"
+#include "PubSub.h"
 
 namespace UltraEd
 {
@@ -620,7 +621,7 @@ namespace UltraEd
             CloseHandle(stdOutWrite);
 
             // Send the build results to the output window.
-            //SendMessage(hWnd, WM_COMMAND, TAB_BUILD_OUTPUT_CLEAR, NULL);
+            PubSub::Publish("BuildOutputClear");
             while (ReadFile(stdOutRead, chBuf, 4096, &dwRead, NULL))
             {
                 if (dwRead == 0) break;
@@ -628,7 +629,7 @@ namespace UltraEd
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
-                    //SendMessage(hWnd, WM_COMMAND, TAB_BUILD_OUTPUT, reinterpret_cast<LPARAM>(buffer.release()));
+                    PubSub::Publish("BuildOutputAppend", buffer.release());
                 }
             }
 

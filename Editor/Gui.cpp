@@ -6,14 +6,26 @@
 
 namespace UltraEd
 {
-    Gui::Gui(Scene *scene, HWND hWnd, IDirect3DDevice9 *device) : 
-        m_scene(scene)
+    Gui::Gui(Scene *scene, HWND hWnd, IDirect3DDevice9 *device) :
+        m_scene(scene),
+        m_buildOutput(),
+        m_moveBuildOutputToBottom(false)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui::StyleColorsDark();
         ImGui_ImplWin32_Init(hWnd);
         ImGui_ImplDX9_Init(device);
+
+        PubSub::Subscribe({ "BuildOutputClear", [&](void *data) {
+            m_buildOutput.clear();
+        } });
+
+        PubSub::Subscribe({ "BuildOutputAppend", [&](void *data) {
+            auto text = static_cast<char *>(data);
+            m_buildOutput.append(text);
+            m_moveBuildOutputToBottom = true;
+        } });
     }
 
     Gui::~Gui()
@@ -38,6 +50,17 @@ namespace UltraEd
 
             ImGui::EndMainMenuBar();
         }
+
+        if (ImGui::Begin("Build Output", 0, ImGuiWindowFlags_HorizontalScrollbar))
+        {
+            ImGui::TextUnformatted(m_buildOutput.c_str());
+            if (m_moveBuildOutputToBottom)
+            {
+                ImGui::SetScrollHereY(1);
+                m_moveBuildOutputToBottom = false;
+            }
+        }
+        ImGui::End();
 
         ImGui::EndFrame();
     }
