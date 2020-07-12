@@ -1,4 +1,5 @@
 #include "Gui.h"
+#include "FileIO.h"
 #include "PubSub.h"
 #include "Scene.h"
 #include "View.h"
@@ -78,6 +79,44 @@ namespace UltraEd
             if (ImGui::MenuItem("Load Scene"))
             {
                 m_scene->OnLoad();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Build ROM"))
+            {
+                m_scene->OnBuildROM(BuildFlag::Build);
+            }
+
+            if (ImGui::MenuItem("Build ROM & Load"))
+            {
+                m_scene->OnBuildROM(BuildFlag::Load);
+            }
+
+            if (ImGui::MenuItem("Build ROM & Run"))
+            {
+                m_scene->OnBuildROM(BuildFlag::Run);
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Install Build Tools"))
+            {
+                char pathBuffer[128];
+                GetFullPathName("..\\Engine\\tools.bin", 128, pathBuffer, NULL);
+                if (FileIO::Unpack(pathBuffer))
+                {
+                    MessageBox(0, "Build tools successfully installed.", "Success!", MB_OK);
+                }
+                else
+                {
+                    MessageBox(0, "Could not find build tools.", "Error", MB_OK);
+                }
+            }
+
+            if (ImGui::MenuItem("Options"))
+            {
+                PubSub::Publish("Exit");
             }
 
             ImGui::Separator();

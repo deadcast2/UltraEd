@@ -652,7 +652,7 @@ namespace UltraEd
             string path(buffer);
 
 #ifdef _DEBUG
-            return path.append("\\..\\..\\").append(name);
+            return path.append("\\..\\..\\..\\").append(name);
 #else
             return path.append("\\..\\").append(name);
 #endif

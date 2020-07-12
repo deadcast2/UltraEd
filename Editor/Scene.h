@@ -22,7 +22,7 @@ namespace UltraEd
 {
     enum class BuildFlag
     {
-        _, Run, Load
+        Build, Run, Load
     };
 
     class Scene : public Savable
