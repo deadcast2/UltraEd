@@ -172,12 +172,12 @@ namespace UltraEd
     {
         if (ImGui::BeginMenu("Movement"))
         {
-            if (ImGui::MenuItem("World Space"))
+            if (ImGui::MenuItem("World Space", 0, m_scene->m_gizmo.m_worldSpaceToggled))
             {
                 m_scene->ToggleMovementSpace();
             }
 
-            if (ImGui::MenuItem("Snap to Grid"))
+            if (ImGui::MenuItem("Snap to Grid", 0, m_scene->m_gizmo.m_snapToGridToggled))
             {
                 m_scene->ToggleSnapToGrid();
             }

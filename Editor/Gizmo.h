@@ -18,6 +18,8 @@ namespace UltraEd
 
     class Gizmo
     {
+        friend class Gui;
+
     public:
         Gizmo();
         void SetModifier(GizmoModifierState state);

@@ -27,7 +27,6 @@ namespace UltraEd
 
     class Scene : public Savable
     {
-        friend Auditor;
         friend Gui;
 
     public:
@@ -40,6 +39,13 @@ namespace UltraEd
         HWND GetWndHandle();
         void Render();
         cJSON *Save();
+        cJSON *PartialSave(cJSON *root);
+        bool PartialLoad(cJSON *root);
+        void UnselectAll();
+        shared_ptr<Actor> GetActor(GUID id);
+        void RestoreActor(cJSON *item);
+        void Delete(shared_ptr<Actor> actor);
+        void SelectActorById(GUID id, bool clearAll = true);
      
     private:
         void Delete();
@@ -72,16 +78,9 @@ namespace UltraEd
         View *GetActiveView();
         bool ToggleMovementSpace();
         bool ToggleSnapToGrid();
-        void SelectActorById(GUID id, bool clearAll = true);
         void SelectAll();
-        void UnselectAll();
-        cJSON *PartialSave(cJSON *root);
         bool Load(cJSON *root);
-        bool PartialLoad(cJSON *root);
         void SetDirty(bool value);
-        shared_ptr<Actor> GetActor(GUID id);
-        void Delete(shared_ptr<Actor> actor);
-        void RestoreActor(cJSON *item);
         void ResetViews();
         string GetStats();
         bool ToggleFillMode();
