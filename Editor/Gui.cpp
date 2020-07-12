@@ -3,6 +3,7 @@
 #include "PubSub.h"
 #include "Scene.h"
 #include "View.h"
+#include <ImGui/imconfig.h>
 
 namespace UltraEd
 {
@@ -16,6 +17,8 @@ namespace UltraEd
         ImGui::StyleColorsDark();
         ImGui_ImplWin32_Init(hWnd);
         ImGui_ImplDX9_Init(device);
+
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         PubSub::Subscribe({ "BuildOutputClear", [&](void *data) {
             m_buildOutput.clear();
@@ -41,6 +44,26 @@ namespace UltraEd
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
+        ImGuiViewport *viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowViewport(viewport->ID);
+        ImGui::SetNextWindowBgAlpha(0.0f);
+
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::Begin("DockSpace", 0, window_flags);
+        ImGui::PopStyleVar(3);
+
+        ImGuiID dockspace_id = ImGui::GetID("RootDockspace");
+        ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+
         if (ImGui::BeginMainMenuBar())
         {
             FileMenu();
@@ -60,6 +83,8 @@ namespace UltraEd
                 m_moveBuildOutputToBottom = false;
             }
         }
+        ImGui::End();
+
         ImGui::End();
 
         ImGui::EndFrame();
