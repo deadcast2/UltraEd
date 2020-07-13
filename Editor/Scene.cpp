@@ -93,7 +93,6 @@ namespace UltraEd
         m_actors.clear();
         m_auditor.Reset();
         ResetViews();
-        RefreshActorList();
         m_backgroundColorRGB[0] = m_backgroundColorRGB[1] = m_backgroundColorRGB[2] = 0;
         m_gizmo.SetSnapSize(0.5f);
         SetDirty(false);
@@ -124,7 +123,6 @@ namespace UltraEd
             SetTitle(loadedName);
             Load(root);
             cJSON_Delete(root);
-            RefreshActorList();
         }
     }
 
@@ -182,7 +180,6 @@ namespace UltraEd
         if (model != NULL)
         {
             SelectActorById(model->GetId());
-            RefreshActorList();
         }
     }
 
@@ -194,7 +191,6 @@ namespace UltraEd
         m_auditor.AddActor("Camera", newCamera->GetId());
 
         SelectActorById(newCamera->GetId());
-        RefreshActorList();
     }
 
     void Scene::OnAddCollider(ColliderType type)
@@ -313,7 +309,6 @@ namespace UltraEd
             }
         }
 
-        RefreshActorList();
         if (closestDist != FLT_MAX) return true;
         if (!gizmoSelected) UnselectAll();
         return false;
@@ -651,8 +646,6 @@ namespace UltraEd
             Delete(m_actors[selectedActorId]);
             SetDirty(true);
         }
-
-        RefreshActorList();
     }
 
     void Scene::Delete(shared_ptr<Actor> actor)
@@ -699,8 +692,6 @@ namespace UltraEd
                 }
             }
         }
-
-        RefreshActorList();
     }
 
     void Scene::FocusSelected()
@@ -776,19 +767,6 @@ namespace UltraEd
     bool Scene::ToggleSnapToGrid()
     {
         return m_gizmo.ToggleSnapping();
-    }
-
-    void Scene::RefreshActorList()
-    {
-        /*SendMessage(GetWndHandle(), WM_COMMAND, TV_CLEAR_ACTORS, 0);
-        for (const auto &actor : m_actors)
-        {
-            SendMessage(GetWndHandle(), WM_COMMAND, TV_ADD_ACTOR, (LPARAM)actor.second.get());
-        }
-        for (const auto &selectedActorId : m_selectedActorIds)
-        {
-            SendMessage(GetWndHandle(), WM_COMMAND, TV_SELECT_ACTOR, (LPARAM)m_actors[selectedActorId].get());
-        }*/
     }
 
     void Scene::SelectActorById(GUID id, bool clearAll)
@@ -891,13 +869,11 @@ namespace UltraEd
     void Scene::Undo()
     {
         m_auditor.Undo();
-        RefreshActorList();
     }
 
     void Scene::Redo()
     {
         m_auditor.Redo();
-        RefreshActorList();
     }
 
     cJSON *Scene::Save()

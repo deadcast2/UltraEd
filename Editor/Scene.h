@@ -87,7 +87,6 @@ namespace UltraEd
         void CheckInput();
         void SetTitle(string title, bool store = true);
         void UpdateViewMatrix();
-        void RefreshActorList();
         void WrapCursor();
 
     private:
