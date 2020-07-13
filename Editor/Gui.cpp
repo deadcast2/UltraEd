@@ -10,7 +10,8 @@ namespace UltraEd
     Gui::Gui(Scene *scene, HWND hWnd, IDirect3DDevice9 *device) :
         m_scene(scene),
         m_buildOutput(),
-        m_moveBuildOutputToBottom(false)
+        m_moveBuildOutputToBottom(false),
+        m_selectedActorIndex(0)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -70,23 +71,15 @@ namespace UltraEd
             ActorMenu();
             ViewMenu();
             GizmoMenu();
-
             ImGui::EndMainMenuBar();
         }
 
-        if (ImGui::Begin("Build Output", 0, ImGuiWindowFlags_HorizontalScrollbar))
-        {
-            ImGui::TextUnformatted(m_buildOutput.c_str());
-            if (m_moveBuildOutputToBottom)
-            {
-                ImGui::SetScrollHereY(1);
-                m_moveBuildOutputToBottom = false;
-            }
-        }
-        ImGui::End();
+        SceneGraph();
+        BuildOutput();
+
+        //ImGui::ShowDemoWindow();
 
         ImGui::End();
-
         ImGui::EndFrame();
     }
 
@@ -323,5 +316,46 @@ namespace UltraEd
 
             ImGui::EndMenu();
         }
+    }
+
+    void Gui::SceneGraph()
+    {
+        if (ImGui::Begin("Scene Graph", 0, ImGuiWindowFlags_HorizontalScrollbar))
+        {
+            ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick
+                | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+            auto actors = m_scene->GetActors();
+            for (int i = 0; i < actors.size(); i++)
+            {
+                ImGuiTreeNodeFlags leafFlags = baseFlags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+                if (m_selectedActorIndex == i)
+                    leafFlags |= ImGuiTreeNodeFlags_Selected;
+
+                ImGui::TreeNodeEx((void *)(intptr_t)i, leafFlags, actors[i]->GetName().c_str());
+                if (ImGui::IsItemClicked())
+                {
+                    m_scene->SelectActorById(actors[i]->GetId());
+                    m_selectedActorIndex = i;
+                }
+            }
+        }
+
+        ImGui::End();
+    }
+
+    void Gui::BuildOutput()
+    {
+        if (ImGui::Begin("Build Output", 0, ImGuiWindowFlags_HorizontalScrollbar))
+        {
+            ImGui::TextUnformatted(m_buildOutput.c_str());
+            if (m_moveBuildOutputToBottom)
+            {
+                ImGui::SetScrollHereY(1);
+                m_moveBuildOutputToBottom = false;
+            }
+        }
+
+        ImGui::End();
     }
 }

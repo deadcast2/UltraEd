@@ -30,11 +30,14 @@ namespace UltraEd
         void ActorMenu();
         void ViewMenu();
         void GizmoMenu();
+        void BuildOutput();
+        void SceneGraph();
 
     private:
         Scene *m_scene;
         string m_buildOutput;
         bool m_moveBuildOutputToBottom;
+        int m_selectedActorIndex;
     };
 }
 
