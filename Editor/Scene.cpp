@@ -319,13 +319,14 @@ namespace UltraEd
         return false;
     }
 
-    void Scene::CheckInput(const float deltaTime)
+    void Scene::CheckInput()
     {
         View *view = GetActiveView();
         static DWORD prevTick = GetTickCount();
         static bool prevGizmo = false;
         static GUID groupId = Util::NewGuid();
 
+        const float deltaTime = m_gui->IO().DeltaTime;
         const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
         const bool mouseReady = GetTickCount() - prevTick < 100;
@@ -432,12 +433,7 @@ namespace UltraEd
 
     void Scene::Render()
     {
-        // Calculate the frame rendering speed.
-        static double lastTime = (double)timeGetTime();
-        const double currentTime = (double)timeGetTime();
-        const float deltaTime = (float)(currentTime - lastTime) * 0.001f;
-
-        CheckInput(deltaTime);
+        CheckInput();
         CheckChanges();
 
         if (m_device && m_gui)
@@ -492,8 +488,6 @@ namespace UltraEd
             m_device->Present(NULL, NULL, NULL, NULL);
             stack->Release();
         }
-
-        lastTime = currentTime;
     }
 
     void Scene::CheckChanges()

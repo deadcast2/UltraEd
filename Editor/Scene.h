@@ -84,7 +84,7 @@ namespace UltraEd
         string GetStats();
         bool ToggleFillMode();
         void CheckChanges();
-        void CheckInput(const float deltaTime);
+        void CheckInput();
         void SetTitle(string title, bool store = true);
         void UpdateViewMatrix();
         void RefreshActorList();
