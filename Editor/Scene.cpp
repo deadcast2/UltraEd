@@ -321,12 +321,7 @@ namespace UltraEd
 
     void Scene::CheckInput(const float deltaTime)
     {
-        POINT mousePoint;
-        GetCursorPos(&mousePoint);
-        ScreenToClient(GetWndHandle(), &mousePoint);
         View *view = GetActiveView();
-
-        static POINT prevMousePoint = mousePoint;
         static DWORD prevTick = GetTickCount();
         static bool prevGizmo = false;
         static GUID groupId = Util::NewGuid();
@@ -335,13 +330,14 @@ namespace UltraEd
         const float mouseSpeedModifier = 0.55f;
         const bool mouseReady = GetTickCount() - prevTick < 100;
 
-        // Only accept input when mouse in scene or when pressed mouse leaves scene.
+        // Only accept input when mouse in scene.
         if (m_gui->IO().WantCaptureMouse) return;
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
             D3DXVECTOR3 rayOrigin, rayDir;
-            ScreenRaycast(mousePoint, &rayOrigin, &rayDir);
+            ImVec2 mousePos = m_gui->IO().MousePos;
+            ScreenRaycast({ static_cast<int>(mousePos.x), static_cast<int>(mousePos.y) }, &rayOrigin, &rayDir);
             if (prevGizmo || (prevGizmo = m_gizmo.Select(rayOrigin, rayDir)))
             {
                 GUID lastSelectedActorId = m_selectedActorIds.back();
@@ -364,8 +360,8 @@ namespace UltraEd
             if (GetAsyncKeyState('A')) view->Strafe(-4.0f * deltaTime);
             if (GetAsyncKeyState('D')) view->Strafe(4.0f * deltaTime);
 
-            m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(mousePoint.x - prevMousePoint.x));
-            m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
+            m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, m_gui->IO().MouseDelta.x);
+            m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
 
             view->Yaw(m_mouseSmoothX * mouseSpeedModifier * deltaTime);
             view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
@@ -373,8 +369,8 @@ namespace UltraEd
         }
         else if (GetAsyncKeyState(VK_MBUTTON) && mouseReady)
         {
-            m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, (FLOAT)(prevMousePoint.x - mousePoint.x));
-            m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, (FLOAT)(mousePoint.y - prevMousePoint.y));
+            m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, -m_gui->IO().MouseDelta.x);
+            m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
 
             view->Strafe(m_mouseSmoothX * deltaTime);
             view->Fly(m_mouseSmoothY * deltaTime);
@@ -382,8 +378,8 @@ namespace UltraEd
         }
         else if (m_gui->IO().MouseWheel != 0)
         {
-            GetActiveView()->SingleStep(m_gui->IO().MouseWheel * 150);
-            if (GetActiveView()->GetType() != ViewType::Perspective)
+            view->SingleStep(m_gui->IO().MouseWheel * 150);
+            if (view->GetType() != ViewType::Perspective)
             {
                 UpdateViewMatrix();
             }
@@ -397,8 +393,6 @@ namespace UltraEd
             m_gizmo.Reset();
         }
 
-        // Remember the last position so we know how much to move the view.
-        prevMousePoint = mousePoint;
         prevTick = GetTickCount();
     }
 
