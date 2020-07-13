@@ -72,12 +72,6 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
-        case WM_MOUSEWHEEL:
-        {
-            int delta = HIWORD(wParam);
-            PubSub::Publish("MouseWheel", static_cast<void *>(&delta));
-            return 0;
-        }
         case WM_SIZE:
         {
             auto rect = make_tuple<int, int>(LOWORD(lParam), HIWORD(lParam));

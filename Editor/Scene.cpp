@@ -50,11 +50,6 @@ namespace UltraEd
             auto rect = static_cast<tuple<int, int> *>(data);
             if (rect) Resize(get<0>(*rect), get<1>(*rect));
         } });
-
-        PubSub::Subscribe({ "MouseWheel", [&](void *data) {
-            auto delta = static_cast<int *>(data);
-            if (delta) OnMouseWheel(*delta);
-        } });
     }
 
     Scene::~Scene()
@@ -341,7 +336,7 @@ namespace UltraEd
         const bool mouseReady = GetTickCount() - prevTick < 100;
 
         // Only accept input when mouse in scene or when pressed mouse leaves scene.
-        if (m_gui->WantsMouse()) return;
+        if (m_gui->IO().WantCaptureMouse) return;
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
@@ -384,6 +379,14 @@ namespace UltraEd
             view->Strafe(m_mouseSmoothX * deltaTime);
             view->Fly(m_mouseSmoothY * deltaTime);
             WrapCursor();
+        }
+        else if (m_gui->IO().MouseWheel != 0)
+        {
+            GetActiveView()->SingleStep(m_gui->IO().MouseWheel * 150);
+            if (GetActiveView()->GetType() != ViewType::Perspective)
+            {
+                UpdateViewMatrix();
+            }
         }
         else
         {
@@ -510,15 +513,6 @@ namespace UltraEd
                 SetDirty(true);
                 break;
             }
-        }
-    }
-
-    void Scene::OnMouseWheel(short zDelta)
-    {
-        if (!m_gui->WantsMouse())
-        {
-            GetActiveView()->SingleStep(zDelta);
-            UpdateViewMatrix();
         }
     }
 

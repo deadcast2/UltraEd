@@ -96,9 +96,9 @@ namespace UltraEd
         ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
     }
 
-    bool Gui::WantsMouse()
+    ImGuiIO &Gui::IO()
     {
-        return ImGui::GetIO().WantCaptureMouse;
+        return ImGui::GetIO();
     }
 
     void Gui::RebuildWith(function<void()> inner)

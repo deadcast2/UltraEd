@@ -55,7 +55,6 @@ namespace UltraEd
         string GetScript();
         void SetBackgroundColor(COLORREF color);
         void Resize(int width, int height);
-        void OnMouseWheel(short zDelta);
         void OnNew(bool confirm = true);
         bool OnSave();
         void OnLoad();

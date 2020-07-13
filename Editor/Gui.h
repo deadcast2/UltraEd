@@ -22,7 +22,7 @@ namespace UltraEd
         ~Gui();
         void PrepareFrame();
         void RenderFrame();
-        bool WantsMouse();
+        ImGuiIO &IO();
         void RebuildWith(function<void()> inner);
 
     private:
