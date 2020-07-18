@@ -9,7 +9,6 @@
 #include <STB/stb_image_write.h>
 #include "build.h"
 #include "util.h"
-#include "debug.h"
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 #include "Settings.h"

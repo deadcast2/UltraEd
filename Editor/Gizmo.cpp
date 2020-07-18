@@ -1,6 +1,5 @@
 #include "Common.h"
 #include "Gizmo.h"
-#include "Debug.h"
 
 namespace UltraEd
 {

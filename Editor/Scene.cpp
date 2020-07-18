@@ -451,7 +451,6 @@ namespace UltraEd
             if (!SUCCEEDED(m_device->BeginScene())) return;
 
             m_grid.Render(m_device);
-            Debug::Instance()->Render(m_device);
 
             // Render all actors with selected fill mode.
             m_device->SetMaterial(&m_defaultMaterial);
@@ -623,7 +622,6 @@ namespace UltraEd
     {
         m_grid.Release();
         m_gizmo.Release();
-        Debug::Instance()->Release();
 
         for (const auto &actor : m_actors)
         {

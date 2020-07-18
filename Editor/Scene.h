@@ -9,7 +9,6 @@
 #include "Gui.h"
 #include "View.h"
 #include "Common.h"
-#include "Debug.h"
 #include "Gizmo.h"
 #include "Grid.h"
 #include "Model.h"
