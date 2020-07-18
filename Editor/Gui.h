@@ -8,6 +8,7 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_dx9.h>
 #include <ImGui/imgui_impl_win32.h>
+#include "Actor.h"
 
 using namespace std;
 
@@ -35,14 +36,17 @@ namespace UltraEd
         void SceneGraph();
         void OptionsModal();
         void SceneSettingsModal();
+        void ContextMenu();
 
     private:
         Scene *m_scene;
         string m_buildOutput;
         bool m_moveBuildOutputToBottom;
+        bool m_openContextMenu;
         int m_selectedActorIndex;
         int m_optionsModalOpen;
         int m_sceneSettingsModalOpen;
+        Actor *m_selectedActor;
     };
 }
 

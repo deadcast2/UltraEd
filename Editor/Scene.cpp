@@ -317,21 +317,23 @@ namespace UltraEd
     void Scene::CheckInput()
     {
         View *view = GetActiveView();
-        static DWORD prevTick = GetTickCount();
         static bool prevGizmo = false;
         static GUID groupId = Util::NewGuid();
 
         const float deltaTime = m_gui->IO().DeltaTime;
         const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
-        const bool mouseReady = GetTickCount() - prevTick < 100;
 
         // Only accept input when mouse in scene.
-        if (m_gui->IO().WantCaptureMouse) 
+        if (m_gui->IO().WantCaptureMouse)
             return;
 
         if (m_gui->IO().MouseClicked[0])
             Pick(m_gui->IO().MousePos);
+
+        Actor *selectedActor;
+        if (m_gui->IO().MouseClicked[1] && Pick(m_gui->IO().MousePos, &selectedActor))
+            PubSub::Publish("ContextMenu", selectedActor);
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
@@ -352,7 +354,7 @@ namespace UltraEd
                 }
             }
         }
-        else if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective && mouseReady)
+        else if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective)
         {
             if (GetAsyncKeyState('W')) view->Walk(4.0f * deltaTime);
             if (GetAsyncKeyState('S')) view->Walk(-4.0f * deltaTime);
@@ -366,7 +368,7 @@ namespace UltraEd
             view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
             WrapCursor();
         }
-        else if (GetAsyncKeyState(VK_MBUTTON) && mouseReady)
+        else if (GetAsyncKeyState(VK_MBUTTON))
         {
             m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, -m_gui->IO().MouseDelta.x);
             m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
@@ -391,8 +393,6 @@ namespace UltraEd
             groupId = Util::NewGuid();
             m_gizmo.Reset();
         }
-
-        prevTick = GetTickCount();
     }
 
     void Scene::Resize(int width, int height)

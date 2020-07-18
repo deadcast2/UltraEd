@@ -12,9 +12,11 @@ namespace UltraEd
         m_scene(scene),
         m_buildOutput(),
         m_moveBuildOutputToBottom(false),
+        m_openContextMenu(false),
         m_selectedActorIndex(0),
         m_optionsModalOpen(false),
-        m_sceneSettingsModalOpen(false)
+        m_sceneSettingsModalOpen(false),
+        m_selectedActor()
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -32,6 +34,11 @@ namespace UltraEd
             auto text = static_cast<char *>(data);
             m_buildOutput.append(text);
             m_moveBuildOutputToBottom = true;
+        } });
+
+        PubSub::Subscribe({ "ContextMenu", [&](void *data) {
+            m_openContextMenu = true;
+            m_selectedActor = static_cast<Actor *>(data);
         } });
     }
 
@@ -82,6 +89,7 @@ namespace UltraEd
         BuildOutput();
         OptionsModal();
         SceneSettingsModal();
+        ContextMenu();
 
         //ImGui::ShowDemoWindow();
 
@@ -426,7 +434,7 @@ namespace UltraEd
         {
             ImGui::Combo("Video Mode", &videoMode, "NTSC\0PAL\0\0");
             ImGui::Combo("Build Cart", &buildCart, "64drive\0EverDrive-64 X7\0\0");
-            
+
             if (ImGui::Button("Save"))
             {
                 Settings::SetVideoMode(static_cast<VideoMode>(videoMode));
@@ -469,7 +477,7 @@ namespace UltraEd
 
             if (ImGui::Button("Save"))
             {
-                m_scene->SetBackgroundColor(RGB(backgroundColor[0] * 255, backgroundColor[1] * 255, 
+                m_scene->SetBackgroundColor(RGB(backgroundColor[0] * 255, backgroundColor[1] * 255,
                     backgroundColor[2] * 255));
                 m_scene->SetGizmoSnapSize(gridSnapSize);
 
@@ -481,6 +489,75 @@ namespace UltraEd
             if (ImGui::Button("Close"))
             {
                 ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void Gui::ContextMenu()
+    {
+        if (m_openContextMenu)
+        {
+            ImGui::OpenPopup("Context Menu");
+            m_openContextMenu = false;
+        }
+
+        if (ImGui::BeginPopup("Context Menu"))
+        {
+            if (ImGui::BeginMenu("Texture"))
+            {
+                if (ImGui::MenuItem("Add"))
+                {
+                    m_scene->OnAddTexture();
+                }
+
+                if (m_selectedActor != NULL && reinterpret_cast<Model *>(m_selectedActor)->HasTexture())
+                {
+                    ImGui::Separator();
+
+                    if (ImGui::MenuItem("Delete"))
+                    {
+                        m_scene->OnDeleteTexture();
+                    }
+                }
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Collider"))
+            {
+                if (ImGui::MenuItem("Box"))
+                {
+                    m_scene->OnAddCollider(ColliderType::Box);
+                }
+
+                if (ImGui::MenuItem("Sphere"))
+                {
+                    m_scene->OnAddCollider(ColliderType::Sphere);
+                }
+
+                if (m_selectedActor != NULL && m_selectedActor->HasCollider())
+                {
+                    ImGui::Separator();
+
+                    if (ImGui::MenuItem("Delete"))
+                    {
+                        m_scene->OnDeleteCollider();
+                    }
+                }
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::MenuItem("Delete"))
+            {
+                m_scene->Delete();
+            }
+
+            if (ImGui::MenuItem("Duplicate"))
+            {
+                m_scene->Duplicate();
             }
 
             ImGui::EndPopup();
