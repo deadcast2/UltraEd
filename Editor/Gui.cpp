@@ -18,7 +18,7 @@ namespace UltraEd
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGui::StyleColorsDark();
+        ImGui::StyleColorsLight();
         ImGui_ImplWin32_Init(hWnd);
         ImGui_ImplDX9_Init(device);
 
