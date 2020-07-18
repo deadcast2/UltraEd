@@ -27,19 +27,22 @@ namespace UltraEd
 
     private:
         void FileMenu();
+        void EditMenu();
         void ActorMenu();
         void ViewMenu();
         void GizmoMenu();
         void BuildOutput();
         void SceneGraph();
         void OptionsModal();
+        void SceneSettingsModal();
 
     private:
         Scene *m_scene;
         string m_buildOutput;
         bool m_moveBuildOutputToBottom;
         int m_selectedActorIndex;
-        int m_optionsModelOpen;
+        int m_optionsModalOpen;
+        int m_sceneSettingsModalOpen;
     };
 }
 

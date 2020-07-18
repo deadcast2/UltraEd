@@ -13,7 +13,8 @@ namespace UltraEd
         m_buildOutput(),
         m_moveBuildOutputToBottom(false),
         m_selectedActorIndex(0),
-        m_optionsModelOpen(false)
+        m_optionsModalOpen(false),
+        m_sceneSettingsModalOpen(false)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -70,6 +71,7 @@ namespace UltraEd
         if (ImGui::BeginMainMenuBar())
         {
             FileMenu();
+            EditMenu();
             ActorMenu();
             ViewMenu();
             GizmoMenu();
@@ -79,6 +81,7 @@ namespace UltraEd
         SceneGraph();
         BuildOutput();
         OptionsModal();
+        SceneSettingsModal();
 
         //ImGui::ShowDemoWindow();
 
@@ -160,7 +163,7 @@ namespace UltraEd
 
             if (ImGui::MenuItem("Options"))
             {
-                m_optionsModelOpen = true;
+                m_optionsModalOpen = true;
             }
 
             ImGui::Separator();
@@ -168,6 +171,48 @@ namespace UltraEd
             if (ImGui::MenuItem("Exit"))
             {
                 PubSub::Publish("Exit");
+            }
+
+            ImGui::EndMenu();
+        }
+    }
+
+    void Gui::EditMenu()
+    {
+        if (ImGui::BeginMenu("Edit"))
+        {
+            if (ImGui::MenuItem("Undo"))
+            {
+                m_scene->Undo();
+            }
+
+            if (ImGui::MenuItem("Redo"))
+            {
+                m_scene->Redo();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Duplicate"))
+            {
+                m_scene->Duplicate();
+            }
+
+            if (ImGui::MenuItem("Delete"))
+            {
+                m_scene->Delete();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Select All"))
+            {
+                m_scene->SelectAll();
+            }
+
+            if (ImGui::MenuItem("Scene Settings"))
+            {
+                m_sceneSettingsModalOpen = true;
             }
 
             ImGui::EndMenu();
@@ -367,14 +412,14 @@ namespace UltraEd
         static int videoMode;
         static int buildCart;
 
-        if (m_optionsModelOpen)
+        if (m_optionsModalOpen)
         {
             ImGui::OpenPopup("Options");
 
             videoMode = static_cast<int>(Settings::GetVideoMode());
             buildCart = static_cast<int>(Settings::GetBuildCart());
 
-            m_optionsModelOpen = false;
+            m_optionsModalOpen = false;
         }
 
         if (ImGui::BeginPopupModal("Options", 0, ImGuiWindowFlags_AlwaysAutoResize))
@@ -386,6 +431,48 @@ namespace UltraEd
             {
                 Settings::SetVideoMode(static_cast<VideoMode>(videoMode));
                 Settings::SetBuildCart(static_cast<BuildCart>(buildCart));
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void Gui::SceneSettingsModal()
+    {
+        static float backgroundColor[3];
+        static float gridSnapSize;
+
+        if (m_sceneSettingsModalOpen)
+        {
+            ImGui::OpenPopup("Scene Settings");
+
+            backgroundColor[0] = m_scene->m_backgroundColorRGB[0] / 255.0f;
+            backgroundColor[1] = m_scene->m_backgroundColorRGB[1] / 255.0f;
+            backgroundColor[2] = m_scene->m_backgroundColorRGB[2] / 255.0f;
+            gridSnapSize = m_scene->GetGizmoSnapSize();
+
+            m_sceneSettingsModalOpen = false;
+        }
+
+        if (ImGui::BeginPopupModal("Scene Settings", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::ColorEdit3("Background Color", backgroundColor);
+            ImGui::InputFloat("Grid Snap Size", &gridSnapSize);
+
+            if (ImGui::Button("Save"))
+            {
+                m_scene->SetBackgroundColor(RGB(backgroundColor[0] * 255, backgroundColor[1] * 255, 
+                    backgroundColor[2] * 255));
+                m_scene->SetGizmoSnapSize(gridSnapSize);
+
                 ImGui::CloseCurrentPopup();
             }
 
