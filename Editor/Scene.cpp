@@ -46,6 +46,11 @@ namespace UltraEd
         m_worldLight.Diffuse.b = 1.0f;
         m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
 
+        PubSub::Subscribe({ "Pick", [&](void *data) {
+            auto point = static_cast<POINT *>(data);
+            if (point) Pick(*point, 0);
+        } });
+
         PubSub::Subscribe({ "Resize", [&](void *data) {
             auto rect = static_cast<tuple<int, int> *>(data);
             if (rect) Resize(get<0>(*rect), get<1>(*rect));

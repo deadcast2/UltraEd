@@ -14,7 +14,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 int main(int, char **)
 {
     WNDCLASSEX wc = {
-        sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), 
+        sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL),
         LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN_ICON)),
         NULL, NULL, NULL, APP_CLASS, NULL
     };
@@ -38,7 +38,7 @@ int main(int, char **)
     ShowWindow(hWnd, SW_SHOWDEFAULT);
     UpdateWindow(hWnd);
 
-    PubSub::Subscribe({ "Exit", [&](void *data) { 
+    PubSub::Subscribe({ "Exit", [&](void *data) {
         if (scene.Confirm())
         {
             PostQuitMessage(0);
@@ -72,6 +72,12 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+        case WM_LBUTTONDOWN:
+        {
+            POINT point = { LOWORD(lParam), HIWORD(lParam) };
+            PubSub::Publish("Pick", static_cast<void *>(&point));
+            return 0;
+        }
         case WM_SIZE:
         {
             auto rect = make_tuple<int, int>(LOWORD(lParam), HIWORD(lParam));
