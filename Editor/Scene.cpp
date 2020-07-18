@@ -46,11 +46,6 @@ namespace UltraEd
         m_worldLight.Diffuse.b = 1.0f;
         m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
 
-        PubSub::Subscribe({ "Pick", [&](void *data) {
-            auto point = static_cast<POINT *>(data);
-            if (point) Pick(*point, 0);
-        } });
-
         PubSub::Subscribe({ "Resize", [&](void *data) {
             auto rect = static_cast<tuple<int, int> *>(data);
             if (rect) Resize(get<0>(*rect), get<1>(*rect));
@@ -288,7 +283,7 @@ namespace UltraEd
         }
     }
 
-    bool Scene::Pick(POINT mousePoint, Actor **selectedActor)
+    bool Scene::Pick(ImVec2 mousePoint, Actor **selectedActor)
     {
         D3DXVECTOR3 orig, dir;
         ScreenRaycast(mousePoint, &orig, &dir);
@@ -332,13 +327,16 @@ namespace UltraEd
         const bool mouseReady = GetTickCount() - prevTick < 100;
 
         // Only accept input when mouse in scene.
-        if (m_gui->IO().WantCaptureMouse) return;
+        if (m_gui->IO().WantCaptureMouse) 
+            return;
+
+        if (m_gui->IO().MouseClicked[0])
+            Pick(m_gui->IO().MousePos);
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
             D3DXVECTOR3 rayOrigin, rayDir;
-            ImVec2 mousePos = m_gui->IO().MousePos;
-            ScreenRaycast({ static_cast<int>(mousePos.x), static_cast<int>(mousePos.y) }, &rayOrigin, &rayDir);
+            ScreenRaycast(m_gui->IO().MousePos, &rayOrigin, &rayDir);
             if (prevGizmo || (prevGizmo = m_gizmo.Select(rayOrigin, rayDir)))
             {
                 GUID lastSelectedActorId = m_selectedActorIds.back();
@@ -504,7 +502,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir)
+    void Scene::ScreenRaycast(ImVec2 screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir)
     {
         View *view = GetActiveView();
 
@@ -518,11 +516,11 @@ namespace UltraEd
         D3DXMatrixIdentity(&matWorld);
 
         D3DXVECTOR3 v1;
-        D3DXVECTOR3 start = D3DXVECTOR3((FLOAT)screenPoint.x, (FLOAT)screenPoint.y, 0.0f);
+        D3DXVECTOR3 start = D3DXVECTOR3(screenPoint.x, screenPoint.y, 0.0f);
         D3DXVec3Unproject(&v1, &start, &viewport, &matProj, &view->GetViewMatrix(), &matWorld);
 
         D3DXVECTOR3 v2;
-        D3DXVECTOR3 end = D3DXVECTOR3((FLOAT)screenPoint.x, (FLOAT)screenPoint.y, 1.0f);
+        D3DXVECTOR3 end = D3DXVECTOR3(screenPoint.x, screenPoint.y, 1.0f);
         D3DXVec3Unproject(&v2, &end, &viewport, &matProj, &view->GetViewMatrix(), &matWorld);
 
         *origin = v1;

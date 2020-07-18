@@ -67,9 +67,9 @@ namespace UltraEd
         void OnBuildROM(BuildFlag flag);
         void Undo();
         void Redo();
-        bool Pick(POINT mousePoint, Actor **selectedActor = NULL);
+        bool Pick(ImVec2 mousePoint, Actor **selectedActor = NULL);
         void ReleaseResources(ModelRelease type);
-        void ScreenRaycast(POINT screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
+        void ScreenRaycast(ImVec2 screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
         void SetViewType(ViewType type);
         void SetGizmoModifier(GizmoModifierState state);
         void SetGizmoSnapSize(float size);
