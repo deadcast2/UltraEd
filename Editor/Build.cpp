@@ -628,7 +628,7 @@ namespace UltraEd
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
-                    PubSub::Publish("BuildOutputAppend", buffer.release());
+                    PubSub::Publish("BuildOutputAppend", buffer.get());
                 }
             }
 
