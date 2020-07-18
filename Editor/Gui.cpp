@@ -1,9 +1,10 @@
+#include <ImGui/imconfig.h>
 #include "Gui.h"
 #include "FileIO.h"
 #include "PubSub.h"
 #include "Scene.h"
+#include "Settings.h"
 #include "View.h"
-#include <ImGui/imconfig.h>
 
 namespace UltraEd
 {
@@ -11,7 +12,8 @@ namespace UltraEd
         m_scene(scene),
         m_buildOutput(),
         m_moveBuildOutputToBottom(false),
-        m_selectedActorIndex(0)
+        m_selectedActorIndex(0),
+        m_optionsModelOpen(false)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -76,6 +78,7 @@ namespace UltraEd
 
         SceneGraph();
         BuildOutput();
+        OptionsModal();
 
         //ImGui::ShowDemoWindow();
 
@@ -157,7 +160,7 @@ namespace UltraEd
 
             if (ImGui::MenuItem("Options"))
             {
-                PubSub::Publish("Exit");
+                m_optionsModelOpen = true;
             }
 
             ImGui::Separator();
@@ -357,5 +360,43 @@ namespace UltraEd
         }
 
         ImGui::End();
+    }
+
+    void Gui::OptionsModal()
+    {
+        static int videoMode;
+        static int buildCart;
+
+        if (m_optionsModelOpen)
+        {
+            ImGui::OpenPopup("Options");
+
+            videoMode = static_cast<int>(Settings::GetVideoMode());
+            buildCart = static_cast<int>(Settings::GetBuildCart());
+
+            m_optionsModelOpen = false;
+        }
+
+        if (ImGui::BeginPopupModal("Options", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Combo("Video Mode", &videoMode, "NTSC\0PAL\0\0");
+            ImGui::Combo("Build Cart", &buildCart, "64drive\0EverDrive-64 X7\0\0");
+            
+            if (ImGui::Button("Save"))
+            {
+                Settings::SetVideoMode(static_cast<VideoMode>(videoMode));
+                Settings::SetBuildCart(static_cast<BuildCart>(buildCart));
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
     }
 }
