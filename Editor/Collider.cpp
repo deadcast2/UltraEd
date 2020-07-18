@@ -47,7 +47,7 @@ namespace UltraEd
     void Collider::DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, const vector<Vertex> &vertices)
     {
         int minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
-        for (size_t i = 0; i < vertices.size(); i++)
+        for (int i = 0; i < vertices.size(); i++)
         {
             if (vertices[i].position.x < vertices[minX].position.x) minX = i;
             if (vertices[i].position.x > vertices[maxX].position.x) maxX = i;
