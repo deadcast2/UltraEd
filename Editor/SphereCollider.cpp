@@ -25,11 +25,11 @@ namespace UltraEd
         for (int i = 0; i < segments; i++)
         {
             Vertex v1;
-            v1.position = D3DXVECTOR3(sin(sample * i) * m_radius, 0, cos(sample * i) * m_radius) + m_center;
+            v1.position = D3DXVECTOR3(sinf(sample * i) * m_radius, 0, cosf(sample * i) * m_radius) + m_center;
             m_vertices.push_back(v1);
 
             Vertex v2;
-            v2.position = D3DXVECTOR3(sin(sample * (i + 1)) * m_radius, 0, cos(sample * (i + 1)) * m_radius) + m_center;
+            v2.position = D3DXVECTOR3(sinf(sample * (i + 1)) * m_radius, 0, cosf(sample * (i + 1)) * m_radius) + m_center;
             m_vertices.push_back(v2);
         }
 
@@ -37,11 +37,11 @@ namespace UltraEd
         for (int i = 0; i < segments; i++)
         {
             Vertex v1;
-            v1.position = D3DXVECTOR3(0, sin(sample * i) * m_radius, cos(sample * i) * m_radius) + m_center;
+            v1.position = D3DXVECTOR3(0, sinf(sample * i) * m_radius, cosf(sample * i) * m_radius) + m_center;
             m_vertices.push_back(v1);
 
             Vertex v2;
-            v2.position = D3DXVECTOR3(0, sin(sample * (i + 1)) * m_radius, cos(sample * (i + 1)) * m_radius) + m_center;
+            v2.position = D3DXVECTOR3(0, sinf(sample * (i + 1)) * m_radius, cosf(sample * (i + 1)) * m_radius) + m_center;
             m_vertices.push_back(v2);
         }
     }

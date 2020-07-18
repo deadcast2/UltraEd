@@ -30,7 +30,7 @@ namespace UltraEd
         void Walk(float units); // forward/backward
         void Pitch(float angle); // rotate on right vector
         void Yaw(float angle); // rotate on up vector
-        void SingleStep(short delta);
+        void SingleStep(float delta);
 
     private:
         bool CanWalk();

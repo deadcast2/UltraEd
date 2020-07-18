@@ -146,7 +146,7 @@ namespace UltraEd
         return m_type == ViewType::Perspective || GetZoom() > m_step;
     }
 
-    void View::SingleStep(short delta)
+    void View::SingleStep(float delta)
     {
         Walk(delta * m_step);
     }
