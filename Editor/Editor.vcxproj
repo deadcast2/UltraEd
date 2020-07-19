@@ -48,6 +48,7 @@
     <ClCompile Include="Vendor\ImGui\imgui_impl_dx9.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Vendor\ImGui\Plugins\TextEditor.cpp" />
     <ClCompile Include="Vendor\MicroTar\microtar.c" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="View.cpp" />
@@ -85,6 +86,7 @@
     <ClInclude Include="Vendor\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Vendor\ImGui\imstb_textedit.h" />
     <ClInclude Include="Vendor\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Vendor\ImGui\Plugins\TextEditor.h" />
     <ClInclude Include="Vendor\MicroTar\microtar.h" />
     <ClInclude Include="Vendor\STB\stb_image.h" />
     <ClInclude Include="Vendor\STB\stb_image_resize.h" />

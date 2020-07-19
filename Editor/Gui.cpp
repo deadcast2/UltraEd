@@ -13,6 +13,7 @@ namespace UltraEd
         m_buildOutput(),
         m_moveBuildOutputToBottom(false),
         m_openContextMenu(false),
+        m_textEditorOpen(false),
         m_selectedActorIndex(0),
         m_optionsModalOpen(false),
         m_sceneSettingsModalOpen(false),
@@ -25,6 +26,8 @@ namespace UltraEd
         ImGui_ImplDX9_Init(device);
 
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+        m_textEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::C());
 
         PubSub::Subscribe({ "BuildOutputClear", [&](void *data) {
             m_buildOutput.clear();
@@ -69,30 +72,31 @@ namespace UltraEd
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         ImGui::Begin("DockSpace", 0, window_flags);
-        ImGui::PopStyleVar(3);
-
-        ImGuiID dockspace_id = ImGui::GetID("RootDockspace");
-        ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-
-        if (ImGui::BeginMainMenuBar())
         {
-            FileMenu();
-            EditMenu();
-            ActorMenu();
-            ViewMenu();
-            GizmoMenu();
-            ImGui::EndMainMenuBar();
+            ImGui::PopStyleVar(3);
+
+            ImGuiID dockspace_id = ImGui::GetID("RootDockspace");
+            ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+
+            if (ImGui::BeginMainMenuBar())
+            {
+                FileMenu();
+                EditMenu();
+                ActorMenu();
+                ViewMenu();
+                GizmoMenu();
+                ImGui::EndMainMenuBar();
+            }
+
+            SceneGraph();
+            BuildOutput();
+            OptionsModal();
+            SceneSettingsModal();
+            ContextMenu();
+            ScriptEditor();
+            //ImGui::ShowDemoWindow();
         }
-
-        SceneGraph();
-        BuildOutput();
-        OptionsModal();
-        SceneSettingsModal();
-        ContextMenu();
-
-        //ImGui::ShowDemoWindow();
-
         ImGui::End();
         ImGui::EndFrame();
     }
@@ -505,6 +509,12 @@ namespace UltraEd
 
         if (ImGui::BeginPopup("Context Menu"))
         {
+            if (ImGui::MenuItem("Edit Script"))
+            {
+                m_textEditorOpen = true;
+                m_textEditor.SetText(m_scene->GetScript());
+            }
+
             if (ImGui::BeginMenu("Texture"))
             {
                 if (ImGui::MenuItem("Add"))
@@ -562,5 +572,37 @@ namespace UltraEd
 
             ImGui::EndPopup();
         }
+    }
+
+    void Gui::ScriptEditor()
+    {
+        if (!m_textEditorOpen)
+            return;
+
+        ImGui::Begin("Script Editor", &m_textEditorOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::BeginMenu("File"))
+            {
+                if (ImGui::MenuItem("Save Changes"))
+                {
+                    m_scene->SetScript(m_textEditor.GetText());
+                }
+
+                if (ImGui::MenuItem("Close"))
+                {
+                    m_textEditorOpen = false;
+                }
+
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMenuBar();
+        }
+
+        m_textEditor.Render("Edit Script");
+
+        ImGui::End();
     }
 }
