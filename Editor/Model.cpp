@@ -3,23 +3,17 @@
 
 namespace UltraEd
 {
-    Model::Model()
-    {
-        m_texture = 0;
-        ResetId();
-    }
+    Model::Model() : m_texture(0) { }
 
-    Model::Model(const Model &model)
+    Model::Model(const Model &model) : Model()
     {
         *this = model;
         ResetId();
     }
 
-    Model::Model(const char *filePath)
+    Model::Model(const char *filePath) : Model()
     {
         Import(filePath);
-        m_texture = 0;
-        m_type = ActorType::Model;
     }
 
     void Model::Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack)
@@ -65,7 +59,7 @@ namespace UltraEd
         }
 
         // Save location of texture for scene saving.
-        if (info.type == FileType::User) 
+        if (info.type == FileType::User)
         {
             AddResource("textureDataPath", info.path);
         }
