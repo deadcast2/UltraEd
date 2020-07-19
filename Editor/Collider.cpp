@@ -24,7 +24,7 @@ namespace UltraEd
             device->SetMaterial(&m_material);
             device->SetStreamSource(0, buffer, 0, sizeof(Vertex));
             device->SetFVF(D3DFVF_XYZ);
-            device->DrawPrimitive(D3DPT_LINELIST, 0, m_vertices.size() / 2);
+            device->DrawPrimitive(D3DPT_LINELIST, 0, static_cast<UINT>(m_vertices.size() / 2));
         }
     }
 

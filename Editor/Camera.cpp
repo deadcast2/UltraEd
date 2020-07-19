@@ -28,7 +28,7 @@ namespace UltraEd
             device->SetTransform(D3DTS_WORLD, stack->GetTop());
             device->SetStreamSource(0, buffer, 0, sizeof(Vertex));
             device->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL);
-            device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, GetVertices().size() / 3);
+            device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, static_cast<UINT>(GetVertices().size() / 3));
 
             stack->Pop();
         }

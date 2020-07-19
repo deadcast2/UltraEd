@@ -42,7 +42,7 @@ namespace UltraEd
             UpdateMenu();
 
             // Keep undoing when this unit is a part of a group.
-            size_t nextUndoPos = m_position - 1;
+            int nextUndoPos = static_cast<int>(m_position - 1);
             if (nextUndoPos >= 0
                 && m_undoUnits[nextUndoPos].groupId != GUID_NULL
                 && m_undoUnits[nextUndoPos].groupId == m_undoUnits[m_position].groupId)

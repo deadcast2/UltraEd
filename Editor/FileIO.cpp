@@ -55,8 +55,8 @@ namespace UltraEd
             auto rendered = unique_ptr<char>(cJSON_Print(root));
             cJSON_Delete(root);
 
-            mtar_write_file_header(&tar, "scene.json", strlen(rendered.get()));
-            mtar_write_data(&tar, rendered.get(), strlen(rendered.get()));
+            mtar_write_file_header(&tar, "scene.json", static_cast<unsigned>(strlen(rendered.get())));
+            mtar_write_data(&tar, rendered.get(), static_cast<unsigned>(strlen(rendered.get())));
 
             mtar_finalize(&tar);
             mtar_close(&tar);
@@ -174,19 +174,19 @@ namespace UltraEd
 
         // Get the total size of the file.
         fseek(file.get(), 0, SEEK_END);
-        long size = ftell(file.get());
+        size_t size = ftell(file.get());
         rewind(file.get());
 
         // Read in entire file.
         unique_ptr<char, decltype(free) *> data((char *)malloc(size), free);
         if (data == NULL) return false;
-        int bytesRead = fread(data.get(), 1, size, file.get());
+        size_t bytesRead = fread(data.get(), 1, size, file.get());
         if (bytesRead != size) return false;
 
         // Compressed buffer must be at least 5% larger.
-        unique_ptr<char, decltype(free) *> compressed((char *)malloc((size_t)(size + (size * 0.05f))), free);
+        unique_ptr<char, decltype(free) *> compressed((char *)malloc(size + static_cast<size_t>(size * 0.05f)), free);
         if (compressed == NULL) return false;
-        int bytesCompressed = fastlz_compress(data.get(), size, compressed.get());
+        int bytesCompressed = fastlz_compress(data.get(), static_cast<int>(size), compressed.get());
         if (bytesCompressed == 0) return false;
 
         // Annotate compressed data with uncompressed size.
@@ -210,23 +210,23 @@ namespace UltraEd
 
         // Get the total size of the file.
         fseek(file.get(), 0, SEEK_END);
-        long size = ftell(file.get());
+        size_t size = ftell(file.get());
         rewind(file.get());
 
         // Read in entire file.
         unique_ptr<char, decltype(free) *> data((char *)malloc(size), free);
         if (data == NULL) return false;
-        int bytesRead = fread(data.get(), 1, size, file.get());
+        size_t bytesRead = fread(data.get(), 1, size, file.get());
         if (bytesRead != size) return false;
 
         // Read the uncompressed file length.
         int uncompressedSize = 0;
         memmove(&uncompressedSize, data.get(), sizeof(int));
-        memmove(data.get(), data.get() + sizeof(int), size - sizeof(int));
+        memmove(data.get(), data.get() + sizeof(int), static_cast<int>(size) - sizeof(int));
 
         unique_ptr<char, decltype(free) *> decompressed((char *)malloc(uncompressedSize), free);
         if (decompressed == NULL) return false;
-        int bytesDecompressed = fastlz_decompress(data.get(), size - sizeof(int), decompressed.get(),
+        int bytesDecompressed = fastlz_decompress(data.get(), static_cast<int>(size) - sizeof(int), decompressed.get(),
             uncompressedSize);
         if (bytesDecompressed == 0) return false;
 

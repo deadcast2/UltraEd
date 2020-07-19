@@ -211,20 +211,17 @@ namespace UltraEd
     bool Build::WriteActorsFile(const vector<Actor *> &actors, const map<string, string> &resourceCache)
     {
         int actorCount = -1;
-        char countBuffer[10];
+        string totalActors = to_string(actors.size());
         string actorInits, modelDraws;
 
-        _itoa(actors.size(), countBuffer, 10);
         string actorsArrayDef("const int _UER_ActorCount = ");
-        actorsArrayDef.append(countBuffer).append(";\nactor *_UER_Actors[")
-            .append(countBuffer).append("];\n").append("actor *_UER_ActiveCamera = NULL;\n");
+        actorsArrayDef.append(totalActors).append(";\nactor *_UER_Actors[")
+            .append(totalActors).append("];\n").append("actor *_UER_ActiveCamera = NULL;\n");
 
         for (const auto &actor : actors)
         {
             string resourceName = Util::NewResourceName(++actorCount);
-
-            _itoa(actorCount, countBuffer, 10);
-            actorInits.append("\n\t_UER_Actors[").append(countBuffer).append("] = ");
+            actorInits.append("\n\t_UER_Actors[").append(to_string(actorCount)).append("] = ");
 
             D3DXVECTOR3 colliderCenter = actor->HasCollider() ? actor->GetCollider()->GetCenter() : D3DXVECTOR3(0, 0, 0);
             FLOAT colliderRadius = actor->HasCollider() && actor->GetCollider()->GetType() == ColliderType::Sphere ?
@@ -280,7 +277,7 @@ namespace UltraEd
                 id.insert(0, Util::RootPath().append("\\")).append(".rom.sos");
                 FILE *file = fopen(id.c_str(), "w");
                 if (file == NULL) return false;
-                fprintf(file, "%lu\n", vertices.size());
+                fprintf(file, "%i\n", static_cast<int>(vertices.size()));
                 for (size_t i = 0; i < vertices.size(); i++)
                 {
                     Vertex vert = vertices[i];
@@ -290,7 +287,7 @@ namespace UltraEd
                 }
                 fclose(file);
 
-                modelDraws.append("\n\tmodel_draw(_UER_Actors[").append(countBuffer).append("], display_list);\n");
+                modelDraws.append("\n\tmodel_draw(_UER_Actors[").append(to_string(actorCount)).append("], display_list);\n");
             }
             else if (actor->GetType() == ActorType::Camera)
             {
