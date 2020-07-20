@@ -168,8 +168,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\caleb\Workspace\UltraEd\Editor\Deps\Assimp\lib;C:\Users\caleb\Workspace\UltraEd\Editor\Deps\DXSDK\Lib\x64;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Users\caleb\Workspace\UltraEd\Editor\Deps\Assimp\include;C:\Users\caleb\Workspace\UltraEd\Editor\Vendor;C:\Users\caleb\Workspace\UltraEd\Editor\Deps\DXSDK\include;$(IncludePath)</IncludePath>
+    <LibraryPath>Deps\Assimp\lib;Deps\DXSDK\Lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>Deps\Assimp\include;Vendor;Deps\DXSDK\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
