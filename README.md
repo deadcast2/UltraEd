@@ -2,17 +2,13 @@
 
 ## A level editor/game engine for the Nintendo 64
 
-<img src="https://i.imgur.com/etDiBGp.gif" width="600">
+<img src="https://i.imgur.com/scAIeTU.png" width="600">
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f246a65f5b4f480f922a5ed886eb37e8)](https://www.codacy.com/app/deadcast2/UltraEd?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=deadcast2/UltraEd&amp;utm_campaign=Badge_Grade)
 
-### Recent screenshot
-
-<img src="https://i.imgur.com/WwC50Yb.png" width="600" />
-
 ### Setup
 
-Open the editor solution file in Visual Studio 2017 and hit build. That's it! Make sure to also install OpenAL so you can test your rom out in the cen64 emulator included. I've included it in Editor/deps. Also if you so happen to have the excellent 64drive you can test on that too!
+Open the editor solution file in Visual Studio 2019 and hit build. That's it! Make sure to also install OpenAL so you can test your rom out in the cen64 emulator included. I've included it in Editor/deps. Also if you so happen to have the excellent 64drive you can test on that too!
 
 ### Notes
 
