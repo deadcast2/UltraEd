@@ -193,12 +193,14 @@ namespace UltraEd
     {
         if (ImGui::BeginMenu("Edit"))
         {
-            if (ImGui::MenuItem("Undo", "Ctrl+Z"))
+            auto auditorTitles = m_scene->m_auditor.Titles();
+
+            if (ImGui::MenuItem(auditorTitles[0].c_str(), "Ctrl+Z"))
             {
                 m_scene->Undo();
             }
 
-            if (ImGui::MenuItem("Redo", "Ctrl+Y"))
+            if (ImGui::MenuItem(auditorTitles[1].c_str(), "Ctrl+Y"))
             {
                 m_scene->Redo();
             }

@@ -39,8 +39,6 @@ namespace UltraEd
             auto state = m_undoUnits[m_position].undo();
             m_undoUnits[m_position].state = state;
 
-            UpdateMenu();
-
             // Keep undoing when this unit is a part of a group.
             int nextUndoPos = static_cast<int>(m_position - 1);
             if (nextUndoPos >= 0
@@ -60,8 +58,6 @@ namespace UltraEd
             m_undoUnits[m_position].redo(state);
             m_position++;
 
-            UpdateMenu();
-
             // Keep redoing when this unit is a part of a group.
             if (m_position < m_undoUnits.size()
                 && m_undoUnits[m_position].groupId != GUID_NULL
@@ -72,7 +68,7 @@ namespace UltraEd
         }
     }
 
-    void Auditor::UpdateMenu()
+    array<string, 2> Auditor::Titles()
     {
         string undo("Undo");
         string redo("Redo");
@@ -97,10 +93,7 @@ namespace UltraEd
             }
         }
 
-        //SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_UNDO,
-        //    reinterpret_cast<LPARAM>(undo.append("\tCtrl+Z").c_str()));
-        //SendMessage(m_scene->GetWndHandle(), WM_COMMAND, UPDATE_REDO,
-        //    reinterpret_cast<LPARAM>(redo.append("\tCtrl+Y").c_str()));
+        return { undo, redo };
     }
 
     void Auditor::CleanUp()
@@ -127,7 +120,6 @@ namespace UltraEd
         m_undoUnits.clear();
         m_potentials.clear();
         m_position = 0;
-        UpdateMenu();
         CleanUp();
     }
 
@@ -150,7 +142,6 @@ namespace UltraEd
         // Add new unit and set current position to it.
         m_undoUnits.push_back(unit);
         m_position = m_undoUnits.size();
-        UpdateMenu();
     }
 
     void Auditor::AddActor(const string &name, GUID actorId, GUID groupId)

@@ -32,13 +32,13 @@ namespace UltraEd
         void DeleteActor(const string &name, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeActor(const string &name, GUID actorId, GUID groupId = GUID_NULL);
         void ChangeScene(const string &name);
+        array<string, 2> Titles();
         function<void()> PotentialChangeActor(const string &name, GUID actorId, GUID groupId);
 
     private:
         void Add(UndoUnit unit);
         void RunUndo();
         void RunRedo();
-        void UpdateMenu();
         void CleanUp();
         cJSON *SaveState(GUID id, function<cJSON*()> save);
         vector<UndoUnit> m_undoUnits;
