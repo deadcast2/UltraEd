@@ -821,29 +821,21 @@ namespace UltraEd
 
     void Scene::SetTitle(string title, bool store)
     {
-        HWND parentWnd = GetParent(GetWndHandle());
-        if (parentWnd != NULL)
-        {
-            if (store) m_sceneName = title;
-            title.append(" - ").append(APP_NAME);
-            SetWindowText(parentWnd, title.c_str());
-        }
+        if (store) m_sceneName = title;
+        title.append(" - ").append(APP_NAME);
+        SetWindowText(GetWndHandle(), title.c_str());
     }
 
     void Scene::SetDirty(bool value)
     {
         Savable::SetDirty(value);
 
-        HWND parentWnd = GetParent(GetWndHandle());
-        if (parentWnd != NULL)
+        string newSceneName(m_sceneName);
+        if (value)
         {
-            string newSceneName(m_sceneName);
-            if (value)
-            {
-                newSceneName.append("*");
-            }
-            SetTitle(newSceneName, false);
+            newSceneName.append("*");
         }
+        SetTitle(newSceneName, false);
     }
 
     bool Scene::Confirm()
