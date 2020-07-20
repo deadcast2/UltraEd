@@ -193,31 +193,31 @@ namespace UltraEd
     {
         if (ImGui::BeginMenu("Edit"))
         {
-            if (ImGui::MenuItem("Undo"))
+            if (ImGui::MenuItem("Undo", "Ctrl+Z"))
             {
                 m_scene->Undo();
             }
 
-            if (ImGui::MenuItem("Redo"))
+            if (ImGui::MenuItem("Redo", "Ctrl+Y"))
             {
                 m_scene->Redo();
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Duplicate"))
+            if (ImGui::MenuItem("Duplicate", "Ctrl+D"))
             {
                 m_scene->Duplicate();
             }
 
-            if (ImGui::MenuItem("Delete"))
+            if (ImGui::MenuItem("Delete", "Delete"))
             {
                 m_scene->Delete();
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Select All"))
+            if (ImGui::MenuItem("Select All", "Ctrl+A"))
             {
                 m_scene->SelectAll();
             }

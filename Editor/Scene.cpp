@@ -330,15 +330,23 @@ namespace UltraEd
         const float mouseSpeedModifier = 0.55f;
 
         // Only accept input when mouse in scene.
-        if (m_gui->IO().WantCaptureMouse)
-            return;
-
-        if (m_gui->IO().MouseClicked[0])
-            Pick(m_gui->IO().MousePos);
+        if (m_gui->IO().WantCaptureMouse) return;
 
         Actor *selectedActor = 0;
         if (m_gui->IO().MouseClicked[1] && Pick(m_gui->IO().MousePos, &selectedActor))
             PubSub::Publish("ContextMenu", selectedActor);
+
+        if (m_gui->IO().MouseClicked[0]) Pick(m_gui->IO().MousePos);
+        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('A')) SelectAll();
+        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('D')) Duplicate();
+        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Z')) Undo();
+        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Y')) Redo();
+        if (ImGui::IsKeyPressed(VK_DELETE)) Delete();
+        if (ImGui::IsKeyPressed('F')) FocusSelected();
+        if (ImGui::IsKeyPressed('H')) ResetViews();
+        if (ImGui::IsKeyPressed(0x31)) SetGizmoModifier(GizmoModifierState::Translate);
+        if (ImGui::IsKeyPressed(0x32)) SetGizmoModifier(GizmoModifierState::Rotate);
+        if (ImGui::IsKeyPressed(0x33)) SetGizmoModifier(GizmoModifierState::Scale);
 
         if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
         {
