@@ -339,8 +339,8 @@ namespace UltraEd
         if (m_gui->IO().MouseClicked[0]) Pick(m_gui->IO().MousePos);
         if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('A')) SelectAll();
         if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('D')) Duplicate();
-        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Z')) Undo();
-        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Y')) Redo();
+        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Z')) m_auditor.Undo();
+        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Y')) m_auditor.Redo();
         if (ImGui::IsKeyPressed(VK_DELETE)) Delete();
         if (ImGui::IsKeyPressed('F')) FocusSelected();
         if (ImGui::IsKeyPressed('H')) ResetViews();
@@ -870,16 +870,6 @@ namespace UltraEd
             SetCursorPos(mousePoint.x, 1);
         else if (mousePoint.y < 1)
             SetCursorPos(mousePoint.x, screenY - 1);
-    }
-
-    void Scene::Undo()
-    {
-        m_auditor.Undo();
-    }
-
-    void Scene::Redo()
-    {
-        m_auditor.Redo();
     }
 
     cJSON *Scene::Save()

@@ -64,8 +64,6 @@ namespace UltraEd
         void OnAddCollider(ColliderType type);
         void OnDeleteCollider();
         void OnBuildROM(BuildFlag flag);
-        void Undo();
-        void Redo();
         bool Pick(ImVec2 mousePoint, Actor **selectedActor = NULL);
         void ReleaseResources(ModelRelease type);
         void ScreenRaycast(ImVec2 screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);

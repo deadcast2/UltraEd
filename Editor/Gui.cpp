@@ -197,12 +197,12 @@ namespace UltraEd
 
             if (ImGui::MenuItem(auditorTitles[0].c_str(), "Ctrl+Z"))
             {
-                m_scene->Undo();
+                m_scene->m_auditor.Undo();
             }
 
             if (ImGui::MenuItem(auditorTitles[1].c_str(), "Ctrl+Y"))
             {
-                m_scene->Redo();
+                m_scene->m_auditor.Redo();
             }
 
             ImGui::Separator();
