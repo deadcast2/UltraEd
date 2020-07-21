@@ -303,7 +303,7 @@ namespace UltraEd
             {
                 closestDist = pickDist;
 
-                SelectActorById(actor.first, !(GetAsyncKeyState(VK_SHIFT) & 0x8000));
+                SelectActorById(actor.first, !m_gui->IO().KeyShift);
 
                 if (selectedActor != NULL)
                     *selectedActor = actor.second.get();
@@ -348,7 +348,7 @@ namespace UltraEd
         if (ImGui::IsKeyPressed(0x32)) SetGizmoModifier(GizmoModifierState::Rotate);
         if (ImGui::IsKeyPressed(0x33)) SetGizmoModifier(GizmoModifierState::Scale);
 
-        if (GetAsyncKeyState(VK_LBUTTON) && !m_selectedActorIds.empty())
+        if (m_gui->IO().MouseDown[0] && !m_selectedActorIds.empty())
         {
             D3DXVECTOR3 rayOrigin, rayDir;
             ScreenRaycast(m_gui->IO().MousePos, &rayOrigin, &rayDir);
@@ -367,12 +367,12 @@ namespace UltraEd
                 }
             }
         }
-        else if (GetAsyncKeyState(VK_RBUTTON) && m_activeViewType == ViewType::Perspective)
+        else if (m_gui->IO().MouseDown[1] && m_activeViewType == ViewType::Perspective)
         {
-            if (GetAsyncKeyState('W')) view->Walk(4.0f * deltaTime);
-            if (GetAsyncKeyState('S')) view->Walk(-4.0f * deltaTime);
-            if (GetAsyncKeyState('A')) view->Strafe(-4.0f * deltaTime);
-            if (GetAsyncKeyState('D')) view->Strafe(4.0f * deltaTime);
+            if (ImGui::IsKeyDown('W')) view->Walk(5.0f * deltaTime);
+            if (ImGui::IsKeyDown('S')) view->Walk(-5.0f * deltaTime);
+            if (ImGui::IsKeyDown('A')) view->Strafe(-5.0f * deltaTime);
+            if (ImGui::IsKeyDown('D')) view->Strafe(5.0f * deltaTime);
 
             m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, m_gui->IO().MouseDelta.x);
             m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
@@ -381,7 +381,7 @@ namespace UltraEd
             view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
             WrapCursor();
         }
-        else if (GetAsyncKeyState(VK_MBUTTON))
+        else if (m_gui->IO().MouseDown[2])
         {
             m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, -m_gui->IO().MouseDelta.x);
             m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
@@ -394,9 +394,7 @@ namespace UltraEd
         {
             view->SingleStep(m_gui->IO().MouseWheel * 150);
             if (view->GetType() != ViewType::Perspective)
-            {
                 UpdateViewMatrix();
-            }
         }
         else
         {
