@@ -574,7 +574,7 @@ namespace UltraEd
             {
                 m_scene->SetBackgroundColor(RGB(backgroundColor[0] * 255, backgroundColor[1] * 255,
                     backgroundColor[2] * 255));
-                m_scene->m_gizmo.SetSnapSize(gridSnapSize);
+                m_scene->SetGizmoSnapSize(gridSnapSize);
 
                 ImGui::CloseCurrentPopup();
             }

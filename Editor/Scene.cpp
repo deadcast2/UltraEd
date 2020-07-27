@@ -729,6 +729,17 @@ namespace UltraEd
         }, &m_backgroundColorRGB);
     }
 
+    void Scene::SetGizmoSnapSize(float size)
+    {
+        m_auditor.ChangeScene("Gizmo Snap Size");
+
+        float prevSnapSize = m_gizmo.GetSnapSize();
+        Dirty([&] {
+            prevSnapSize = size;
+            m_gizmo.SetSnapSize(size);
+        }, &prevSnapSize);
+    }
+
     COLORREF Scene::GetBackgroundColor()
     {
         return RGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]);

@@ -53,6 +53,7 @@ namespace UltraEd
         void SetScript(string script);
         string GetScript();
         void SetBackgroundColor(COLORREF color);
+        void SetGizmoSnapSize(float size);
         void Resize(int width, int height);
         void OnNew(bool confirm = true);
         bool OnSave();
