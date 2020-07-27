@@ -9,7 +9,8 @@ namespace UltraEd
         m_scene(scene),
         m_savedStates(),
         m_potentials(),
-        m_maxUnits(100)
+        m_maxUnits(100),
+        m_locked(false)
     { }
 
     Auditor::~Auditor()
@@ -19,16 +20,20 @@ namespace UltraEd
 
     void Auditor::Undo()
     {
-        // Don't adjust actor selections when nothing to undo.
-        if (m_position > 0) m_scene->UnselectAll();
-        RunUndo();
+        Lock([&]() {
+            // Don't adjust actor selections when nothing to undo.
+            if (m_position > 0) m_scene->UnselectAll();
+            RunUndo();
+        });
     }
 
     void Auditor::Redo()
     {
-        // Don't adjust actor selections when nothing to redo.
-        if (m_position < m_undoUnits.size()) m_scene->UnselectAll();
-        RunRedo();
+        Lock([&]() {
+            // Don't adjust actor selections when nothing to redo.
+            if (m_position < m_undoUnits.size()) m_scene->UnselectAll();
+            RunRedo();
+        });
     }
 
     void Auditor::RunUndo()
@@ -115,6 +120,19 @@ namespace UltraEd
         return m_savedStates[id];
     }
 
+    void Auditor::Lock(function<void()> block)
+    {
+        m_locked = true;
+        try
+        {
+            block();
+        }
+        catch (...)
+        {
+        }
+        m_locked = false;
+    }
+
     void Auditor::Reset()
     {
         m_undoUnits.clear();
@@ -146,6 +164,8 @@ namespace UltraEd
 
     void Auditor::AddActor(const string &name, GUID actorId, GUID groupId)
     {
+        if (m_locked) return;
+
         GUID redoStateId = Util::NewGuid();
         Add({
             string("Add ").append(name),
@@ -165,6 +185,8 @@ namespace UltraEd
 
     void Auditor::DeleteActor(const string &name, GUID actorId, GUID groupId)
     {
+        if (m_locked) return;
+
         auto state = SaveState(Util::NewGuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
         Add({
             string("Delete ").append(name),
@@ -182,6 +204,8 @@ namespace UltraEd
 
     void Auditor::ChangeActor(const string &name, GUID actorId, GUID groupId)
     {
+        if (m_locked) return;
+
         auto state = SaveState(Util::NewGuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
         GUID redoStateId = Util::NewGuid();
         Add({
@@ -206,6 +230,8 @@ namespace UltraEd
 
     function<void()> Auditor::PotentialChangeActor(const string &name, GUID actorId, GUID groupId)
     {
+        if (m_locked) return []() {};
+
         string uniqueId = Util::GuidToString(actorId).append(Util::GuidToString(groupId));
 
         if (m_potentials.find(uniqueId) != m_potentials.end())
@@ -220,6 +246,8 @@ namespace UltraEd
 
     void Auditor::ChangeScene(const string &name)
     {
+        if (m_locked) return;
+
         GUID redoStateId = Util::NewGuid();
         auto sceneState = SaveState(Util::NewGuid(), [=]() { return m_scene->PartialSave(NULL); });
         Add({

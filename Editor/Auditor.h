@@ -41,12 +41,16 @@ namespace UltraEd
         void RunRedo();
         void CleanUp();
         cJSON *SaveState(GUID id, function<cJSON*()> save);
+        void Lock(function<void()> block);
+
+    private:
         vector<UndoUnit> m_undoUnits;
         size_t m_position;
         Scene *m_scene;
         map<GUID, cJSON *> m_savedStates;
         map<string, tuple<bool, function<void()>>> m_potentials;
         const int m_maxUnits;
+        bool m_locked;
     };
 }
 
