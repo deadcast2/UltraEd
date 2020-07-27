@@ -21,8 +21,8 @@ int main(int, char **)
 
     RegisterClassEx(&wc);
 
-    const int windowWidth = 800;
-    const int windowHeight = 600;
+    const int windowWidth = 1024;
+    const int windowHeight = 768;
     HWND hWnd = CreateWindow(wc.lpszClassName, APP_NAME, WS_OVERLAPPEDWINDOW,
         (GetSystemMetrics(SM_CXSCREEN) / 2) - (windowWidth / 2),
         (GetSystemMetrics(SM_CYSCREEN) / 2) - (windowHeight / 2),
