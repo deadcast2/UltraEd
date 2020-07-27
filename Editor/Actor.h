@@ -25,7 +25,7 @@ namespace UltraEd
         const GUID &GetId() { return m_id; }
         void ResetId() { m_id = Util::NewGuid(); }
         const string &GetName() { return m_name; }
-        void SetName(string name) { m_name = name; }
+        void SetName(string name) { m_name = name.empty() ? "Actor" : name; }
         const ActorType &GetType() { return m_type; }
         static GUID GetId(cJSON *item);
         static ActorType GetType(cJSON *item);
@@ -36,10 +36,11 @@ namespace UltraEd
         bool Scale(const D3DXVECTOR3 &position) { return Dirty([&] { m_scale += position; }, &m_scale); }
         bool Rotate(const float &angle, const D3DXVECTOR3 &dir);
         const D3DXVECTOR3 &GetPosition() { return m_position; }
-        void SetPosition(const D3DXVECTOR3 &position) { m_position = position; }
-        void SetRotation(const D3DXVECTOR3 &rotation);
+        bool SetPosition(const D3DXVECTOR3 &position) { return Dirty([&] { m_position = position; }, &m_position); }
+        D3DXVECTOR3 GetRotation();
+        bool SetRotation(const D3DXVECTOR3 &rotation);
         const D3DXVECTOR3 &GetScale() { return m_scale; }
-        void SetScale(const D3DXVECTOR3 &scale) { m_scale = scale; }
+        bool SetScale(const D3DXVECTOR3 &scale) { return Dirty([&] { m_scale = scale; }, &m_scale); }
         D3DXVECTOR3 GetRight();
         D3DXVECTOR3 GetForward();
         D3DXVECTOR3 GetUp();

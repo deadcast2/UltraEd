@@ -170,10 +170,13 @@ namespace UltraEd
         return tokens;
     }
 
-    void Util::RunAction(HWND statusBar, const char *message, const function<void()> &action)
+    void Util::ToFloat3(const D3DXVECTOR3 &vec, float *position)
     {
-        //if (statusBar) SendMessage(statusBar, SB_SETTEXT, 0, (LPARAM)message);
-        action();
-        //if (statusBar) SendMessage(statusBar, SB_SETTEXT, 0, (LPARAM)"");
+        if (position != NULL)
+        {
+            position[0] = vec.x;
+            position[1] = vec.y;
+            position[2] = vec.z;
+        }
     }
 }

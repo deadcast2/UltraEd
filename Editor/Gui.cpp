@@ -91,6 +91,7 @@ namespace UltraEd
 
             SceneGraph();
             BuildOutput();
+            ActorProperties();
             OptionsModal();
             SceneSettingsModal();
             ContextMenu();
@@ -415,6 +416,91 @@ namespace UltraEd
             {
                 ImGui::SetScrollHereY(1);
                 m_moveBuildOutputToBottom = false;
+            }
+        }
+
+        ImGui::End();
+    }
+
+    void Gui::ActorProperties()
+    {
+        if (ImGui::Begin("Properties", 0, ImGuiWindowFlags_HorizontalScrollbar))
+        {
+            char name[100] = { 0 };
+            float position[3] = { 0 };
+            float rotation[3] = { 0 };
+            float scale[3] = { 0 };
+            auto actors = m_scene->GetActors(true);
+
+            if (actors.size() > 0)
+            {
+                // Show the properties of the last selected actor.
+                auto lastActor = actors[actors.size() - 1];
+                sprintf(name, lastActor->GetName().c_str());
+                Util::ToFloat3(lastActor->GetPosition(), position);
+                Util::ToFloat3(lastActor->GetRotation(), rotation);
+                Util::ToFloat3(lastActor->GetScale(), scale);
+            }
+
+            char tempName[100];
+            sprintf(tempName, name);
+            ImGui::InputText("Name", name, 100);
+
+            D3DXVECTOR3 tempPos = D3DXVECTOR3(position);
+            ImGui::InputFloat3("Position", position, "%g");
+
+            D3DXVECTOR3 tempRot = D3DXVECTOR3(rotation);
+            ImGui::InputFloat3("Rotation", rotation, "%g");
+
+            D3DXVECTOR3 tempScale = D3DXVECTOR3(scale);
+            ImGui::InputFloat3("Scale", scale, "%g");
+
+            auto changed = [](D3DXVECTOR3 left, D3DXVECTOR3 right) {
+                return left.x != right.x || left.y != right.y || left.z != right.z;
+            };
+
+            // Only apply changes to selected actors when one if it's properties has changed
+            // to make all actors mutate as expected.
+            for (int i = 0; i < actors.size(); i++)
+            {
+                if (strcmp(tempName, name) != 0)
+                    actors[i]->SetName(string(name));
+
+                auto curPos = actors[i]->GetPosition();
+                if (changed(curPos, D3DXVECTOR3(position)))
+                {
+                    m_scene->m_auditor.ChangeActor("Position Set", actors[i]->GetId());
+                    actors[i]->SetPosition(D3DXVECTOR3(
+                        tempPos.x != position[0] ? position[0] : curPos.x,
+                        tempPos.y != position[1] ? position[1] : curPos.y,
+                        tempPos.z != position[2] ? position[2] : curPos.z
+                    ));
+                    m_scene->SelectActorById(actors[i]->GetId());
+                }
+
+                auto curRot = actors[i]->GetRotation();
+                if (changed(curRot, D3DXVECTOR3(rotation)))
+                {
+                    m_scene->m_auditor.ChangeActor("Rotation Set", actors[i]->GetId());
+                    actors[i]->SetRotation(D3DXVECTOR3(
+                        tempRot.x != rotation[0] ? rotation[0] : curRot.x,
+                        tempRot.y != rotation[1] ? rotation[1] : curRot.y,
+                        tempRot.z != rotation[2] ? rotation[2] : curRot.z
+                    ));
+                    m_scene->SelectActorById(actors[i]->GetId());
+                }
+
+                auto curScale = actors[i]->GetScale();
+                if (changed(curScale, D3DXVECTOR3(scale)))
+                {
+                    m_scene->m_auditor.ChangeActor("Scale Set", actors[i]->GetId());
+                    actors[i]->SetScale(D3DXVECTOR3(
+                        tempScale.x != scale[0] ? scale[0] : curScale.x,
+                        tempScale.y != scale[1] ? scale[1] : curScale.y,
+                        tempScale.z != scale[2] ? scale[2] : curScale.z
+                    ));
+                    m_scene->SelectActorById(actors[i]->GetId());
+                }
             }
         }
 

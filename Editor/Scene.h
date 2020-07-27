@@ -33,7 +33,7 @@ namespace UltraEd
         ~Scene();
         bool Create(HWND hWnd);
         bool Confirm();
-        vector<Actor *> GetActors();
+        vector<Actor *> GetActors(bool selectedOnly = false);
         COLORREF GetBackgroundColor();
         HWND GetWndHandle();
         void Render();

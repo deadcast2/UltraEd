@@ -7,6 +7,8 @@
 #include <rpc.h>
 #include <string>
 #include <vector>
+#include <memory>
+#include <d3dx9.h>
 
 using namespace std;
 
@@ -23,7 +25,7 @@ namespace UltraEd
         static string NewResourceName(int count);
         static char *ReplaceString(const char *str, const char *from, const char *to);
         static vector<string> SplitString(const char *str, const char delimiter);
-        static void RunAction(HWND statusBar, const char *message, const function<void()> &action);
+        static void ToFloat3(const D3DXVECTOR3 &vec, float *position);
 
     private:
         Util() {};

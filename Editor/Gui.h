@@ -35,6 +35,7 @@ namespace UltraEd
         void GizmoMenu();
         void BuildOutput();
         void SceneGraph();
+        void ActorProperties();
         void OptionsModal();
         void SceneSettingsModal();
         void ContextMenu();

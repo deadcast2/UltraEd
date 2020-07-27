@@ -78,9 +78,33 @@ namespace UltraEd
         return (ActorType)typeValue;
     }
 
-    void Actor::SetRotation(const D3DXVECTOR3 &rotation)
+    D3DXVECTOR3 Actor::GetRotation()
     {
-        D3DXMatrixRotationYawPitchRoll(&m_worldRot, rotation.y, rotation.x, rotation.z);
+        D3DXVECTOR3 rotation;
+        D3DXMATRIX mat = GetRotationMatrix();
+
+        rotation.x = asinf(-mat._32);
+
+        if (cosf(rotation.x) > 0.0001f)
+        {
+            rotation.y = atan2f(mat._31, mat._33);
+            rotation.z = atan2f(mat._12, mat._22);
+        }
+        else
+        {
+            rotation.y = 0.0f;
+            rotation.z = atan2f(-mat._21, mat._11);
+        }
+
+        return D3DXVECTOR3(D3DXToDegree(rotation.x), D3DXToDegree(rotation.y), D3DXToDegree(rotation.z));
+    }
+
+    bool Actor::SetRotation(const D3DXVECTOR3 &rotation)
+    {
+        return Dirty([&]() {
+            D3DXMatrixRotationYawPitchRoll(&m_worldRot, D3DXToRadian(rotation.y),
+                D3DXToRadian(rotation.x), D3DXToRadian(rotation.z));
+        }, &m_worldRot);
     }
 
     D3DXVECTOR3 Actor::GetRight()

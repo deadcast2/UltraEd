@@ -329,8 +329,8 @@ namespace UltraEd
         const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
 
-        // Only accept input when mouse in scene.
-        if (m_gui->IO().WantCaptureMouse) return;
+        if (m_gui->IO().WantCaptureMouse || m_gui->IO().WantCaptureKeyboard) 
+            return;
 
         Actor *selectedActor = 0;
         if (m_gui->IO().MouseClicked[1] && Pick(m_gui->IO().MousePos, &selectedActor))
@@ -759,12 +759,22 @@ namespace UltraEd
         return NULL;
     }
 
-    vector<Actor *> Scene::GetActors()
+    vector<Actor *> Scene::GetActors(bool selectedOnly)
     {
         vector<Actor *> actors;
-        for (const auto &actor : m_actors)
+        if (selectedOnly)
         {
-            actors.push_back(actor.second.get());
+            for (const auto &actorId : m_selectedActorIds)
+            {
+                actors.push_back(GetActor(actorId).get());
+            }
+        }
+        else
+        {
+            for (const auto &actor : m_actors)
+            {
+                actors.push_back(actor.second.get());
+            }
         }
         return actors;
     }
