@@ -262,7 +262,7 @@ namespace UltraEd
             D3DXVec3Normalize(&normMouseDir, &mouseDir);
             FLOAT moveDist = D3DXVec3Length(&mouseDir);
             const float epsilon = 0.1f;
-            bool shouldSnap = fabs((moveDist > m_snapSize ? m_snapSize : moveDist) - m_snapSize) < epsilon;
+            bool shouldSnap = fabsf((moveDist > m_snapSize ? m_snapSize : moveDist) - m_snapSize) < epsilon;
 
             // Clamp the dot product between -1, 1 to not cause a undefined result.
             FLOAT dot = D3DXVec3Dot(&targetDir, &normMouseDir);
