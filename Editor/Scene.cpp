@@ -720,24 +720,28 @@ namespace UltraEd
 
     void Scene::SetBackgroundColor(COLORREF color)
     {
-        m_auditor.ChangeScene("Background Color");
-
-        Dirty([&] {
-            m_backgroundColorRGB[0] = GetRValue(color);
-            m_backgroundColorRGB[1] = GetGValue(color);
-            m_backgroundColorRGB[2] = GetBValue(color);
-        }, &m_backgroundColorRGB);
+        if (GetBackgroundColor() != color)
+        {
+            m_auditor.ChangeScene("Background Color");
+            Dirty([&] {
+                m_backgroundColorRGB[0] = GetRValue(color);
+                m_backgroundColorRGB[1] = GetGValue(color);
+                m_backgroundColorRGB[2] = GetBValue(color);
+            }, &m_backgroundColorRGB);
+        }
     }
 
     void Scene::SetGizmoSnapSize(float size)
     {
-        m_auditor.ChangeScene("Gizmo Snap Size");
-
         float prevSnapSize = m_gizmo.GetSnapSize();
-        Dirty([&] {
-            prevSnapSize = size;
-            m_gizmo.SetSnapSize(size);
-        }, &prevSnapSize);
+        if (prevSnapSize != size)
+        {
+            m_auditor.ChangeScene("Gizmo Snap Size");
+            Dirty([&] {
+                prevSnapSize = size;
+                m_gizmo.SetSnapSize(size);
+            }, &prevSnapSize);
+        }
     }
 
     COLORREF Scene::GetBackgroundColor()
