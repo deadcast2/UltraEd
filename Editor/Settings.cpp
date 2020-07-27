@@ -32,4 +32,19 @@ namespace UltraEd
         }
         return VideoMode::NTSC;
     }
+
+    void Settings::SetColorTheme(ColorTheme theme)
+    {
+        Registry::Set("ColorTheme", to_string(static_cast<int>(theme)));
+    }
+
+    ColorTheme Settings::GetColorTheme()
+    {
+        string theme;
+        if (Registry::Get("ColorTheme", theme))
+        {
+            return static_cast<ColorTheme>(atoi(theme.c_str()));
+        }
+        return ColorTheme::Light;
+    }
 }

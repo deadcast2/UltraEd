@@ -21,7 +21,7 @@ namespace UltraEd
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGui::StyleColorsLight();
+        LoadColorTheme();
         ImGui_ImplWin32_Init(hWnd);
         ImGui_ImplDX9_Init(device);
 
@@ -120,6 +120,22 @@ namespace UltraEd
         if (inner) inner();
 
         ImGui_ImplDX9_CreateDeviceObjects();
+    }
+
+    void Gui::LoadColorTheme()
+    {
+        switch (Settings::GetColorTheme())
+        {
+            case ColorTheme::Classic:
+                ImGui::StyleColorsClassic();
+                break;
+            case ColorTheme::Dark:
+                ImGui::StyleColorsDark();
+                break;
+            case ColorTheme::Light:
+                ImGui::StyleColorsLight();
+                break;
+        }
     }
 
     void Gui::FileMenu()
@@ -514,6 +530,7 @@ namespace UltraEd
     {
         static int videoMode;
         static int buildCart;
+        static int colorTheme;
 
         if (m_optionsModalOpen)
         {
@@ -521,19 +538,25 @@ namespace UltraEd
 
             videoMode = static_cast<int>(Settings::GetVideoMode());
             buildCart = static_cast<int>(Settings::GetBuildCart());
+            colorTheme = static_cast<int>(Settings::GetColorTheme());
 
             m_optionsModalOpen = false;
         }
 
         if (ImGui::BeginPopupModal("Options", 0, ImGuiWindowFlags_AlwaysAutoResize))
         {
+            ImGui::Combo("Color Theme", &colorTheme, "Classic\0Dark\0Light\0\0");
             ImGui::Combo("Video Mode", &videoMode, "NTSC\0PAL\0\0");
             ImGui::Combo("Build Cart", &buildCart, "64drive\0EverDrive-64 X7\0\0");
 
             if (ImGui::Button("Save"))
             {
+                Settings::SetColorTheme(static_cast<ColorTheme>(colorTheme));
+                LoadColorTheme();
+
                 Settings::SetVideoMode(static_cast<VideoMode>(videoMode));
                 Settings::SetBuildCart(static_cast<BuildCart>(buildCart));
+
                 ImGui::CloseCurrentPopup();
             }
 

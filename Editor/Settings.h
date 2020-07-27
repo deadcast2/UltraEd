@@ -11,8 +11,8 @@ using namespace std;
 namespace UltraEd
 {
     enum class BuildCart { _64drive, EverDrive };
-
     enum class VideoMode { NTSC, PAL };
+    enum class ColorTheme { Classic, Dark, Light };
 
     class Settings
     {
@@ -21,6 +21,8 @@ namespace UltraEd
         static BuildCart GetBuildCart();
         static void SetVideoMode(VideoMode mode);
         static VideoMode GetVideoMode();
+        static void SetColorTheme(ColorTheme theme);
+        static ColorTheme GetColorTheme();
     };
 }
 

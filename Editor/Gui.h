@@ -8,8 +8,8 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_dx9.h>
 #include <ImGui/imgui_impl_win32.h>
-#include "Actor.h"
 #include <ImGui/Plugins/TextEditor.h>
+#include "Actor.h"
 
 using namespace std;
 
@@ -28,6 +28,7 @@ namespace UltraEd
         void RebuildWith(function<void()> inner);
 
     private:
+        void LoadColorTheme();
         void FileMenu();
         void EditMenu();
         void ActorMenu();
