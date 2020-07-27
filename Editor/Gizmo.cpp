@@ -281,7 +281,7 @@ namespace UltraEd
                     newPos.x = snap(newPos.x * (1 / m_snapSize)) / (1 / m_snapSize);
                     newPos.y = snap(newPos.y * (1 / m_snapSize)) / (1 / m_snapSize);
                     newPos.z = snap(newPos.z * (1 / m_snapSize)) / (1 / m_snapSize);
-                    currentActor->SetPosition(newPos + (targetDir * m_snapSize * sign));
+                    changeDetected = currentActor->SetPosition(newPos + (targetDir * m_snapSize * sign));
                 }
                 else if (!m_snapToGridToggled)
                 {
