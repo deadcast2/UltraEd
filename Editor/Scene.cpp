@@ -344,9 +344,9 @@ namespace UltraEd
         if (ImGui::IsKeyPressed(VK_DELETE)) Delete();
         if (ImGui::IsKeyPressed('F')) FocusSelected();
         if (ImGui::IsKeyPressed('H')) ResetViews();
-        if (ImGui::IsKeyPressed(0x31)) SetGizmoModifier(GizmoModifierState::Translate);
-        if (ImGui::IsKeyPressed(0x32)) SetGizmoModifier(GizmoModifierState::Rotate);
-        if (ImGui::IsKeyPressed(0x33)) SetGizmoModifier(GizmoModifierState::Scale);
+        if (ImGui::IsKeyPressed(0x31)) m_gizmo.SetModifier(GizmoModifierState::Translate);
+        if (ImGui::IsKeyPressed(0x32)) m_gizmo.SetModifier(GizmoModifierState::Rotate);
+        if (ImGui::IsKeyPressed(0x33)) m_gizmo.SetModifier(GizmoModifierState::Scale);
 
         if (m_gui->IO().MouseDown[0] && !m_selectedActorIds.empty())
         {
@@ -593,21 +593,6 @@ namespace UltraEd
             .append(" | Tris:").append(to_string(vertCount / 3));
     }
 
-    void Scene::SetGizmoModifier(GizmoModifierState state)
-    {
-        m_gizmo.SetModifier(state);
-    }
-
-    void Scene::SetGizmoSnapSize(float size)
-    {
-        m_gizmo.SetSnapSize(size);
-    }
-
-    float Scene::GetGizmoSnapSize()
-    {
-        return m_gizmo.GetSnapSize();
-    }
-
     bool Scene::ToggleMovementSpace()
     {
         if (!m_selectedActorIds.empty())
@@ -784,11 +769,6 @@ namespace UltraEd
         if (m_actors.find(id) != m_actors.end())
             return m_actors[id];
         return NULL;
-    }
-
-    bool Scene::ToggleSnapToGrid()
-    {
-        return m_gizmo.ToggleSnapping();
     }
 
     void Scene::SelectActorById(GUID id, bool clearAll)
@@ -968,7 +948,7 @@ namespace UltraEd
         float snapSize;
         cJSON *gizmoSnapSize = cJSON_GetObjectItem(root, "gizmo_snap_size");
         sscanf(gizmoSnapSize->valuestring, "%f", &snapSize);
-        SetGizmoSnapSize(snapSize);
+        m_gizmo.SetSnapSize(snapSize);
 
         return true;
     }

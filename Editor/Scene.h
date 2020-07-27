@@ -68,12 +68,8 @@ namespace UltraEd
         void ReleaseResources(ModelRelease type);
         void ScreenRaycast(ImVec2 screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
         void SetViewType(ViewType type);
-        void SetGizmoModifier(GizmoModifierState state);
-        void SetGizmoSnapSize(float size);
-        float GetGizmoSnapSize();
         View *GetActiveView();
         bool ToggleMovementSpace();
-        bool ToggleSnapToGrid();
         void SelectAll();
         bool Load(cJSON *root);
         void SetDirty(bool value);

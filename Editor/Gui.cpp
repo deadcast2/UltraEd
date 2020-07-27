@@ -352,17 +352,17 @@ namespace UltraEd
         {
             if (ImGui::MenuItem("Translate", "1", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Translate))
             {
-                m_scene->SetGizmoModifier(GizmoModifierState::Translate);
+                m_scene->m_gizmo.SetModifier(GizmoModifierState::Translate);
             }
 
             if (ImGui::MenuItem("Rotate", "2", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Rotate))
             {
-                m_scene->SetGizmoModifier(GizmoModifierState::Rotate);
+                m_scene->m_gizmo.SetModifier(GizmoModifierState::Rotate);
             }
 
             if (ImGui::MenuItem("Scale", "3", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Scale))
             {
-                m_scene->SetGizmoModifier(GizmoModifierState::Scale);
+                m_scene->m_gizmo.SetModifier(GizmoModifierState::Scale);
             }
 
             ImGui::Separator();
@@ -374,7 +374,7 @@ namespace UltraEd
 
             if (ImGui::MenuItem("Snap to Grid", 0, m_scene->m_gizmo.m_snapToGridToggled))
             {
-                m_scene->ToggleSnapToGrid();
+                m_scene->m_gizmo.ToggleSnapping();
             }
 
             ImGui::EndMenu();
@@ -560,7 +560,7 @@ namespace UltraEd
             backgroundColor[0] = m_scene->m_backgroundColorRGB[0] / 255.0f;
             backgroundColor[1] = m_scene->m_backgroundColorRGB[1] / 255.0f;
             backgroundColor[2] = m_scene->m_backgroundColorRGB[2] / 255.0f;
-            gridSnapSize = m_scene->GetGizmoSnapSize();
+            gridSnapSize = m_scene->m_gizmo.GetSnapSize();
 
             m_sceneSettingsModalOpen = false;
         }
@@ -574,7 +574,7 @@ namespace UltraEd
             {
                 m_scene->SetBackgroundColor(RGB(backgroundColor[0] * 255, backgroundColor[1] * 255,
                     backgroundColor[2] * 255));
-                m_scene->SetGizmoSnapSize(gridSnapSize);
+                m_scene->m_gizmo.SetSnapSize(gridSnapSize);
 
                 ImGui::CloseCurrentPopup();
             }
