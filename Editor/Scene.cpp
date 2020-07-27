@@ -333,7 +333,7 @@ namespace UltraEd
             return;
 
         Actor *selectedActor = 0;
-        if (m_gui->IO().MouseClicked[1] && Pick(m_gui->IO().MousePos, &selectedActor))
+        if (m_gui->IO().MouseReleased[1] && Pick(m_gui->IO().MousePos, &selectedActor))
             PubSub::Publish("ContextMenu", selectedActor);
 
         if (m_gui->IO().MouseClicked[0]) Pick(m_gui->IO().MousePos);
