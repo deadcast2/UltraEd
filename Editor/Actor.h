@@ -25,7 +25,7 @@ namespace UltraEd
         const GUID &GetId() { return m_id; }
         void ResetId() { m_id = Util::NewGuid(); }
         const string &GetName() { return m_name; }
-        void SetName(string name) { m_name = name.empty() ? "Actor" : name; }
+        bool SetName(string name) { return Dirty([&] {  m_name = name.empty() ? "Actor" : name; }, &m_name); }
         const ActorType &GetType() { return m_type; }
         static GUID GetId(cJSON *item);
         static ActorType GetType(cJSON *item);

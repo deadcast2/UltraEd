@@ -464,7 +464,10 @@ namespace UltraEd
             for (int i = 0; i < actors.size(); i++)
             {
                 if (strcmp(tempName, name) != 0)
+                {
+                    m_scene->m_auditor.ChangeActor("Name Set", actors[i]->GetId());
                     actors[i]->SetName(string(name));
+                }
 
                 auto curPos = actors[i]->GetPosition();
                 if (changed(curPos, D3DXVECTOR3(position)))
