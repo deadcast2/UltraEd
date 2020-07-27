@@ -20,7 +20,7 @@ namespace UltraEd
         PubSub() {};
 
     public:
-        static void Publish(string message, void *data = 0);
+        static void Publish(const string &message, void *data = 0);
         static void Subscribe(Subscription subscription);
 
     private:
