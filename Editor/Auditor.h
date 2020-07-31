@@ -5,17 +5,15 @@
 #include <vector>
 #include "Actor.h"
 
-using namespace std;
-
 namespace UltraEd
 {
     class Scene;
 
     struct UndoUnit
     {
-        string name;
-        function<cJSON*()> undo;
-        function<void(cJSON*)> redo;
+        std::string name;
+        std::function<cJSON*()> undo;
+        std::function<void(cJSON*)> redo;
         GUID groupId;
         cJSON *state;
     };
@@ -28,27 +26,27 @@ namespace UltraEd
         void Undo();
         void Redo();
         void Reset();
-        void AddActor(const string &name, GUID actorId, GUID groupId = GUID_NULL);
-        void DeleteActor(const string &name, GUID actorId, GUID groupId = GUID_NULL);
-        void ChangeActor(const string &name, GUID actorId, GUID groupId = GUID_NULL);
-        void ChangeScene(const string &name);
-        array<string, 2> Titles();
-        function<void()> PotentialChangeActor(const string &name, GUID actorId, GUID groupId);
+        void AddActor(const std::string &name, GUID actorId, GUID groupId = GUID_NULL);
+        void DeleteActor(const std::string &name, GUID actorId, GUID groupId = GUID_NULL);
+        void ChangeActor(const std::string &name, GUID actorId, GUID groupId = GUID_NULL);
+        void ChangeScene(const std::string &name);
+        std::array<std::string, 2> Titles();
+        std::function<void()> PotentialChangeActor(const std::string &name, GUID actorId, GUID groupId);
 
     private:
         void Add(UndoUnit unit);
         void RunUndo();
         void RunRedo();
         void CleanUp();
-        cJSON *SaveState(GUID id, function<cJSON*()> save);
-        void Lock(function<void()> block);
+        cJSON *SaveState(GUID id, std::function<cJSON*()> save);
+        void Lock(std::function<void()> block);
 
     private:
-        vector<UndoUnit> m_undoUnits;
+        std::vector<UndoUnit> m_undoUnits;
         size_t m_position;
         Scene *m_scene;
-        map<GUID, cJSON *> m_savedStates;
-        map<string, tuple<bool, function<void()>>> m_potentials;
+        std::map<GUID, cJSON *> m_savedStates;
+        std::map<std::string, std::tuple<bool, std::function<void()>>> m_potentials;
         const int m_maxUnits;
         bool m_locked;
     };

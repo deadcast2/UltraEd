@@ -74,7 +74,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         case WM_SIZE:
         {
-            auto rect = make_tuple<int, int>(LOWORD(lParam), HIWORD(lParam));
+            auto rect = std::make_tuple<int, int>(LOWORD(lParam), HIWORD(lParam));
             PubSub::Publish("Resize", static_cast<void *>(&rect));
             return 0;
         }

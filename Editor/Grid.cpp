@@ -4,7 +4,7 @@ namespace UltraEd
 {
     Grid::Grid() :
         m_material(),
-        m_vertexBuffer(make_shared<VertexBuffer>()),
+        m_vertexBuffer(std::make_shared<VertexBuffer>()),
         m_vertices()
     {
         int i = 0;

@@ -47,8 +47,8 @@ namespace UltraEd
         m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
 
         PubSub::Subscribe({ "Resize", [&](void *data) {
-            auto rect = static_cast<tuple<int, int> *>(data);
-            if (rect) Resize(get<0>(*rect), get<1>(*rect));
+            auto rect = static_cast<std::tuple<int, int> *>(data);
+            if (rect) Resize(std::get<0>(*rect), std::get<1>(*rect));
         } });
     }
 
@@ -76,7 +76,7 @@ namespace UltraEd
         if (FAILED(m_d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
             D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device))) return false;
 
-        m_gui = make_unique<Gui>(this, hWnd, m_device);
+        m_gui = std::make_unique<Gui>(this, hWnd, m_device);
 
         OnNew();
 
@@ -100,7 +100,7 @@ namespace UltraEd
 
     bool Scene::OnSave()
     {
-        string savedName;
+        std::string savedName;
         if (FileIO::Save(this, savedName))
         {
             SetTitle(savedName);
@@ -116,7 +116,7 @@ namespace UltraEd
         if (!Confirm()) return;
 
         cJSON *root = NULL;
-        string loadedName;
+        std::string loadedName;
         if (FileIO::Load(&root, loadedName))
         {
             OnNew(false);
@@ -147,30 +147,30 @@ namespace UltraEd
 
     void Scene::OnAddModel(ModelPreset preset)
     {
-        shared_ptr<Model> model = NULL;
+        std::shared_ptr<Model> model = NULL;
 
         switch (preset)
         {
             case ModelPreset::Custom:
             {
-                string file;
+                std::string file;
                 if (Dialog::Open("Add Model",
                     "3D Studio (*.3ds)\0*.3ds\0Blender (*.blend)\0*.blend\0Autodesk (*.fbx)\0*.fbx\0"
                     "Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
                     "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj", file))
                 {
-                    model = make_shared<Model>(file.c_str());
+                    model = std::make_shared<Model>(file.c_str());
                     m_actors[model->GetId()] = model;
-                    model->SetName(string("Actor ").append(to_string(m_actors.size())));
+                    model->SetName(std::string("Actor ").append(std::to_string(m_actors.size())));
                     m_auditor.AddActor("Model", model->GetId());
                 }
                 break;
             }
             case ModelPreset::Pumpkin:
             {
-                model = make_shared<Model>("presets/pumpkin.fbx");
+                model = std::make_shared<Model>("presets/pumpkin.fbx");
                 m_actors[model->GetId()] = model;
-                model->SetName(string("Pumpkin ").append(to_string(m_actors.size())));
+                model->SetName(std::string("Pumpkin ").append(std::to_string(m_actors.size())));
                 model->SetTexture(m_device, "presets/pumpkin.png");
                 m_auditor.AddActor("Pumpkin", model->GetId());
                 break;
@@ -185,9 +185,9 @@ namespace UltraEd
 
     void Scene::OnAddCamera()
     {
-        auto newCamera = make_shared<Camera>();
+        auto newCamera = std::make_shared<Camera>();
         m_actors[newCamera->GetId()] = newCamera;
-        newCamera->SetName(string("Camera ").append(to_string(m_actors.size())));
+        newCamera->SetName(std::string("Camera ").append(std::to_string(m_actors.size())));
         m_auditor.AddActor("Camera", newCamera->GetId());
 
         SelectActorById(newCamera->GetId());
@@ -236,7 +236,7 @@ namespace UltraEd
 
     void Scene::OnAddTexture()
     {
-        string file;
+        std::string file;
 
         if (m_selectedActorIds.empty())
         {
@@ -579,7 +579,7 @@ namespace UltraEd
         }
     }
 
-    string Scene::GetStats()
+    std::string Scene::GetStats()
     {
         size_t vertCount = 0;
         for (const auto &actor : m_actors)
@@ -589,8 +589,8 @@ namespace UltraEd
                 vertCount += actor.second->GetVertices().size();
             }
         }
-        return string("Actors:").append(to_string(m_actors.size()))
-            .append(" | Tris:").append(to_string(vertCount / 3));
+        return std::string("Actors:").append(std::to_string(m_actors.size()))
+            .append(" | Tris:").append(std::to_string(vertCount / 3));
     }
 
     bool Scene::ToggleMovementSpace()
@@ -645,7 +645,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::Delete(shared_ptr<Actor> actor)
+    void Scene::Delete(std::shared_ptr<Actor> actor)
     {
         if (auto model = dynamic_cast<Model *>(actor.get()))
         {
@@ -673,8 +673,8 @@ namespace UltraEd
             {
                 case ActorType::Model:
                 {
-                    auto model = make_shared<Model>(*dynamic_cast<Model *>(m_actors[selectedActorId].get()));
-                    string texturePath = model->GetResources()["textureDataPath"];
+                    auto model = std::make_shared<Model>(*dynamic_cast<Model *>(m_actors[selectedActorId].get()));
+                    std::string texturePath = model->GetResources()["textureDataPath"];
                     model->SetTexture(m_device, texturePath.c_str());
                     m_actors[model->GetId()] = model;
                     m_auditor.AddActor("Model", model->GetId(), groupId);
@@ -682,7 +682,7 @@ namespace UltraEd
                 }
                 case ActorType::Camera:
                 {
-                    auto camera = make_shared<Camera>(*dynamic_cast<Camera *>(m_actors[selectedActorId].get()));
+                    auto camera = std::make_shared<Camera>(*dynamic_cast<Camera *>(m_actors[selectedActorId].get()));
                     m_actors[camera->GetId()] = camera;
                     m_auditor.AddActor("Camera", camera->GetId(), groupId);
                     break;
@@ -700,7 +700,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::SetScript(string script)
+    void Scene::SetScript(std::string script)
     {
         if (!m_selectedActorIds.empty())
         {
@@ -709,13 +709,13 @@ namespace UltraEd
         }
     }
 
-    string Scene::GetScript()
+    std::string Scene::GetScript()
     {
         if (!m_selectedActorIds.empty())
         {
             return m_actors[m_selectedActorIds[0]]->GetScript();
         }
-        return string("");
+        return std::string("");
     }
 
     void Scene::SetBackgroundColor(COLORREF color)
@@ -759,9 +759,9 @@ namespace UltraEd
         return NULL;
     }
 
-    vector<Actor *> Scene::GetActors(bool selectedOnly)
+    std::vector<Actor *> Scene::GetActors(bool selectedOnly)
     {
-        vector<Actor *> actors;
+        std::vector<Actor *> actors;
         if (selectedOnly)
         {
             for (const auto &actorId : m_selectedActorIds)
@@ -779,7 +779,7 @@ namespace UltraEd
         return actors;
     }
 
-    shared_ptr<Actor> Scene::GetActor(GUID id)
+    std::shared_ptr<Actor> Scene::GetActor(GUID id)
     {
         if (m_actors.find(id) != m_actors.end())
             return m_actors[id];
@@ -822,7 +822,7 @@ namespace UltraEd
         m_selectedActorIds.clear();
     }
 
-    void Scene::SetTitle(string title, bool store)
+    void Scene::SetTitle(std::string title, bool store)
     {
         if (store) m_sceneName = title;
         title.append(" - ").append(APP_NAME);
@@ -833,7 +833,7 @@ namespace UltraEd
     {
         Savable::SetDirty(value);
 
-        string newSceneName(m_sceneName);
+        std::string newSceneName(m_sceneName);
         if (value)
         {
             newSceneName.append("*");
@@ -976,14 +976,14 @@ namespace UltraEd
         {
             case ActorType::Model:
             {
-                auto model = existingActor ? static_pointer_cast<Model>(existingActor) : make_shared<Model>();
+                auto model = existingActor ? std::static_pointer_cast<Model>(existingActor) : std::make_shared<Model>();
                 model->Load(item, m_device);
                 if (!existingActor) m_actors[model->GetId()] = model;
                 break;
             }
             case ActorType::Camera:
             {
-                auto camera = existingActor ? static_pointer_cast<Camera>(existingActor) : make_shared<Camera>();
+                auto camera = existingActor ? std::static_pointer_cast<Camera>(existingActor) : std::make_shared<Camera>();
                 camera->Load(item);
                 if (!existingActor) m_actors[camera->GetId()] = camera;
                 break;

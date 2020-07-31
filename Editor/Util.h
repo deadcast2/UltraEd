@@ -10,8 +10,6 @@
 #include <memory>
 #include <d3dx9.h>
 
-using namespace std;
-
 namespace UltraEd
 {
     class Util
@@ -20,11 +18,11 @@ namespace UltraEd
         static float Lerp(float time, float start, float end);
         static GUID NewGuid();
         static GUID StringToGuid(const char *guid);
-        static string GuidToString(GUID guid);
-        static string RootPath();
-        static string NewResourceName(int count);
+        static std::string GuidToString(GUID guid);
+        static std::string RootPath();
+        static std::string NewResourceName(int count);
         static char *ReplaceString(const char *str, const char *from, const char *to);
-        static vector<string> SplitString(const char *str, const char delimiter);
+        static std::vector<std::string> SplitString(const char *str, const char delimiter);
         static void ToFloat3(const D3DXVECTOR3 &vec, float *position);
 
     private:

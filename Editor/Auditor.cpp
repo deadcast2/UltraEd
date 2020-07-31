@@ -73,10 +73,10 @@ namespace UltraEd
         }
     }
 
-    array<string, 2> Auditor::Titles()
+    std::array<std::string, 2> Auditor::Titles()
     {
-        string undo("Undo");
-        string redo("Redo");
+        std::string undo("Undo");
+        std::string redo("Redo");
 
         if (!m_undoUnits.empty())
         {
@@ -110,7 +110,7 @@ namespace UltraEd
         m_savedStates.clear();
     }
 
-    cJSON *Auditor::SaveState(GUID id, function<cJSON*()> save)
+    cJSON *Auditor::SaveState(GUID id, std::function<cJSON*()> save)
     {
         // Identifying states avoids storing duplicates.
         if (m_savedStates.find(id) == m_savedStates.end())
@@ -120,7 +120,7 @@ namespace UltraEd
         return m_savedStates[id];
     }
 
-    void Auditor::Lock(function<void()> block)
+    void Auditor::Lock(std::function<void()> block)
     {
         m_locked = true;
         try
@@ -162,13 +162,13 @@ namespace UltraEd
         m_position = m_undoUnits.size();
     }
 
-    void Auditor::AddActor(const string &name, GUID actorId, GUID groupId)
+    void Auditor::AddActor(const std::string &name, GUID actorId, GUID groupId)
     {
         if (m_locked) return;
 
         GUID redoStateId = Util::NewGuid();
         Add({
-            string("Add ").append(name),
+            std::string("Add ").append(name),
             [=]() {
                 auto actor = m_scene->GetActor(actorId);
                 auto state = SaveState(redoStateId, [=]() { return actor->Save(); });
@@ -183,13 +183,13 @@ namespace UltraEd
         });
     }
 
-    void Auditor::DeleteActor(const string &name, GUID actorId, GUID groupId)
+    void Auditor::DeleteActor(const std::string &name, GUID actorId, GUID groupId)
     {
         if (m_locked) return;
 
         auto state = SaveState(Util::NewGuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
         Add({
-            string("Delete ").append(name),
+            std::string("Delete ").append(name),
             [=]() {
                 m_scene->RestoreActor(state);
                 m_scene->SelectActorById(actorId);
@@ -202,7 +202,7 @@ namespace UltraEd
         });
     }
 
-    void Auditor::ChangeActor(const string &name, GUID actorId, GUID groupId)
+    void Auditor::ChangeActor(const std::string &name, GUID actorId, GUID groupId)
     {
         if (m_locked) return;
 
@@ -228,23 +228,23 @@ namespace UltraEd
         });
     }
 
-    function<void()> Auditor::PotentialChangeActor(const string &name, GUID actorId, GUID groupId)
+    std::function<void()> Auditor::PotentialChangeActor(const std::string &name, GUID actorId, GUID groupId)
     {
         if (m_locked) return []() {};
 
-        string uniqueId = Util::GuidToString(actorId).append(Util::GuidToString(groupId));
+        std::string uniqueId = Util::GuidToString(actorId).append(Util::GuidToString(groupId));
 
         if (m_potentials.find(uniqueId) != m_potentials.end())
-            return get<1>(m_potentials[uniqueId]);
+            return std::get<1>(m_potentials[uniqueId]);
 
-        return get<1>(m_potentials[uniqueId]) = [=]() {
-            if (get<0>(m_potentials[uniqueId])) return;
-            get<0>(m_potentials[uniqueId]) = true;
+        return std::get<1>(m_potentials[uniqueId]) = [=]() {
+            if (std::get<0>(m_potentials[uniqueId])) return;
+            std::get<0>(m_potentials[uniqueId]) = true;
             ChangeActor(name, actorId, groupId);
         };
     }
 
-    void Auditor::ChangeScene(const string &name)
+    void Auditor::ChangeScene(const std::string &name)
     {
         if (m_locked) return;
 

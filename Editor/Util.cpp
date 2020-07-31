@@ -33,7 +33,7 @@ namespace UltraEd
         return GUID_NULL;
     }
 
-    string Util::GuidToString(GUID guid)
+    std::string Util::GuidToString(GUID guid)
     {
         char guidBuffer[CLSID_LENGTH];
         wchar_t guidWide[CLSID_LENGTH];
@@ -41,22 +41,22 @@ namespace UltraEd
         StringFromGUID2(guid, guidWide, CLSID_LENGTH);
         wcstombs(guidBuffer, guidWide, CLSID_LENGTH);
 
-        return string(guidBuffer);
+        return std::string(guidBuffer);
     }
 
-    string Util::RootPath()
+    std::string Util::RootPath()
     {
         char pathBuffer[MAX_PATH];
         GetModuleFileName(NULL, pathBuffer, MAX_PATH);
-        string pathString(pathBuffer);
+        std::string pathString(pathBuffer);
         pathString = pathString.substr(0, pathString.find_last_of("\\/"));
         pathString.append("\\Library");
         return pathString;
     }
 
-    string Util::NewResourceName(int count)
+    std::string Util::NewResourceName(int count)
     {
-        stringstream ss;
+        std::stringstream ss;
         ss << "UER_" << count;
         return ss.str();
     }
@@ -158,11 +158,11 @@ namespace UltraEd
         return ret;
     }
 
-    vector<string> Util::SplitString(const char *str, const char delimiter)
+    std::vector<std::string> Util::SplitString(const char *str, const char delimiter)
     {
-        vector<string> tokens;
-        string token;
-        istringstream tokenStream(str);
+        std::vector<std::string> tokens;
+        std::string token;
+        std::istringstream tokenStream(str);
         while (getline(tokenStream, token, delimiter))
         {
             tokens.push_back(token);

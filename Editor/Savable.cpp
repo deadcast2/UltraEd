@@ -5,17 +5,17 @@ namespace UltraEd
     Savable::Savable() : m_isDirty(false)
     { }
 
-    map<string, string> Savable::GetResources() 
+    std::map<std::string, std::string> Savable::GetResources()
     { 
         return m_resources; 
     }
 
-    void Savable::AddResource(const string &key, const string &value)
+    void Savable::AddResource(const std::string &key, const std::string &value)
     {
         m_resources[key] = value;
     }
 
-    void Savable::DeleteResource(const string &key)
+    void Savable::DeleteResource(const std::string &key)
     {
         m_resources.erase(key);
     }

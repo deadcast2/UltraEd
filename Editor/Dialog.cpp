@@ -3,7 +3,7 @@
 
 namespace UltraEd
 {
-    bool Dialog::Open(const char *title, const char *filter, string &file)
+    bool Dialog::Open(const char *title, const char *filter, std::string &file)
     {
         OPENFILENAME ofn;
         char szFile[MAX_PATH];
@@ -30,7 +30,7 @@ namespace UltraEd
         return false;
     }
 
-    bool Dialog::Save(const char *title, const char *filter, string &file)
+    bool Dialog::Save(const char *title, const char *filter, std::string &file)
     {
         OPENFILENAME ofn;
         char szFile[MAX_PATH];

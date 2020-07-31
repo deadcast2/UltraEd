@@ -9,7 +9,7 @@ namespace UltraEd
         m_type = ColliderType::Sphere;
     }
 
-    SphereCollider::SphereCollider(const vector<Vertex> &vertices) : SphereCollider()
+    SphereCollider::SphereCollider(const std::vector<Vertex> &vertices) : SphereCollider()
     {
         // Compute optimal center and radius (sphere)
         FindCenterWithRadius(m_center, m_radius, vertices);
@@ -46,7 +46,7 @@ namespace UltraEd
         }
     }
 
-    void SphereCollider::SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, const vector<Vertex> &vertices)
+    void SphereCollider::SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices)
     {
         D3DXVECTOR3 min, max;
         DistantAABBPoints(min, max, vertices);
@@ -68,7 +68,7 @@ namespace UltraEd
         }
     }
 
-    void SphereCollider::FindCenterWithRadius(D3DXVECTOR3 &center, FLOAT &radius, const vector<Vertex> &vertices)
+    void SphereCollider::FindCenterWithRadius(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices)
     {
         SphereFromDistPoints(center, radius, vertices);
         for (size_t i = 0; i < vertices.size(); i++)

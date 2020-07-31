@@ -7,14 +7,14 @@
 
 namespace UltraEd
 {
-    bool FileIO::Save(Scene *scene, string &fileName)
+    bool FileIO::Save(Scene *scene, std::string &fileName)
     {
-        string file;
+        std::string file;
 
         if (Dialog::Save("Save Scene", APP_FILE_FILTER, file))
         {
             // Add the extension if not supplied in the dialog.
-            if (file.find(APP_FILE_EXT) == string::npos) file.append(APP_FILE_EXT);
+            if (file.find(APP_FILE_EXT) == std::string::npos) file.append(APP_FILE_EXT);
 
             fileName = CleanFileName(file.c_str());
 
@@ -34,7 +34,7 @@ namespace UltraEd
                 {
                     const char *path = resource->child->valuestring;
                     const char *fileName = PathFindFileName(path);
-                    unique_ptr<FILE, decltype(fclose) *> file(fopen(path, "rb"), fclose);
+                    std::unique_ptr<FILE, decltype(fclose) *> file(fopen(path, "rb"), fclose);
                     if (file == NULL) continue;
 
                     // Calculate resource length.
@@ -43,7 +43,7 @@ namespace UltraEd
                     rewind(file.get());
 
                     // Read all contents of resource into a buffer.
-                    auto fileContents = make_unique<char[]>(fileLength);
+                    auto fileContents = std::make_unique<char[]>(fileLength);
                     fread(fileContents.get(), fileLength, 1, file.get());
 
                     // Write the buffer to the tar archive.
@@ -52,7 +52,7 @@ namespace UltraEd
                 }
             }
 
-            auto rendered = unique_ptr<char>(cJSON_Print(root));
+            auto rendered = std::unique_ptr<char>(cJSON_Print(root));
             cJSON_Delete(root);
 
             mtar_write_file_header(&tar, "scene.json", static_cast<unsigned>(strlen(rendered.get())));
@@ -67,9 +67,9 @@ namespace UltraEd
         return false;
     }
 
-    bool FileIO::Load(cJSON **data, string &fileName)
+    bool FileIO::Load(cJSON **data, std::string &fileName)
     {
-        string file;
+        std::string file;
 
         if (Dialog::Open("Load Scene", APP_FILE_FILTER, file) && Decompress(file))
         {
@@ -81,7 +81,7 @@ namespace UltraEd
             mtar_open(&tar, file.c_str(), "r");
             mtar_find(&tar, "scene.json", &header);
 
-            auto contents = make_unique<char[]>(header.size + 1);
+            auto contents = std::make_unique<char[]>(header.size + 1);
             mtar_read_data(&tar, contents.get(), header.size);
             cJSON *root = cJSON_Parse(contents.get());
 
@@ -100,12 +100,12 @@ namespace UltraEd
 
                     // Locate the resource to extract.
                     mtar_find(&tar, fileName, &header);
-                    auto buffer = make_unique<char[]>(header.size + 1);
+                    auto buffer = std::make_unique<char[]>(header.size + 1);
                     mtar_read_data(&tar, buffer.get(), header.size);
 
                     // Format path and write to library.
                     sprintf(target, "%s\\%s", Util::RootPath().c_str(), fileName);
-                    unique_ptr<FILE, decltype(fclose) *> file(fopen(target, "wb"), fclose);
+                    std::unique_ptr<FILE, decltype(fclose) *> file(fopen(target, "wb"), fclose);
                     fwrite(buffer.get(), 1, header.size, file.get());
 
                     // Update the path to the fully qualified target.
@@ -129,7 +129,7 @@ namespace UltraEd
     FileInfo FileIO::Import(const char *file)
     {
         FileInfo info;
-        string rootPath = Util::RootPath();
+        std::string rootPath = Util::RootPath();
 
         // When a GUID then must have already been imported so don't re-import.
         if (Util::StringToGuid(PathFindFileName(file)) != GUID_NULL)
@@ -167,9 +167,9 @@ namespace UltraEd
         return info;
     }
 
-    bool FileIO::Compress(const string &path)
+    bool FileIO::Compress(const std::string &path)
     {
-        unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "rb"), fclose);
+        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "rb"), fclose);
         if (file == NULL) return false;
 
         // Get the total size of the file.
@@ -178,34 +178,34 @@ namespace UltraEd
         rewind(file.get());
 
         // Read in entire file.
-        unique_ptr<char, decltype(free) *> data((char *)malloc(size), free);
+        std::unique_ptr<char, decltype(free) *> data((char *)malloc(size), free);
         if (data == NULL) return false;
         size_t bytesRead = fread(data.get(), 1, size, file.get());
         if (bytesRead != size) return false;
 
         // Compressed buffer must be at least 5% larger.
-        unique_ptr<char, decltype(free) *> compressed((char *)malloc(size + static_cast<size_t>(size * 0.05f)), free);
+        std::unique_ptr<char, decltype(free) *> compressed((char *)malloc(size + static_cast<size_t>(size * 0.05f)), free);
         if (compressed == NULL) return false;
         int bytesCompressed = fastlz_compress(data.get(), static_cast<int>(size), compressed.get());
         if (bytesCompressed == 0) return false;
 
         // Annotate compressed data with uncompressed size.
         int annotatedSize = bytesCompressed + sizeof(int);
-        unique_ptr<char, decltype(free) *> buffer((char *)malloc(annotatedSize), free);
+        std::unique_ptr<char, decltype(free) *> buffer((char *)malloc(annotatedSize), free);
         memcpy(buffer.get(), &size, sizeof(int));
         memcpy(buffer.get() + sizeof(int), compressed.get(), bytesCompressed);
 
         // Write compressed file back out.
-        file = unique_ptr<FILE, decltype(fclose) *>(fopen(path.c_str(), "wb"), fclose);
+        file = std::unique_ptr<FILE, decltype(fclose) *>(fopen(path.c_str(), "wb"), fclose);
         if (file == NULL) return false;
 
         size_t bytesWritten = fwrite(buffer.get(), 1, annotatedSize, file.get());
         return bytesWritten == annotatedSize;
     }
 
-    bool FileIO::Decompress(string &path)
+    bool FileIO::Decompress(std::string &path)
     {
-        unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "rb"), fclose);
+        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "rb"), fclose);
         if (file == NULL) return false;
 
         // Get the total size of the file.
@@ -214,7 +214,7 @@ namespace UltraEd
         rewind(file.get());
 
         // Read in entire file.
-        unique_ptr<char, decltype(free) *> data((char *)malloc(size), free);
+        std::unique_ptr<char, decltype(free) *> data((char *)malloc(size), free);
         if (data == NULL) return false;
         size_t bytesRead = fread(data.get(), 1, size, file.get());
         if (bytesRead != size) return false;
@@ -224,32 +224,32 @@ namespace UltraEd
         memmove(&uncompressedSize, data.get(), sizeof(int));
         memmove(data.get(), data.get() + sizeof(int), static_cast<int>(size) - sizeof(int));
 
-        unique_ptr<char, decltype(free) *> decompressed((char *)malloc(uncompressedSize), free);
+        std::unique_ptr<char, decltype(free) *> decompressed((char *)malloc(uncompressedSize), free);
         if (decompressed == NULL) return false;
         int bytesDecompressed = fastlz_decompress(data.get(), static_cast<int>(size) - sizeof(int), decompressed.get(),
             uncompressedSize);
         if (bytesDecompressed == 0) return false;
 
         // Write decompressed file back out.
-        file = unique_ptr<FILE, decltype(fclose) *>(fopen(path.append(".tmp").c_str(), "wb"), fclose);
+        file = std::unique_ptr<FILE, decltype(fclose) *>(fopen(path.append(".tmp").c_str(), "wb"), fclose);
         if (file == NULL) return false;
 
         size_t bytesWritten = fwrite(decompressed.get(), 1, bytesDecompressed, file.get());
         return bytesWritten == bytesDecompressed;
     }
 
-    string FileIO::CleanFileName(const char *fileName)
+    std::string FileIO::CleanFileName(const char *fileName)
     {
-        string cleanedName(PathFindFileName(fileName));
-        string::size_type pos = cleanedName.find('.');
-        if (pos != string::npos) cleanedName.erase(pos, string::npos);
+        std::string cleanedName(PathFindFileName(fileName));
+        std::string::size_type pos = cleanedName.find('.');
+        if (pos != std::string::npos) cleanedName.erase(pos, std::string::npos);
         return cleanedName;
     }
 
     bool FileIO::Pack(const char *path)
     {
         mtar_t tar;
-        string output(path);
+        std::string output(path);
         output.append(".bin");
 
         mtar_open(&tar, output.c_str(), "w");
@@ -262,7 +262,7 @@ namespace UltraEd
 
     bool FileIO::Unpack(const char *path)
     {
-        string decompressPath(path);
+        std::string decompressPath(path);
         if (Decompress(decompressPath))
         {
             mtar_t tar;
@@ -274,25 +274,25 @@ namespace UltraEd
                 mtar_read_data(&tar, buffer, header.size);
 
                 // Get archived file path without file name.
-                string newFolder(header.name);
-                string::size_type pos = newFolder.find_last_of("\\");
-                if (pos != string::npos) newFolder.erase(pos, string::npos);
+                std::string newFolder(header.name);
+                std::string::size_type pos = newFolder.find_last_of("\\");
+                if (pos != std::string::npos) newFolder.erase(pos, std::string::npos);
                 pos = newFolder.find_first_of("\\");
-                if (pos != string::npos) newFolder.erase(0, pos);
+                if (pos != std::string::npos) newFolder.erase(0, pos);
 
                 // Rewrite path to relative form.
                 char pathBuffer[128];
                 GetFullPathName(".", 128, pathBuffer, NULL);
-                string enginePath(pathBuffer);
+                std::string enginePath(pathBuffer);
                 enginePath.append("\\..\\Engine").append(newFolder);
                 CreateDirectoryRecursively(enginePath.c_str());
 
                 if (PathFileExists(enginePath.c_str()))
                 {
                     // Add updated relative path for archived file.
-                    string updatedName(header.name);
-                    string::size_type pos = updatedName.find_last_of("\\");
-                    updatedName = updatedName.substr(pos, string::npos).insert(0, enginePath);
+                    std::string updatedName(header.name);
+                    std::string::size_type pos = updatedName.find_last_of("\\");
+                    updatedName = updatedName.substr(pos, std::string::npos).insert(0, enginePath);
 
                     // Create the file to updated destination.
                     FILE *file = fopen(updatedName.c_str(), "wb");
@@ -315,7 +315,7 @@ namespace UltraEd
 
     void FileIO::TarifyFile(mtar_t *tar, const char *file)
     {
-        string wildPath(file);
+        std::string wildPath(file);
         wildPath.append("\\*");
         WIN32_FIND_DATA findData;
         HANDLE hFind = FindFirstFile(wildPath.c_str(), &findData);
@@ -327,13 +327,13 @@ namespace UltraEd
 
             if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
-                string nextFolder(file);
+                std::string nextFolder(file);
                 nextFolder.append("\\").append(findData.cFileName);
                 TarifyFile(tar, nextFolder.c_str());
             }
             else
             {
-                string completeFilePath(file);
+                std::string completeFilePath(file);
                 completeFilePath.append("\\").append(findData.cFileName);
                 FILE *hFile = fopen(completeFilePath.c_str(), "rb");
                 if (hFile == NULL) continue;
@@ -360,8 +360,8 @@ namespace UltraEd
 
     void FileIO::CreateDirectoryRecursively(const char *path)
     {
-        vector<string> folders = Util::SplitString(path, '\\');
-        string currentPath;
+        std::vector<std::string> folders = Util::SplitString(path, '\\');
+        std::string currentPath;
 
         // Walk up path creating each folder as we go deeper.
         for (const auto &folder : folders)

@@ -3,8 +3,6 @@
 
 #include "Actor.h"
 
-using namespace std;
-
 namespace UltraEd
 {
     enum class ModelPreset

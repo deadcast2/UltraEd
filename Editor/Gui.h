@@ -11,8 +11,6 @@
 #include <ImGui/Plugins/TextEditor.h>
 #include "Actor.h"
 
-using namespace std;
-
 namespace UltraEd
 {
     class Scene;
@@ -25,7 +23,7 @@ namespace UltraEd
         void PrepareFrame();
         void RenderFrame();
         ImGuiIO &IO();
-        void RebuildWith(function<void()> inner);
+        void RebuildWith(std::function<void()> inner);
 
     private:
         void LoadColorTheme();
@@ -45,7 +43,7 @@ namespace UltraEd
     private:
         Scene *m_scene;
         TextEditor m_textEditor;
-        string m_buildOutput;
+        std::string m_buildOutput;
         bool m_moveBuildOutputToBottom;
         bool m_openContextMenu;
         bool m_textEditorOpen;

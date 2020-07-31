@@ -5,13 +5,11 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 namespace UltraEd
 {
     typedef struct {
-        string message;
-        function<void(void*)> callback;
+        std::string message;
+        std::function<void(void*)> callback;
     } Subscription;
 
     class PubSub
@@ -20,11 +18,11 @@ namespace UltraEd
         PubSub() {};
 
     public:
-        static void Publish(const string &message, void *data = 0);
+        static void Publish(const std::string &message, void *data = 0);
         static void Subscribe(Subscription subscription);
 
     private:
-        static vector<Subscription> m_subscriptions;
+        static std::vector<Subscription> m_subscriptions;
     };
 }
 

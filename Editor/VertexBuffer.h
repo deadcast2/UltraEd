@@ -4,8 +4,6 @@
 #include <vector>
 #include "Vertex.h"
 
-using namespace std;
-
 namespace UltraEd
 {
     class VertexBuffer
@@ -13,7 +11,7 @@ namespace UltraEd
     public:
         VertexBuffer();
         ~VertexBuffer();
-        IDirect3DVertexBuffer9 *GetBuffer(IDirect3DDevice9 *device, vector<Vertex> vertices);
+        IDirect3DVertexBuffer9 *GetBuffer(IDirect3DDevice9 *device, std::vector<Vertex> vertices);
         void Release();
 
     private:

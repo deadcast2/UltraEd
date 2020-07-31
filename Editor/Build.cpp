@@ -17,9 +17,9 @@
 
 namespace UltraEd
 {
-    bool Build::WriteSpecFile(const vector<Actor *> &actors)
+    bool Build::WriteSpecFile(const std::vector<Actor *> &actors)
     {
-        string specSegments, specIncludes;
+        std::string specSegments, specIncludes;
         const char *specHeader = "#include <nusys.h>\n\n"
             "beginseg"
             "\n\tname \"code\""
@@ -42,24 +42,24 @@ namespace UltraEd
             "\n\tinclude \"code\"";
         const char *specIncludeEnd = "\nendwave";
 
-        vector<string> resourceCache;
+        std::vector<std::string> resourceCache;
         int loopCount = 0;
         for (const auto &actor : actors)
         {
-            string newResName = Util::NewResourceName(loopCount++);
+            std::string newResName = Util::NewResourceName(loopCount++);
 
             if (actor->GetType() != ActorType::Model) continue;
             
-            map<string, string> resources = actor->GetResources();
+            std::map<std::string, std::string> resources = actor->GetResources();
 
             if (find(resourceCache.begin(), resourceCache.end(), resources["vertexDataPath"]) 
                 == resourceCache.end())
             {
-                string id = Util::GuidToString(actor->GetId());
+                std::string id = Util::GuidToString(actor->GetId());
                 id.insert(0, Util::RootPath().append("\\"));
                 id.append(".rom.sos");
 
-                string modelName(newResName);
+                std::string modelName(newResName);
                 modelName.append("_M");
 
                 specSegments.append("\nbeginseg\n\tname \"");
@@ -80,7 +80,7 @@ namespace UltraEd
                 == resourceCache.end())
             {
                 // Load the set texture and resize to required dimensions.
-                string path = resources["textureDataPath"];
+                std::string path = resources["textureDataPath"];
                 int width, height, channels;
                 unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 3);
                 if (data)
@@ -95,7 +95,7 @@ namespace UltraEd
                     stbi_image_free(data);
                 }
 
-                string textureName(newResName);
+                std::string textureName(newResName);
                 textureName.append("_T");
 
                 specSegments.append("\nbeginseg\n\tname \"");
@@ -112,16 +112,16 @@ namespace UltraEd
             }
         }
 
-        string specPath = GetPathFor("Engine\\spec");
-        unique_ptr<FILE, decltype(fclose) *> file(fopen(specPath.c_str(), "w"), fclose);
+        std::string specPath = GetPathFor("Engine\\spec");
+        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(specPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
 
-        string slashesNormalized(specHeader);
-        slashesNormalized = regex_replace(slashesNormalized, regex("\\\\"), "\\\\");
+        std::string slashesNormalized(specHeader);
+        slashesNormalized = std::regex_replace(slashesNormalized, std::regex("\\\\"), "\\\\");
         fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file.get());
 
-        slashesNormalized = string(specSegments);
-        slashesNormalized = regex_replace(slashesNormalized, regex("\\\\"), "\\\\");
+        slashesNormalized = std::string(specSegments);
+        slashesNormalized = std::regex_replace(slashesNormalized, std::regex("\\\\"), "\\\\");
         fwrite(slashesNormalized.c_str(), 1, slashesNormalized.size(), file.get());
 
         fwrite(specIncludeStart, 1, strlen(specIncludeStart), file.get());
@@ -133,31 +133,31 @@ namespace UltraEd
     bool Build::WriteDefinitionsFile()
     {
         char buffer[128];
-        string mode = Settings::GetVideoMode() == VideoMode::NTSC ? "OS_VI_NTSC_LAN1" : "OS_VI_PAL_LAN1";
+        std::string mode = Settings::GetVideoMode() == VideoMode::NTSC ? "OS_VI_NTSC_LAN1" : "OS_VI_PAL_LAN1";
         sprintf(buffer, "#define _UER_VIDEO_MODE %s\n", mode.c_str());
 
-        string path = GetPathFor("Engine\\definitions.h");
-        unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "w"), fclose);
+        std::string path = GetPathFor("Engine\\definitions.h");
+        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(buffer, 1, strlen(buffer), file.get());
         return true;
     }
 
-    bool Build::WriteSegmentsFile(const vector<Actor *> &actors, map<string, string> *resourceCache)
+    bool Build::WriteSegmentsFile(const std::vector<Actor *> &actors, std::map<std::string, std::string> *resourceCache)
     {
-        string romSegments;
+        std::string romSegments;
         int loopCount = 0;
         for (const auto &actor : actors)
         {
-            string newResName = Util::NewResourceName(loopCount++);
+            std::string newResName = Util::NewResourceName(loopCount++);
 
             if (actor->GetType() != ActorType::Model) continue;
 
-            map<string, string> resources = actor->GetResources();
+            std::map<std::string, std::string> resources = actor->GetResources();
             
             if (resourceCache->find(resources["vertexDataPath"]) == resourceCache->end())
             {
-                string modelName(newResName);
+                std::string modelName(newResName);
                 modelName.append("_M");
 
                 romSegments.append("extern u8 _");
@@ -173,7 +173,7 @@ namespace UltraEd
             if (resources.count("textureDataPath") && 
                 resourceCache->find(resources["textureDataPath"]) == resourceCache->end())
             {
-                string textureName(newResName);
+                std::string textureName(newResName);
                 textureName.append("_T");
 
                 romSegments.append("extern u8 _");
@@ -187,8 +187,8 @@ namespace UltraEd
             }
         }
 
-        string segmentsPath = GetPathFor("Engine\\segments.h");
-        unique_ptr<FILE, decltype(fclose) *> file(fopen(segmentsPath.c_str(), "w"), fclose);
+        std::string segmentsPath = GetPathFor("Engine\\segments.h");
+        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(segmentsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(romSegments.c_str(), 1, romSegments.size(), file.get());
         return true;
@@ -201,27 +201,27 @@ namespace UltraEd
         sprintf(buffer, "int _UER_SceneBackgroundColor[3] = { %i, %i, %i };\n", GetRValue(bgColor),
             GetGValue(bgColor), GetBValue(bgColor));
 
-        string scenePath = GetPathFor("Engine\\scene.h");
-        unique_ptr<FILE, decltype(fclose) *> file(fopen(scenePath.c_str(), "w"), fclose);
+        std::string scenePath = GetPathFor("Engine\\scene.h");
+        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(scenePath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(buffer, 1, strlen(buffer), file.get());
         return true;
     }
 
-    bool Build::WriteActorsFile(const vector<Actor *> &actors, const map<string, string> &resourceCache)
+    bool Build::WriteActorsFile(const std::vector<Actor *> &actors, const std::map<std::string, std::string> &resourceCache)
     {
         int actorCount = -1;
-        string totalActors = to_string(actors.size());
-        string actorInits, modelDraws;
+        std::string totalActors = std::to_string(actors.size());
+        std::string actorInits, modelDraws;
 
-        string actorsArrayDef("const int _UER_ActorCount = ");
+        std::string actorsArrayDef("const int _UER_ActorCount = ");
         actorsArrayDef.append(totalActors).append(";\nactor *_UER_Actors[")
             .append(totalActors).append("];\n").append("actor *_UER_ActiveCamera = NULL;\n");
 
         for (const auto &actor : actors)
         {
-            string resourceName = Util::NewResourceName(++actorCount);
-            actorInits.append("\n\t_UER_Actors[").append(to_string(actorCount)).append("] = ");
+            std::string resourceName = Util::NewResourceName(++actorCount);
+            actorInits.append("\n\t_UER_Actors[").append(std::to_string(actorCount)).append("] = ");
 
             D3DXVECTOR3 colliderCenter = actor->HasCollider() ? actor->GetCollider()->GetCenter() : D3DXVECTOR3(0, 0, 0);
             FLOAT colliderRadius = actor->HasCollider() && actor->GetCollider()->GetType() == ColliderType::Sphere ?
@@ -236,7 +236,7 @@ namespace UltraEd
                 if (resourceCache.find(resources.at("vertexDataPath")) != resourceCache.end())
                     resourceName = resourceCache.at(resources.at("vertexDataPath"));
 
-                string modelName(resourceName);
+                std::string modelName(resourceName);
                 modelName.append("_M");
 
                 if (resources.count("textureDataPath"))
@@ -251,7 +251,7 @@ namespace UltraEd
                     if (resourceCache.find(resources.at("textureDataPath")) != resourceCache.end())
                         resourceName = resourceCache.at(resources.at("textureDataPath"));
 
-                    string textureName(resourceName);
+                    std::string textureName(resourceName);
                     textureName.append("_T");
 
                     actorInits.append(", _").append(textureName).append("SegmentRomStart, _").append(textureName).append("SegmentRomEnd");
@@ -272,8 +272,8 @@ namespace UltraEd
                 actorInits.append(vectorBuffer).append(");\n");
 
                 // Write out mesh data.
-                vector<Vertex> vertices = actor->GetVertices();
-                string id = Util::GuidToString(actor->GetId());
+                std::vector<Vertex> vertices = actor->GetVertices();
+                std::string id = Util::GuidToString(actor->GetId());
                 id.insert(0, Util::RootPath().append("\\")).append(".rom.sos");
                 FILE *file = fopen(id.c_str(), "w");
                 if (file == NULL) return false;
@@ -287,7 +287,7 @@ namespace UltraEd
                 }
                 fclose(file);
 
-                modelDraws.append("\n\tmodel_draw(_UER_Actors[").append(to_string(actorCount)).append("], display_list);\n");
+                modelDraws.append("\n\tmodel_draw(_UER_Actors[").append(std::to_string(actorCount)).append("], display_list);\n");
             }
             else if (actor->GetType() == ActorType::Camera)
             {
@@ -307,8 +307,8 @@ namespace UltraEd
             }
         }
 
-        string actorInitsPath = GetPathFor("Engine\\actors.h");
-        unique_ptr<FILE, decltype(fclose) *> file(fopen(actorInitsPath.c_str(), "w"), fclose);
+        std::string actorInitsPath = GetPathFor("Engine\\actors.h");
+        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(actorInitsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
 
         fwrite(actorsArrayDef.c_str(), 1, actorsArrayDef.size(), file.get());
@@ -325,10 +325,10 @@ namespace UltraEd
         return true;
     }
 
-    bool Build::WriteCollisionFile(const vector<Actor *> &actors)
+    bool Build::WriteCollisionFile(const std::vector<Actor *> &actors)
     {
-        string collideSetStart("void _UER_Collide() {");
-        string collisions;
+        std::string collideSetStart("void _UER_Collide() {");
+        std::string collisions;
         int collisionCount = 0;
         char countBuffer[10];
 
@@ -344,11 +344,11 @@ namespace UltraEd
 
                 if (!(*subActor)->GetCollider()) continue;
 
-                string actorScript = actor->GetScript();
-                string subActorScript = (*subActor)->GetScript();
+                std::string actorScript = actor->GetScript();
+                std::string subActorScript = (*subActor)->GetScript();
 
                 // Both actors must define a collide method.
-                if (actorScript.find("collide(") == string::npos || subActorScript.find("collide(") == string::npos)
+                if (actorScript.find("collide(") == std::string::npos || subActorScript.find("collide(") == std::string::npos)
                     continue;
 
                 _itoa(collisionCount - 1, countBuffer, 10);
@@ -368,8 +368,8 @@ namespace UltraEd
             }
         }
 
-        string collisionPath = GetPathFor("Engine\\collisions.h");
-        unique_ptr<FILE, decltype(fclose) *> file(fopen(collisionPath.c_str(), "w"), fclose);
+        std::string collisionPath = GetPathFor("Engine\\collisions.h");
+        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(collisionPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(collideSetStart.c_str(), 1, collideSetStart.size(), file.get());
         fwrite(collisions.c_str(), 1, collisions.size(), file.get());
@@ -377,48 +377,48 @@ namespace UltraEd
         return true;
     }
 
-    bool Build::WriteScriptsFile(const vector<Actor *> &actors)
+    bool Build::WriteScriptsFile(const std::vector<Actor *> &actors)
     {
-        string scriptStartStart("void _UER_Start() {");
-        string scriptUpdateStart("\n\nvoid _UER_Update() {");
-        string inputStart("\n\nvoid _UER_Input(NUContData gamepads[4]) {");
+        std::string scriptStartStart("void _UER_Start() {");
+        std::string scriptUpdateStart("\n\nvoid _UER_Update() {");
+        std::string inputStart("\n\nvoid _UER_Input(NUContData gamepads[4]) {");
 
-        string scripts;
+        std::string scripts;
         char countBuffer[10];
         int actorCount = -1;
 
         for (const auto &actor : actors)
         {
-            string actorRef;
+            std::string actorRef;
             actorRef.append("_UER_Actors[");
 
-            string newResName = Util::NewResourceName(++actorCount);
-            string script = actor->GetScript();
-            auto result = unique_ptr<char>(Util::ReplaceString(script.c_str(), "$", newResName.c_str()));
+            std::string newResName = Util::NewResourceName(++actorCount);
+            std::string script = actor->GetScript();
+            auto result = std::unique_ptr<char>(Util::ReplaceString(script.c_str(), "$", newResName.c_str()));
 
             _itoa(actorCount, countBuffer, 10);
             actorRef.append(countBuffer).append("]->");
-            result = unique_ptr<char>(Util::ReplaceString(result.get(), "self->", actorRef.c_str()));
+            result = std::unique_ptr<char>(Util::ReplaceString(result.get(), "self->", actorRef.c_str()));
             scripts.append(result.get()).append("\n\n");
 
-            if (scripts.find(string(newResName).append("start(")) != string::npos)
+            if (scripts.find(std::string(newResName).append("start(")) != std::string::npos)
             {
                 scriptStartStart.append("\n\t").append(newResName).append("start();\n");
             }
 
-            if (scripts.find(string(newResName).append("update(")) != string::npos)
+            if (scripts.find(std::string(newResName).append("update(")) != std::string::npos)
             {
                 scriptUpdateStart.append("\n\t").append(newResName).append("update();\n");
             }
 
-            if (scripts.find(string(newResName).append("input(")) != string::npos)
+            if (scripts.find(std::string(newResName).append("input(")) != std::string::npos)
             {
                 inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
             }
         }
 
-        string scriptsPath = GetPathFor("Engine\\scripts.h");
-        unique_ptr<FILE, decltype(fclose) *> file(fopen(scriptsPath.c_str(), "w"), fclose);
+        std::string scriptsPath = GetPathFor("Engine\\scripts.h");
+        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(scriptsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(scripts.c_str(), 1, scripts.size(), file.get());
         fwrite(scriptStartStart.c_str(), 1, scriptStartStart.size(), file.get());
@@ -430,9 +430,9 @@ namespace UltraEd
         return true;
     }
 
-    bool Build::WriteMappingsFile(const vector<Actor *> &actors)
+    bool Build::WriteMappingsFile(const std::vector<Actor *> &actors)
     {
-        string mappingsStart("void _UER_Mappings() {");
+        std::string mappingsStart("void _UER_Mappings() {");
         int loopCount = 0;
         char countBuffer[10];
 
@@ -443,8 +443,8 @@ namespace UltraEd
                 .append(countBuffer).append(");\n");
         }
 
-        string mappingsPath = GetPathFor("Engine\\mappings.h");
-        unique_ptr<FILE, decltype(fclose) *> file(fopen(mappingsPath.c_str(), "w"), fclose);
+        std::string mappingsPath = GetPathFor("Engine\\mappings.h");
+        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(mappingsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file.get());
         fwrite("}", 1, 1, file.get());
@@ -457,7 +457,7 @@ namespace UltraEd
 
         // Share texture and model data to reduce ROM size. Resource use is tracked during
         // segment generation and the actor script generator uses that info. 
-        map<string, string> resourceCache;
+        std::map<std::string, std::string> resourceCache;
         WriteSegmentsFile(actors, &resourceCache);
         WriteActorsFile(actors, resourceCache);
         
@@ -486,7 +486,7 @@ namespace UltraEd
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
-            string currDir = GetPathFor("Player");
+            std::string currDir = GetPathFor("Player");
 
             // Start the build with no window.
             CreateProcess(NULL, const_cast<LPSTR>("cmd /c cen64.exe pifdata.bin ..\\Engine\\main.n64"), NULL, NULL, FALSE,
@@ -535,10 +535,10 @@ namespace UltraEd
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
-            string currDir = GetPathFor("Player\\USB");
+            std::string currDir = GetPathFor("Player\\USB");
 
             // Start the USB loader with no window.
-            string command = Settings::GetBuildCart() == BuildCart::_64drive ? 
+            std::string command = Settings::GetBuildCart() == BuildCart::_64drive ? 
                 "cmd /c 64drive_usb.exe -l ..\\..\\Engine\\main.n64 -c 6102" : 
                 "cmd /c usb64.exe -rom=..\\..\\Engine\\main.n64 -start";
             CreateProcess(NULL, const_cast<LPSTR>(command.c_str()), NULL, NULL, TRUE, 
@@ -552,7 +552,7 @@ namespace UltraEd
             while (ReadFile(stdOutRead, chBuf, 4096, &dwRead, NULL))
             {
                 if (dwRead == 0) break;
-                auto buffer = make_unique<char[]>(dwRead + 1); // Add 1 to prevent garbage.
+                auto buffer = std::make_unique<char[]>(dwRead + 1); // Add 1 to prevent garbage.
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
@@ -607,7 +607,7 @@ namespace UltraEd
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
-            string currDir = GetPathFor("Engine");
+            std::string currDir = GetPathFor("Engine");
 
             // Start the build with no window.
             CreateProcess(NULL, const_cast<LPSTR>("cmd /c build.bat"), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
@@ -621,7 +621,7 @@ namespace UltraEd
             while (ReadFile(stdOutRead, chBuf, 4096, &dwRead, NULL))
             {
                 if (dwRead == 0) break;
-                auto buffer = make_unique<char[]>(dwRead + 1); // Add 1 to prevent garbage.
+                auto buffer = std::make_unique<char[]>(dwRead + 1); // Add 1 to prevent garbage.
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
@@ -641,12 +641,12 @@ namespace UltraEd
         return false;
     }
 
-    string Build::GetPathFor(const string &name)
+    std::string Build::GetPathFor(const std::string &name)
     {
         char buffer[MAX_PATH];
         if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
         {
-            string path(buffer);
+            std::string path(buffer);
 
 #ifdef _DEBUG
             return path.append("\\..\\..\\..\\").append(name);
@@ -654,6 +654,6 @@ namespace UltraEd
             return path.append("\\..\\").append(name);
 #endif
         }
-        return string();
+        return std::string();
     }
 }

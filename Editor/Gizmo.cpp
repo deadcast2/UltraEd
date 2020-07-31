@@ -28,7 +28,7 @@ namespace UltraEd
         m_modifierState = state;
     }
 
-    string Gizmo::GetModifierName()
+    std::string Gizmo::GetModifierName()
     {
         switch (m_modifierState)
         {

@@ -24,8 +24,8 @@ namespace UltraEd
         virtual void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
         const GUID &GetId() { return m_id; }
         void ResetId() { m_id = Util::NewGuid(); }
-        const string &GetName() { return m_name; }
-        bool SetName(string name) { return Dirty([&] {  m_name = name.empty() ? "Actor" : name; }, &m_name); }
+        const std::string &GetName() { return m_name; }
+        bool SetName(std::string name) { return Dirty([&] {  m_name = name.empty() ? "Actor" : name; }, &m_name); }
         const ActorType &GetType() { return m_type; }
         static GUID GetId(cJSON *item);
         static ActorType GetType(cJSON *item);
@@ -45,34 +45,34 @@ namespace UltraEd
         D3DXVECTOR3 GetForward();
         D3DXVECTOR3 GetUp();
         void GetAxisAngle(D3DXVECTOR3 *axis, float *angle);
-        const vector<Vertex> &GetVertices() { return m_vertices; }
+        const std::vector<Vertex> &GetVertices() { return m_vertices; }
         bool Pick(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir, float *dist);
-        const string &GetScript() { return m_script; }
-        void SetScript(const string &script) { Dirty([&] { m_script = script; }, &m_script); }
+        const std::string &GetScript() { return m_script; }
+        void SetScript(const std::string &script) { Dirty([&] { m_script = script; }, &m_script); }
         Collider *GetCollider() { return m_collider.get(); }
-        void SetCollider(Collider *collider) { Dirty([&] { m_collider = shared_ptr<Collider>(collider); }, &m_collider); }
+        void SetCollider(Collider *collider) { Dirty([&] { m_collider = std::shared_ptr<Collider>(collider); }, &m_collider); }
         bool HasCollider() { return GetCollider() != NULL; }
         cJSON *Save();
         bool Load(cJSON *root);
 
     protected:
-        shared_ptr<VertexBuffer> m_vertexBuffer;
+        std::shared_ptr<VertexBuffer> m_vertexBuffer;
         ActorType m_type;
         void Import(const char *filePath);
 
     private:
         GUID m_id;
-        string m_name;
-        vector<Vertex> m_vertices;
+        std::string m_name;
+        std::vector<Vertex> m_vertices;
         D3DMATERIAL9 m_material;
         D3DXVECTOR3 m_position;
         D3DXVECTOR3 m_scale;
         D3DXMATRIX m_localRot;
         D3DXMATRIX m_worldRot;
-        string m_script;
+        std::string m_script;
         bool IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir,
             const D3DXVECTOR3 &v0, const D3DXVECTOR3 &v1, const D3DXVECTOR3 &v2, float *dist);
-        shared_ptr<Collider> m_collider;
+        std::shared_ptr<Collider> m_collider;
     };
 }
 

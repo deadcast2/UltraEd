@@ -5,8 +5,6 @@
 #include <vector>
 #include "VertexBuffer.h"
 
-using namespace std;
-
 namespace UltraEd
 {
     class Grid
@@ -19,8 +17,8 @@ namespace UltraEd
 
     private:
         D3DMATERIAL9 m_material;
-        shared_ptr<VertexBuffer> m_vertexBuffer;
-        vector<Vertex> m_vertices;
+        std::shared_ptr<VertexBuffer> m_vertexBuffer;
+        std::vector<Vertex> m_vertices;
     };
 }
 

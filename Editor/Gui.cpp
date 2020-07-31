@@ -113,7 +113,7 @@ namespace UltraEd
         return ImGui::GetIO();
     }
 
-    void Gui::RebuildWith(function<void()> inner)
+    void Gui::RebuildWith(std::function<void()> inner)
     {
         ImGui_ImplDX9_InvalidateDeviceObjects();
 
@@ -482,7 +482,7 @@ namespace UltraEd
                 if (strcmp(tempName, name) != 0)
                 {
                     m_scene->m_auditor.ChangeActor("Name Set", actors[i]->GetId());
-                    actors[i]->SetName(string(name));
+                    actors[i]->SetName(std::string(name));
                 }
 
                 auto curPos = actors[i]->GetPosition();

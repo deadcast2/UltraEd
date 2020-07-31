@@ -2,7 +2,7 @@
 
 namespace UltraEd
 {
-    void PubSub::Publish(const string &message, void *data)
+    void PubSub::Publish(const std::string &message, void *data)
     {
         for (auto subscription : m_subscriptions)
         {
@@ -18,5 +18,5 @@ namespace UltraEd
         m_subscriptions.push_back(subscription);
     }
 
-    vector<Subscription> PubSub::m_subscriptions = {};
+    std::vector<Subscription> PubSub::m_subscriptions = {};
 }

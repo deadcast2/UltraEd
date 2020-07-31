@@ -7,8 +7,6 @@
 #include "Savable.h"
 #include "VertexBuffer.h"
 
-using namespace std;
-
 namespace UltraEd
 {
     enum class ColliderType
@@ -34,14 +32,14 @@ namespace UltraEd
         const char *GetName() { return ColliderTypeNames[static_cast<int>(m_type)]; }
         
     protected:
-        void DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, const vector<Vertex> &vertices);
+        void DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, const std::vector<Vertex> &vertices);
         ColliderType m_type;
-        vector<Vertex> m_vertices;
+        std::vector<Vertex> m_vertices;
         D3DXVECTOR3 m_center;
 
     private:
         D3DMATERIAL9 m_material;
-        shared_ptr<VertexBuffer> m_vertexBuffer;
+        std::shared_ptr<VertexBuffer> m_vertexBuffer;
     };
 }
 

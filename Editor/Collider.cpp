@@ -8,7 +8,7 @@ namespace UltraEd
         m_vertices(),
         m_center(0, 0, 0), 
         m_material(),
-        m_vertexBuffer(make_shared<VertexBuffer>())
+        m_vertexBuffer(std::make_shared<VertexBuffer>())
     {
         m_material.Emissive.r = 0;
         m_material.Emissive.g = 1;
@@ -44,7 +44,7 @@ namespace UltraEd
         return (ColliderType)typeValue;
     }
 
-    void Collider::DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, const vector<Vertex> &vertices)
+    void Collider::DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, const std::vector<Vertex> &vertices)
     {
         int minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
         for (int i = 0; i < vertices.size(); i++)

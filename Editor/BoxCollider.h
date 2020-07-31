@@ -4,15 +4,13 @@
 #include <cJSON/cJSON.h>
 #include "Collider.h"
 
-using namespace std;
-
 namespace UltraEd
 {
     class BoxCollider : public Collider
     {
     public:
         BoxCollider();
-        BoxCollider(const vector<Vertex> &vertices);
+        BoxCollider(const std::vector<Vertex> &vertices);
         void Build();
         const D3DXVECTOR3 &GetExtents() { return m_extents; }
         cJSON *Save();

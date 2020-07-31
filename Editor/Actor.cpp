@@ -8,7 +8,7 @@
 namespace UltraEd
 {
     Actor::Actor() :
-        m_vertexBuffer(make_shared<VertexBuffer>()),
+        m_vertexBuffer(std::make_shared<VertexBuffer>()),
         m_type(ActorType::Model),
         m_id(),
         m_name(),
@@ -22,7 +22,7 @@ namespace UltraEd
         m_collider()
     {
         ResetId();
-        m_script = string("void $start()\n{\n\n}\n\nvoid $update()\n{\n\n}\n\nvoid $input(NUContData gamepads[4])\n{\n\n}");
+        m_script = std::string("void $start()\n{\n\n}\n\nvoid $update()\n{\n\n}\n\nvoid $input(NUContData gamepads[4])\n{\n\n}");
         m_script.append("\n\nvoid $collide(actor *other)\n{\n\n}");
         SetDirty(true);
 

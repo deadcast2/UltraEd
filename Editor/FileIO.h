@@ -7,8 +7,6 @@
 
 #define LINE_FORMAT_LENGTH 128
 
-using namespace std;
-
 namespace UltraEd
 {
     enum class FileType
@@ -18,24 +16,24 @@ namespace UltraEd
 
     typedef struct
     {
-        string path;
+        std::string path;
         FileType type;
     } FileInfo;
 
     class FileIO
     {
     public:
-        static bool Save(Scene *scene, string &fileName);
-        static bool Load(cJSON **data, string &fileName);
+        static bool Save(Scene *scene, std::string &fileName);
+        static bool Load(cJSON **data, std::string &fileName);
         static FileInfo Import(const char *file);
         static bool Pack(const char *path);
         static bool Unpack(const char *path);
 
     private:
         FileIO() {}
-        static bool Compress(const string &path);
-        static bool Decompress(string &path);
-        static string CleanFileName(const char *fileName);
+        static bool Compress(const std::string &path);
+        static bool Decompress(std::string &path);
+        static std::string CleanFileName(const char *fileName);
         static void TarifyFile(mtar_t *tar, const char *file);
         static void CreateDirectoryRecursively(const char *path);
     };

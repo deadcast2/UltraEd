@@ -6,8 +6,6 @@
 #include <functional>
 #include <cJSON/cJSON.h>
 
-using namespace std;
-
 namespace UltraEd
 {
     class Savable
@@ -17,15 +15,15 @@ namespace UltraEd
         virtual ~Savable() { }
         virtual cJSON *Save() = 0;
         virtual bool Load(cJSON *root) = 0;
-        map<string, string> GetResources();
-        void AddResource(const string &key, const string &value);
-        void DeleteResource(const string &key);
+        std::map<std::string, std::string> GetResources();
+        void AddResource(const std::string &key, const std::string &value);
+        void DeleteResource(const std::string &key);
         bool IsDirty();
 
     protected:
         virtual void SetDirty(bool value);
         template<typename T>
-        bool Dirty(function<void()> set, const T *var)
+        bool Dirty(std::function<void()> set, const T *var)
         {
             const T before = *var;
             
@@ -41,7 +39,7 @@ namespace UltraEd
         }
 
     private:
-        map<string, string> m_resources;
+        std::map<std::string, std::string> m_resources;
         bool m_isDirty;
     };
 }

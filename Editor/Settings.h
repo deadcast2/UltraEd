@@ -6,8 +6,6 @@
 
 #define REG_DATA_LENGTH SIZE_MAX
 
-using namespace std;
-
 namespace UltraEd
 {
     enum class BuildCart { _64drive, EverDrive };

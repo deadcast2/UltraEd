@@ -2,9 +2,9 @@
 
 namespace UltraEd
 {
-    const string Registry::m_key = "Software\\UltraEd";
+    const std::string Registry::m_key = "Software\\UltraEd";
 
-    bool Registry::Set(const string &key, const string &value)
+    bool Registry::Set(const std::string &key, const std::string &value)
     {
         HKEY regKey;
         bool success = false;
@@ -25,7 +25,7 @@ namespace UltraEd
         return success;
     }
 
-    bool Registry::Get(const string &key, string &value)
+    bool Registry::Get(const std::string &key, std::string &value)
     {
         HKEY regKey;
         bool success = false;
@@ -36,7 +36,7 @@ namespace UltraEd
             DWORD bufferSize = sizeof(buffer);
             if (RegQueryValueEx(regKey, key.c_str(), NULL, NULL, (LPBYTE)buffer, &bufferSize) == ERROR_SUCCESS)
             {
-                value = string(buffer);
+                value = std::string(buffer);
                 success = true;
             }
 

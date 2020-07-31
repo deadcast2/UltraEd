@@ -3,15 +3,13 @@
 
 #include <string>
 
-using namespace std;
-
 namespace UltraEd
 {
     class Dialog
     {
     public:
-        static bool Open(const char *title, const char *filter, string &file);
-        static bool Save(const char *title, const char *filter, string &file);
+        static bool Open(const char *title, const char *filter, std::string &file);
+        static bool Save(const char *title, const char *filter, std::string &file);
 
     private:
         Dialog() {}

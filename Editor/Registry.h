@@ -6,18 +6,16 @@
 
 #define REG_DATA_LENGTH SIZE_MAX
 
-using namespace std;
-
 namespace UltraEd
 {
     class Registry
     {
     public:
-        static bool Set(const string &key, const string &value);
-        static bool Get(const string &key, string &value);
+        static bool Set(const std::string &key, const std::string &value);
+        static bool Get(const std::string &key, std::string &value);
 
     private:
-        static const string m_key;
+        static const std::string m_key;
     };
 }
 

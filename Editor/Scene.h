@@ -15,8 +15,6 @@
 #include "Camera.h"
 #include "Auditor.h"
 
-using namespace std;
-
 namespace UltraEd
 {
     enum class BuildFlag
@@ -33,7 +31,7 @@ namespace UltraEd
         ~Scene();
         bool Create(HWND hWnd);
         bool Confirm();
-        vector<Actor *> GetActors(bool selectedOnly = false);
+        std::vector<Actor *> GetActors(bool selectedOnly = false);
         COLORREF GetBackgroundColor();
         HWND GetWndHandle();
         void Render();
@@ -41,17 +39,17 @@ namespace UltraEd
         cJSON *PartialSave(cJSON *root);
         bool PartialLoad(cJSON *root);
         void UnselectAll();
-        shared_ptr<Actor> GetActor(GUID id);
+        std::shared_ptr<Actor> GetActor(GUID id);
         void RestoreActor(cJSON *item);
-        void Delete(shared_ptr<Actor> actor);
+        void Delete(std::shared_ptr<Actor> actor);
         void SelectActorById(GUID id, bool clearAll = true);
      
     private:
         void Delete();
         void Duplicate();
         void FocusSelected();
-        void SetScript(string script);
-        string GetScript();
+        void SetScript(std::string script);
+        std::string GetScript();
         void SetBackgroundColor(COLORREF color);
         void SetGizmoSnapSize(float size);
         void Resize(int width, int height);
@@ -75,11 +73,11 @@ namespace UltraEd
         bool Load(cJSON *root);
         void SetDirty(bool value);
         void ResetViews();
-        string GetStats();
+        std::string GetStats();
         bool ToggleFillMode();
         void CheckChanges();
         void CheckInput();
-        void SetTitle(string title, bool store = true);
+        void SetTitle(std::string title, bool store = true);
         void UpdateViewMatrix();
         void WrapCursor();
 
@@ -93,15 +91,15 @@ namespace UltraEd
         IDirect3DDevice9 *m_device;
         IDirect3D9 *m_d3d9;
         D3DPRESENT_PARAMETERS m_d3dpp;
-        map<GUID, shared_ptr<Actor>> m_actors;
+        std::map<GUID, std::shared_ptr<Actor>> m_actors;
         Grid m_grid;
-        vector<GUID> m_selectedActorIds;
+        std::vector<GUID> m_selectedActorIds;
         float m_mouseSmoothX, m_mouseSmoothY;
         ViewType m_activeViewType;
-        string m_sceneName;
-        array<int, 3> m_backgroundColorRGB;
+        std::string m_sceneName;
+        std::array<int, 3> m_backgroundColorRGB;
         Auditor m_auditor;
-        unique_ptr<Gui> m_gui;
+        std::unique_ptr<Gui> m_gui;
     };
 }
 

@@ -9,7 +9,7 @@ namespace UltraEd
         Release();
     }
 
-    IDirect3DVertexBuffer9 *VertexBuffer::GetBuffer(IDirect3DDevice9 *device, vector<Vertex> vertices)
+    IDirect3DVertexBuffer9 *VertexBuffer::GetBuffer(IDirect3DDevice9 *device, std::vector<Vertex> vertices)
     {
         if (m_vertexBuffer == NULL)
         {
