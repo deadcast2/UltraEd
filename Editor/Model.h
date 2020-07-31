@@ -28,9 +28,11 @@ namespace UltraEd
         void DeleteTexture();
         void Release(ModelRelease type);
         void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
+        std::array<int, 2> TextureDimensions();
 
     private:
         bool LoadTexture(IDirect3DDevice9 *device, const char *filePath);
+        bool IsTextureValid();
         LPDIRECT3DTEXTURE9 m_texture;
     };
 }

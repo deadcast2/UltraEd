@@ -33,6 +33,8 @@ typedef struct actor
     enum colliderType collider;
     mesh *mesh;
     unsigned short *texture;
+    int textureWidth;
+    int textureHeight;
     double rotationAngle;
     double radius;
     int visible;
@@ -50,7 +52,7 @@ actor *load_model(void *data_start, void *data_end, double positionX, double pos
     double extentX, double extentY, double extentZ, enum colliderType collider);
 
 actor *load_model_with_texture(void *data_start, void *data_end,
-    void *texture_start, void *texture_end,
+    void *texture_start, void *texture_end, int textureWidth, int textureHeight,
     double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
     double scaleX, double scaleY, double scaleZ, 

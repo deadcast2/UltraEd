@@ -85,11 +85,11 @@ namespace UltraEd
                 unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 3);
                 if (data)
                 {
-                    // Force 32 x 32 texture for now.
-                    if (stbir_resize_uint8(data, width, height, 0, data, 32, 32, 0, 3))
+                    auto dimensions = static_cast<Model *>(actor)->TextureDimensions();
+                    if (stbir_resize_uint8(data, width, height, 0, data, dimensions[0], dimensions[1], 0, 3))
                     {
                         path.append(".rom.png");
-                        stbi_write_png(path.c_str(), 32, 32, 3, data, 0);
+                        stbi_write_png(path.c_str(), dimensions[0], dimensions[1], 3, data, 0);
                     }
 
                     stbi_image_free(data);
@@ -254,7 +254,10 @@ namespace UltraEd
                     std::string textureName(resourceName);
                     textureName.append("_T");
 
-                    actorInits.append(", _").append(textureName).append("SegmentRomStart, _").append(textureName).append("SegmentRomEnd");
+                    auto dimensions = static_cast<Model *>(actor)->TextureDimensions();
+                    actorInits.append(", _").append(textureName).append("SegmentRomStart, _")
+                        .append(textureName).append("SegmentRomEnd, ").append(std::to_string(dimensions[0])).append(", ")
+                        .append(std::to_string(dimensions[1]));
                 }
 
                 // Add transform data.
