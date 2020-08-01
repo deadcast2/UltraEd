@@ -10,8 +10,8 @@ namespace UltraEd
 {
     Gui::Gui(Scene *scene, HWND hWnd, IDirect3DDevice9 *device) :
         m_scene(scene),
-        m_buildOutput(),
-        m_moveBuildOutputToBottom(false),
+        m_consoleText(),
+        m_moveConsoleToBottom(false),
         m_openContextMenu(false),
         m_textEditorOpen(false),
         m_selectedActorIndex(0),
@@ -29,14 +29,10 @@ namespace UltraEd
 
         m_textEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::C());
 
-        PubSub::Subscribe({ "BuildOutputClear", [&](void *data) {
-            m_buildOutput.clear();
-        } });
-
-        PubSub::Subscribe({ "BuildOutputAppend", [&](void *data) {
-            auto text = static_cast<char *>(data);
-            m_buildOutput.append(text);
-            m_moveBuildOutputToBottom = true;
+        PubSub::Subscribe({ "AppendToConsole", [&](void *data) {
+            auto text = static_cast<std::string *>(data);
+            m_consoleText.append(*text);
+            m_moveConsoleToBottom = true;
         } });
 
         PubSub::Subscribe({ "ContextMenu", [&](void *data) {
@@ -90,7 +86,7 @@ namespace UltraEd
             }
 
             SceneGraph();
-            BuildOutput();
+            Console();
             ActorProperties();
             OptionsModal();
             SceneSettingsModal();
@@ -423,15 +419,15 @@ namespace UltraEd
         ImGui::End();
     }
 
-    void Gui::BuildOutput()
+    void Gui::Console()
     {
-        if (ImGui::Begin("Build Output", 0, ImGuiWindowFlags_HorizontalScrollbar))
+        if (ImGui::Begin("Console", 0, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            ImGui::TextUnformatted(m_buildOutput.c_str());
-            if (m_moveBuildOutputToBottom)
+            ImGui::TextUnformatted(m_consoleText.c_str());
+            if (m_moveConsoleToBottom)
             {
                 ImGui::SetScrollHereY(1);
-                m_moveBuildOutputToBottom = false;
+                m_moveConsoleToBottom = false;
             }
         }
 

@@ -32,7 +32,7 @@ namespace UltraEd
         void ActorMenu();
         void ViewMenu();
         void GizmoMenu();
-        void BuildOutput();
+        void Console();
         void SceneGraph();
         void ActorProperties();
         void OptionsModal();
@@ -43,8 +43,8 @@ namespace UltraEd
     private:
         Scene *m_scene;
         TextEditor m_textEditor;
-        std::string m_buildOutput;
-        bool m_moveBuildOutputToBottom;
+        std::string m_consoleText;
+        bool m_moveConsoleToBottom;
         bool m_openContextMenu;
         bool m_textEditorOpen;
         int m_selectedActorIndex;

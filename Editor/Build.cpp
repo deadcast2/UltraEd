@@ -49,10 +49,10 @@ namespace UltraEd
             std::string newResName = Util::NewResourceName(loopCount++);
 
             if (actor->GetType() != ActorType::Model) continue;
-            
+
             std::map<std::string, std::string> resources = actor->GetResources();
 
-            if (find(resourceCache.begin(), resourceCache.end(), resources["vertexDataPath"]) 
+            if (find(resourceCache.begin(), resourceCache.end(), resources["vertexDataPath"])
                 == resourceCache.end())
             {
                 std::string id = Util::GuidToString(actor->GetId());
@@ -75,7 +75,7 @@ namespace UltraEd
                 resourceCache.push_back(resources["vertexDataPath"]);
             }
 
-            if (resources.count("textureDataPath") && 
+            if (resources.count("textureDataPath") &&
                 find(resourceCache.begin(), resourceCache.end(), resources["textureDataPath"])
                 == resourceCache.end())
             {
@@ -154,7 +154,7 @@ namespace UltraEd
             if (actor->GetType() != ActorType::Model) continue;
 
             std::map<std::string, std::string> resources = actor->GetResources();
-            
+
             if (resourceCache->find(resources["vertexDataPath"]) == resourceCache->end())
             {
                 std::string modelName(newResName);
@@ -170,7 +170,7 @@ namespace UltraEd
                 (*resourceCache)[resources["vertexDataPath"]] = newResName;
             }
 
-            if (resources.count("textureDataPath") && 
+            if (resources.count("textureDataPath") &&
                 resourceCache->find(resources["textureDataPath"]) == resourceCache->end())
             {
                 std::string textureName(newResName);
@@ -270,7 +270,7 @@ namespace UltraEd
                     axis.x, axis.y, axis.z, angle * (180.0 / D3DX_PI),
                     scale.x, scale.y, scale.z,
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius,
-                    colliderExtents.x, colliderExtents.y, colliderExtents.z, 
+                    colliderExtents.x, colliderExtents.y, colliderExtents.z,
                     actor->HasCollider() ? actor->GetCollider()->GetName() : "None");
                 actorInits.append(vectorBuffer).append(");\n");
 
@@ -463,14 +463,14 @@ namespace UltraEd
         std::map<std::string, std::string> resourceCache;
         WriteSegmentsFile(actors, &resourceCache);
         WriteActorsFile(actors, resourceCache);
-        
+
         WriteSpecFile(actors);
         WriteDefinitionsFile();
         WriteCollisionFile(actors);
         WriteScriptsFile(actors);
         WriteMappingsFile(actors);
         WriteSceneFile(scene);
-        
+
         return Compile(scene->GetWndHandle());
     }
 
@@ -541,10 +541,10 @@ namespace UltraEd
             std::string currDir = GetPathFor("Player\\USB");
 
             // Start the USB loader with no window.
-            std::string command = Settings::GetBuildCart() == BuildCart::_64drive ? 
-                "cmd /c 64drive_usb.exe -l ..\\..\\Engine\\main.n64 -c 6102" : 
+            std::string command = Settings::GetBuildCart() == BuildCart::_64drive ?
+                "cmd /c 64drive_usb.exe -l ..\\..\\Engine\\main.n64 -c 6102" :
                 "cmd /c usb64.exe -rom=..\\..\\Engine\\main.n64 -start";
-            CreateProcess(NULL, const_cast<LPSTR>(command.c_str()), NULL, NULL, TRUE, 
+            CreateProcess(NULL, const_cast<LPSTR>(command.c_str()), NULL, NULL, TRUE,
                 CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
 
             DWORD dwRead;
@@ -619,8 +619,7 @@ namespace UltraEd
             CHAR chBuf[4096];
             CloseHandle(stdOutWrite);
 
-            // Send the build results to the output window.
-            PubSub::Publish("BuildOutputClear");
+            // Send the build results to the console window.
             while (ReadFile(stdOutRead, chBuf, 4096, &dwRead, NULL))
             {
                 if (dwRead == 0) break;
@@ -628,7 +627,8 @@ namespace UltraEd
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
-                    PubSub::Publish("BuildOutputAppend", buffer.get());
+                    auto output = std::string("Build Output: ").append(buffer.get());
+                    PubSub::Publish("AppendToConsole", &output);
                 }
             }
 
@@ -651,11 +651,11 @@ namespace UltraEd
         {
             std::string path(buffer);
 
-#ifdef _DEBUG
+        #ifdef _DEBUG
             return path.append("\\..\\..\\..\\").append(name);
-#else
+        #else
             return path.append("\\..\\").append(name);
-#endif
+        #endif
         }
         return std::string();
     }
