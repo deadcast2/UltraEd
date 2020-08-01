@@ -337,16 +337,16 @@ namespace UltraEd
             PubSub::Publish("ContextMenu", selectedActor);
 
         if (m_gui->IO().MouseClicked[0]) Pick(m_gui->IO().MousePos);
-        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('A')) SelectAll();
-        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('D')) Duplicate();
-        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Z')) m_auditor.Undo();
-        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Y')) m_auditor.Redo();
-        if (ImGui::IsKeyPressed(VK_DELETE)) Delete();
-        if (ImGui::IsKeyPressed('F')) FocusSelected();
-        if (ImGui::IsKeyPressed('H')) ResetViews();
-        if (ImGui::IsKeyPressed(0x31)) m_gizmo.SetModifier(GizmoModifierState::Translate);
-        if (ImGui::IsKeyPressed(0x32)) m_gizmo.SetModifier(GizmoModifierState::Rotate);
-        if (ImGui::IsKeyPressed(0x33)) m_gizmo.SetModifier(GizmoModifierState::Scale);
+        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('A', false)) SelectAll();
+        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('D', false)) Duplicate();
+        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Z', false)) m_auditor.Undo();
+        if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Y', false)) m_auditor.Redo();
+        if (ImGui::IsKeyPressed(VK_DELETE, false)) Delete();
+        if (ImGui::IsKeyPressed('F', false)) FocusSelected();
+        if (ImGui::IsKeyPressed('H', false)) ResetViews();
+        if (ImGui::IsKeyPressed(0x31, false)) m_gizmo.SetModifier(GizmoModifierState::Translate);
+        if (ImGui::IsKeyPressed(0x32, false)) m_gizmo.SetModifier(GizmoModifierState::Rotate);
+        if (ImGui::IsKeyPressed(0x33, false)) m_gizmo.SetModifier(GizmoModifierState::Scale);
 
         if (m_gui->IO().MouseDown[0] && !m_selectedActorIds.empty())
         {
