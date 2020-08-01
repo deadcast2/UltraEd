@@ -447,15 +447,16 @@ namespace UltraEd
             float rotation[3] = { 0 };
             float scale[3] = { 0 };
             auto actors = m_scene->GetActors(true);
+            Actor *targetActor = NULL;
 
             if (actors.size() > 0)
             {
                 // Show the properties of the last selected actor.
-                auto lastActor = actors[actors.size() - 1];
-                sprintf(name, lastActor->GetName().c_str());
-                Util::ToFloat3(lastActor->GetPosition(), position);
-                Util::ToFloat3(lastActor->GetRotation(), rotation);
-                Util::ToFloat3(lastActor->GetScale(), scale);
+                targetActor = actors[actors.size() - 1];
+                sprintf(name, targetActor->GetName().c_str());
+                Util::ToFloat3(targetActor->GetPosition(), position);
+                Util::ToFloat3(targetActor->GetRotation(), rotation);
+                Util::ToFloat3(targetActor->GetScale(), scale);
             }
 
             char tempName[100];
@@ -471,9 +472,7 @@ namespace UltraEd
             D3DXVECTOR3 tempScale = D3DXVECTOR3(scale);
             ImGui::InputFloat3("Scale", scale, "%g");
 
-            auto changed = [](D3DXVECTOR3 left, D3DXVECTOR3 right) {
-                return left.x != right.x || left.y != right.y || left.z != right.z;
-            };
+            GUID groupId = Util::NewGuid();
 
             // Only apply changes to selected actors when one if it's properties has changed
             // to make all actors mutate as expected.
@@ -481,44 +480,45 @@ namespace UltraEd
             {
                 if (strcmp(tempName, name) != 0)
                 {
-                    m_scene->m_auditor.ChangeActor("Name Set", actors[i]->GetId());
+                    m_scene->m_auditor.ChangeActor("Name Set", actors[i]->GetId(), groupId);
                     actors[i]->SetName(std::string(name));
                 }
 
-                auto curPos = actors[i]->GetPosition();
-                if (changed(curPos, D3DXVECTOR3(position)))
+                if (tempPos != D3DXVECTOR3(position))
                 {
-                    m_scene->m_auditor.ChangeActor("Position Set", actors[i]->GetId());
+                    auto curPos = actors[i]->GetPosition();
+                    m_scene->m_auditor.ChangeActor("Position Set", actors[i]->GetId(), groupId);
                     actors[i]->SetPosition(D3DXVECTOR3(
                         tempPos.x != position[0] ? position[0] : curPos.x,
                         tempPos.y != position[1] ? position[1] : curPos.y,
                         tempPos.z != position[2] ? position[2] : curPos.z
                     ));
-                    m_scene->SelectActorById(actors[i]->GetId());
+
+                    // Make sure the gizmo follows the target actor.
+                    if (actors[i] == targetActor)
+                        m_scene->m_gizmo.Update(targetActor);
                 }
 
-                auto curRot = actors[i]->GetRotation();
-                if (changed(curRot, D3DXVECTOR3(rotation)))
+                if (tempRot != D3DXVECTOR3(rotation))
                 {
-                    m_scene->m_auditor.ChangeActor("Rotation Set", actors[i]->GetId());
+                    auto curRot = actors[i]->GetRotation();
+                    m_scene->m_auditor.ChangeActor("Rotation Set", actors[i]->GetId(), groupId);
                     actors[i]->SetRotation(D3DXVECTOR3(
                         tempRot.x != rotation[0] ? rotation[0] : curRot.x,
                         tempRot.y != rotation[1] ? rotation[1] : curRot.y,
                         tempRot.z != rotation[2] ? rotation[2] : curRot.z
                     ));
-                    m_scene->SelectActorById(actors[i]->GetId());
                 }
 
-                auto curScale = actors[i]->GetScale();
-                if (changed(curScale, D3DXVECTOR3(scale)))
+                if (tempScale != D3DXVECTOR3(scale))
                 {
-                    m_scene->m_auditor.ChangeActor("Scale Set", actors[i]->GetId());
+                    auto curScale = actors[i]->GetScale();
+                    m_scene->m_auditor.ChangeActor("Scale Set", actors[i]->GetId(), groupId);
                     actors[i]->SetScale(D3DXVECTOR3(
                         tempScale.x != scale[0] ? scale[0] : curScale.x,
                         tempScale.y != scale[1] ? scale[1] : curScale.y,
                         tempScale.z != scale[2] ? scale[2] : curScale.z
                     ));
-                    m_scene->SelectActorById(actors[i]->GetId());
                 }
             }
         }
