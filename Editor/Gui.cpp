@@ -421,8 +421,18 @@ namespace UltraEd
 
     void Gui::Console()
     {
-        if (ImGui::Begin("Console", 0, ImGuiWindowFlags_HorizontalScrollbar))
+        if (ImGui::Begin("Console", 0, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar))
         {
+            if (ImGui::BeginMenuBar())
+            {
+                if(ImGui::SmallButton("Clear"))
+                {
+                    m_consoleText.clear();
+                }
+
+                ImGui::EndMenuBar();
+            }
+
             ImGui::TextUnformatted(m_consoleText.c_str());
             if (m_moveConsoleToBottom)
             {
