@@ -290,10 +290,6 @@ namespace UltraEd
         bool gizmoSelected = m_gizmo.Select(orig, dir);
         float closestDist = FLT_MAX;
 
-        // When just selecting the gizmo don't check any actors.
-        if (gizmoSelected && !m_selectedActorIds.empty())
-            return false;
-
         // Check all actors to see which poly might have been picked.
         for (const auto &actor : m_actors)
         {
@@ -333,7 +329,7 @@ namespace UltraEd
             return;
 
         Actor *selectedActor = 0;
-        if (m_gui->IO().MouseReleased[1] && Pick(m_gui->IO().MousePos, &selectedActor))
+        if (m_gui->IO().MouseReleased[1] && m_gui->IO().MouseDownDurationPrev[1] < 0.2f && Pick(m_gui->IO().MousePos, &selectedActor))
             PubSub::Publish("ContextMenu", selectedActor);
 
         if (m_gui->IO().MouseClicked[0]) Pick(m_gui->IO().MousePos);
