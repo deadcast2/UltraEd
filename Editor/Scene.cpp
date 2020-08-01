@@ -782,14 +782,20 @@ namespace UltraEd
         return NULL;
     }
 
+    bool Scene::IsActorSelected(GUID id)
+    {
+        auto it = std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), id);
+        return it != m_selectedActorIds.end();
+    }
+
     void Scene::SelectActorById(GUID id, bool clearAll)
     {
         if (clearAll) UnselectAll();
 
-        auto it = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), id);
-        if (it != m_selectedActorIds.end())
+        if (IsActorSelected(id))
         {
             // Unselect actor when already selected and clicked on again.
+            auto it = std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), id);
             m_selectedActorIds.erase(it);
 
             // Select previous selected actor if any available.

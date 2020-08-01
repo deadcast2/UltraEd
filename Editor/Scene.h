@@ -80,6 +80,7 @@ namespace UltraEd
         void SetTitle(std::string title, bool store = true);
         void UpdateViewMatrix();
         void WrapCursor();
+        bool IsActorSelected(GUID id);
 
     private:
         D3DLIGHT9 m_worldLight;

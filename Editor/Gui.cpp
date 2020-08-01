@@ -14,7 +14,6 @@ namespace UltraEd
         m_moveConsoleToBottom(false),
         m_openContextMenu(false),
         m_textEditorOpen(false),
-        m_selectedActorIndex(0),
         m_optionsModalOpen(false),
         m_sceneSettingsModalOpen(false),
         m_selectedActor()
@@ -404,15 +403,12 @@ namespace UltraEd
             for (int i = 0; i < actors.size(); i++)
             {
                 ImGuiTreeNodeFlags leafFlags = baseFlags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-                if (m_selectedActorIndex == i)
+                if (m_scene->IsActorSelected(actors[i]->GetId()))
                     leafFlags |= ImGuiTreeNodeFlags_Selected;
 
                 ImGui::TreeNodeEx((void *)(intptr_t)i, leafFlags, actors[i]->GetName().c_str());
                 if (ImGui::IsItemClicked())
-                {
-                    m_scene->SelectActorById(actors[i]->GetId());
-                    m_selectedActorIndex = i;
-                }
+                    m_scene->SelectActorById(actors[i]->GetId(), !IO().KeyShift);
             }
         }
 
@@ -425,7 +421,7 @@ namespace UltraEd
         {
             if (ImGui::BeginMenuBar())
             {
-                if(ImGui::SmallButton("Clear"))
+                if (ImGui::SmallButton("Clear"))
                 {
                     m_consoleText.clear();
                 }

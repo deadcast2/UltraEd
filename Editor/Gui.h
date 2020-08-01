@@ -47,7 +47,6 @@ namespace UltraEd
         bool m_moveConsoleToBottom;
         bool m_openContextMenu;
         bool m_textEditorOpen;
-        int m_selectedActorIndex;
         int m_optionsModalOpen;
         int m_sceneSettingsModalOpen;
         Actor *m_selectedActor;
