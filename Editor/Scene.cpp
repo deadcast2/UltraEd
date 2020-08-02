@@ -1,3 +1,4 @@
+#include <thread>
 #include "Build.h"
 #include "Scene.h"
 #include "FileIO.h"
@@ -128,21 +129,24 @@ namespace UltraEd
 
     void Scene::OnBuildROM(BuildFlag flag)
     {
-        if (Build::Start(this))
-        {
-            if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Run))
+        std::thread run([this, flag]() {
+            if (Build::Start(this))
             {
-                Build::Run();
+                if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Run))
+                {
+                    Build::Run();
+                }
+                else if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Load))
+                {
+                    Build::Load(GetWndHandle());
+                }
             }
-            else if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Load))
+            else
             {
-                Build::Load(GetWndHandle());
+                MessageBox(NULL, "The ROM build has failed. Make sure the build tools have been installed.", "Error", MB_OK);
             }
-        }
-        else
-        {
-            MessageBox(NULL, "The ROM build has failed. Make sure the build tools have been installed.", "Error", MB_OK);
-        }
+        });
+        run.detach();
     }
 
     void Scene::OnAddModel(ModelPreset preset)

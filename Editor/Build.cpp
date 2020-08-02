@@ -559,7 +559,8 @@ namespace UltraEd
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
-                    //SendMessage(hWnd, WM_COMMAND, TAB_BUILD_OUTPUT, reinterpret_cast<LPARAM>(buffer.release()));
+                    auto output = std::string("Build Output: ").append(buffer.get());
+                    PubSub::Publish("AppendToConsole", &output);
                 }
             }
 
@@ -613,7 +614,8 @@ namespace UltraEd
             std::string currDir = GetPathFor("Engine");
 
             // Start the build with no window.
-            CreateProcess(NULL, const_cast<LPSTR>("cmd /c build.bat"), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
+            CreateProcess(NULL, const_cast<LPSTR>("cmd /c build.bat"), NULL, NULL, TRUE, CREATE_NO_WINDOW, 
+                NULL, currDir.c_str(), &si, &pi);
 
             DWORD dwRead;
             CHAR chBuf[4096];
