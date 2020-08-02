@@ -329,7 +329,7 @@ namespace UltraEd
         const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
 
-        if (m_gui->IO().WantCaptureMouse || m_gui->IO().WantCaptureKeyboard) 
+        if (m_gui->IO().WantCaptureMouse || m_gui->IO().WantCaptureKeyboard)
             return;
 
         Actor *selectedActor = 0;
@@ -445,22 +445,22 @@ namespace UltraEd
         CheckInput();
         CheckChanges();
 
-        if (m_device && m_gui)
+        if (!m_device || !m_gui) return;
+
+        m_gui->PrepareFrame();
+
+        ID3DXMatrixStack *stack;
+        if (!SUCCEEDED(D3DXCreateMatrixStack(0, &stack))) return;
+        stack->LoadMatrix(&GetActiveView()->GetViewMatrix());
+
+        m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
+        m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+            D3DCOLOR_XRGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]), 1.0f, 0);
+        m_device->SetLight(0, &m_worldLight);
+        m_device->LightEnable(0, TRUE);
+
+        if (SUCCEEDED(m_device->BeginScene()))
         {
-            m_gui->PrepareFrame();
-
-            ID3DXMatrixStack *stack;
-            if (!SUCCEEDED(D3DXCreateMatrixStack(0, &stack))) return;
-            stack->LoadMatrix(&GetActiveView()->GetViewMatrix());
-
-            m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
-            m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-                D3DCOLOR_XRGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]), 1.0f, 0);
-            m_device->SetLight(0, &m_worldLight);
-            m_device->LightEnable(0, TRUE);
-
-            if (!SUCCEEDED(m_device->BeginScene())) return;
-
             m_grid.Render(m_device);
 
             // Render all actors with selected fill mode.
@@ -477,6 +477,7 @@ namespace UltraEd
             {
                 // Highlight the selected actor.
                 m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+
                 for (const auto &selectedActorId : m_selectedActorIds)
                 {
                     m_device->SetMaterial(&m_selectedMaterial);
@@ -494,8 +495,9 @@ namespace UltraEd
 
             m_device->EndScene();
             m_device->Present(NULL, NULL, NULL, NULL);
-            stack->Release();
         }
+
+        stack->Release();
     }
 
     void Scene::CheckChanges()
