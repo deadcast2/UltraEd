@@ -287,12 +287,15 @@ namespace UltraEd
         }
     }
 
-    bool Scene::Pick(ImVec2 mousePoint, Actor **selectedActor)
+    bool Scene::Pick(ImVec2 mousePoint, bool ignoreGizmo, Actor **selectedActor)
     {
         D3DXVECTOR3 orig, dir;
         ScreenRaycast(mousePoint, &orig, &dir);
-        bool gizmoSelected = m_gizmo.Select(orig, dir);
+        const bool gizmoSelected = m_gizmo.Select(orig, dir);
         float closestDist = FLT_MAX;
+
+        if (!ignoreGizmo && gizmoSelected && !m_selectedActorIds.empty()) 
+            return false;
 
         // Check all actors to see which poly might have been picked.
         for (const auto &actor : m_actors)
@@ -313,8 +316,7 @@ namespace UltraEd
         if (closestDist != FLT_MAX)
             return true;
 
-        if (!gizmoSelected)
-            UnselectAll();
+        UnselectAll();
 
         return false;
     }
@@ -332,9 +334,13 @@ namespace UltraEd
         if (m_gui->IO().WantCaptureMouse || m_gui->IO().WantCaptureKeyboard)
             return;
 
-        Actor *selectedActor = 0;
-        if (m_gui->IO().MouseReleased[1] && m_gui->IO().MouseDownDurationPrev[1] < 0.2f && Pick(m_gui->IO().MousePos, &selectedActor))
+        Actor *selectedActor = NULL;
+        if (m_gui->IO().MouseReleased[1] &&
+            m_gui->IO().MouseDownDurationPrev[1] < 0.2f &&
+            Pick(m_gui->IO().MousePos, true, &selectedActor))
+        {
             PubSub::Publish("ContextMenu", selectedActor);
+        }
 
         if (m_gui->IO().MouseClicked[0]) Pick(m_gui->IO().MousePos);
         if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('A', false)) SelectAll();
