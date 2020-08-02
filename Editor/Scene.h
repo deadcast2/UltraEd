@@ -83,9 +83,7 @@ namespace UltraEd
         bool IsActorSelected(GUID id);
 
     private:
-        D3DLIGHT9 m_worldLight;
         D3DMATERIAL9 m_defaultMaterial;
-        D3DMATERIAL9 m_selectedMaterial;
         D3DFILLMODE m_fillMode;
         Gizmo m_gizmo;
         View m_views[4];

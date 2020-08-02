@@ -11,10 +11,8 @@
 namespace UltraEd
 {
     Scene::Scene() :
-        m_worldLight(),
         m_defaultMaterial(),
-        m_selectedMaterial(),
-        m_fillMode(D3DFILL_SOLID),
+        m_fillMode(D3DFILLMODE::D3DFILL_SOLID),
         m_gizmo(),
         m_views(),
         m_device(0),
@@ -35,17 +33,6 @@ namespace UltraEd
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
         m_defaultMaterial.Diffuse.b = m_defaultMaterial.Ambient.b = 1.0f;
         m_defaultMaterial.Diffuse.a = m_defaultMaterial.Ambient.a = 1.0f;
-
-        m_selectedMaterial.Ambient.r = m_selectedMaterial.Emissive.r = 0.0f;
-        m_selectedMaterial.Ambient.g = m_selectedMaterial.Emissive.g = 1.0f;
-        m_selectedMaterial.Ambient.b = m_selectedMaterial.Emissive.b = 0.0f;
-        m_selectedMaterial.Ambient.a = m_selectedMaterial.Emissive.a = 1.0f;
-
-        m_worldLight.Type = D3DLIGHT_DIRECTIONAL;
-        m_worldLight.Diffuse.r = 1.0f;
-        m_worldLight.Diffuse.g = 1.0f;
-        m_worldLight.Diffuse.b = 1.0f;
-        m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
 
         PubSub::Subscribe({ "Resize", [&](void *data) {
             auto rect = static_cast<std::tuple<int, int> *>(data);
@@ -294,7 +281,7 @@ namespace UltraEd
         const bool gizmoSelected = m_gizmo.Select(orig, dir);
         float closestDist = FLT_MAX;
 
-        if (!ignoreGizmo && gizmoSelected && !m_selectedActorIds.empty()) 
+        if (!ignoreGizmo && gizmoSelected && !m_selectedActorIds.empty())
             return false;
 
         // Check all actors to see which poly might have been picked.
@@ -462,8 +449,6 @@ namespace UltraEd
         m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
         m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
             D3DCOLOR_XRGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]), 1.0f, 0);
-        m_device->SetLight(0, &m_worldLight);
-        m_device->LightEnable(0, TRUE);
 
         if (SUCCEEDED(m_device->BeginScene()))
         {
@@ -473,29 +458,24 @@ namespace UltraEd
             m_device->SetMaterial(&m_defaultMaterial);
             m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
             m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
+            m_device->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
 
             for (const auto &actor : m_actors)
             {
+                // Highlight any selected actors.
+                m_device->SetRenderState(D3DRS_AMBIENT, IsActorSelected(actor.first) ? 0x0000ff00 : 0xffffffff);
                 actor.second->Render(m_device, stack);
             }
 
             if (!m_selectedActorIds.empty())
             {
-                // Highlight the selected actor.
-                m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-
-                for (const auto &selectedActorId : m_selectedActorIds)
-                {
-                    m_device->SetMaterial(&m_selectedMaterial);
-                    m_actors[selectedActorId]->Render(m_device, stack);
-                }
-
                 // Draw the gizmo on "top" of all objects in scene.
                 m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
                 m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
                 m_gizmo.Render(m_device, stack, GetActiveView());
             }
 
+            // Render the GUI on top of scene.
             m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
             m_gui->RenderFrame();
 
