@@ -40,6 +40,7 @@ actor *load_model_with_texture(void *data_start, void *data_end, void *texture_s
     new_model->visible = 1;
     new_model->type = Model;
     new_model->collider = collider;
+    new_model->texture = NULL;
     new_model->textureWidth = textureWidth;
     new_model->textureHeight = textureHeight;
 
@@ -141,13 +142,17 @@ void model_draw(actor *model, Gfx **display_list)
 
     if (model->texture != NULL)
     {
-        gDPSetTextureFilter((*display_list)++, G_TF_BILERP);
-        gDPSetCombineMode((*display_list)++, G_CC_BLENDRGBA, G_CC_BLENDRGBA);
-        gDPSetTexturePersp((*display_list)++, G_TP_PERSP);
         gSPTexture((*display_list)++, 0xffff, 0xffff, 0, G_TX_RENDERTILE, G_ON);
+        gDPSetTextureFilter((*display_list)++, G_TF_BILERP);
+        gDPSetTexturePersp((*display_list)++, G_TP_PERSP);
+        gDPSetCombineMode((*display_list)++, G_CC_MODULATERGB, G_CC_MODULATERGB);
         gDPLoadTextureBlock((*display_list)++, model->texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 
             model->textureWidth, model->textureHeight, 0,
             G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+    }
+    else
+    {
+        gDPSetCombineMode((*display_list)++, G_CC_SHADE, G_CC_SHADE);
     }
 
     int offset = 0;
