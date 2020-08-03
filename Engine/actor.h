@@ -23,7 +23,7 @@ typedef struct vector3
 
 typedef struct mesh
 {
-    int vertex_count;
+    int vertexCount;
     Vtx *vertices;
 } mesh;
 
@@ -46,24 +46,24 @@ typedef struct actor
     transform transform;
 } actor;
 
-actor *load_model(void *data_start, void *data_end, double positionX, double positionY, double positionZ,
+actor *loadModel(void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider);
 
-actor *load_model_with_texture(void *data_start, void *data_end,
-    void *texture_start, void *texture_end, int textureWidth, int textureHeight,
+actor *loadTexturedModel(void *dataStart, void *dataEnd,
+    void *textureStart, void *textureEnd, int textureWidth, int textureHeight,
     double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
     double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider);
 
-actor *create_camera(double positionX, double positionY, double positionZ,
+actor *createCamera(double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, 
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider);
 
-void model_draw(actor *model, Gfx **display_list);
+void modelDraw(actor *model, Gfx **displayList);
 
 #endif

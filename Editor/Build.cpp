@@ -240,9 +240,9 @@ namespace UltraEd
                 modelName.append("_M");
 
                 if (resources.count("textureDataPath"))
-                    actorInits.append("(actor*)load_model_with_texture(_");
+                    actorInits.append("(actor*)loadTexturedModel(_");
                 else
-                    actorInits.append("(actor*)load_model(_");
+                    actorInits.append("(actor*)loadModel(_");
 
                 actorInits.append(modelName).append("SegmentRomStart, _").append(modelName).append("SegmentRomEnd");
 
@@ -290,11 +290,11 @@ namespace UltraEd
                 }
                 fclose(file);
 
-                modelDraws.append("\n\tmodel_draw(_UER_Actors[").append(std::to_string(actorCount)).append("], display_list);\n");
+                modelDraws.append("\n\tmodelDraw(_UER_Actors[").append(std::to_string(actorCount)).append("], display_list);\n");
             }
             else if (actor->GetType() == ActorType::Camera)
             {
-                actorInits.append("(actor*)create_camera(");
+                actorInits.append("(actor*)createCamera(");
                 char vectorBuffer[256];
                 D3DXVECTOR3 position = actor->GetPosition();
                 D3DXVECTOR3 axis;
