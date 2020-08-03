@@ -155,34 +155,24 @@ void model_draw(actor *model, Gfx **display_list)
         gDPSetCombineMode((*display_list)++, G_CC_SHADE, G_CC_SHADE);
     }
 
-    int offset = 0;
-    int remaining_vertices = model->mesh->vertex_count;
+    int skip = 0;
+    int remainingVertices = model->mesh->vertex_count;
+    const int size = 30;
 
-    // Send vertex data in batches of 30.
-    while (remaining_vertices >= 30)
+    // Send vertex data in batches.
+    while (remainingVertices > 0)
     {
-        gSPVertex((*display_list)++, &(model->mesh->vertices[offset]), 30, 0);
+        int take = remainingVertices >= size ? size : remainingVertices;
+        gSPVertex((*display_list)++, &(model->mesh->vertices[skip]), take, 0);
         gDPPipeSync((*display_list)++);
 
-        for (int i = 0; i < 30 / 3; i++)
+        for (int i = 0; i < take / 3; i++)
         {
             gSP1Triangle((*display_list)++, i * 3, i * 3 + 1, i * 3 + 2, 0);
         }
 
-        remaining_vertices -= 30;
-        offset += 30;
-    }
-
-    // Process last remaining vertices.
-    if (remaining_vertices > 0)
-    {
-        gSPVertex((*display_list)++, &(model->mesh->vertices[offset]), remaining_vertices, 0);
-        gDPPipeSync((*display_list)++);
-
-        for (int i = 0; i < remaining_vertices / 3; i++)
-        {
-            gSP1Triangle((*display_list)++, i * 3, i * 3 + 1, i * 3 + 2, 0);
-        }
+        remainingVertices -= take;
+        skip += take;
     }
 
     gSPPopMatrix((*display_list)++, G_MTX_MODELVIEW);
