@@ -584,11 +584,12 @@ namespace UltraEd
 
     bool Scene::ToggleMovementSpace()
     {
+        auto toggled = m_gizmo.ToggleSpace();
         if (!m_selectedActorIds.empty())
         {
-            return m_gizmo.ToggleSpace(m_actors[m_selectedActorIds.back()].get());
+            m_gizmo.Update(m_actors[m_selectedActorIds.back()].get());
         }
-        return false;
+        return toggled;
     }
 
     bool Scene::ToggleFillMode()

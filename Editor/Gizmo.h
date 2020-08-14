@@ -24,7 +24,7 @@ namespace UltraEd
         Gizmo();
         void SetModifier(GizmoModifierState state);
         std::string GetModifierName();
-        bool ToggleSpace(Actor *actor);
+        bool ToggleSpace();
         bool ToggleSnapping();
         void SetSnapSize(float size);
         float GetSnapSize();

@@ -184,16 +184,21 @@ namespace UltraEd
     {
         if (currentActor != NULL)
         {
-            SetPosition(currentActor->GetPosition());
+            D3DXMATRIX mat;
+            D3DXMatrixIdentity(&mat);
 
             if (!m_worldSpaceToggled)
             {
-                // Keep gizmo in-sync with the actor's rotation.
-                for (int i = 0; i < GIZMO_COUNT; i++)
-                {
-                    m_models[i].SetLocalRotationMatrix(currentActor->GetRotationMatrix());
-                }
+                mat = currentActor->GetRotationMatrix();
             }
+
+            // Keep gizmo in-sync with the actor's rotation.
+            for (int i = 0; i < GIZMO_COUNT; i++)
+            {
+                m_models[i].SetLocalRotationMatrix(mat);
+            }
+
+            SetPosition(currentActor->GetPosition());
         }
     }
 
@@ -314,26 +319,14 @@ namespace UltraEd
         m_updateStartPoint = D3DXVECTOR3(-999, -999, -999);
     }
 
-    bool Gizmo::ToggleSpace(Actor *actor)
+    bool Gizmo::ToggleSpace()
     {
-        m_worldSpaceToggled = !m_worldSpaceToggled;
-
-        D3DXMATRIX identity;
-        D3DXMatrixIdentity(&identity);
-        D3DXMATRIX mat = m_worldSpaceToggled ? identity : actor->GetRotationMatrix();
-
-        for (int i = 0; i < GIZMO_COUNT; i++)
-        {
-            m_models[i].SetLocalRotationMatrix(mat);
-        }
-
-        return m_worldSpaceToggled;
+        return m_worldSpaceToggled = !m_worldSpaceToggled;
     }
 
     bool Gizmo::ToggleSnapping()
     {
-        m_snapToGridToggled = !m_snapToGridToggled;
-        return m_snapToGridToggled;
+        return m_snapToGridToggled = !m_snapToGridToggled;
     }
 
     void Gizmo::SetSnapSize(float size)
