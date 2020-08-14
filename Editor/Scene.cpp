@@ -1,5 +1,6 @@
 #include <thread>
 #include "Build.h"
+#include "Debug.h"
 #include "Scene.h"
 #include "FileIO.h"
 #include "Dialog.h"
@@ -130,7 +131,7 @@ namespace UltraEd
             }
             else
             {
-                MessageBox(NULL, "The ROM build has failed. Make sure the build tools have been installed.", "Error", MB_OK);
+                Debug::Error("The ROM build has failed. Make sure the build tools have been installed.");
             }
         });
         run.detach();
@@ -188,7 +189,7 @@ namespace UltraEd
     {
         if (m_selectedActorIds.empty())
         {
-            MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
+            Debug::Warning("An object must be selected first.");
         }
 
         GUID groupId = Util::NewGuid();
@@ -212,7 +213,7 @@ namespace UltraEd
     {
         if (m_selectedActorIds.empty())
         {
-            MessageBox(NULL, "An object must be selected first.", "Error", MB_OK);
+            Debug::Warning("An object must be selected first.");
         }
 
         GUID groupId = Util::NewGuid();
@@ -231,7 +232,7 @@ namespace UltraEd
 
         if (m_selectedActorIds.empty())
         {
-            MessageBox(NULL, "An actor must be selected first.", "Error", MB_OK);
+            Debug::Warning("An actor must be selected first.");
             return;
         }
 
@@ -248,7 +249,7 @@ namespace UltraEd
 
                 if (!dynamic_cast<Model *>(m_actors[selectedActorId].get())->SetTexture(m_device, file.c_str()))
                 {
-                    MessageBox(NULL, "Texture could not be loaded.", "Error", MB_OK);
+                    Debug::Warning("Texture could not be loaded.");
                 }
             }
         }
@@ -258,7 +259,7 @@ namespace UltraEd
     {
         if (m_selectedActorIds.empty())
         {
-            MessageBox(NULL, "An actor must be selected first.", "Error", MB_OK);
+            Debug::Warning("An actor must be selected first.");
             return;
         }
 

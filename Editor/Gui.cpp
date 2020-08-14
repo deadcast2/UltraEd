@@ -1,4 +1,6 @@
 #include <ImGui/imconfig.h>
+#include <thread>
+#include "Debug.h"
 #include "Gui.h"
 #include "FileIO.h"
 #include "PubSub.h"
@@ -175,14 +177,19 @@ namespace UltraEd
             {
                 char pathBuffer[128];
                 GetFullPathName("..\\Engine\\tools.bin", 128, pathBuffer, NULL);
-                if (FileIO::Unpack(pathBuffer))
-                {
-                    MessageBox(0, "Build tools successfully installed.", "Success!", MB_OK);
-                }
-                else
-                {
-                    MessageBox(0, "Could not find build tools.", "Error", MB_OK);
-                }
+                Debug::Info("Installing build tools...");
+
+                std::thread run([pathBuffer]() {
+                    if (FileIO::Unpack(pathBuffer))
+                    {
+                        Debug::Info("Build tools successfully installed.");
+                    }
+                    else
+                    {
+                        Debug::Error("Could not find build tools.");
+                    }
+                });
+                run.detach();
             }
 
             if (ImGui::MenuItem("Options"))

@@ -14,6 +14,7 @@
 #include "Settings.h"
 #include "shlwapi.h"
 #include "PubSub.h"
+#include "Debug.h"
 
 namespace UltraEd
 {
@@ -521,10 +522,10 @@ namespace UltraEd
             securityAttrs.lpSecurityDescriptor = NULL;
 
             if (!CreatePipe(&stdOutRead, &stdOutWrite, &securityAttrs, 0))
-                MessageBox(NULL, "Could not create pipe", "Pipe Error", NULL);
+                Debug::Error("Could not create pipe.");
 
             if (!SetHandleInformation(stdOutRead, HANDLE_FLAG_INHERIT, 0))
-                MessageBox(NULL, "Could set handle information for pipe", "Pipe Error", NULL);
+                Debug::Error("Could set handle information for pipe");
 
             DWORD exitCode;
             STARTUPINFO si;
@@ -556,11 +557,11 @@ namespace UltraEd
             {
                 if (dwRead == 0) break;
                 auto buffer = std::make_unique<char[]>(dwRead + 1); // Add 1 to prevent garbage.
+                
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
-                    auto output = std::string("Build Output: ").append(buffer.get());
-                    PubSub::Publish("AppendToConsole", &output);
+                    Debug::Info(std::string(buffer.get()));
                 }
             }
 
@@ -594,10 +595,10 @@ namespace UltraEd
             securityAttrs.lpSecurityDescriptor = NULL;
 
             if (!CreatePipe(&stdOutRead, &stdOutWrite, &securityAttrs, 0))
-                MessageBox(NULL, "Could not create pipe", "Pipe Error", NULL);
+                Debug::Error("Could not create pipe");
 
             if (!SetHandleInformation(stdOutRead, HANDLE_FLAG_INHERIT, 0))
-                MessageBox(NULL, "Could set handle information for pipe", "Pipe Error", NULL);
+                Debug::Error("Could set handle information for pipe");
 
             DWORD exitCode;
             STARTUPINFO si;
@@ -626,11 +627,11 @@ namespace UltraEd
             {
                 if (dwRead == 0) break;
                 auto buffer = std::make_unique<char[]>(dwRead + 1); // Add 1 to prevent garbage.
+                
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
-                    auto output = std::string("Build Output: ").append(buffer.get());
-                    PubSub::Publish("AppendToConsole", &output);
+                    Debug::Info(std::string(buffer.get()));
                 }
             }
 
