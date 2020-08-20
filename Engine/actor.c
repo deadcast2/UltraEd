@@ -69,9 +69,9 @@ actor *loadTexturedModel(void *dataStart, void *dataEnd, void *textureStart, voi
         line = (char*)strtok(NULL, "\n");
         sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf %lf", &x, &y, &z, &r, &g, &b, &a, &s, &t);
 
-        newModel->mesh->vertices[i].v.ob[0] = x * scaleX * 1000;
-        newModel->mesh->vertices[i].v.ob[1] = y * scaleY * 1000;
-        newModel->mesh->vertices[i].v.ob[2] = -z * scaleZ * 1000;
+        newModel->mesh->vertices[i].v.ob[0] = x * scaleX * 100;
+        newModel->mesh->vertices[i].v.ob[1] = y * scaleY * 100;
+        newModel->mesh->vertices[i].v.ob[2] = -z * scaleZ * 100;
         newModel->mesh->vertices[i].v.flag = 0;
         newModel->mesh->vertices[i].v.tc[0] = (int)(s * textureWidth) << 5;
         newModel->mesh->vertices[i].v.tc[1] = (int)(t * textureHeight) << 5;
@@ -87,9 +87,9 @@ actor *loadTexturedModel(void *dataStart, void *dataEnd, void *textureStart, voi
     newModel->position->x = positionX;
     newModel->position->y = positionY;
     newModel->position->z = -positionZ;
-    newModel->scale->x = 0.001;
-    newModel->scale->y = 0.001;
-    newModel->scale->z = 0.001;
+    newModel->scale->x = 0.01;
+    newModel->scale->y = 0.01;
+    newModel->scale->z = 0.01;
     newModel->rotationAxis->x = rotX;
     newModel->rotationAxis->y = rotY;
     newModel->rotationAxis->z = -rotZ;
