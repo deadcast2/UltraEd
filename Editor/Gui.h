@@ -9,7 +9,9 @@
 #include <ImGui/imgui_impl_dx9.h>
 #include <ImGui/imgui_impl_win32.h>
 #include <ImGui/Plugins/TextEditor.h>
+#include <ImGui/Plugins/imfilebrowser.h>
 #include "Actor.h"
+#include "Project.h"
 
 namespace UltraEd
 {
@@ -39,17 +41,21 @@ namespace UltraEd
         void SceneSettingsModal();
         void ContextMenu();
         void ScriptEditor();
+        void NewProjectModal();
 
     private:
         Scene *m_scene;
+        Actor *m_selectedActor;
+        std::unique_ptr<Project> m_project;
         TextEditor m_textEditor;
+        ImGui::FileBrowser m_fileBrowser;
         std::string m_consoleText;
         bool m_moveConsoleToBottom;
         bool m_openContextMenu;
         bool m_textEditorOpen;
         int m_optionsModalOpen;
         int m_sceneSettingsModalOpen;
-        Actor *m_selectedActor;
+        int m_newProjectModalOpen;
     };
 }
 

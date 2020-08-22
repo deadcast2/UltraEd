@@ -12,13 +12,17 @@ namespace UltraEd
 {
     Gui::Gui(Scene *scene, HWND hWnd, IDirect3DDevice9 *device) :
         m_scene(scene),
+        m_selectedActor(),
+        m_project(),
+        m_textEditor(),
+        m_fileBrowser(ImGuiFileBrowserFlags_SelectDirectory),
         m_consoleText(),
         m_moveConsoleToBottom(false),
         m_openContextMenu(false),
         m_textEditorOpen(false),
         m_optionsModalOpen(false),
         m_sceneSettingsModalOpen(false),
-        m_selectedActor()
+        m_newProjectModalOpen(false)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -93,6 +97,7 @@ namespace UltraEd
             SceneSettingsModal();
             ContextMenu();
             ScriptEditor();
+            NewProjectModal();
             //ImGui::ShowDemoWindow();
         }
         ImGui::End();
@@ -139,6 +144,13 @@ namespace UltraEd
     {
         if (ImGui::BeginMenu("File"))
         {
+            if (ImGui::MenuItem("New Project"))
+            {
+                m_newProjectModalOpen = true;
+            }
+
+            ImGui::Separator();
+
             if (ImGui::MenuItem("New Scene"))
             {
                 m_scene->OnNew();
@@ -727,5 +739,64 @@ namespace UltraEd
         m_textEditor.Render("Edit Script");
 
         ImGui::End();
+    }
+
+    void Gui::NewProjectModal()
+    {
+        static char projectName[64];
+        static char projectPath[MAX_PATH];
+        static bool createDirectory = true;
+
+        if (m_newProjectModalOpen)
+        {
+            ImGui::OpenPopup("New Project");
+            memset(projectName, 0, strlen(projectName));
+            memset(projectPath, 0, strlen(projectPath));
+            createDirectory = true;
+            m_newProjectModalOpen = false;
+        }
+
+        if (ImGui::BeginPopupModal("New Project", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            if (m_fileBrowser.HasSelected())
+            {
+                strcpy(projectPath, m_fileBrowser.GetSelected().string().c_str());
+                m_fileBrowser.ClearSelected();
+            }
+
+            ImGui::Text("Name"); 
+            ImGui::SameLine(); 
+            ImGui::InputTextWithHint("##projectName", "required", projectName, 64);
+            
+            ImGui::Text("Path"); 
+            ImGui::SameLine(); 
+            ImGui::InputTextWithHint("##projectPath", "required", projectPath, MAX_PATH);
+            ImGui::SameLine();
+
+            if (ImGui::Button("Choose..."))
+            {
+                m_fileBrowser.Open();
+            }
+
+            ImGui::Checkbox("Create directory?", &createDirectory);
+
+            if (ImGui::Button("Create") && strlen(projectName) > 0 && strlen(projectPath) > 0)
+            {
+                m_project = std::make_unique<Project>(projectName, projectPath, createDirectory);
+                
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            m_fileBrowser.Display();
+
+            ImGui::EndPopup();
+        }
     }
 }

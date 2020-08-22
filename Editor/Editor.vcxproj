@@ -33,6 +33,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Project.cpp" />
     <ClCompile Include="PubSub.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Savable.cpp" />
@@ -69,6 +70,7 @@
     <ClInclude Include="Gui.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Project.h" />
     <ClInclude Include="PubSub.h" />
     <ClInclude Include="Registry.h" />
     <ClInclude Include="resource.h" />
