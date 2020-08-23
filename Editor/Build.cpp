@@ -653,12 +653,7 @@ namespace UltraEd
         if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
         {
             std::string path(buffer);
-
-        #ifdef _DEBUG
             return path.append("\\..\\..\\..\\").append(name);
-        #else
-            return path.append("\\..\\").append(name);
-        #endif
         }
         return std::string();
     }
