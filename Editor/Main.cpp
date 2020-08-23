@@ -72,6 +72,12 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+        case WM_ACTIVATE:
+            if (LOWORD(wParam) == WA_ACTIVE)
+            {
+                PubSub::Publish("Activate");
+            }
+            return 0;
         case WM_SIZE:
         {
             auto rect = std::make_tuple<int, int>(LOWORD(lParam), HIWORD(lParam));

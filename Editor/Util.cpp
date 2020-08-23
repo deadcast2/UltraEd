@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <sstream>
 #include "Util.h"
 
@@ -178,5 +179,12 @@ namespace UltraEd
             position[1] = vec.y;
             position[2] = vec.z;
         }
+    }
+
+    std::string Util::ToLower(const std::string &str)
+    {
+        std::string copy(str);
+        std::transform(copy.begin(), copy.end(), copy.begin(), std::tolower);
+        return copy;
     }
 }

@@ -24,6 +24,7 @@ namespace UltraEd
         static char *ReplaceString(const char *str, const char *from, const char *to);
         static std::vector<std::string> SplitString(const char *str, const char delimiter);
         static void ToFloat3(const D3DXVECTOR3 &vec, float *position);
+        static std::string ToLower(const std::string &str);
 
     private:
         Util() {};
