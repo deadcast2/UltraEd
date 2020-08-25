@@ -7,11 +7,13 @@
 
 namespace UltraEd
 {
-    Project::Project(const char *name, const std::filesystem::path &path, bool createDirectory) :
+    Project::Project(const char *name, const path &path, bool createDirectory) :
         m_name(name),
         m_databasePath(),
-        m_textureIndex(),
-        m_textureExtensions({ ".png", ".jpg" })
+        m_assetIndex(),
+        m_assetTypeNames({ { AssetType::Unknown, "unknown" }, { AssetType::Model, "model" }, { AssetType::Texture, "texture" } }),
+        m_modelExtensions({ ".3ds", ".blend", ".fbx", ".dae", ".x", ".stl", ".wrl", ".obj" }),
+        m_textureExtensions({ ".png", ".jpg", ".bmp", ".tga" })
     {
         if (!std::filesystem::exists(path))
         {
@@ -57,9 +59,16 @@ namespace UltraEd
             { "project", {
                 { "name", m_name },
                 { "version", 0.1 }
-            } },
-            { "textures", json::array() }
+            } }
         };
+
+        for (const auto &name : m_assetTypeNames)
+        {
+            for (const auto &texture : m_assetIndex[name.first])
+            {
+                database[name.second].push_back(texture.second);
+            }
+        }
 
         std::ofstream file(m_databasePath, std::ofstream::out);
         if (file)
@@ -69,55 +78,128 @@ namespace UltraEd
         }
     }
 
-    std::filesystem::path Project::ParentPath()
+    path Project::ParentPath()
     {
         return m_databasePath.parent_path();
     }
 
+    path Project::LibraryPath()
+    {
+        return ParentPath() / "Library";
+    }
+
     void Project::Scan()
     {
-        for (const auto &entry : std::filesystem::recursive_directory_iterator(ParentPath()))
+        for (const auto &entry : recursive_directory_iterator(ParentPath()))
         {
-            if (!entry.is_regular_file())
+            if (!IsValidFile(entry))
                 continue;
 
-            if (m_textureExtensions.find(Util::ToLower(entry.path().extension().string())) != m_textureExtensions.end())
+            AssetType detectedType = DetectAssetType(entry.path());
+
+            if (detectedType != AssetType::Unknown)
             {
-                if (!FindAsset("texture", entry))
+                if (!FindAsset(detectedType, entry))
                 {
-                    AddTexture(entry);
-                    Debug::Info("Added new texture: " + entry.path().filename().string());
+                    AddAsset(detectedType, entry);
+                    Debug::Info("Added " + m_assetTypeNames[detectedType] + ": " + entry.path().string());
                 }
-                else
+                else if (IsAssetModified(detectedType, entry))
                 {
-                    if (IsTextureModified(entry))
-                    {
-                        m_textureIndex[entry.path()]["lastModified"] = entry.last_write_time().time_since_epoch().count();
-                        Debug::Info("Modified texture: " + entry.path().filename().string());
-                    }
+                    UpdateAsset(detectedType, entry);
+                    Debug::Info("Updated " + m_assetTypeNames[detectedType] + ": " + entry.path().string());
                 }
             }
         }
     }
 
-    void Project::AddTexture(const std::filesystem::directory_entry &entry)
+    AssetType Project::DetectAssetType(const path &path)
+    {
+        if (IsSupportedModel(path))
+            return AssetType::Model;
+        else if (IsSupportedTexture(path))
+            return AssetType::Texture;
+
+        return AssetType::Unknown;
+    }
+
+    void Project::AddAsset(const AssetType &type, const directory_entry &entry)
+    {
+        m_assetIndex[type][entry.path()] = {
+            { "id", Util::GuidToString(Util::NewGuid()) },
+            { "sourcePath", entry.path().string().erase(0, ParentPath().string().size() + 1) }
+        };
+
+        UpdateAsset(type, entry);
+    }
+
+    void Project::UpdateAsset(const AssetType &type, const directory_entry &entry)
     {
         auto lastModified = entry.last_write_time().time_since_epoch().count();
 
-        m_textureIndex[entry.path()] = {
-            { "id", Util::GuidToString(Util::NewGuid()) },
-            { "sourcePath", entry.path().string().erase(0, ParentPath().string().size() + 1) },
-            { "lastModified", lastModified }
-        };
+        m_assetIndex[type][entry.path()]["lastModified"] = lastModified;
+
+        InsertAsset(entry.path());
     }
 
-    bool Project::IsTextureModified(const std::filesystem::directory_entry &entry)
+    bool Project::IsValidFile(const directory_entry &entry)
     {
-        return m_textureIndex[entry.path()]["lastModified"] != entry.last_write_time().time_since_epoch().count();
+        return entry.path().parent_path() != LibraryPath() && entry.is_regular_file();
     }
 
-    bool Project::FindAsset(const std::string &type, const std::filesystem::path &path)
+    bool Project::IsSupportedModel(const path &path)
     {
-        return m_textureIndex.find(path) != m_textureIndex.end();
+        return m_modelExtensions.find(Util::ToLower(path.extension().string())) != m_modelExtensions.end();
+    }
+
+    bool Project::IsSupportedTexture(const path &path)
+    {
+        return m_textureExtensions.find(Util::ToLower(path.extension().string())) != m_textureExtensions.end();
+    }
+
+    bool Project::IsAssetModified(const AssetType &type, const directory_entry &entry)
+    {
+        return m_assetIndex[type][entry.path()]["lastModified"] != entry.last_write_time().time_since_epoch().count();
+    }
+
+    bool Project::FindAsset(const AssetType &type, const path &path)
+    {
+        return m_assetIndex[type].find(path) != m_assetIndex[type].end();
+    }
+
+    bool Project::InsertAsset(const path &path)
+    {
+        if (!InitializeLibrary())
+            return false;
+
+        try
+        {
+            copy(path, LibraryPath(), copy_options::overwrite_existing);
+        }
+        catch (const std::exception &e)
+        {
+            Debug::Error("Failed to copy file: " + std::string(e.what()));
+            return false;
+        }
+
+        return exists(LibraryPath() / path.filename());
+    }
+
+    bool Project::InitializeLibrary()
+    {
+        if (!exists(LibraryPath()))
+        {
+            try
+            {
+                create_directory(LibraryPath());
+            }
+            catch (const std::exception &e)
+            {
+                Debug::Error("Failed to create library directory: " + std::string(e.what()));
+                return false;
+            }
+        }
+
+        return true;
     }
 }

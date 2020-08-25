@@ -149,6 +149,11 @@ namespace UltraEd
                 m_newProjectModalOpen = true;
             }
 
+            if (m_project && ImGui::MenuItem("Save Project"))
+            {
+                m_project->Save();
+            }
+
             ImGui::Separator();
 
             if (ImGui::MenuItem("New Scene"))
