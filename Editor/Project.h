@@ -29,8 +29,8 @@ namespace UltraEd
         bool IsSupportedModel(const path &path);
         bool IsSupportedTexture(const path &path);
         bool IsAssetModified(const AssetType &type, const directory_entry &entry);
-        bool FindAsset(const AssetType &type, const path &path);
-        bool InsertAsset(const path &path);
+        bool AssetExists(const AssetType &type, const path &path);
+        bool InsertAsset(const AssetType &type, const path &path);
         bool InitializeLibrary();
 
     private:

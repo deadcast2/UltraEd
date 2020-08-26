@@ -99,7 +99,7 @@ namespace UltraEd
 
             if (detectedType != AssetType::Unknown)
             {
-                if (!FindAsset(detectedType, entry))
+                if (!AssetExists(detectedType, entry))
                 {
                     AddAsset(detectedType, entry);
                     Debug::Info("Added " + m_assetTypeNames[detectedType] + ": " + entry.path().string());
@@ -139,7 +139,7 @@ namespace UltraEd
 
         m_assetIndex[type][entry.path()]["lastModified"] = lastModified;
 
-        InsertAsset(entry.path());
+        InsertAsset(type, entry.path());
     }
 
     bool Project::IsValidFile(const directory_entry &entry)
@@ -162,19 +162,20 @@ namespace UltraEd
         return m_assetIndex[type][entry.path()]["lastModified"] != entry.last_write_time().time_since_epoch().count();
     }
 
-    bool Project::FindAsset(const AssetType &type, const path &path)
+    bool Project::AssetExists(const AssetType &type, const path &path)
     {
         return m_assetIndex[type].find(path) != m_assetIndex[type].end();
     }
 
-    bool Project::InsertAsset(const path &path)
+    bool Project::InsertAsset(const AssetType &type, const path &path)
     {
         if (!InitializeLibrary())
             return false;
 
         try
         {
-            copy(path, LibraryPath(), copy_options::overwrite_existing);
+            auto id = static_cast<std::string>(m_assetIndex[type][path]["id"]);
+            copy(path, LibraryPath() / id, copy_options::overwrite_existing);
         }
         catch (const std::exception &e)
         {
