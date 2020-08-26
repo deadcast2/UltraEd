@@ -15,8 +15,10 @@ namespace UltraEd
     class Project
     {
     public:
+        Project();
+        Project(const path &path);
         Project(const char *name, const path &path, bool createDirectory);
-        void Save();
+        bool Save();
 
     private:
         path ParentPath();

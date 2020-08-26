@@ -1,5 +1,7 @@
 #include <filesystem>
 #include <fstream>
+#include <istream>
+#include <sstream>
 #include "Debug.h"
 #include "Project.h"
 #include "PubSub.h"
@@ -7,26 +9,48 @@
 
 namespace UltraEd
 {
-    Project::Project(const char *name, const path &path, bool createDirectory) :
-        m_name(name),
+    Project::Project() :
+        m_name(),
         m_databasePath(),
         m_assetIndex(),
         m_assetTypeNames({ { AssetType::Unknown, "unknown" }, { AssetType::Model, "model" }, { AssetType::Texture, "texture" } }),
         m_modelExtensions({ ".3ds", ".blend", ".fbx", ".dae", ".x", ".stl", ".wrl", ".obj" }),
         m_textureExtensions({ ".png", ".jpg", ".bmp", ".tga" })
+    { }
+
+    Project::Project(const path &path) : Project()
     {
-        if (!std::filesystem::exists(path))
+        const auto databasePath = path / "db.ultra";
+
+        if (!exists(databasePath))
+        {
+            Debug::Error("Failed to load project since it doesn't seem to exist.");
+            return;
+        }
+
+        std::ifstream file(databasePath);
+        if (file)
+        {
+            std::stringstream stream;
+            stream << file.rdbuf();
+            json database = json::parse(stream.str());
+        }
+    }
+
+    Project::Project(const char *name, const path &path, bool createDirectory) : Project()
+    {
+        if (!exists(path))
         {
             Debug::Error("Failed to create new project since selected path doesn't exist.");
             return;
         }
 
-        auto projectPath = createDirectory ? path / name : path;
+        const auto projectPath = createDirectory ? path / name : path;
         try
         {
             if (createDirectory)
             {
-                std::filesystem::create_directory(projectPath);
+                create_directory(projectPath);
             }
         }
         catch (const std::exception &e)
@@ -34,10 +58,10 @@ namespace UltraEd
             Debug::Error("Failed to create new project directory: " + std::string(e.what()));
         }
 
+        m_name = name;
         m_databasePath = projectPath / "db.ultra";
-        Save();
 
-        if (std::filesystem::exists(m_databasePath))
+        if (Save() && exists(m_databasePath))
         {
             Debug::Info("New project successfully created!");
         }
@@ -53,7 +77,7 @@ namespace UltraEd
         } });
     }
 
-    void Project::Save()
+    bool Project::Save()
     {
         json database = {
             { "project", {
@@ -70,12 +94,14 @@ namespace UltraEd
             }
         }
 
-        std::ofstream file(m_databasePath, std::ofstream::out);
+        std::ofstream file(m_databasePath);
         if (file)
         {
             file << database.dump(1);
-            file.close();
+            return true;
         }
+
+        return false;
     }
 
     path Project::ParentPath()

@@ -42,6 +42,7 @@ namespace UltraEd
         void ContextMenu();
         void ScriptEditor();
         void NewProjectModal();
+        void LoadProjectModal();
 
     private:
         Scene *m_scene;
@@ -56,6 +57,7 @@ namespace UltraEd
         int m_optionsModalOpen;
         int m_sceneSettingsModalOpen;
         int m_newProjectModalOpen;
+        int m_loadProjectModalOpen;
     };
 }
 

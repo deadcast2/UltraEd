@@ -22,7 +22,8 @@ namespace UltraEd
         m_textEditorOpen(false),
         m_optionsModalOpen(false),
         m_sceneSettingsModalOpen(false),
-        m_newProjectModalOpen(false)
+        m_newProjectModalOpen(false),
+        m_loadProjectModalOpen(false)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -98,6 +99,7 @@ namespace UltraEd
             ContextMenu();
             ScriptEditor();
             NewProjectModal();
+            LoadProjectModal();
             //ImGui::ShowDemoWindow();
         }
         ImGui::End();
@@ -152,6 +154,11 @@ namespace UltraEd
             if (m_project && ImGui::MenuItem("Save Project"))
             {
                 m_project->Save();
+            }
+
+            if (ImGui::MenuItem("Load Project"))
+            {
+                m_loadProjectModalOpen = true;
             }
 
             ImGui::Separator();
@@ -789,6 +796,55 @@ namespace UltraEd
             {
                 m_project = std::make_unique<Project>(projectName, projectPath, createDirectory);
                 
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            m_fileBrowser.Display();
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void Gui::LoadProjectModal()
+    {
+        static char projectPath[MAX_PATH];
+
+        if (m_loadProjectModalOpen)
+        {
+            ImGui::OpenPopup("Load Project");
+            memset(projectPath, 0, strlen(projectPath));
+            m_loadProjectModalOpen = false;
+        }
+
+        if (ImGui::BeginPopupModal("Load Project", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            if (m_fileBrowser.HasSelected())
+            {
+                strcpy(projectPath, m_fileBrowser.GetSelected().string().c_str());
+                m_fileBrowser.ClearSelected();
+            }
+
+            ImGui::Text("Path");
+            ImGui::SameLine();
+            ImGui::InputTextWithHint("##projectPath", "required", projectPath, MAX_PATH);
+            ImGui::SameLine();
+
+            if (ImGui::Button("Choose..."))
+            {
+                m_fileBrowser.Open();
+            }
+
+            if (ImGui::Button("Open") && strlen(projectPath) > 0)
+            {
+                m_project = std::make_unique<Project>(projectPath);
+
                 ImGui::CloseCurrentPopup();
             }
 
