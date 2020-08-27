@@ -84,7 +84,7 @@ namespace UltraEd
             Debug::Error("Error initializing new project database.");
         }
 
-        Scan();      
+        Scan();
     }
 
     bool Project::Save()
@@ -92,8 +92,8 @@ namespace UltraEd
         json database = {
             { "project", {
                 { "name", m_name },
-                { "version", 0.1 }
-            } }
+            { "version", 0.1 }
+        } }
         };
 
         for (const auto &name : m_assetTypeNames)
@@ -126,6 +126,8 @@ namespace UltraEd
 
     void Project::Scan()
     {
+        auto purgeId = Util::NewGuid();
+
         for (const auto &entry : recursive_directory_iterator(ParentPath()))
         {
             if (!IsValidFile(entry))
@@ -145,8 +147,12 @@ namespace UltraEd
                     UpdateAsset(detectedType, entry);
                     Debug::Info("Updated " + m_assetTypeNames[detectedType] + ": " + entry.path().string());
                 }
+
+                VerifyAsset(purgeId, detectedType, entry);
             }
         }
+
+        PurgeMissingAssets(purgeId);
     }
 
     void Project::Load(const json &database)
@@ -158,8 +164,9 @@ namespace UltraEd
             if (name.first == AssetType::Unknown)
                 continue;
 
-            for (const auto &asset : database[name.second])
+            for (auto asset : database[name.second])
             {
+                asset["purgeId"] = nullptr;
                 m_assetIndex[name.first][ParentPath() / asset["sourcePath"].get<std::string>()] = asset;
             }
         }
@@ -179,7 +186,8 @@ namespace UltraEd
     {
         m_assetIndex[type][entry.path()] = {
             { "id", Util::GuidToString(Util::NewGuid()) },
-            { "sourcePath", entry.path().string().erase(0, ParentPath().string().size() + 1) }
+            { "sourcePath", entry.path().string().erase(0, ParentPath().string().size() + 1) },
+            { "purgeId", nullptr }
         };
 
         UpdateAsset(type, entry);
@@ -262,5 +270,24 @@ namespace UltraEd
         }
 
         return true;
+    }
+
+    void Project::VerifyAsset(const GUID &purgeId, const AssetType &type, const directory_entry &entry)
+    {
+        m_assetIndex[type][entry.path()]["purgeId"] = Util::GuidToString(purgeId);
+    }
+
+    void Project::PurgeMissingAssets(const GUID &purgeId)
+    {
+        for (const auto &name : m_assetTypeNames)
+        {
+            for (const auto &asset : m_assetIndex[name.first])
+            {
+                if (asset.second["purgeId"] != Util::GuidToString(purgeId))
+                {
+                    Debug::Warning("Removed " + name.second + ": " + asset.first.string());
+                }
+            }
+        }
     }
 }

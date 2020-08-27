@@ -4,6 +4,7 @@
 #include <map>
 #include <nlohmann/json.hpp>
 #include <set>
+#include <rpc.h>
 
 using namespace std::filesystem;
 using json = nlohmann::json;
@@ -36,6 +37,8 @@ namespace UltraEd
         bool AssetExists(const AssetType &type, const path &path);
         bool InsertAsset(const AssetType &type, const path &path);
         bool InitializeLibrary();
+        void VerifyAsset(const GUID &purgeId, const AssetType &type, const directory_entry &entry);
+        void PurgeMissingAssets(const GUID &purgeId);
 
     private:
         std::string m_name;
