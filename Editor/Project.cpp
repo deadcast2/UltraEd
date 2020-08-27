@@ -16,25 +16,39 @@ namespace UltraEd
         m_assetTypeNames({ { AssetType::Unknown, "unknown" }, { AssetType::Model, "model" }, { AssetType::Texture, "texture" } }),
         m_modelExtensions({ ".3ds", ".blend", ".fbx", ".dae", ".x", ".stl", ".wrl", ".obj" }),
         m_textureExtensions({ ".png", ".jpg", ".bmp", ".tga" })
-    { }
+    {
+        PubSub::Subscribe({ "Activate", [&](void *data) {
+            Scan();
+        } });
+    }
 
     Project::Project(const path &path) : Project()
     {
-        const auto databasePath = path / "db.ultra";
+        m_databasePath = path / "db.ultra";
 
-        if (!exists(databasePath))
+        if (!exists(m_databasePath))
         {
             Debug::Error("Failed to load project since it doesn't seem to exist.");
             return;
         }
 
-        std::ifstream file(databasePath);
+        std::ifstream file(m_databasePath);
         if (file)
         {
             std::stringstream stream;
             stream << file.rdbuf();
             json database = json::parse(stream.str());
+
+            if (!IsValidDatabase(database))
+            {
+                Debug::Error("Failed to load project since it doesn't seem to be valid.");
+                return;
+            }
+
+            Load(database);
         }
+
+        Scan();
     }
 
     Project::Project(const char *name, const path &path, bool createDirectory) : Project()
@@ -70,11 +84,7 @@ namespace UltraEd
             Debug::Error("Error initializing new project database.");
         }
 
-        Scan();
-
-        PubSub::Subscribe({ "Activate", [&](void *data) {
-            Scan();
-        } });
+        Scan();      
     }
 
     bool Project::Save()
@@ -88,9 +98,9 @@ namespace UltraEd
 
         for (const auto &name : m_assetTypeNames)
         {
-            for (const auto &texture : m_assetIndex[name.first])
+            for (const auto &asset : m_assetIndex[name.first])
             {
-                database[name.second].push_back(texture.second);
+                database[name.second].push_back(asset.second);
             }
         }
 
@@ -139,6 +149,22 @@ namespace UltraEd
         }
     }
 
+    void Project::Load(const json &database)
+    {
+        m_name = database["project"]["name"];
+
+        for (const auto &name : m_assetTypeNames)
+        {
+            if (name.first == AssetType::Unknown)
+                continue;
+
+            for (const auto &asset : database[name.second])
+            {
+                m_assetIndex[name.first][ParentPath() / asset["sourcePath"].get<std::string>()] = asset;
+            }
+        }
+    }
+
     AssetType Project::DetectAssetType(const path &path)
     {
         if (IsSupportedModel(path))
@@ -166,6 +192,14 @@ namespace UltraEd
         m_assetIndex[type][entry.path()]["lastModified"] = lastModified;
 
         InsertAsset(type, entry.path());
+    }
+
+    bool Project::IsValidDatabase(const json &database)
+    {
+        auto name = database["project"]["name"];
+        auto version = database["project"]["version"];
+
+        return !name.is_null() && !version.is_null();
     }
 
     bool Project::IsValidFile(const directory_entry &entry)

@@ -23,10 +23,12 @@ namespace UltraEd
     private:
         path ParentPath();
         path LibraryPath();
-        void Scan();
         AssetType DetectAssetType(const path &path);
+        void Scan();
+        void Load(const json &database);
         void AddAsset(const AssetType &type, const directory_entry &entry);
         void UpdateAsset(const AssetType &type, const directory_entry &entry);
+        bool IsValidDatabase(const json &database);
         bool IsValidFile(const directory_entry &entry);
         bool IsSupportedModel(const path &path);
         bool IsSupportedTexture(const path &path);
@@ -36,7 +38,7 @@ namespace UltraEd
         bool InitializeLibrary();
 
     private:
-        const char *m_name;
+        std::string m_name;
         path m_databasePath;
         std::map<AssetType, std::map<path, json>> m_assetIndex;
         std::map<AssetType, std::string> m_assetTypeNames;
