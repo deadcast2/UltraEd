@@ -7,10 +7,16 @@
 
 namespace UltraEd
 {
-    typedef struct {
+    struct Subscription
+    {
         std::string message;
-        std::function<void(void*)> callback;
-    } Subscription;
+        std::function<void(void *)> callback;
+
+        bool operator==(const Subscription &sub) const
+        {
+            return message == sub.message;
+        }
+    };
 
     class PubSub
     {
@@ -19,7 +25,7 @@ namespace UltraEd
 
     public:
         static void Publish(const std::string &message, void *data = 0);
-        static void Subscribe(Subscription subscription);
+        static std::function<void()> Subscribe(Subscription subscription);
 
     private:
         static std::vector<Subscription> m_subscriptions;
