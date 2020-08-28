@@ -15,9 +15,10 @@ namespace UltraEd
         m_assetIndex(),
         m_assetTypeNames({ { AssetType::Unknown, "unknown" }, { AssetType::Model, "model" }, { AssetType::Texture, "texture" } }),
         m_modelExtensions({ ".3ds", ".blend", ".fbx", ".dae", ".x", ".stl", ".wrl", ".obj" }),
-        m_textureExtensions({ ".png", ".jpg", ".bmp", ".tga" })
+        m_textureExtensions({ ".png", ".jpg", ".bmp", ".tga" }),
+        m_activateSubscriber()
     {
-        PubSub::Subscribe({ "Activate", [&](void *data) {
+        m_activateSubscriber = PubSub::Subscribe({ "Activate", [&](void *data) {
             Scan();
         } });
     }
@@ -28,8 +29,7 @@ namespace UltraEd
 
         if (!exists(m_databasePath))
         {
-            Debug::Error("Failed to load project since it doesn't seem to exist.");
-            return;
+            throw std::exception("Failed to load project since it doesn't seem to exist.");
         }
 
         std::ifstream file(m_databasePath);
@@ -41,8 +41,7 @@ namespace UltraEd
 
             if (!IsValidDatabase(database))
             {
-                Debug::Error("Failed to load project since it doesn't seem to be valid.");
-                return;
+                throw std::exception("Failed to load project since it doesn't seem to be valid.");
             }
 
             Load(database);
@@ -55,21 +54,13 @@ namespace UltraEd
     {
         if (!exists(path))
         {
-            Debug::Error("Failed to create new project since selected path doesn't exist.");
-            return;
+            throw std::exception("Failed to create new project since selected path doesn't exist.");
         }
 
         const auto projectPath = createDirectory ? path / name : path;
-        try
+        if (createDirectory)
         {
-            if (createDirectory)
-            {
-                create_directory(projectPath);
-            }
-        }
-        catch (const std::exception &e)
-        {
-            Debug::Error("Failed to create new project directory: " + std::string(e.what()));
+            create_directory(projectPath);
         }
 
         m_name = name;
@@ -81,10 +72,16 @@ namespace UltraEd
         }
         else
         {
-            Debug::Error("Error initializing new project database.");
+            throw std::exception("Error initializing new project database.");
         }
 
         Scan();
+    }
+
+    Project::~Project()
+    {
+        if (m_activateSubscriber)
+            m_activateSubscriber();
     }
 
     bool Project::Save()
@@ -92,8 +89,8 @@ namespace UltraEd
         json database = {
             { "project", {
                 { "name", m_name },
-            { "version", 0.1 }
-        } }
+                { "version", 0.1 }
+            }}
         };
 
         for (const auto &name : m_assetTypeNames)
@@ -161,7 +158,7 @@ namespace UltraEd
 
         for (const auto &name : m_assetTypeNames)
         {
-            if (name.first == AssetType::Unknown)
+            if (!database.contains(name.second))
                 continue;
 
             for (auto asset : database[name.second])
@@ -281,20 +278,29 @@ namespace UltraEd
     {
         for (const auto &name : m_assetTypeNames)
         {
-            std::vector<path> assetsToRemove;
+            std::vector<std::pair<path, json>> assetsToRemove;
 
             for (const auto &asset : m_assetIndex[name.first])
             {
                 if (asset.second["purgeId"] != Util::GuidToString(purgeId))
                 {
-                    assetsToRemove.push_back(asset.first);
+                    assetsToRemove.push_back(asset);
                     Debug::Warning("Removed " + name.second + ": " + asset.first.string());
                 }
             }
 
             for (const auto &asset : assetsToRemove)
             {
-                m_assetIndex[name.first].erase(asset);
+                m_assetIndex[name.first].erase(asset.first);
+
+                try
+                {
+                    remove(LibraryPath() / asset.second["id"].get<std::string>());
+                }
+                catch (const std::exception &e)
+                {
+                    Debug::Error("Failed to remove asset: " + std::string(e.what()));
+                }
             }
         }
     }

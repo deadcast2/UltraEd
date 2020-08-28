@@ -19,6 +19,7 @@ namespace UltraEd
         Project();
         Project(const path &path);
         Project(const char *name, const path &path, bool createDirectory);
+        ~Project();
         bool Save();
 
     private:
@@ -47,6 +48,7 @@ namespace UltraEd
         std::map<AssetType, std::string> m_assetTypeNames;
         std::set<std::string> m_modelExtensions;
         std::set<std::string> m_textureExtensions;
+        std::function<void()> m_activateSubscriber;
     };
 }
 

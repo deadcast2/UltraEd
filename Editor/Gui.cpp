@@ -794,8 +794,15 @@ namespace UltraEd
 
             if (ImGui::Button("Create") && strlen(projectName) > 0 && strlen(projectPath) > 0)
             {
-                m_project = std::make_unique<Project>(projectName, projectPath, createDirectory);
-                
+                try
+                {
+                    m_project = std::make_unique<Project>(projectName, projectPath, createDirectory);
+                }
+                catch (const std::exception &e)
+                {
+                    Debug::Error(e.what());
+                }
+
                 ImGui::CloseCurrentPopup();
             }
 
@@ -843,7 +850,14 @@ namespace UltraEd
 
             if (ImGui::Button("Open") && strlen(projectPath) > 0)
             {
-                m_project = std::make_unique<Project>(projectPath);
+                try
+                {
+                    m_project = std::make_unique<Project>(projectPath);
+                }
+                catch (const std::exception &e)
+                {
+                    Debug::Error(e.what());
+                }
 
                 ImGui::CloseCurrentPopup();
             }
