@@ -281,12 +281,20 @@ namespace UltraEd
     {
         for (const auto &name : m_assetTypeNames)
         {
+            std::vector<path> assetsToRemove;
+
             for (const auto &asset : m_assetIndex[name.first])
             {
                 if (asset.second["purgeId"] != Util::GuidToString(purgeId))
                 {
+                    assetsToRemove.push_back(asset.first);
                     Debug::Warning("Removed " + name.second + ": " + asset.first.string());
                 }
+            }
+
+            for (const auto &asset : assetsToRemove)
+            {
+                m_assetIndex[name.first].erase(asset);
             }
         }
     }
