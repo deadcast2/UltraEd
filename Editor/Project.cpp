@@ -16,7 +16,9 @@ namespace UltraEd
         m_assetTypeNames({ { AssetType::Unknown, "unknown" }, { AssetType::Model, "model" }, { AssetType::Texture, "texture" } }),
         m_modelExtensions({ ".3ds", ".blend", ".fbx", ".dae", ".x", ".stl", ".wrl", ".obj" }),
         m_textureExtensions({ ".png", ".jpg", ".bmp", ".tga" }),
-        m_activateSubscriber()
+        m_activateSubscriber(),
+        m_assetPreviews(),
+        m_modelPreviewer()
     {
         m_activateSubscriber = PubSub::Subscribe({ "Activate", [&](void *data) {
             Scan();
@@ -83,10 +85,13 @@ namespace UltraEd
         if (m_activateSubscriber)
             m_activateSubscriber();
 
-        for (auto &texture : m_textures)
+        for (const auto &name : m_assetTypeNames)
         {
-            if (texture.second != NULL)
-                texture.second->Release();
+            for (auto &assetPreview : m_assetPreviews[name.first])
+            {
+                if (assetPreview.second != NULL)
+                    assetPreview.second->Release();
+            }
         }
     }
 
@@ -119,7 +124,7 @@ namespace UltraEd
 
     const std::map<GUID, LPDIRECT3DTEXTURE9> Project::Textures(LPDIRECT3DDEVICE9 device)
     {
-        for (auto &texture : m_textures)
+        for (auto &texture : m_assetPreviews[AssetType::Texture])
         {
             if (texture.second == NULL)
             {
@@ -128,7 +133,21 @@ namespace UltraEd
             }
         }
 
-        return m_textures;
+        return m_assetPreviews[AssetType::Texture];
+    }
+
+    const std::map<GUID, LPDIRECT3DTEXTURE9> Project::Models(LPDIRECT3DDEVICE9 device)
+    {
+        for (auto &model : m_assetPreviews[AssetType::Model])
+        {
+            if (model.second == NULL)
+            {
+                auto path = LibraryPath() / Util::GuidToString(model.first);
+                m_modelPreviewer.Render(device, path, &model.second);
+            }
+        }
+
+        return m_assetPreviews[AssetType::Model];
     }
 
     path Project::ParentPath()
@@ -194,31 +213,17 @@ namespace UltraEd
     {
         RemovePreview(type, id);
 
-        switch (type)
-        {
-            case AssetType::Texture:
-                m_textures[id] = 0;
-                break;
-            default:
-                break;
-        }
+        m_assetPreviews[type][id] = 0;
     }
 
     void Project::RemovePreview(const AssetType &type, const GUID &id)
     {
-        switch (type)
+        if (m_assetPreviews[type].find(id) != m_assetPreviews[type].end())
         {
-            case AssetType::Texture:
-                if (m_textures.find(id) != m_textures.end())
-                {
-                    if (m_textures[id] != NULL)
-                        m_textures[id]->Release();
-                    
-                    m_textures.erase(id);
-                }
-                break;
-            default:
-                break;
+            if (m_assetPreviews[type][id] != NULL)
+                m_assetPreviews[type][id]->Release();
+
+            m_assetPreviews[type].erase(id);
         }
     }
 

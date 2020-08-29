@@ -24,7 +24,8 @@ namespace UltraEd
         m_sceneSettingsModalOpen(false),
         m_newProjectModalOpen(false),
         m_loadProjectModalOpen(false),
-        m_addTextureModalOpen(false)
+        m_addTextureModalOpen(false),
+        m_addModelModalOpen(false)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -102,6 +103,7 @@ namespace UltraEd
             NewProjectModal();
             LoadProjectModal();
             AddTextureModal();
+            AddModelModal();
             //ImGui::ShowDemoWindow();
         }
         ImGui::End();
@@ -289,7 +291,7 @@ namespace UltraEd
 
             if (ImGui::MenuItem("Model"))
             {
-                m_scene->OnAddModel(ModelPreset::Custom);
+                m_addModelModalOpen = true;
             }
 
             if (ImGui::BeginMenu("Texture"))
@@ -829,6 +831,7 @@ namespace UltraEd
         {
             ImGui::OpenPopup("Load Project");
             memset(projectPath, 0, strlen(projectPath));
+            strcpy(projectPath, "C:\\Users\\caleb\\Desktop\\test");
             m_loadProjectModalOpen = false;
         }
 
@@ -898,6 +901,43 @@ namespace UltraEd
                 if (ImGui::ImageButton(texture.second, ImVec2(64, 64)))
                 {
                     Debug::Info("Picked texture: " + Util::GuidToString(texture.first));
+                    ImGui::CloseCurrentPopup();
+                }
+
+                if ((i % 4) < 3) ImGui::SameLine();
+                ImGui::PopID();
+            }
+
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void Gui::AddModelModal()
+    {
+        if (m_addModelModalOpen)
+        {
+            ImGui::OpenPopup("Add Model");
+            m_addModelModalOpen = false;
+        }
+
+        if (ImGui::BeginPopupModal("Add Model", 0))
+        {
+            int i = 0;
+            auto models = m_project->Models(m_scene->m_device);
+
+            for (const auto &model : models)
+            {
+                if (model.second == NULL) continue;
+
+                ImGui::PushID(i++);
+                if (ImGui::ImageButton(model.second, ImVec2(64, 64)))
+                {
+                    Debug::Info("Picked model: " + Util::GuidToString(model.first));
                     ImGui::CloseCurrentPopup();
                 }
 

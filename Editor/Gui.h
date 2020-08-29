@@ -44,6 +44,7 @@ namespace UltraEd
         void NewProjectModal();
         void LoadProjectModal();
         void AddTextureModal();
+        void AddModelModal();
 
     private:
         Scene *m_scene;
@@ -60,6 +61,7 @@ namespace UltraEd
         int m_newProjectModalOpen;
         int m_loadProjectModalOpen;
         int m_addTextureModalOpen;
+        int m_addModelModalOpen;
     };
 }
 

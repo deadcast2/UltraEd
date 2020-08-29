@@ -7,6 +7,7 @@
 #include <set>
 #include <rpc.h>
 #include "Common.h"
+#include "ModelPreviewer.h"
 
 using namespace std::filesystem;
 using json = nlohmann::json;
@@ -24,6 +25,7 @@ namespace UltraEd
         ~Project();
         bool Save();
         const std::map<GUID, LPDIRECT3DTEXTURE9> Textures(LPDIRECT3DDEVICE9 device);
+        const std::map<GUID, LPDIRECT3DTEXTURE9> Models(LPDIRECT3DDEVICE9 device);
 
     private:
         path ParentPath();
@@ -54,7 +56,8 @@ namespace UltraEd
         std::set<std::string> m_modelExtensions;
         std::set<std::string> m_textureExtensions;
         std::function<void()> m_activateSubscriber;
-        std::map<GUID, LPDIRECT3DTEXTURE9> m_textures;
+        std::map<AssetType, std::map<GUID, LPDIRECT3DTEXTURE9>> m_assetPreviews;
+        ModelPreviewer m_modelPreviewer;
     };
 }
 
