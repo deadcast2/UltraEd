@@ -65,7 +65,7 @@ namespace UltraEd
         if (FAILED(m_d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
             D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device))) return false;
 
-        m_gui = std::make_unique<Gui>(this, hWnd, m_device);
+        m_gui = std::make_unique<Gui>(this, hWnd);
 
         OnNew();
 

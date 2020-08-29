@@ -82,6 +82,12 @@ namespace UltraEd
     {
         if (m_activateSubscriber)
             m_activateSubscriber();
+
+        for (auto &texture : m_textures)
+        {
+            if (texture.second != NULL)
+                texture.second->Release();
+        }
     }
 
     bool Project::Save()
@@ -109,6 +115,20 @@ namespace UltraEd
         }
 
         return false;
+    }
+
+    const std::map<GUID, LPDIRECT3DTEXTURE9> Project::Textures(LPDIRECT3DDEVICE9 device)
+    {
+        for (auto &texture : m_textures)
+        {
+            if (texture.second == NULL)
+            {
+                auto path = LibraryPath() / Util::GuidToString(texture.first);
+                D3DXCreateTextureFromFile(device, path.string().c_str(), &texture.second);
+            }
+        }
+
+        return m_textures;
     }
 
     path Project::ParentPath()
@@ -165,7 +185,40 @@ namespace UltraEd
             {
                 asset["purgeId"] = nullptr;
                 m_assetIndex[name.first][ParentPath() / asset["sourcePath"].get<std::string>()] = asset;
+                PreparePreview(name.first, Util::StringToGuid(asset["id"].get<std::string>().c_str()));
             }
+        }
+    }
+
+    void Project::PreparePreview(const AssetType &type, const GUID &id)
+    {
+        RemovePreview(type, id);
+
+        switch (type)
+        {
+            case AssetType::Texture:
+                m_textures[id] = 0;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Project::RemovePreview(const AssetType &type, const GUID &id)
+    {
+        switch (type)
+        {
+            case AssetType::Texture:
+                if (m_textures.find(id) != m_textures.end())
+                {
+                    if (m_textures[id] != NULL)
+                        m_textures[id]->Release();
+                    
+                    m_textures.erase(id);
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -197,6 +250,7 @@ namespace UltraEd
         m_assetIndex[type][entry.path()]["lastModified"] = lastModified;
 
         InsertAsset(type, entry.path());
+        PreparePreview(type, Util::StringToGuid(m_assetIndex[type][entry.path()]["id"].get<std::string>().c_str()));
     }
 
     bool Project::IsValidDatabase(const json &database)
@@ -292,6 +346,7 @@ namespace UltraEd
             for (const auto &asset : assetsToRemove)
             {
                 m_assetIndex[name.first].erase(asset.first);
+                RemovePreview(name.first, Util::StringToGuid(asset.second["id"].get<std::string>().c_str()));
 
                 try
                 {

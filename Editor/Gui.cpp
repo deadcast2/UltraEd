@@ -10,7 +10,7 @@
 
 namespace UltraEd
 {
-    Gui::Gui(Scene *scene, HWND hWnd, IDirect3DDevice9 *device) :
+    Gui::Gui(Scene *scene, HWND hWnd) :
         m_scene(scene),
         m_selectedActor(),
         m_project(),
@@ -23,13 +23,14 @@ namespace UltraEd
         m_optionsModalOpen(false),
         m_sceneSettingsModalOpen(false),
         m_newProjectModalOpen(false),
-        m_loadProjectModalOpen(false)
+        m_loadProjectModalOpen(false),
+        m_addTextureModalOpen(false)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         LoadColorTheme();
         ImGui_ImplWin32_Init(hWnd);
-        ImGui_ImplDX9_Init(device);
+        ImGui_ImplDX9_Init(scene->m_device);
 
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -100,6 +101,7 @@ namespace UltraEd
             ScriptEditor();
             NewProjectModal();
             LoadProjectModal();
+            AddTextureModal();
             //ImGui::ShowDemoWindow();
         }
         ImGui::End();
@@ -294,7 +296,7 @@ namespace UltraEd
             {
                 if (ImGui::MenuItem("Add"))
                 {
-                    m_scene->OnAddTexture();
+                    m_addTextureModalOpen = true;
                 }
 
                 if (ImGui::MenuItem("Delete"))
@@ -870,6 +872,43 @@ namespace UltraEd
             }
 
             m_fileBrowser.Display();
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void Gui::AddTextureModal()
+    {
+        if (m_addTextureModalOpen)
+        {
+            ImGui::OpenPopup("Add Texture");
+            m_addTextureModalOpen = false;
+        }
+
+        if (ImGui::BeginPopupModal("Add Texture", 0))
+        {
+            int i = 0;
+            auto textures = m_project->Textures(m_scene->m_device);
+
+            for (const auto &texture : textures)
+            {
+                if (texture.second == NULL) continue;
+
+                ImGui::PushID(i++);
+                if (ImGui::ImageButton(texture.second, ImVec2(64, 64)))
+                {
+                    Debug::Info("Picked texture: " + Util::GuidToString(texture.first));
+                    ImGui::CloseCurrentPopup();
+                }
+
+                if ((i % 4) < 3) ImGui::SameLine();
+                ImGui::PopID();
+            }
+
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
 
             ImGui::EndPopup();
         }

@@ -20,7 +20,7 @@ namespace UltraEd
     class Gui
     {
     public:
-        Gui(Scene *scene, HWND hWnd, IDirect3DDevice9 *device);
+        Gui(Scene *scene, HWND hWnd);
         ~Gui();
         void PrepareFrame();
         void RenderFrame();
@@ -43,6 +43,7 @@ namespace UltraEd
         void ScriptEditor();
         void NewProjectModal();
         void LoadProjectModal();
+        void AddTextureModal();
 
     private:
         Scene *m_scene;
@@ -58,6 +59,7 @@ namespace UltraEd
         int m_sceneSettingsModalOpen;
         int m_newProjectModalOpen;
         int m_loadProjectModalOpen;
+        int m_addTextureModalOpen;
     };
 }
 
