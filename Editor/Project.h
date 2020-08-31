@@ -29,8 +29,9 @@ namespace UltraEd
 
     private:
         path ParentPath();
-        path LibraryPath();
+        path LibraryPath(const json &asset = 0);
         AssetType DetectAssetType(const path &path);
+        json GetAsset(GUID id);
         void Scan();
         void Load(const json &database);
         void PreparePreview(const AssetType &type, const GUID &id);

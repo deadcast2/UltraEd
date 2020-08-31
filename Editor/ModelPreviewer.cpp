@@ -1,5 +1,7 @@
+#include "Debug.h"
 #include "ModelPreviewer.h"
 #include "Model.h"
+#include "BoxCollider.h"
 
 namespace UltraEd
 {
@@ -8,8 +10,16 @@ namespace UltraEd
     ModelPreviewer::ModelPreviewer() :
         m_device(),
         m_d3d9(),
-        m_d3dpp()
+        m_d3dpp(),
+        m_hWnd(),
+        m_worldLight()
     {
+        m_worldLight.Type = D3DLIGHT_DIRECTIONAL;
+        m_worldLight.Diffuse.r = 1.0f;
+        m_worldLight.Diffuse.g = 1.0f;
+        m_worldLight.Diffuse.b = 1.0f;
+        m_worldLight.Direction = D3DXVECTOR3(0, 0, 1);
+
         if (SetupWindow())
         {
             SetupRenderer();
@@ -27,17 +37,28 @@ namespace UltraEd
 
     void ModelPreviewer::Render(LPDIRECT3DDEVICE9 device, const std::filesystem::path &path, LPDIRECT3DTEXTURE9 *texture)
     {
-        auto model = Model(path.string().c_str());
-
         if (!m_device) return;
 
         ID3DXMatrixStack *stack;
         if (!SUCCEEDED(D3DXCreateMatrixStack(0, &stack))) return;
 
         m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(50, 50, 50), 1.0f, 0);
+        m_device->SetLight(0, &m_worldLight);
+        m_device->LightEnable(0, TRUE);
+
         if (SUCCEEDED(m_device->BeginScene()))
         {
-            model.Render(m_device, stack);
+            try
+            {
+                auto model = Model(path.string().c_str());
+                CenterModel(model);
+                model.Render(m_device, stack);
+            }
+            catch (const std::exception &e)
+            {
+                Debug::Error(std::string(e.what()));
+            }
+            
             m_device->EndScene();
             m_device->Present(NULL, NULL, NULL, NULL);
 
@@ -47,7 +68,7 @@ namespace UltraEd
 
             LPDIRECT3DTEXTURE9 tempTexture;
             m_device->CreateTexture(64, 64, 1, D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &tempTexture, 0);
-            
+
             LPDIRECT3DSURFACE9 tempTextureSurface;
             tempTexture->GetSurfaceLevel(0, &tempTextureSurface);
             m_device->StretchRect(surface, NULL, tempTextureSurface, NULL, D3DTEXF_NONE);
@@ -63,6 +84,8 @@ namespace UltraEd
             newTextureSurface->Release();
             tempTexture->Release();
         }
+
+        stack->Release();
     }
 
     bool ModelPreviewer::SetupWindow()
@@ -74,8 +97,8 @@ namespace UltraEd
 
         RegisterClassEx(&m_wc);
 
-        const int windowWidth = 320;
-        const int windowHeight = 240;
+        const int windowWidth = 300;
+        const int windowHeight = 300;
         m_hWnd = CreateWindow(m_wc.lpszClassName, "UltraEdModelPreviewer v0.1", WS_EX_TOOLWINDOW,
             0, 0, windowWidth, windowHeight, NULL, NULL, m_wc.hInstance, NULL);
 
@@ -101,12 +124,30 @@ namespace UltraEd
             D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device)))
             return false;
 
-        D3DXMATRIX viewMat;
-        const float aspect = static_cast<float>(m_d3dpp.BackBufferWidth) / static_cast<float>(m_d3dpp.BackBufferHeight);
-        D3DXMatrixOrthoLH(&viewMat, 1 * aspect, 1, -1000.0f, 1000.0f);
-        m_device->SetTransform(D3DTS_PROJECTION, &viewMat);
-
         return true;
+    }
+
+    void ModelPreviewer::CenterModel(Model &model)
+    {
+        auto boxCollider = std::make_unique<BoxCollider>(model.GetVertices());
+        auto center = boxCollider->GetCenter();
+        auto extents = boxCollider->GetExtents();
+        
+        std::vector<float> extentsList({ extents.x, extents.y, extents.z });
+        auto largestExtent = *std::max_element(extentsList.begin(), extentsList.end());     
+     
+        D3DXMATRIX viewMat;
+        D3DXMatrixLookAtLH(&viewMat, 
+            &D3DXVECTOR3(center.x, center.y, center.z - (2 * largestExtent)),
+            &D3DXVECTOR3(0, center.y, 0),
+            &D3DXVECTOR3(0, 1, 0));
+        m_device->SetTransform(D3DTS_VIEW, &viewMat);
+
+        D3DXMATRIX projMat;
+        const float aspect = static_cast<float>(m_d3dpp.BackBufferWidth) / static_cast<float>(m_d3dpp.BackBufferHeight);
+        const float fov = D3DX_PI / 2.0f;
+        D3DXMatrixPerspectiveFovLH(&projMat, fov, aspect, 0.1f, 1000.0f);
+        m_device->SetTransform(D3DTS_PROJECTION, &projMat);
     }
 
     LRESULT WINAPI ModelPreviewerWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

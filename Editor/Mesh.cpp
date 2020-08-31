@@ -11,13 +11,13 @@ namespace UltraEd
         m_info(FileIO::Import(filePath))
     {
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(m_info.path, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded |
+        const aiScene *scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded |
             aiProcess_OptimizeMeshes);
 
-        if (scene)
-        {
-            Process(scene->mRootNode, scene);
-        }
+        if (!scene)
+            throw std::exception(std::string("Unable to load model ").append(filePath).c_str());
+
+        Process(scene->mRootNode, scene);
     }
 
     void Mesh::Process(aiNode *node, const aiScene *scene)

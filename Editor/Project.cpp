@@ -14,7 +14,7 @@ namespace UltraEd
         m_databasePath(),
         m_assetIndex(),
         m_assetTypeNames({ { AssetType::Unknown, "unknown" }, { AssetType::Model, "model" }, { AssetType::Texture, "texture" } }),
-        m_modelExtensions({ ".3ds", ".blend", ".fbx", ".dae", ".x", ".stl", ".wrl", ".obj" }),
+        m_modelExtensions({ ".3ds", ".fbx", ".dae", ".x", ".stl", ".wrl", ".obj" }),
         m_textureExtensions({ ".png", ".jpg", ".bmp", ".tga" }),
         m_activateSubscriber(),
         m_assetPreviews(),
@@ -128,8 +128,10 @@ namespace UltraEd
         {
             if (texture.second == NULL)
             {
-                auto path = LibraryPath() / Util::GuidToString(texture.first);
-                D3DXCreateTextureFromFile(device, path.string().c_str(), &texture.second);
+                auto asset = GetAsset(texture.first);
+                if (asset == NULL) continue;
+
+                D3DXCreateTextureFromFile(device, LibraryPath(asset).string().c_str(), &texture.second);
             }
         }
 
@@ -142,8 +144,10 @@ namespace UltraEd
         {
             if (model.second == NULL)
             {
-                auto path = LibraryPath() / Util::GuidToString(model.first);
-                m_modelPreviewer.Render(device, path, &model.second);
+                auto asset = GetAsset(model.first);
+                if (asset == NULL) continue;
+
+                m_modelPreviewer.Render(device, LibraryPath(asset).string().c_str(), &model.second);              
             }
         }
 
@@ -155,9 +159,17 @@ namespace UltraEd
         return m_databasePath.parent_path();
     }
 
-    path Project::LibraryPath()
+    path Project::LibraryPath(const json &asset)
     {
-        return ParentPath() / "Library";
+        auto path = ParentPath() / "Library";
+        if (asset != NULL)
+        {
+            auto id = static_cast<std::string>(asset["id"]);
+            auto sourcePath = static_cast<std::string>(asset["sourcePath"]);
+            auto ext = ::path(sourcePath).extension().string();
+            return path / (id + ext);
+        }
+        return path;
     }
 
     void Project::Scan()
@@ -237,6 +249,22 @@ namespace UltraEd
         return AssetType::Unknown;
     }
 
+    json Project::GetAsset(GUID id)
+    {
+        auto idString = Util::GuidToString(id);
+
+        for (const auto &name : m_assetTypeNames)
+        {
+            for (const auto &asset : m_assetIndex[name.first])
+            {
+                if (asset.second["id"].get<std::string>() == idString)
+                    return asset.second;
+            }
+        }
+
+        return NULL;
+    }
+
     void Project::AddAsset(const AssetType &type, const directory_entry &entry)
     {
         m_assetIndex[type][entry.path()] = {
@@ -298,8 +326,7 @@ namespace UltraEd
 
         try
         {
-            auto id = static_cast<std::string>(m_assetIndex[type][path]["id"]);
-            copy(path, LibraryPath() / id, copy_options::overwrite_existing);
+            copy(path, LibraryPath(m_assetIndex[type][path]), copy_options::overwrite_existing);
         }
         catch (const std::exception &e)
         {
@@ -355,7 +382,7 @@ namespace UltraEd
 
                 try
                 {
-                    remove(LibraryPath() / asset.second["id"].get<std::string>());
+                    remove(LibraryPath(asset));
                 }
                 catch (const std::exception &e)
                 {
