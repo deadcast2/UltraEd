@@ -16,6 +16,24 @@ namespace UltraEd
 {
     enum class AssetType { Unknown, Model, Texture };
 
+    class AssetRecord
+    {
+    public:
+        GUID id;
+        AssetType type;
+        GUID purgeId;
+        std::string sourcePath;
+        long long lastModified;
+    };
+
+    class ProjectRecord
+    {
+    public:
+        std::string name;
+        int version;
+        std::vector<AssetRecord> assets;
+    };
+
     class Project
     {
     public:
@@ -23,22 +41,22 @@ namespace UltraEd
         Project(const path &path);
         Project(const char *name, const path &path, bool createDirectory);
         ~Project();
-        bool Save();
+        bool Save(const char *name = 0);
         const std::map<GUID, LPDIRECT3DTEXTURE9> Textures(LPDIRECT3DDEVICE9 device);
         const std::map<GUID, LPDIRECT3DTEXTURE9> Models(LPDIRECT3DDEVICE9 device);
 
     private:
         path ParentPath();
-        path LibraryPath(const json &asset = 0);
+        path LibraryPath(const AssetRecord *record = 0);
         AssetType DetectAssetType(const path &path);
-        json GetAsset(GUID id);
+        const AssetRecord *GetAsset(GUID id);
         void Scan();
-        void Load(const json &database);
         void PreparePreview(const AssetType &type, const GUID &id);
         void RemovePreview(const AssetType &type, const GUID &id);
         void AddAsset(const AssetType &type, const directory_entry &entry);
         void UpdateAsset(const AssetType &type, const directory_entry &entry);
-        bool IsValidDatabase(const json &database);
+        void BuildIndex();
+        bool IsValidDatabase();
         bool IsValidFile(const directory_entry &entry);
         bool IsSupportedModel(const path &path);
         bool IsSupportedTexture(const path &path);
@@ -50,15 +68,15 @@ namespace UltraEd
         void PurgeMissingAssets(const GUID &purgeId);
 
     private:
-        std::string m_name;
         path m_databasePath;
-        std::map<AssetType, std::map<path, json>> m_assetIndex;
+        std::map<AssetType, std::map<path, AssetRecord>> m_assetIndex;
         std::map<AssetType, std::string> m_assetTypeNames;
         std::set<std::string> m_modelExtensions;
         std::set<std::string> m_textureExtensions;
         std::function<void()> m_activateSubscriber;
         std::map<AssetType, std::map<GUID, LPDIRECT3DTEXTURE9>> m_assetPreviews;
         ModelPreviewer m_modelPreviewer;
+        ProjectRecord m_projectRecord;
     };
 }
 

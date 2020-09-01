@@ -9,8 +9,43 @@
 
 namespace UltraEd
 {
+    void to_json(json &j, const AssetRecord &a)
+    {
+        j = json {
+            { "id", Util::GuidToString(a.id) },
+            { "type", a.type },
+            { "purgeId", Util::GuidToString(a.purgeId) },
+            { "sourcePath", a.sourcePath },
+            { "lastModified", a.lastModified }
+        };
+    }
+
+    void from_json(const json &j, AssetRecord &a)
+    {
+        a.id = Util::StringToGuid(j.at("id").get<std::string>().c_str());
+        a.purgeId = Util::StringToGuid(j.at("purgeId").get<std::string>().c_str());
+        j.at("type").get_to(a.type);
+        j.at("sourcePath").get_to(a.sourcePath);
+        j.at("lastModified").get_to(a.lastModified);
+    }
+
+    void to_json(json &j, const ProjectRecord &p)
+    {
+        j = json {
+            { "name", p.name },
+            { "version", p.version },
+            { "assets", p.assets }
+        };
+    }
+
+    void from_json(const json &j, ProjectRecord &p)
+    {
+        j.at("name").get_to(p.name);
+        j.at("version").get_to(p.version);
+        j.at("assets").get_to(p.assets);
+    }
+
     Project::Project() :
-        m_name(),
         m_databasePath(),
         m_assetIndex(),
         m_assetTypeNames({ { AssetType::Unknown, "unknown" }, { AssetType::Model, "model" }, { AssetType::Texture, "texture" } }),
@@ -18,11 +53,39 @@ namespace UltraEd
         m_textureExtensions({ ".png", ".jpg", ".bmp", ".tga" }),
         m_activateSubscriber(),
         m_assetPreviews(),
-        m_modelPreviewer()
+        m_modelPreviewer(),
+        m_projectRecord()
     {
         m_activateSubscriber = PubSub::Subscribe({ "Activate", [&](void *data) {
             Scan();
         } });
+    }
+
+    Project::Project(const char *name, const path &path, bool createDirectory) : Project()
+    {
+        if (!exists(path))
+        {
+            throw std::exception("Failed to create new project since selected path doesn't exist.");
+        }
+
+        const auto projectPath = createDirectory ? path / name : path;
+        if (createDirectory)
+        {
+            create_directory(projectPath);
+        }
+
+        m_databasePath = projectPath / "db.ultra";
+
+        if (Save(name) && exists(m_databasePath))
+        {
+            Debug::Info("New project successfully created!");
+        }
+        else
+        {
+            throw std::exception("Error initializing new project database.");
+        }
+
+        Scan();
     }
 
     Project::Project(const path &path) : Project()
@@ -39,42 +102,14 @@ namespace UltraEd
         {
             std::stringstream stream;
             stream << file.rdbuf();
-            json database = json::parse(stream.str());
+            m_projectRecord = json::parse(stream.str());
 
-            if (!IsValidDatabase(database))
+            if (!IsValidDatabase())
             {
                 throw std::exception("Failed to load project since it doesn't seem to be valid.");
             }
 
-            Load(database);
-        }
-
-        Scan();
-    }
-
-    Project::Project(const char *name, const path &path, bool createDirectory) : Project()
-    {
-        if (!exists(path))
-        {
-            throw std::exception("Failed to create new project since selected path doesn't exist.");
-        }
-
-        const auto projectPath = createDirectory ? path / name : path;
-        if (createDirectory)
-        {
-            create_directory(projectPath);
-        }
-
-        m_name = name;
-        m_databasePath = projectPath / "db.ultra";
-
-        if (Save() && exists(m_databasePath))
-        {
-            Debug::Info("New project successfully created!");
-        }
-        else
-        {
-            throw std::exception("Error initializing new project database.");
+            BuildIndex();
         }
 
         Scan();
@@ -95,26 +130,23 @@ namespace UltraEd
         }
     }
 
-    bool Project::Save()
+    bool Project::Save(const char *name)
     {
-        json database = {
-            { "project", {
-                { "name", m_name },
-                { "version", 0.1 }
-            }}
-        };
+        // Use existing project name when no name is passed.
+        m_projectRecord = ProjectRecord({ name ? name : m_projectRecord.name, 1 });
 
         for (const auto &name : m_assetTypeNames)
         {
             for (const auto &asset : m_assetIndex[name.first])
             {
-                database[name.second].push_back(asset.second);
+                m_projectRecord.assets.push_back(asset.second);
             }
         }
 
         std::ofstream file(m_databasePath);
         if (file)
         {
+            json database = m_projectRecord;
             file << database.dump(1);
             return true;
         }
@@ -147,7 +179,7 @@ namespace UltraEd
                 auto asset = GetAsset(model.first);
                 if (asset == NULL) continue;
 
-                m_modelPreviewer.Render(device, LibraryPath(asset).string().c_str(), &model.second);              
+                m_modelPreviewer.Render(device, LibraryPath(asset).string().c_str(), &model.second);
             }
         }
 
@@ -159,15 +191,13 @@ namespace UltraEd
         return m_databasePath.parent_path();
     }
 
-    path Project::LibraryPath(const json &asset)
+    path Project::LibraryPath(const AssetRecord *record)
     {
         auto path = ParentPath() / "Library";
-        if (asset != NULL)
+        if (record != NULL)
         {
-            auto id = static_cast<std::string>(asset["id"]);
-            auto sourcePath = static_cast<std::string>(asset["sourcePath"]);
-            auto ext = ::path(sourcePath).extension().string();
-            return path / (id + ext);
+            auto ext = ::path(record->sourcePath).extension().string();
+            return path / (Util::GuidToString(record->id) + ext);
         }
         return path;
     }
@@ -203,24 +233,6 @@ namespace UltraEd
         PurgeMissingAssets(purgeId);
     }
 
-    void Project::Load(const json &database)
-    {
-        m_name = database["project"]["name"];
-
-        for (const auto &name : m_assetTypeNames)
-        {
-            if (!database.contains(name.second))
-                continue;
-
-            for (auto asset : database[name.second])
-            {
-                asset["purgeId"] = nullptr;
-                m_assetIndex[name.first][ParentPath() / asset["sourcePath"].get<std::string>()] = asset;
-                PreparePreview(name.first, Util::StringToGuid(asset["id"].get<std::string>().c_str()));
-            }
-        }
-    }
-
     void Project::PreparePreview(const AssetType &type, const GUID &id)
     {
         RemovePreview(type, id);
@@ -249,16 +261,14 @@ namespace UltraEd
         return AssetType::Unknown;
     }
 
-    json Project::GetAsset(GUID id)
+    const AssetRecord *Project::GetAsset(GUID id)
     {
-        auto idString = Util::GuidToString(id);
-
         for (const auto &name : m_assetTypeNames)
         {
             for (const auto &asset : m_assetIndex[name.first])
             {
-                if (asset.second["id"].get<std::string>() == idString)
-                    return asset.second;
+                if (asset.second.id == id)
+                    return &asset.second;
             }
         }
 
@@ -268,9 +278,11 @@ namespace UltraEd
     void Project::AddAsset(const AssetType &type, const directory_entry &entry)
     {
         m_assetIndex[type][entry.path()] = {
-            { "id", Util::GuidToString(Util::NewGuid()) },
-            { "sourcePath", entry.path().string().erase(0, ParentPath().string().size() + 1) },
-            { "purgeId", nullptr }
+            Util::NewGuid(),
+            type,
+            Util::NewGuid(),
+            entry.path().string().erase(0, ParentPath().string().size() + 1),
+            0
         };
 
         UpdateAsset(type, entry);
@@ -280,18 +292,26 @@ namespace UltraEd
     {
         auto lastModified = entry.last_write_time().time_since_epoch().count();
 
-        m_assetIndex[type][entry.path()]["lastModified"] = lastModified;
+        m_assetIndex[type][entry.path()].lastModified = lastModified;
 
         InsertAsset(type, entry.path());
-        PreparePreview(type, Util::StringToGuid(m_assetIndex[type][entry.path()]["id"].get<std::string>().c_str()));
+        PreparePreview(type, m_assetIndex[type][entry.path()].id);
     }
 
-    bool Project::IsValidDatabase(const json &database)
+    void Project::BuildIndex()
     {
-        auto name = database["project"]["name"];
-        auto version = database["project"]["version"];
+        m_assetIndex.clear();
 
-        return !name.is_null() && !version.is_null();
+        for (const auto &asset : m_projectRecord.assets)
+        {
+            m_assetIndex[asset.type][ParentPath() / asset.sourcePath] = asset;
+            PreparePreview(asset.type, asset.id);
+        }
+    }
+
+    bool Project::IsValidDatabase()
+    {
+        return !m_projectRecord.name.empty() && m_projectRecord.version > 0;
     }
 
     bool Project::IsValidFile(const directory_entry &entry)
@@ -311,7 +331,7 @@ namespace UltraEd
 
     bool Project::IsAssetModified(const AssetType &type, const directory_entry &entry)
     {
-        return m_assetIndex[type][entry.path()]["lastModified"] != entry.last_write_time().time_since_epoch().count();
+        return m_assetIndex[type][entry.path()].lastModified != entry.last_write_time().time_since_epoch().count();
     }
 
     bool Project::AssetExists(const AssetType &type, const path &path)
@@ -326,7 +346,7 @@ namespace UltraEd
 
         try
         {
-            copy(path, LibraryPath(m_assetIndex[type][path]), copy_options::overwrite_existing);
+            copy(path, LibraryPath(&m_assetIndex[type][path]), copy_options::overwrite_existing);
         }
         catch (const std::exception &e)
         {
@@ -357,18 +377,18 @@ namespace UltraEd
 
     void Project::VerifyAsset(const GUID &purgeId, const AssetType &type, const directory_entry &entry)
     {
-        m_assetIndex[type][entry.path()]["purgeId"] = Util::GuidToString(purgeId);
+        m_assetIndex[type][entry.path()].purgeId = purgeId;
     }
 
     void Project::PurgeMissingAssets(const GUID &purgeId)
     {
         for (const auto &name : m_assetTypeNames)
         {
-            std::vector<std::pair<path, json>> assetsToRemove;
+            std::vector<std::pair<path, AssetRecord>> assetsToRemove;
 
             for (const auto &asset : m_assetIndex[name.first])
             {
-                if (asset.second["purgeId"] != Util::GuidToString(purgeId))
+                if (asset.second.purgeId != purgeId)
                 {
                     assetsToRemove.push_back(asset);
                     Debug::Warning("Removed " + name.second + ": " + asset.first.string());
@@ -378,11 +398,11 @@ namespace UltraEd
             for (const auto &asset : assetsToRemove)
             {
                 m_assetIndex[name.first].erase(asset.first);
-                RemovePreview(name.first, Util::StringToGuid(asset.second["id"].get<std::string>().c_str()));
+                RemovePreview(name.first, asset.second.id);
 
                 try
                 {
-                    remove(LibraryPath(asset));
+                    remove(LibraryPath(&asset.second));
                 }
                 catch (const std::exception &e)
                 {
