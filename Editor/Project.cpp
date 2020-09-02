@@ -281,7 +281,20 @@ namespace UltraEd
 
     bool Project::IsValidFile(const directory_entry &entry)
     {
-        return entry.path().parent_path() != LibraryPath() && entry.is_regular_file();
+        if (!entry.is_regular_file())
+            return false;
+
+        // Verify the file is not within the project's library folder.
+        auto filePath = entry.path();
+        while (filePath.has_parent_path() && filePath != filePath.root_path())
+        {
+            if (filePath.parent_path() == LibraryPath())
+                return false;
+
+            filePath = filePath.parent_path();
+        }
+
+        return true;
     }
 
     bool Project::IsSupportedModel(const path &path)
@@ -315,7 +328,7 @@ namespace UltraEd
 
         try
         {
-            copy(path, LibraryPath(&m_assetIndex[type][path]), copy_options::overwrite_existing);
+            copy_file(path, LibraryPath(&m_assetIndex[type][path]), copy_options::overwrite_existing);
         }
         catch (const std::exception &e)
         {
