@@ -296,7 +296,11 @@ namespace UltraEd
 
     bool Project::IsAssetModified(const AssetType &type, const directory_entry &entry)
     {
-        return m_assetIndex[type][entry.path()].lastModified != entry.last_write_time().time_since_epoch().count();
+        auto assetRecord = m_assetIndex[type][entry.path()];
+        bool isModified = assetRecord.lastModified != entry.last_write_time().time_since_epoch().count();
+        bool isMissing = !exists(LibraryPath(&assetRecord));
+
+        return isModified || isMissing;
     }
 
     bool Project::AssetExists(const AssetType &type, const path &path)
