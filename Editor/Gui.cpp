@@ -892,6 +892,7 @@ namespace UltraEd
         {
             int i = 0;
             auto textures = m_project->Textures(m_scene->m_device);
+            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / 64.0f));
 
             for (const auto &texture : textures)
             {
@@ -904,7 +905,7 @@ namespace UltraEd
                     ImGui::CloseCurrentPopup();
                 }
 
-                if ((i % 4) < 3) ImGui::SameLine();
+                if ((i % rowLimit) != 0) ImGui::SameLine();
                 ImGui::PopID();
             }
 
@@ -929,6 +930,7 @@ namespace UltraEd
         {
             int i = 0;
             auto models = m_project->Models(m_scene->m_device);
+            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / 64.0f));
 
             for (const auto &model : models)
             {
@@ -941,7 +943,7 @@ namespace UltraEd
                     ImGui::CloseCurrentPopup();
                 }
 
-                if ((i % 4) < 3) ImGui::SameLine();
+                if ((i % rowLimit) != 0) ImGui::SameLine();
                 ImGui::PopID();
             }
 
