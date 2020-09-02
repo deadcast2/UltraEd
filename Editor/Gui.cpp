@@ -165,38 +165,41 @@ namespace UltraEd
                 m_loadProjectModalOpen = true;
             }
 
-            ImGui::Separator();
-
-            if (ImGui::MenuItem("New Scene"))
+            if (m_project)
             {
-                m_scene->OnNew();
-            }
+                ImGui::Separator();
 
-            if (ImGui::MenuItem("Save Scene As..."))
-            {
-                m_scene->OnSave();
-            }
+                if (ImGui::MenuItem("New Scene"))
+                {
+                    m_scene->OnNew();
+                }
 
-            if (ImGui::MenuItem("Load Scene"))
-            {
-                m_scene->OnLoad();
-            }
+                if (ImGui::MenuItem("Save Scene As..."))
+                {
+                    m_scene->OnSave();
+                }
 
-            ImGui::Separator();
+                if (ImGui::MenuItem("Load Scene"))
+                {
+                    m_scene->OnLoad();
+                }
 
-            if (ImGui::MenuItem("Build ROM"))
-            {
-                m_scene->OnBuildROM(BuildFlag::Build);
-            }
+                ImGui::Separator();
 
-            if (ImGui::MenuItem("Build ROM & Load"))
-            {
-                m_scene->OnBuildROM(BuildFlag::Load);
-            }
+                if (ImGui::MenuItem("Build ROM"))
+                {
+                    m_scene->OnBuildROM(BuildFlag::Build);
+                }
 
-            if (ImGui::MenuItem("Build ROM & Run"))
-            {
-                m_scene->OnBuildROM(BuildFlag::Run);
+                if (ImGui::MenuItem("Build ROM & Load"))
+                {
+                    m_scene->OnBuildROM(BuildFlag::Load);
+                }
+
+                if (ImGui::MenuItem("Build ROM & Run"))
+                {
+                    m_scene->OnBuildROM(BuildFlag::Run);
+                }
             }
 
             ImGui::Separator();
@@ -238,7 +241,7 @@ namespace UltraEd
 
     void Gui::EditMenu()
     {
-        if (ImGui::BeginMenu("Edit"))
+        if (m_project && ImGui::BeginMenu("Edit"))
         {
             auto auditorTitles = m_scene->m_auditor.Titles();
 
@@ -282,7 +285,7 @@ namespace UltraEd
 
     void Gui::ActorMenu()
     {
-        if (ImGui::BeginMenu("Actor"))
+        if (m_project && ImGui::BeginMenu("Actor"))
         {
             if (ImGui::MenuItem("Camera"))
             {
@@ -345,7 +348,7 @@ namespace UltraEd
 
     void Gui::ViewMenu()
     {
-        if (ImGui::BeginMenu("View"))
+        if (m_project && ImGui::BeginMenu("View"))
         {
             auto viewType = m_scene->GetActiveView()->GetType();
 
@@ -394,7 +397,7 @@ namespace UltraEd
 
     void Gui::GizmoMenu()
     {
-        if (ImGui::BeginMenu("Gizmo"))
+        if (m_project && ImGui::BeginMenu("Gizmo"))
         {
             if (ImGui::MenuItem("Translate", "1", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Translate))
             {
