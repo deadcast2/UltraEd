@@ -10,7 +10,61 @@
 
 namespace UltraEd
 {
-    Project::Project() :
+    std::unique_ptr<Project> Project::m_projectInstance = NULL;
+
+    void Project::New(const char *name, const path &path, bool createDirectory)
+    {
+        m_projectInstance = std::make_unique<Project>(m_constructor_tag {}, name, path, createDirectory);
+    }
+
+    void Project::Load(const path &path)
+    {
+        m_projectInstance = std::make_unique<Project>(m_constructor_tag {}, path);
+    }
+
+    bool Project::Save(const char *name)
+    {
+        if(IsLoaded())
+            return m_projectInstance->Persist(name);
+        return false;
+    }
+
+    bool Project::IsLoaded()
+    {
+        return m_projectInstance != NULL;
+    }
+
+    std::map<GUID, LPDIRECT3DTEXTURE9> Project::Previews(const AssetType &type, LPDIRECT3DDEVICE9 device)
+    {
+        if (!IsLoaded())
+            return std::map<GUID, LPDIRECT3DTEXTURE9>();
+
+        for (auto &preview : m_projectInstance->m_assetPreviews[type])
+        {
+            if (preview.second != NULL)
+                continue;
+
+            auto asset = m_projectInstance->GetAsset(preview.first);
+            if (asset == NULL) 
+                continue;
+
+            switch (type)
+            {
+                case AssetType::Texture:
+                    D3DXCreateTextureFromFile(device,
+                        m_projectInstance->LibraryPath(asset).string().c_str(), &preview.second);
+                    break;
+                case AssetType::Model:
+                    m_projectInstance->m_modelPreviewer.Render(device,
+                        m_projectInstance->LibraryPath(asset).string().c_str(), &preview.second);
+                    break;
+            }
+        }
+
+        return m_projectInstance->m_assetPreviews[type];
+    }
+
+    Project::Project(m_constructor_tag tag) :
         m_databasePath(),
         m_assetIndex(),
         m_assetTypeNames({ { AssetType::Unknown, "unknown" }, { AssetType::Model, "model" }, { AssetType::Texture, "texture" } }),
@@ -26,7 +80,7 @@ namespace UltraEd
         } });
     }
 
-    Project::Project(const char *name, const path &path, bool createDirectory) : Project()
+    Project::Project(m_constructor_tag tag, const char *name, const path &path, bool createDirectory) : Project(tag)
     {
         if (!exists(path))
         {
@@ -53,7 +107,7 @@ namespace UltraEd
         Scan();
     }
 
-    Project::Project(const path &path) : Project()
+    Project::Project(m_constructor_tag tag, const path &path) : Project(tag)
     {
         m_databasePath = path / "db.ultra";
 
@@ -95,7 +149,7 @@ namespace UltraEd
         }
     }
 
-    bool Project::Save(const char *name)
+    bool Project::Persist(const char *name)
     {
         // Use existing project name when no name is passed.
         m_projectRecord = ProjectRecord({ name ? name : m_projectRecord.name, 1 });
@@ -117,38 +171,6 @@ namespace UltraEd
         }
 
         return false;
-    }
-
-    const std::map<GUID, LPDIRECT3DTEXTURE9> Project::Textures(LPDIRECT3DDEVICE9 device)
-    {
-        for (auto &texture : m_assetPreviews[AssetType::Texture])
-        {
-            if (texture.second == NULL)
-            {
-                auto asset = GetAsset(texture.first);
-                if (asset == NULL) continue;
-
-                D3DXCreateTextureFromFile(device, LibraryPath(asset).string().c_str(), &texture.second);
-            }
-        }
-
-        return m_assetPreviews[AssetType::Texture];
-    }
-
-    const std::map<GUID, LPDIRECT3DTEXTURE9> Project::Models(LPDIRECT3DDEVICE9 device)
-    {
-        for (auto &model : m_assetPreviews[AssetType::Model])
-        {
-            if (model.second == NULL)
-            {
-                auto asset = GetAsset(model.first);
-                if (asset == NULL) continue;
-
-                m_modelPreviewer.Render(device, LibraryPath(asset).string().c_str(), &model.second);
-            }
-        }
-
-        return m_assetPreviews[AssetType::Model];
     }
 
     path Project::ParentPath()

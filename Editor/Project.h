@@ -17,15 +17,26 @@ namespace UltraEd
 {
     class Project
     {
-    public:
-        Project();
-        Project(const path &path);
-        Project(const char *name, const path &path, bool createDirectory);
-        ~Project();
-        bool Save(const char *name = 0);
-        const std::map<GUID, LPDIRECT3DTEXTURE9> Textures(LPDIRECT3DDEVICE9 device);
-        const std::map<GUID, LPDIRECT3DTEXTURE9> Models(LPDIRECT3DDEVICE9 device);
+        /// <summary>
+        /// Trick to make ctors pseudo private while using unique_ptr. Method found here:
+        /// https://seanmiddleditch.com/enabling-make-unique-with-private-constructors/
+        /// </summary>
+        struct m_constructor_tag
+        {
+            explicit m_constructor_tag() = default;
+        };
 
+    public:
+        Project(m_constructor_tag tag);
+        Project(m_constructor_tag tag, const path &path);
+        Project(m_constructor_tag tag, const char *name, const path &path, bool createDirectory);
+        ~Project();
+        static void New(const char *name, const path &path, bool createDirectory);
+        static void Load(const path &path);
+        static bool Save(const char *name = 0);
+        static bool IsLoaded();
+        static std::map<GUID, LPDIRECT3DTEXTURE9> Previews(const AssetType &type, LPDIRECT3DDEVICE9 device);
+    
     private:
         path ParentPath();
         path LibraryPath(const AssetRecord *record = 0);
@@ -37,6 +48,7 @@ namespace UltraEd
         void AddAsset(const AssetType &type, const directory_entry &entry);
         void UpdateAsset(const AssetType &type, const directory_entry &entry);
         void BuildIndex();
+        bool Persist(const char *name = 0);
         bool IsValidDatabase();
         bool IsValidFile(const directory_entry &entry);
         bool IsSupportedModel(const path &path);
@@ -49,6 +61,7 @@ namespace UltraEd
         void PurgeMissingAssets(const GUID &purgeId);
 
     private:
+        static std::unique_ptr<Project> m_projectInstance;
         path m_databasePath;
         std::map<AssetType, std::map<path, AssetRecord>> m_assetIndex;
         std::map<AssetType, std::string> m_assetTypeNames;

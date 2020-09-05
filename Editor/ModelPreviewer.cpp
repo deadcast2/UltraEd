@@ -67,14 +67,16 @@ namespace UltraEd
             m_device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &surface);
 
             LPDIRECT3DTEXTURE9 tempTexture;
-            m_device->CreateTexture(64, 64, 1, D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &tempTexture, 0);
+            m_device->CreateTexture(PreviewWidth, PreviewWidth, 1, D3DUSAGE_RENDERTARGET, 
+                D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &tempTexture, 0);
 
             LPDIRECT3DSURFACE9 tempTextureSurface;
             tempTexture->GetSurfaceLevel(0, &tempTextureSurface);
             m_device->StretchRect(surface, NULL, tempTextureSurface, NULL, D3DTEXF_NONE);
 
             // Create a texture with the parent device and copy the rendered surface to its context.
-            device->CreateTexture(64, 64, 1, D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, texture, 0);
+            device->CreateTexture(PreviewWidth, PreviewWidth, 1, D3DUSAGE_RENDERTARGET, 
+                D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, texture, 0);
             PDIRECT3DSURFACE9 newTextureSurface;
             (*texture)->GetSurfaceLevel(0, &newTextureSurface);
             D3DXLoadSurfaceFromSurface(newTextureSurface, 0, 0, tempTextureSurface, 0, 0, D3DX_DEFAULT, 0);
@@ -97,10 +99,8 @@ namespace UltraEd
 
         RegisterClassEx(&m_wc);
 
-        const int windowWidth = 300;
-        const int windowHeight = 300;
         m_hWnd = CreateWindow(m_wc.lpszClassName, "UltraEdModelPreviewer v0.1", WS_EX_TOOLWINDOW,
-            0, 0, windowWidth, windowHeight, NULL, NULL, m_wc.hInstance, NULL);
+            0, 0, 300, 300, NULL, NULL, m_wc.hInstance, NULL);
 
         return m_hWnd != NULL;
     }

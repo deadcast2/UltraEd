@@ -13,7 +13,6 @@ namespace UltraEd
     Gui::Gui(Scene *scene, HWND hWnd) :
         m_scene(scene),
         m_selectedActor(),
-        m_project(),
         m_textEditor(),
         m_fileBrowser(ImGuiFileBrowserFlags_SelectDirectory),
         m_consoleText(),
@@ -155,9 +154,9 @@ namespace UltraEd
                 m_newProjectModalOpen = true;
             }
 
-            if (m_project && ImGui::MenuItem("Save Project"))
+            if (Project::IsLoaded() && ImGui::MenuItem("Save Project"))
             {
-                m_project->Save();
+                Project::Save();
             }
 
             if (ImGui::MenuItem("Load Project"))
@@ -165,7 +164,7 @@ namespace UltraEd
                 m_loadProjectModalOpen = true;
             }
 
-            if (m_project)
+            if (Project::IsLoaded())
             {
                 ImGui::Separator();
 
@@ -241,7 +240,7 @@ namespace UltraEd
 
     void Gui::EditMenu()
     {
-        if (m_project && ImGui::BeginMenu("Edit"))
+        if (Project::IsLoaded() && ImGui::BeginMenu("Edit"))
         {
             auto auditorTitles = m_scene->m_auditor.Titles();
 
@@ -285,7 +284,7 @@ namespace UltraEd
 
     void Gui::ActorMenu()
     {
-        if (m_project && ImGui::BeginMenu("Actor"))
+        if (Project::IsLoaded() && ImGui::BeginMenu("Actor"))
         {
             if (ImGui::MenuItem("Camera"))
             {
@@ -348,7 +347,7 @@ namespace UltraEd
 
     void Gui::ViewMenu()
     {
-        if (m_project && ImGui::BeginMenu("View"))
+        if (Project::IsLoaded() && ImGui::BeginMenu("View"))
         {
             auto viewType = m_scene->GetActiveView()->GetType();
 
@@ -397,7 +396,7 @@ namespace UltraEd
 
     void Gui::GizmoMenu()
     {
-        if (m_project && ImGui::BeginMenu("Gizmo"))
+        if (Project::IsLoaded() && ImGui::BeginMenu("Gizmo"))
         {
             if (ImGui::MenuItem("Translate", "1", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Translate))
             {
@@ -803,7 +802,7 @@ namespace UltraEd
             {
                 try
                 {
-                    m_project = std::make_unique<Project>(projectName, projectPath, createDirectory);
+                    Project::New(projectName, projectPath, createDirectory);
                 }
                 catch (const std::exception &e)
                 {
@@ -860,7 +859,7 @@ namespace UltraEd
             {
                 try
                 {
-                    m_project = std::make_unique<Project>(projectPath);
+                    Project::Load(projectPath);
                 }
                 catch (const std::exception &e)
                 {
@@ -894,15 +893,15 @@ namespace UltraEd
         if (ImGui::BeginPopupModal("Add Texture", 0))
         {
             int i = 0;
-            auto textures = m_project->Textures(m_scene->m_device);
-            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / 64.0f));
+            auto textures = Project::Previews(AssetType::Texture, m_scene->m_device);
+            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / ModelPreviewer::PreviewWidth));
 
             for (const auto &texture : textures)
             {
                 if (texture.second == NULL) continue;
 
                 ImGui::PushID(i++);
-                if (ImGui::ImageButton(texture.second, ImVec2(64, 64)))
+                if (ImGui::ImageButton(texture.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
                     Debug::Info("Picked texture: " + Util::GuidToString(texture.first));
                     ImGui::CloseCurrentPopup();
@@ -932,15 +931,15 @@ namespace UltraEd
         if (ImGui::BeginPopupModal("Add Model", 0))
         {
             int i = 0;
-            auto models = m_project->Models(m_scene->m_device);
-            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / 64.0f));
+            auto models = Project::Previews(AssetType::Model, m_scene->m_device);
+            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / ModelPreviewer::PreviewWidth));
 
             for (const auto &model : models)
             {
                 if (model.second == NULL) continue;
 
                 ImGui::PushID(i++);
-                if (ImGui::ImageButton(model.second, ImVec2(64, 64)))
+                if (ImGui::ImageButton(model.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
                     Debug::Info("Picked model: " + Util::GuidToString(model.first));
                     ImGui::CloseCurrentPopup();

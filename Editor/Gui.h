@@ -26,7 +26,7 @@ namespace UltraEd
         void RenderFrame();
         ImGuiIO &IO();
         void RebuildWith(std::function<void()> inner);
-
+    
     private:
         void LoadColorTheme();
         void FileMenu();
@@ -49,7 +49,6 @@ namespace UltraEd
     private:
         Scene *m_scene;
         Actor *m_selectedActor;
-        std::unique_ptr<Project> m_project;
         TextEditor m_textEditor;
         ImGui::FileBrowser m_fileBrowser;
         std::string m_consoleText;

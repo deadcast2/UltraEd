@@ -15,6 +15,9 @@ namespace UltraEd
         ~ModelPreviewer();
         void Render(LPDIRECT3DDEVICE9 device, const std::filesystem::path &path, LPDIRECT3DTEXTURE9 *texture);
 
+    public:
+        static const int PreviewWidth = 64;
+
     private:
         bool SetupWindow();
         bool SetupRenderer();
