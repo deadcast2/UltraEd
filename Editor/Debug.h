@@ -2,18 +2,25 @@
 #define _DEBUG_H_
 
 #include <string>
+#include <boost/signals2/signal.hpp>
 
 namespace UltraEd
 {
     class Debug
     {
+    private:
+        Debug() {}
+
     public:
-        static void Info(std::string text);
-        static void Warning(std::string text);
-        static void Error(std::string text);
+        static Debug &Instance();
+        void Connect(std::function<void(std::string)> slot);
+        void Info(std::string text);
+        void Warning(std::string text);
+        void Error(std::string text);
 
     private:
-        static std::string *Clean(std::string *text);
+        std::string *Clean(std::string *text);
+        boost::signals2::signal<void(std::string)> m_signal;
     };
 }
 

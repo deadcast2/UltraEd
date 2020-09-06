@@ -3,13 +3,13 @@
 #include <tchar.h>
 #include <tuple>
 #include "resource.h"
-#include "PubSub.h"
 #include "Scene.h"
 
 using namespace UltraEd;
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+Scene scene;
 
 int main(int, char **)
 {
@@ -28,7 +28,6 @@ int main(int, char **)
         (GetSystemMetrics(SM_CYSCREEN) / 2) - (windowHeight / 2),
         windowWidth, windowHeight, NULL, NULL, wc.hInstance, NULL);
 
-    Scene scene;
     if (!scene.Create(hWnd))
     {
         UnregisterClass(wc.lpszClassName, wc.hInstance);
@@ -37,13 +36,6 @@ int main(int, char **)
 
     ShowWindow(hWnd, SW_SHOWDEFAULT);
     UpdateWindow(hWnd);
-
-    PubSub::Subscribe({ "Exit", [&](void *data) {
-        if (scene.Confirm())
-        {
-            PostQuitMessage(0);
-        }
-    } });
 
     MSG msg;
     ZeroMemory(&msg, sizeof(msg));
@@ -75,13 +67,12 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_ACTIVATE:
             if (LOWORD(wParam) == WA_ACTIVE)
             {
-                PubSub::Publish("Activate");
+                Project::Activate();
             }
             return 0;
         case WM_SIZE:
         {
-            auto rect = std::make_tuple<int, int>(LOWORD(lParam), HIWORD(lParam));
-            PubSub::Publish("Resize", static_cast<void *>(&rect));
+            scene.Resize(LOWORD(lParam), HIWORD(lParam));
             return 0;
         }
         case WM_SYSCOMMAND:
@@ -91,7 +82,10 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
         case WM_CLOSE:
-            PubSub::Publish("Exit");
+            if (scene.Confirm())
+            {
+                PostQuitMessage(0);
+            }
             return 0;
         case WM_DESTROY:
             PostQuitMessage(0);

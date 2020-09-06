@@ -5,7 +5,6 @@
 #include "Converters.h"
 #include "Debug.h"
 #include "Project.h"
-#include "PubSub.h"
 #include "Util.h"
 
 namespace UltraEd
@@ -22,9 +21,15 @@ namespace UltraEd
         m_projectInstance = std::make_unique<Project>(m_constructor_tag {}, path);
     }
 
+    void Project::Activate()
+    {
+        if (IsLoaded())
+            m_projectInstance->Scan();
+    }
+
     bool Project::Save(const char *name)
     {
-        if(IsLoaded())
+        if (IsLoaded())
             return m_projectInstance->Persist(name);
         return false;
     }
@@ -45,7 +50,7 @@ namespace UltraEd
                 continue;
 
             auto asset = m_projectInstance->GetAsset(preview.first);
-            if (asset == NULL) 
+            if (asset == NULL)
                 continue;
 
             switch (type)
@@ -70,15 +75,10 @@ namespace UltraEd
         m_assetTypeNames({ { AssetType::Unknown, "unknown" }, { AssetType::Model, "model" }, { AssetType::Texture, "texture" } }),
         m_modelExtensions({ ".3ds", ".fbx", ".dae", ".x", ".stl", ".wrl", ".obj" }),
         m_textureExtensions({ ".png", ".jpg", ".bmp", ".tga" }),
-        m_activateSubscriber(),
         m_assetPreviews(),
         m_modelPreviewer(),
         m_projectRecord()
-    {
-        m_activateSubscriber = PubSub::Subscribe({ "Activate", [&](void *data) {
-            Scan();
-        } });
-    }
+    { }
 
     Project::Project(m_constructor_tag tag, const char *name, const path &path, bool createDirectory) : Project(tag)
     {
@@ -97,7 +97,7 @@ namespace UltraEd
 
         if (Save(name) && exists(m_databasePath))
         {
-            Debug::Info("New project successfully created!");
+            Debug::Instance().Info("New project successfully created!");
         }
         else
         {
@@ -136,9 +136,6 @@ namespace UltraEd
 
     Project::~Project()
     {
-        if (m_activateSubscriber)
-            m_activateSubscriber();
-
         for (const auto &name : m_assetTypeNames)
         {
             for (auto &assetPreview : m_assetPreviews[name.first])
@@ -205,12 +202,12 @@ namespace UltraEd
                 if (!AssetExists(detectedType, entry))
                 {
                     AddAsset(detectedType, entry);
-                    Debug::Info("Added " + m_assetTypeNames[detectedType] + ": " + entry.path().string());
+                    Debug::Instance().Info("Added " + m_assetTypeNames[detectedType] + ": " + entry.path().string());
                 }
                 else if (IsAssetModified(detectedType, entry))
                 {
                     UpdateAsset(detectedType, entry);
-                    Debug::Info("Updated " + m_assetTypeNames[detectedType] + ": " + entry.path().string());
+                    Debug::Instance().Info("Updated " + m_assetTypeNames[detectedType] + ": " + entry.path().string());
                 }
 
                 VerifyAsset(purgeId, detectedType, entry);
@@ -354,7 +351,7 @@ namespace UltraEd
         }
         catch (const std::exception &e)
         {
-            Debug::Error("Failed to copy file: " + std::string(e.what()));
+            Debug::Instance().Error("Failed to copy file: " + std::string(e.what()));
             return false;
         }
 
@@ -371,7 +368,7 @@ namespace UltraEd
             }
             catch (const std::exception &e)
             {
-                Debug::Error("Failed to create library directory: " + std::string(e.what()));
+                Debug::Instance().Error("Failed to create library directory: " + std::string(e.what()));
                 return false;
             }
         }
@@ -395,7 +392,7 @@ namespace UltraEd
                 if (asset.second.purgeId != purgeId)
                 {
                     assetsToRemove.push_back(asset);
-                    Debug::Warning("Removed " + name.second + ": " + asset.first.string());
+                    Debug::Instance().Warning("Removed " + name.second + ": " + asset.first.string());
                 }
             }
 
@@ -410,7 +407,7 @@ namespace UltraEd
                 }
                 catch (const std::exception &e)
                 {
-                    Debug::Error("Failed to remove asset: " + std::string(e.what()));
+                    Debug::Instance().Error("Failed to remove asset: " + std::string(e.what()));
                 }
             }
         }

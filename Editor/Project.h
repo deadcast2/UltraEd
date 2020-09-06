@@ -33,6 +33,7 @@ namespace UltraEd
         ~Project();
         static void New(const char *name, const path &path, bool createDirectory);
         static void Load(const path &path);
+        static void Activate();
         static bool Save(const char *name = 0);
         static bool IsLoaded();
         static std::map<GUID, LPDIRECT3DTEXTURE9> Previews(const AssetType &type, LPDIRECT3DDEVICE9 device);
@@ -67,7 +68,6 @@ namespace UltraEd
         std::map<AssetType, std::string> m_assetTypeNames;
         std::set<std::string> m_modelExtensions;
         std::set<std::string> m_textureExtensions;
-        std::function<void()> m_activateSubscriber;
         std::map<AssetType, std::map<GUID, LPDIRECT3DTEXTURE9>> m_assetPreviews;
         ModelPreviewer m_modelPreviewer;
         ProjectRecord m_projectRecord;

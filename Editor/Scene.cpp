@@ -7,7 +7,6 @@
 #include "Util.h"
 #include "BoxCollider.h"
 #include "SphereCollider.h"
-#include "PubSub.h"
 
 namespace UltraEd
 {
@@ -34,11 +33,6 @@ namespace UltraEd
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
         m_defaultMaterial.Diffuse.b = m_defaultMaterial.Ambient.b = 1.0f;
         m_defaultMaterial.Diffuse.a = m_defaultMaterial.Ambient.a = 1.0f;
-
-        PubSub::Subscribe({ "Resize", [&](void *data) {
-            auto rect = static_cast<std::tuple<int, int> *>(data);
-            if (rect) Resize(std::get<0>(*rect), std::get<1>(*rect));
-        } });
     }
 
     Scene::~Scene()
@@ -131,7 +125,7 @@ namespace UltraEd
             }
             else
             {
-                Debug::Error("The ROM build has failed. Make sure the build tools have been installed.");
+                Debug::Instance().Error("The ROM build has failed. Make sure the build tools have been installed.");
             }
         });
         run.detach();
@@ -189,7 +183,7 @@ namespace UltraEd
     {
         if (m_selectedActorIds.empty())
         {
-            Debug::Warning("An object must be selected first.");
+            Debug::Instance().Warning("An object must be selected first.");
         }
 
         GUID groupId = Util::NewGuid();
@@ -213,7 +207,7 @@ namespace UltraEd
     {
         if (m_selectedActorIds.empty())
         {
-            Debug::Warning("An object must be selected first.");
+            Debug::Instance().Warning("An object must be selected first.");
         }
 
         GUID groupId = Util::NewGuid();
@@ -232,7 +226,7 @@ namespace UltraEd
 
         if (m_selectedActorIds.empty())
         {
-            Debug::Warning("An actor must be selected first.");
+            Debug::Instance().Warning("An actor must be selected first.");
             return;
         }
 
@@ -249,7 +243,7 @@ namespace UltraEd
 
                 if (!dynamic_cast<Model *>(m_actors[selectedActorId].get())->SetTexture(m_device, file.c_str()))
                 {
-                    Debug::Warning("Texture could not be loaded.");
+                    Debug::Instance().Warning("Texture could not be loaded.");
                 }
             }
         }
@@ -259,7 +253,7 @@ namespace UltraEd
     {
         if (m_selectedActorIds.empty())
         {
-            Debug::Warning("An actor must be selected first.");
+            Debug::Instance().Warning("An actor must be selected first.");
             return;
         }
 
@@ -327,7 +321,7 @@ namespace UltraEd
             m_gui->IO().MouseDownDurationPrev[1] < 0.2f &&
             Pick(m_gui->IO().MousePos, true, &selectedActor))
         {
-            PubSub::Publish("ContextMenu", selectedActor);
+            m_gui->OpenContextMenu(selectedActor);
         }
 
         if (m_gui->IO().MouseClicked[0]) Pick(m_gui->IO().MousePos);

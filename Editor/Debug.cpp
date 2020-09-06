@@ -1,13 +1,23 @@
 #include "Debug.h"
-#include "PubSub.h"
 
 namespace UltraEd
 {
+    Debug &Debug::Instance()
+    {
+        static Debug instance;
+        return instance;
+    }
+
+    void Debug::Connect(std::function<void(std::string)> slot)
+    {
+        m_signal.connect(slot);
+    }
+
     void Debug::Info(std::string text)
     {
         if (Clean(&text)->size() > 0)
         {
-            PubSub::Publish("AppendToConsole", &std::string("Info: ").append(text).append("\n"));
+          m_signal(std::string("Info: ").append(text).append("\n"));
         }
     }
 
@@ -15,7 +25,7 @@ namespace UltraEd
     {
         if (Clean(&text)->size() > 0)
         {
-            PubSub::Publish("AppendToConsole", &std::string("Warning: ").append(text).append("\n"));
+            m_signal(std::string("Warning: ").append(text).append("\n"));
         }
     }
 
@@ -23,7 +33,7 @@ namespace UltraEd
     {
         if (Clean(&text)->size() > 0)
         {
-            PubSub::Publish("AppendToConsole", &std::string("Error: ").append(text).append("\n"));
+            m_signal(std::string("Error: ").append(text).append("\n"));
         }
     }
 

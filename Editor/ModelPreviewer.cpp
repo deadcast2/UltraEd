@@ -56,7 +56,7 @@ namespace UltraEd
             }
             catch (const std::exception &e)
             {
-                Debug::Error(std::string(e.what()));
+                Debug::Instance().Error(std::string(e.what()));
             }
             
             m_device->EndScene();

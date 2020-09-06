@@ -7,13 +7,12 @@
 #include <STB/stb_image.h>
 #include <STB/stb_image_resize.h>
 #include <STB/stb_image_write.h>
-#include "build.h"
-#include "util.h"
+#include "Build.h"
+#include "Util.h"
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 #include "Settings.h"
 #include "shlwapi.h"
-#include "PubSub.h"
 #include "Debug.h"
 
 namespace UltraEd
@@ -522,10 +521,10 @@ namespace UltraEd
             securityAttrs.lpSecurityDescriptor = NULL;
 
             if (!CreatePipe(&stdOutRead, &stdOutWrite, &securityAttrs, 0))
-                Debug::Error("Could not create pipe.");
+                Debug::Instance().Error("Could not create pipe.");
 
             if (!SetHandleInformation(stdOutRead, HANDLE_FLAG_INHERIT, 0))
-                Debug::Error("Could set handle information for pipe");
+                Debug::Instance().Error("Could set handle information for pipe");
 
             DWORD exitCode;
             STARTUPINFO si;
@@ -561,7 +560,7 @@ namespace UltraEd
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
-                    Debug::Info(std::string(buffer.get()));
+                    Debug::Instance().Info(std::string(buffer.get()));
                 }
             }
 
@@ -595,10 +594,10 @@ namespace UltraEd
             securityAttrs.lpSecurityDescriptor = NULL;
 
             if (!CreatePipe(&stdOutRead, &stdOutWrite, &securityAttrs, 0))
-                Debug::Error("Could not create pipe");
+                Debug::Instance().Error("Could not create pipe");
 
             if (!SetHandleInformation(stdOutRead, HANDLE_FLAG_INHERIT, 0))
-                Debug::Error("Could set handle information for pipe");
+                Debug::Instance().Error("Could set handle information for pipe");
 
             DWORD exitCode;
             STARTUPINFO si;
@@ -631,7 +630,7 @@ namespace UltraEd
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
-                    Debug::Info(std::string(buffer.get()));
+                    Debug::Instance().Info(std::string(buffer.get()));
                 }
             }
 

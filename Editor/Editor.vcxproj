@@ -35,7 +35,6 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelPreviewer.cpp" />
     <ClCompile Include="Project.cpp" />
-    <ClCompile Include="PubSub.cpp" />
     <ClCompile Include="Converters.h" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Savable.cpp" />
@@ -74,7 +73,6 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelPreviewer.h" />
     <ClInclude Include="Project.h" />
-    <ClInclude Include="PubSub.h" />
     <ClInclude Include="Records.h" />
     <ClInclude Include="Registry.h" />
     <ClInclude Include="resource.h" />

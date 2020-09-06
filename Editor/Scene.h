@@ -43,6 +43,7 @@ namespace UltraEd
         void RestoreActor(cJSON *item);
         void Delete(std::shared_ptr<Actor> actor);
         void SelectActorById(GUID id, bool clearAll = true);
+        void Resize(int width, int height);
      
     private:
         void Delete();
@@ -52,7 +53,6 @@ namespace UltraEd
         std::string GetScript();
         void SetBackgroundColor(COLORREF color);
         void SetGizmoSnapSize(float size);
-        void Resize(int width, int height);
         void OnNew(bool confirm = true);
         bool OnSave();
         void OnLoad();

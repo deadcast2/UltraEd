@@ -3,7 +3,6 @@
 #include "Debug.h"
 #include "Gui.h"
 #include "FileIO.h"
-#include "PubSub.h"
 #include "Scene.h"
 #include "Settings.h"
 #include "View.h"
@@ -12,6 +11,7 @@ namespace UltraEd
 {
     Gui::Gui(Scene *scene, HWND hWnd) :
         m_scene(scene),
+        m_hWnd(hWnd),
         m_selectedActor(),
         m_textEditor(),
         m_fileBrowser(ImGuiFileBrowserFlags_SelectDirectory),
@@ -36,16 +36,10 @@ namespace UltraEd
 
         m_textEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::C());
 
-        PubSub::Subscribe({ "AppendToConsole", [&](void *data) {
-            auto text = static_cast<std::string *>(data);
-            m_consoleText.append(*text);
+        Debug::Instance().Connect([&](std::string text) {
+            m_consoleText.append(text);
             m_moveConsoleToBottom = true;
-        } });
-
-        PubSub::Subscribe({ "ContextMenu", [&](void *data) {
-            m_openContextMenu = true;
-            m_selectedActor = static_cast<Actor *>(data);
-        } });
+        });
     }
 
     Gui::~Gui()
@@ -129,6 +123,12 @@ namespace UltraEd
         ImGui_ImplDX9_CreateDeviceObjects();
     }
 
+    void Gui::OpenContextMenu(Actor *selectedActor)
+    {
+        m_openContextMenu = true;
+        m_selectedActor = selectedActor;
+    }
+
     void Gui::LoadColorTheme()
     {
         switch (Settings::GetColorTheme())
@@ -207,16 +207,16 @@ namespace UltraEd
             {
                 char pathBuffer[128];
                 GetFullPathName("..\\Engine\\tools.bin", 128, pathBuffer, NULL);
-                Debug::Info("Installing build tools...");
+                Debug::Instance().Info("Installing build tools...");
 
                 std::thread run([pathBuffer]() {
                     if (FileIO::Unpack(pathBuffer))
                     {
-                        Debug::Info("Build tools successfully installed.");
+                        Debug::Instance().Info("Build tools successfully installed.");
                     }
                     else
                     {
-                        Debug::Error("Could not find build tools.");
+                        Debug::Instance().Error("Could not find build tools.");
                     }
                 });
                 run.detach();
@@ -231,7 +231,7 @@ namespace UltraEd
 
             if (ImGui::MenuItem("Exit"))
             {
-                PubSub::Publish("Exit");
+                SendMessage(m_hWnd, WM_CLOSE, 0, 0);
             }
 
             ImGui::EndMenu();
@@ -806,7 +806,7 @@ namespace UltraEd
                 }
                 catch (const std::exception &e)
                 {
-                    Debug::Error(e.what());
+                    Debug::Instance().Error(e.what());
                 }
 
                 ImGui::CloseCurrentPopup();
@@ -863,7 +863,7 @@ namespace UltraEd
                 }
                 catch (const std::exception &e)
                 {
-                    Debug::Error(e.what());
+                    Debug::Instance().Error(e.what());
                 }
 
                 ImGui::CloseCurrentPopup();
@@ -903,7 +903,7 @@ namespace UltraEd
                 ImGui::PushID(i++);
                 if (ImGui::ImageButton(texture.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
-                    Debug::Info("Picked texture: " + Util::GuidToString(texture.first));
+                    Debug::Instance().Info("Picked texture: " + Util::GuidToString(texture.first));
                     ImGui::CloseCurrentPopup();
                 }
 
@@ -941,7 +941,7 @@ namespace UltraEd
                 ImGui::PushID(i++);
                 if (ImGui::ImageButton(model.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
-                    Debug::Info("Picked model: " + Util::GuidToString(model.first));
+                    Debug::Instance().Info("Picked model: " + Util::GuidToString(model.first));
                     ImGui::CloseCurrentPopup();
                 }
 
