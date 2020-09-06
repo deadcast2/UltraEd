@@ -177,11 +177,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>Deps\Assimp\lib;Deps\DXSDK\Lib\x64;$(LibraryPath)</LibraryPath>
-    <IncludePath>Deps\Assimp\include;Vendor;Deps\DXSDK\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\caleb\Workspace\UltraEd\Editor\Vendor\boost;Deps\Assimp\include;Vendor;Deps\DXSDK\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>Deps\Assimp\include;Vendor;Deps\DXSDK\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\caleb\Workspace\UltraEd\Editor\Vendor\boost;Deps\Assimp\include;Vendor;Deps\DXSDK\include;$(IncludePath)</IncludePath>
     <LibraryPath>Deps\Assimp\lib;Deps\DXSDK\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
