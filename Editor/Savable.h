@@ -1,8 +1,6 @@
 #ifndef _SAVABLE_H_
 #define _SAVABLE_H_
 
-#include <map>
-#include <string>
 #include <functional>
 #include <cJSON/cJSON.h>
 
@@ -15,9 +13,6 @@ namespace UltraEd
         virtual ~Savable() { }
         virtual cJSON *Save() = 0;
         virtual bool Load(cJSON *root) = 0;
-        std::map<std::string, std::string> GetResources();
-        void AddResource(const std::string &key, const std::string &value);
-        void DeleteResource(const std::string &key);
         bool IsDirty();
 
     protected:
@@ -39,7 +34,6 @@ namespace UltraEd
         }
 
     private:
-        std::map<std::string, std::string> m_resources;
         bool m_isDirty;
     };
 }

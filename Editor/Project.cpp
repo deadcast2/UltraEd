@@ -69,6 +69,19 @@ namespace UltraEd
         return m_projectInstance->m_assetPreviews[type];
     }
 
+    path Project::GetAssetPath(const GUID &id)
+    {
+        if (m_projectInstance)
+        {
+            auto asset = m_projectInstance->GetAsset(id);
+            if (asset)
+            {
+                return m_projectInstance->LibraryPath(asset);
+            }
+        }
+        return path();
+    }
+
     Project::Project(m_constructor_tag tag) :
         m_databasePath(),
         m_assetIndex(),
@@ -175,6 +188,18 @@ namespace UltraEd
         return m_databasePath.parent_path();
     }
 
+    path Project::BuildPath()
+    {
+        if (m_projectInstance)
+        {
+            auto path = m_projectInstance->ParentPath() / "Build";
+            if (m_projectInstance->InitializePath(path))
+                return path;
+        }
+
+        return path();
+    }
+
     path Project::LibraryPath(const AssetRecord *record)
     {
         auto path = ParentPath() / "Library";
@@ -245,7 +270,7 @@ namespace UltraEd
         return AssetType::Unknown;
     }
 
-    const AssetRecord *Project::GetAsset(GUID id)
+    const AssetRecord *Project::GetAsset(const GUID &id)
     {
         for (const auto &name : m_assetTypeNames)
         {
@@ -307,7 +332,7 @@ namespace UltraEd
         auto filePath = entry.path();
         while (filePath.has_parent_path() && filePath != filePath.root_path())
         {
-            if (filePath.parent_path() == LibraryPath())
+            if (filePath.parent_path() == LibraryPath() || filePath.parent_path() == BuildPath())
                 return false;
 
             filePath = filePath.parent_path();
@@ -342,7 +367,7 @@ namespace UltraEd
 
     bool Project::InsertAsset(const AssetType &type, const path &path)
     {
-        if (!InitializeLibrary())
+        if (!InitializePath(LibraryPath()))
             return false;
 
         try
@@ -358,17 +383,17 @@ namespace UltraEd
         return exists(LibraryPath() / path.filename());
     }
 
-    bool Project::InitializeLibrary()
+    bool Project::InitializePath(const path &path)
     {
-        if (!exists(LibraryPath()))
+        if (!exists(path))
         {
             try
             {
-                create_directory(LibraryPath());
+                create_directory(path);
             }
             catch (const std::exception &e)
             {
-                Debug::Instance().Error("Failed to create library directory: " + std::string(e.what()));
+                Debug::Instance().Error("Failed to create directory: " + std::string(e.what()));
                 return false;
             }
         }

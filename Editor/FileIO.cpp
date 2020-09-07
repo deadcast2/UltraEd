@@ -23,35 +23,6 @@ namespace UltraEd
             mtar_open(&tar, file.c_str(), "w");
 
             cJSON *root = scene->Save();
-            cJSON *actors = cJSON_GetObjectItem(root, "actors");
-            cJSON *actor = NULL;
-            cJSON_ArrayForEach(actor, actors)
-            {
-                // Rewrite and archive the attached resources.
-                cJSON *resource = NULL;
-                cJSON *resources = cJSON_GetObjectItem(actor, "resources");
-                cJSON_ArrayForEach(resource, resources)
-                {
-                    const char *path = resource->child->valuestring;
-                    const char *fileName = PathFindFileName(path);
-                    std::unique_ptr<FILE, decltype(fclose) *> file(fopen(path, "rb"), fclose);
-                    if (file == NULL) continue;
-
-                    // Calculate resource length.
-                    fseek(file.get(), 0, SEEK_END);
-                    long fileLength = ftell(file.get());
-                    rewind(file.get());
-
-                    // Read all contents of resource into a buffer.
-                    auto fileContents = std::make_unique<char[]>(fileLength);
-                    fread(fileContents.get(), fileLength, 1, file.get());
-
-                    // Write the buffer to the tar archive.
-                    mtar_write_file_header(&tar, fileName, fileLength);
-                    mtar_write_data(&tar, fileContents.get(), fileLength);
-                }
-            }
-
             auto rendered = std::unique_ptr<char>(cJSON_Print(root));
             cJSON_Delete(root);
 
@@ -83,88 +54,15 @@ namespace UltraEd
 
             auto contents = std::make_unique<char[]>(header.size + 1);
             mtar_read_data(&tar, contents.get(), header.size);
-            cJSON *root = cJSON_Parse(contents.get());
 
-            // Iterate through all actors.
-            cJSON *actors = cJSON_GetObjectItem(root, "actors");
-            cJSON *actor = NULL;
-            cJSON_ArrayForEach(actor, actors)
-            {
-                // Locate each packed actor resource.
-                cJSON *resources = cJSON_GetObjectItem(actor, "resources");
-                cJSON *resource = NULL;
-                cJSON_ArrayForEach(resource, resources)
-                {
-                    char target[128];
-                    const char *fileName = PathFindFileName(resource->child->valuestring);
-
-                    // Locate the resource to extract.
-                    mtar_find(&tar, fileName, &header);
-                    auto buffer = std::make_unique<char[]>(header.size + 1);
-                    mtar_read_data(&tar, buffer.get(), header.size);
-
-                    // Format path and write to library.
-                    sprintf(target, "%s\\%s", Util::RootPath().c_str(), fileName);
-                    std::unique_ptr<FILE, decltype(fclose) *> file(fopen(target, "wb"), fclose);
-                    fwrite(buffer.get(), 1, header.size, file.get());
-
-                    // Update the path to the fully qualified target.
-                    cJSON_free(resource->child->valuestring);
-                    resource->child->valuestring = _strdup(target);
-                }
-            }
-
+            *data = cJSON_Parse(contents.get());
             mtar_close(&tar);
             remove(file.c_str());
-
-            // Pass the constructed json object out.
-            *data = root;
 
             return true;
         }
 
         return false;
-    }
-
-    FileInfo FileIO::Import(const char *file)
-    {
-        FileInfo info;
-        std::string rootPath = Util::RootPath();
-
-        // When a GUID then must have already been imported so don't re-import.
-        if (Util::StringToGuid(PathFindFileName(file)) != GUID_NULL)
-        {
-            info.path = file;
-            info.type = FileType::User;
-            return info;
-        }
-
-        if (CreateDirectory(rootPath.c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
-        {
-            char target[MAX_PATH];
-
-            const char *assets = "assets/";
-            if (strncmp(file, assets, strlen(assets)) == 0)
-            {
-                info.path = file;
-                info.type = FileType::Editor;
-                return info;
-            }
-
-            // Format new imported path.
-            sprintf(target, "%s\\%s", rootPath.c_str(), Util::GuidToString(Util::NewGuid()).c_str());
-
-            if (CopyFile(file, target, FALSE))
-            {
-                info.path = target;
-                info.type = FileType::User;
-                return info;
-            }
-        }
-
-        info.path = file;
-        info.type = FileType::Unknown;
-        return info;
     }
 
     bool FileIO::Compress(const std::string &path)

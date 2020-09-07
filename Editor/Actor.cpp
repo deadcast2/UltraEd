@@ -19,7 +19,8 @@ namespace UltraEd
         m_localRot(),
         m_worldRot(),
         m_script(),
-        m_collider()
+        m_collider(),
+        m_modelId()
     {
         ResetId();
         m_script = std::string("void $start()\n{\n\n}\n\nvoid $update()\n{\n\n}\n\nvoid $input(NUContData gamepads[4])\n{\n\n}");
@@ -54,14 +55,20 @@ namespace UltraEd
         device->SetMaterial(&m_material);
     }
 
+    void Actor::Import(const GUID &assetId)
+    {
+        auto modelPath = Project::GetAssetPath(assetId);
+        if (!modelPath.empty())
+        {
+            m_modelId = assetId;
+            Import(modelPath.string().c_str());
+        }
+    }
+
     void Actor::Import(const char *filePath)
     {
         Mesh mesh(filePath);
         m_vertices = mesh.GetVertices();
-        if (mesh.GetFileInfo().type == FileType::User)
-        {
-            AddResource("vertexDataPath", mesh.GetFileInfo().path);
-        }
     }
 
     GUID Actor::GetId(cJSON *item)
@@ -242,15 +249,7 @@ namespace UltraEd
             cJSON_AddItemToObject(actor, "collider", m_collider->Save());
         }
 
-        // Add array to hold all attached resources.
-        cJSON *resourceArray = cJSON_CreateArray();
-        cJSON_AddItemToObject(actor, "resources", resourceArray);
-        for (const auto &resource : GetResources())
-        {
-            cJSON *item = cJSON_CreateObject();
-            cJSON_AddStringToObject(item, resource.first.c_str(), resource.second.c_str());
-            cJSON_AddItemToArray(resourceArray, item);
-        }
+        cJSON_AddStringToObject(actor, "modelId", Util::GuidToString(m_modelId).c_str());
 
         SetDirty(false);
 
@@ -301,14 +300,8 @@ namespace UltraEd
             }
         }
 
-        cJSON_ArrayForEach(resource, resources)
-        {
-            const char *path = resource->child->valuestring;
-            if (strcmp(resource->child->string, "vertexDataPath") == 0)
-            {
-                Import(path);
-            }
-        }
+        cJSON *modelId = cJSON_GetObjectItem(root, "modelId");
+        Import(Util::StringToGuid(modelId->valuestring));
 
         SetDirty(false);
 

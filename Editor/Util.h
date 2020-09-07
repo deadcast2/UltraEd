@@ -19,7 +19,6 @@ namespace UltraEd
         static GUID NewGuid();
         static GUID StringToGuid(const char *guid);
         static std::string GuidToString(GUID guid);
-        static std::string RootPath();
         static std::string NewResourceName(int count);
         static char *ReplaceString(const char *str, const char *from, const char *to);
         static std::vector<std::string> SplitString(const char *str, const char delimiter);

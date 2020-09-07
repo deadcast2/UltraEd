@@ -23,6 +23,7 @@ namespace UltraEd
         virtual void Release();
         virtual void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
         const GUID &GetId() { return m_id; }
+        const GUID &GetModelId() { return m_modelId; }
         void ResetId() { m_id = Util::NewGuid(); }
         const std::string &GetName() { return m_name; }
         bool SetName(std::string name) { return Dirty([&] {  m_name = name.empty() ? "Actor" : name; }, &m_name); }
@@ -58,6 +59,7 @@ namespace UltraEd
     protected:
         std::shared_ptr<VertexBuffer> m_vertexBuffer;
         ActorType m_type;
+        void Import(const GUID &assetId);
         void Import(const char *filePath);
 
     private:
@@ -73,6 +75,7 @@ namespace UltraEd
         bool IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir,
             const D3DXVECTOR3 &v0, const D3DXVECTOR3 &v1, const D3DXVECTOR3 &v2, float *dist);
         std::shared_ptr<Collider> m_collider;
+        GUID m_modelId;
     };
 }
 

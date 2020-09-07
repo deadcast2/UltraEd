@@ -3,7 +3,10 @@
 
 namespace UltraEd
 {
-    Model::Model() : m_texture(0) { }
+    Model::Model() : 
+        m_texture(0),
+        m_textureId()
+    { }
 
     Model::Model(const Model &model) : Model()
     {
@@ -14,6 +17,11 @@ namespace UltraEd
     Model::Model(const char *filePath) : Model()
     {
         Import(filePath);
+    }
+
+    Model::Model(const GUID &assetId) : Model()
+    {
+        Import(assetId);
     }
 
     void Model::Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack)
@@ -83,34 +91,23 @@ namespace UltraEd
         DeleteTexture();
     }
 
-    bool Model::LoadTexture(IDirect3DDevice9 *device, const char *filePath)
+    bool Model::LoadTexture(IDirect3DDevice9 *device)
     {
-        FileInfo info = FileIO::Import(filePath);
-
-        if (FAILED(D3DXCreateTextureFromFile(device, info.path.c_str(), &m_texture)))
+        auto assetPath = Project::GetAssetPath(m_textureId);
+        if (!assetPath.empty())
         {
-            return false;
+            return SUCCEEDED(D3DXCreateTextureFromFile(device, assetPath.string().c_str(), &m_texture));
         }
-
-        if (!IsTextureValid())
-        {
-            DeleteTexture();
-            return false;
-        }
-
-        // Save location of texture for scene saving.
-        if (info.type == FileType::User)
-        {
-            AddResource("textureDataPath", info.path);
-        }
-
-        return true;
+        return false;
     }
 
-    bool Model::SetTexture(IDirect3DDevice9 *device, const char *filePath)
+    bool Model::SetTexture(IDirect3DDevice9 *device, const GUID &assetId)
     {
         bool result = false;
-        Dirty([&] { result = LoadTexture(device, filePath); }, &result);
+        Dirty([&] { 
+            m_textureId = assetId;
+            result = LoadTexture(device); 
+        }, &result);
         return result;
     }
 
@@ -120,13 +117,15 @@ namespace UltraEd
         {
             m_texture->Release();
             m_texture = 0;
-            DeleteResource("textureDataPath");
+            m_textureId = {0};
         }
     }
 
     cJSON *Model::Save()
     {
-        return Actor::Save();
+        cJSON *root = Actor::Save();
+        cJSON_AddStringToObject(root, "textureId", Util::GuidToString(m_textureId).c_str());
+        return root;
     }
 
     bool Model::Load(cJSON *root, IDirect3DDevice9 *device)
@@ -135,16 +134,8 @@ namespace UltraEd
 
         DeleteTexture();
 
-        cJSON *resource = NULL;
-        cJSON *resources = cJSON_GetObjectItem(root, "resources");
-        cJSON_ArrayForEach(resource, resources)
-        {
-            const char *path = resource->child->valuestring;
-            if (strcmp(resource->child->string, "textureDataPath") == 0)
-            {
-                LoadTexture(device, path);
-            }
-        }
+        cJSON *textureId = cJSON_GetObjectItem(root, "textureId");
+        SetTexture(device, Util::StringToGuid(textureId->valuestring));
 
         return true;
     }

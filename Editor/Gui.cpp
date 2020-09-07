@@ -305,7 +305,7 @@ namespace UltraEd
 
                 if (ImGui::MenuItem("Delete"))
                 {
-                    m_scene->OnDeleteTexture();
+                    m_scene->DeleteTexture();
                 }
 
                 ImGui::EndMenu();
@@ -326,16 +326,6 @@ namespace UltraEd
                 if (ImGui::MenuItem("Delete"))
                 {
                     m_scene->OnDeleteCollider();
-                }
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Presets"))
-            {
-                if (ImGui::MenuItem("Pumpkin"))
-                {
-                    m_scene->OnAddModel(ModelPreset::Pumpkin);
                 }
 
                 ImGui::EndMenu();
@@ -672,7 +662,7 @@ namespace UltraEd
             {
                 if (ImGui::MenuItem("Add"))
                 {
-                    m_scene->OnAddTexture();
+                    m_addTextureModalOpen = true;
                 }
 
                 if (m_selectedActor != NULL && reinterpret_cast<Model *>(m_selectedActor)->HasTexture())
@@ -681,7 +671,7 @@ namespace UltraEd
 
                     if (ImGui::MenuItem("Delete"))
                     {
-                        m_scene->OnDeleteTexture();
+                        m_scene->DeleteTexture();
                     }
                 }
 
@@ -903,6 +893,7 @@ namespace UltraEd
                 ImGui::PushID(i++);
                 if (ImGui::ImageButton(texture.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
+                    m_scene->AddTexture(texture.first);
                     Debug::Instance().Info("Picked texture: " + Util::GuidToString(texture.first));
                     ImGui::CloseCurrentPopup();
                 }
@@ -941,6 +932,7 @@ namespace UltraEd
                 ImGui::PushID(i++);
                 if (ImGui::ImageButton(model.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
+                    m_scene->AddModel(model.first);
                     Debug::Instance().Info("Picked model: " + Util::GuidToString(model.first));
                     ImGui::CloseCurrentPopup();
                 }

@@ -57,9 +57,9 @@ namespace UltraEd
         bool OnSave();
         void OnLoad();
         void OnAddCamera();
-        void OnAddTexture();
-        void OnDeleteTexture();
-        void OnAddModel(ModelPreset preset);
+        void AddTexture(const GUID &assetId);
+        void DeleteTexture();
+        void AddModel(const GUID &assetId);
         void OnAddCollider(ColliderType type);
         void OnDeleteCollider();
         void OnBuildROM(BuildFlag flag);

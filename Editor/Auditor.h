@@ -1,7 +1,11 @@
 #ifndef _AUDITOR_H_
 #define _AUDITOR_H_
 
+#include <cJSON/cJSON.h>
 #include <functional>
+#include <map>
+#include <rpc.h>
+#include <tuple>
 #include <vector>
 #include "Actor.h"
 

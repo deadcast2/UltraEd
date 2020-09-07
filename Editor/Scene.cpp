@@ -131,37 +131,13 @@ namespace UltraEd
         run.detach();
     }
 
-    void Scene::OnAddModel(ModelPreset preset)
+    void Scene::AddModel(const GUID &assetId)
     {
         std::shared_ptr<Model> model = NULL;
-
-        switch (preset)
-        {
-            case ModelPreset::Custom:
-            {
-                std::string file;
-                if (Dialog::Open("Add Model",
-                    "3D Studio (*.3ds)\0*.3ds\0Blender (*.blend)\0*.blend\0Autodesk (*.fbx)\0*.fbx\0"
-                    "Collada (*.dae)\0*.dae\0DirectX (*.x)\0*.x\0Stl (*.stl)\0*.stl\0"
-                    "VRML (*.wrl)\0*.wrl\0Wavefront (*.obj)\0*.obj", file))
-                {
-                    model = std::make_shared<Model>(file.c_str());
-                    m_actors[model->GetId()] = model;
-                    model->SetName(std::string("Actor ").append(std::to_string(m_actors.size())));
-                    m_auditor.AddActor("Model", model->GetId());
-                }
-                break;
-            }
-            case ModelPreset::Pumpkin:
-            {
-                model = std::make_shared<Model>("presets/pumpkin.fbx");
-                m_actors[model->GetId()] = model;
-                model->SetName(std::string("Pumpkin ").append(std::to_string(m_actors.size())));
-                model->SetTexture(m_device, "presets/pumpkin.png");
-                m_auditor.AddActor("Pumpkin", model->GetId());
-                break;
-            }
-        }
+        model = std::make_shared<Model>(assetId);
+        m_actors[model->GetId()] = model;
+        model->SetName(std::string("Actor ").append(std::to_string(m_actors.size())));
+        m_auditor.AddActor("Model", model->GetId());
 
         if (model != NULL)
         {
@@ -220,36 +196,30 @@ namespace UltraEd
         }
     }
 
-    void Scene::OnAddTexture()
+    void Scene::AddTexture(const GUID &assetId)
     {
-        std::string file;
-
         if (m_selectedActorIds.empty())
         {
             Debug::Instance().Warning("An actor must be selected first.");
             return;
         }
 
-        if (Dialog::Open("Select a texture",
-            "PNG (*.png)\0*.png\0JPEG (*.jpg)\0*.jpg\0BMP (*.bmp)\0*.bmp\0TGA (*.tga)\0*.tga", file))
+        GUID groupId = Util::NewGuid();
+
+        for (const auto &selectedActorId : m_selectedActorIds)
         {
-            GUID groupId = Util::NewGuid();
+            if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
 
-            for (const auto &selectedActorId : m_selectedActorIds)
+            m_auditor.ChangeActor("Add Texture", selectedActorId, groupId);
+
+            if (!dynamic_cast<Model *>(m_actors[selectedActorId].get())->SetTexture(m_device, assetId))
             {
-                if (m_actors[selectedActorId]->GetType() != ActorType::Model) continue;
-
-                m_auditor.ChangeActor("Add Texture", selectedActorId, groupId);
-
-                if (!dynamic_cast<Model *>(m_actors[selectedActorId].get())->SetTexture(m_device, file.c_str()))
-                {
-                    Debug::Instance().Warning("Texture could not be loaded.");
-                }
+                Debug::Instance().Warning("Texture could not be loaded.");
             }
         }
     }
 
-    void Scene::OnDeleteTexture()
+    void Scene::DeleteTexture()
     {
         if (m_selectedActorIds.empty())
         {
@@ -658,8 +628,6 @@ namespace UltraEd
                 case ActorType::Model:
                 {
                     auto model = std::make_shared<Model>(*dynamic_cast<Model *>(m_actors[selectedActorId].get()));
-                    std::string texturePath = model->GetResources()["textureDataPath"];
-                    model->SetTexture(m_device, texturePath.c_str());
                     m_actors[model->GetId()] = model;
                     m_auditor.AddActor("Model", model->GetId(), groupId);
                     break;

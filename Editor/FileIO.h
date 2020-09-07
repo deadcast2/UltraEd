@@ -9,23 +9,11 @@
 
 namespace UltraEd
 {
-    enum class FileType
-    {
-        Unknown, User, Editor
-    };
-
-    typedef struct
-    {
-        std::string path;
-        FileType type;
-    } FileInfo;
-
     class FileIO
     {
     public:
         static bool Save(Scene *scene, std::string &fileName);
         static bool Load(cJSON **data, std::string &fileName);
-        static FileInfo Import(const char *file);
         static bool Pack(const char *path);
         static bool Unpack(const char *path);
 

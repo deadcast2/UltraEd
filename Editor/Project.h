@@ -37,12 +37,14 @@ namespace UltraEd
         static bool Save(const char *name = 0);
         static bool IsLoaded();
         static std::map<GUID, LPDIRECT3DTEXTURE9> Previews(const AssetType &type, LPDIRECT3DDEVICE9 device);
+        static path GetAssetPath(const GUID &id);
+        static path BuildPath();
     
     private:
         path ParentPath();
         path LibraryPath(const AssetRecord *record = 0);
         AssetType DetectAssetType(const path &path);
-        const AssetRecord *GetAsset(GUID id);
+        const AssetRecord *GetAsset(const GUID &id);
         void Scan();
         void PreparePreview(const AssetType &type, const GUID &id);
         void RemovePreview(const AssetType &type, const GUID &id);
@@ -57,7 +59,7 @@ namespace UltraEd
         bool IsAssetModified(const AssetType &type, const directory_entry &entry);
         bool AssetExists(const AssetType &type, const path &path);
         bool InsertAsset(const AssetType &type, const path &path);
-        bool InitializeLibrary();
+        bool InitializePath(const path &path);
         void VerifyAsset(const GUID &purgeId, const AssetType &type, const directory_entry &entry);
         void PurgeMissingAssets(const GUID &purgeId);
 

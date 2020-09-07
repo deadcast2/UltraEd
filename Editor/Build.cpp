@@ -42,7 +42,7 @@ namespace UltraEd
             "\n\tinclude \"code\"";
         const char *specIncludeEnd = "\nendwave";
 
-        std::vector<std::string> resourceCache;
+        std::vector<std::filesystem::path> resourceCache;
         int loopCount = 0;
         for (const auto &actor : actors)
         {
@@ -50,14 +50,12 @@ namespace UltraEd
 
             if (actor->GetType() != ActorType::Model) continue;
 
-            std::map<std::string, std::string> resources = actor->GetResources();
+            auto modelPath = Project::GetAssetPath(actor->GetModelId());
 
-            if (find(resourceCache.begin(), resourceCache.end(), resources["vertexDataPath"])
-                == resourceCache.end())
+            if (find(resourceCache.begin(), resourceCache.end(), modelPath) == resourceCache.end())
             {
                 std::string id = Util::GuidToString(actor->GetId());
-                id.insert(0, Util::RootPath().append("\\"));
-                id.append(".rom.sos");
+                id.insert(0, Project::BuildPath().string().append("\\")).append(".sos");
 
                 std::string modelName(newResName);
                 modelName.append("_M");
@@ -72,43 +70,46 @@ namespace UltraEd
                 specIncludes.append(modelName);
                 specIncludes.append("\"");
 
-                resourceCache.push_back(resources["vertexDataPath"]);
+                resourceCache.push_back(modelPath);
             }
 
-            if (resources.count("textureDataPath") &&
-                find(resourceCache.begin(), resourceCache.end(), resources["textureDataPath"])
-                == resourceCache.end())
+            auto model = reinterpret_cast<Model *>(actor);
+            if (model != nullptr)
             {
-                // Load the set texture and resize to required dimensions.
-                std::string path = resources["textureDataPath"];
-                int width, height, channels;
-                unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 3);
-                if (data)
+                auto texturePath = Project::GetAssetPath(model->GetTextureId());
+
+                if (!texturePath.empty() && find(resourceCache.begin(), resourceCache.end(), texturePath) == resourceCache.end())
                 {
-                    auto dimensions = static_cast<Model *>(actor)->TextureDimensions();
-                    if (stbir_resize_uint8(data, width, height, 0, data, dimensions[0], dimensions[1], 0, 3))
+                    // Load the set texture and resize to required dimensions.
+                    auto path = Project::BuildPath() / texturePath.filename();
+                    int width, height, channels;
+                    unsigned char *data = stbi_load(texturePath.string().c_str(), &width, &height, &channels, 3);
+                    if (data)
                     {
-                        path.append(".rom.png");
-                        stbi_write_png(path.c_str(), dimensions[0], dimensions[1], 3, data, 0);
+                        auto dimensions = static_cast<Model *>(actor)->TextureDimensions();
+                        if (stbir_resize_uint8(data, width, height, 0, data, dimensions[0], dimensions[1], 0, 3))
+                        {
+                            stbi_write_png(path.string().c_str(), dimensions[0], dimensions[1], 3, data, 0);
+                        }
+
+                        stbi_image_free(data);
                     }
 
-                    stbi_image_free(data);
+                    std::string textureName(newResName);
+                    textureName.append("_T");
+
+                    specSegments.append("\nbeginseg\n\tname \"");
+                    specSegments.append(textureName);
+                    specSegments.append("\"\n\tflags RAW\n\tinclude \"");
+                    specSegments.append(path.string().c_str());
+                    specSegments.append("\"\nendseg\n");
+
+                    specIncludes.append("\n\tinclude \"");
+                    specIncludes.append(textureName);
+                    specIncludes.append("\"");
+
+                    resourceCache.push_back(texturePath);
                 }
-
-                std::string textureName(newResName);
-                textureName.append("_T");
-
-                specSegments.append("\nbeginseg\n\tname \"");
-                specSegments.append(textureName);
-                specSegments.append("\"\n\tflags RAW\n\tinclude \"");
-                specSegments.append(path);
-                specSegments.append("\"\nendseg\n");
-
-                specIncludes.append("\n\tinclude \"");
-                specIncludes.append(textureName);
-                specIncludes.append("\"");
-
-                resourceCache.push_back(resources["textureDataPath"]);
             }
         }
 
@@ -143,7 +144,8 @@ namespace UltraEd
         return true;
     }
 
-    bool Build::WriteSegmentsFile(const std::vector<Actor *> &actors, std::map<std::string, std::string> *resourceCache)
+    bool Build::WriteSegmentsFile(const std::vector<Actor *> &actors, 
+        std::map<std::filesystem::path, std::string> *resourceCache)
     {
         std::string romSegments;
         int loopCount = 0;
@@ -153,9 +155,9 @@ namespace UltraEd
 
             if (actor->GetType() != ActorType::Model) continue;
 
-            std::map<std::string, std::string> resources = actor->GetResources();
+            auto modelPath = Project::GetAssetPath(actor->GetModelId());
 
-            if (resourceCache->find(resources["vertexDataPath"]) == resourceCache->end())
+            if (resourceCache->find(modelPath) == resourceCache->end())
             {
                 std::string modelName(newResName);
                 modelName.append("_M");
@@ -167,23 +169,27 @@ namespace UltraEd
                 romSegments.append(modelName);
                 romSegments.append("SegmentRomEnd[];\n");
 
-                (*resourceCache)[resources["vertexDataPath"]] = newResName;
+                (*resourceCache)[modelPath] = newResName;
             }
 
-            if (resources.count("textureDataPath") &&
-                resourceCache->find(resources["textureDataPath"]) == resourceCache->end())
+            auto model = reinterpret_cast<Model *>(actor);
+            if (model != nullptr)
             {
-                std::string textureName(newResName);
-                textureName.append("_T");
+                auto texturePath = Project::GetAssetPath(model->GetTextureId());
+                if (!texturePath.empty() && resourceCache->find(texturePath) == resourceCache->end())
+                {
+                    std::string textureName(newResName);
+                    textureName.append("_T");
 
-                romSegments.append("extern u8 _");
-                romSegments.append(textureName);
-                romSegments.append("SegmentRomStart[];\n");
-                romSegments.append("extern u8 _");
-                romSegments.append(textureName);
-                romSegments.append("SegmentRomEnd[];\n");
+                    romSegments.append("extern u8 _");
+                    romSegments.append(textureName);
+                    romSegments.append("SegmentRomStart[];\n");
+                    romSegments.append("extern u8 _");
+                    romSegments.append(textureName);
+                    romSegments.append("SegmentRomEnd[];\n");
 
-                (*resourceCache)[resources["textureDataPath"]] = newResName;
+                    (*resourceCache)[texturePath] = newResName;
+                }
             }
         }
 
@@ -208,7 +214,8 @@ namespace UltraEd
         return true;
     }
 
-    bool Build::WriteActorsFile(const std::vector<Actor *> &actors, const std::map<std::string, std::string> &resourceCache)
+    bool Build::WriteActorsFile(const std::vector<Actor *> &actors, 
+        const std::map<std::filesystem::path, std::string> &resourceCache)
     {
         int actorCount = -1;
         std::string totalActors = std::to_string(actors.size());
@@ -231,30 +238,32 @@ namespace UltraEd
 
             if (actor->GetType() == ActorType::Model)
             {
-                const auto resources = actor->GetResources();
+                auto model = reinterpret_cast<Model *>(actor);
+                auto modelPath = Project::GetAssetPath(model->GetModelId());
+                auto texturePath = Project::GetAssetPath(model->GetTextureId());
 
-                if (resourceCache.find(resources.at("vertexDataPath")) != resourceCache.end())
-                    resourceName = resourceCache.at(resources.at("vertexDataPath"));
+                if (resourceCache.find(modelPath) != resourceCache.end())
+                    resourceName = resourceCache.at(modelPath);
 
                 std::string modelName(resourceName);
                 modelName.append("_M");
 
-                if (resources.count("textureDataPath"))
+                if (!texturePath.empty())
                     actorInits.append("(actor*)loadTexturedModel(_");
                 else
                     actorInits.append("(actor*)loadModel(_");
 
                 actorInits.append(modelName).append("SegmentRomStart, _").append(modelName).append("SegmentRomEnd");
 
-                if (resources.count("textureDataPath"))
+                if (!texturePath.empty())
                 {
-                    if (resourceCache.find(resources.at("textureDataPath")) != resourceCache.end())
-                        resourceName = resourceCache.at(resources.at("textureDataPath"));
+                    if (resourceCache.find(texturePath) != resourceCache.end())
+                        resourceName = resourceCache.at(texturePath);
 
                     std::string textureName(resourceName);
                     textureName.append("_T");
 
-                    auto dimensions = static_cast<Model *>(actor)->TextureDimensions();
+                    auto dimensions = model->TextureDimensions();
                     actorInits.append(", _").append(textureName).append("SegmentRomStart, _")
                         .append(textureName).append("SegmentRomEnd, ").append(std::to_string(dimensions[0])).append(", ")
                         .append(std::to_string(dimensions[1]));
@@ -277,7 +286,7 @@ namespace UltraEd
                 // Write out mesh data.
                 std::vector<Vertex> vertices = actor->GetVertices();
                 std::string id = Util::GuidToString(actor->GetId());
-                id.insert(0, Util::RootPath().append("\\")).append(".rom.sos");
+                id.insert(0, Project::BuildPath().string().append("\\")).append(".sos");
                 FILE *file = fopen(id.c_str(), "w");
                 if (file == NULL) return false;
                 fprintf(file, "%i\n", static_cast<int>(vertices.size()));
@@ -460,7 +469,7 @@ namespace UltraEd
 
         // Share texture and model data to reduce ROM size. Resource use is tracked during
         // segment generation and the actor script generator uses that info. 
-        std::map<std::string, std::string> resourceCache;
+        std::map<std::filesystem::path, std::string> resourceCache;
         WriteSegmentsFile(actors, &resourceCache);
         WriteActorsFile(actors, resourceCache);
 

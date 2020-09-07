@@ -45,16 +45,6 @@ namespace UltraEd
         return std::string(guidBuffer);
     }
 
-    std::string Util::RootPath()
-    {
-        char pathBuffer[MAX_PATH];
-        GetModuleFileName(NULL, pathBuffer, MAX_PATH);
-        std::string pathString(pathBuffer);
-        pathString = pathString.substr(0, pathString.find_last_of("\\/"));
-        pathString.append("\\Library");
-        return pathString;
-    }
-
     std::string Util::NewResourceName(int count)
     {
         std::stringstream ss;
