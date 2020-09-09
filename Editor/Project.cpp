@@ -39,10 +39,10 @@ namespace UltraEd
         return m_projectInstance != NULL;
     }
 
-    std::map<GUID, LPDIRECT3DTEXTURE9> Project::Previews(const AssetType &type, LPDIRECT3DDEVICE9 device)
+    std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9> Project::Previews(const AssetType &type, LPDIRECT3DDEVICE9 device)
     {
         if (!IsLoaded())
-            return std::map<GUID, LPDIRECT3DTEXTURE9>();
+            return std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9>();
 
         for (auto &preview : m_projectInstance->m_assetPreviews[type])
         {
@@ -69,7 +69,7 @@ namespace UltraEd
         return m_projectInstance->m_assetPreviews[type];
     }
 
-    path Project::GetAssetPath(const GUID &id)
+    path Project::GetAssetPath(const boost::uuids::uuid &id)
     {
         if (m_projectInstance)
         {
@@ -206,14 +206,14 @@ namespace UltraEd
         if (record != NULL)
         {
             auto ext = ::path(record->sourcePath).extension().string();
-            return path / (Util::GuidToString(record->id) + ext);
+            return path / (Util::UuidToString(record->id) + ext);
         }
         return path;
     }
 
     void Project::Scan()
     {
-        auto purgeId = Util::NewGuid();
+        auto purgeId = Util::NewUuid();
 
         for (const auto &entry : recursive_directory_iterator(ParentPath()))
         {
@@ -242,14 +242,14 @@ namespace UltraEd
         PurgeMissingAssets(purgeId);
     }
 
-    void Project::PreparePreview(const AssetType &type, const GUID &id)
+    void Project::PreparePreview(const AssetType &type, const boost::uuids::uuid &id)
     {
         RemovePreview(type, id);
 
         m_assetPreviews[type][id] = 0;
     }
 
-    void Project::RemovePreview(const AssetType &type, const GUID &id)
+    void Project::RemovePreview(const AssetType &type, const boost::uuids::uuid &id)
     {
         if (m_assetPreviews[type].find(id) != m_assetPreviews[type].end())
         {
@@ -270,7 +270,7 @@ namespace UltraEd
         return AssetType::Unknown;
     }
 
-    const AssetRecord *Project::GetAsset(const GUID &id)
+    const AssetRecord *Project::GetAsset(const boost::uuids::uuid &id)
     {
         for (const auto &name : m_assetTypeNames)
         {
@@ -287,9 +287,9 @@ namespace UltraEd
     void Project::AddAsset(const AssetType &type, const directory_entry &entry)
     {
         m_assetIndex[type][entry.path()] = {
-            Util::NewGuid(),
+            Util::NewUuid(),
             type,
-            Util::NewGuid(),
+            Util::NewUuid(),
             entry.path().string().erase(0, ParentPath().string().size() + 1),
             0
         };
@@ -401,12 +401,12 @@ namespace UltraEd
         return true;
     }
 
-    void Project::VerifyAsset(const GUID &purgeId, const AssetType &type, const directory_entry &entry)
+    void Project::VerifyAsset(const boost::uuids::uuid &purgeId, const AssetType &type, const directory_entry &entry)
     {
         m_assetIndex[type][entry.path()].purgeId = purgeId;
     }
 
-    void Project::PurgeMissingAssets(const GUID &purgeId)
+    void Project::PurgeMissingAssets(const boost::uuids::uuid &purgeId)
     {
         for (const auto &name : m_assetTypeNames)
         {

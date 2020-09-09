@@ -19,7 +19,7 @@ namespace UltraEd
         Import(filePath);
     }
 
-    Model::Model(const GUID &assetId) : Model()
+    Model::Model(const boost::uuids::uuid &assetId) : Model()
     {
         Import(assetId);
     }
@@ -101,7 +101,7 @@ namespace UltraEd
         return false;
     }
 
-    bool Model::SetTexture(IDirect3DDevice9 *device, const GUID &assetId)
+    bool Model::SetTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId)
     {
         bool result = false;
         Dirty([&] { 
@@ -124,7 +124,7 @@ namespace UltraEd
     cJSON *Model::Save()
     {
         cJSON *root = Actor::Save();
-        cJSON_AddStringToObject(root, "textureId", Util::GuidToString(m_textureId).c_str());
+        cJSON_AddStringToObject(root, "textureId", Util::UuidToString(m_textureId).c_str());
         return root;
     }
 
@@ -135,7 +135,7 @@ namespace UltraEd
         DeleteTexture();
 
         cJSON *textureId = cJSON_GetObjectItem(root, "textureId");
-        SetTexture(device, Util::StringToGuid(textureId->valuestring));
+        SetTexture(device, Util::StringToUuid(textureId->valuestring));
 
         return true;
     }

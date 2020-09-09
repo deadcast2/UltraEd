@@ -1,10 +1,11 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 
-#define CLSID_LENGTH 40
-
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/string_generator.hpp>
+#include <boost/uuid/random_generator.hpp>
 #include <functional>
-#include <rpc.h>
 #include <string>
 #include <vector>
 #include <memory>
@@ -16,12 +17,12 @@ namespace UltraEd
     {
     public:
         static float Lerp(float time, float start, float end);
-        static GUID NewGuid();
-        static GUID StringToGuid(const char *guid);
-        static std::string GuidToString(GUID guid);
+        static boost::uuids::uuid NewUuid();
+        static boost::uuids::uuid StringToUuid(const std::string &uuid);
+        static std::string UuidToString(const boost::uuids::uuid &uuid);
         static std::string NewResourceName(int count);
-        static char *ReplaceString(const char *str, const char *from, const char *to);
-        static std::vector<std::string> SplitString(const char *str, const char delimiter);
+        static std::string ReplaceString(const std::string &str, const std::string &from, const std::string &to);
+        static std::vector<std::string> SplitString(const std::string &str, const std::string &delimiter);
         static void ToFloat3(const D3DXVECTOR3 &vec, float *position);
         static std::string ToLower(const std::string &str);
 

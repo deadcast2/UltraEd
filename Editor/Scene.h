@@ -39,10 +39,10 @@ namespace UltraEd
         cJSON *PartialSave(cJSON *root);
         bool PartialLoad(cJSON *root);
         void UnselectAll();
-        std::shared_ptr<Actor> GetActor(GUID id);
+        std::shared_ptr<Actor> GetActor(const boost::uuids::uuid &id);
         void RestoreActor(cJSON *item);
         void Delete(std::shared_ptr<Actor> actor);
-        void SelectActorById(GUID id, bool clearAll = true);
+        void SelectActorById(const boost::uuids::uuid &id, bool clearAll = true);
         void Resize(int width, int height);
      
     private:
@@ -57,9 +57,9 @@ namespace UltraEd
         bool OnSave();
         void OnLoad();
         void OnAddCamera();
-        void AddTexture(const GUID &assetId);
+        void AddTexture(const boost::uuids::uuid &assetId);
         void DeleteTexture();
-        void AddModel(const GUID &assetId);
+        void AddModel(const boost::uuids::uuid &assetId);
         void OnAddCollider(ColliderType type);
         void OnDeleteCollider();
         void OnBuildROM(BuildFlag flag);
@@ -80,7 +80,7 @@ namespace UltraEd
         void SetTitle(std::string title, bool store = true);
         void UpdateViewMatrix();
         void WrapCursor();
-        bool IsActorSelected(GUID id);
+        bool IsActorSelected(const boost::uuids::uuid &id);
 
     private:
         D3DMATERIAL9 m_defaultMaterial;
@@ -90,9 +90,9 @@ namespace UltraEd
         IDirect3DDevice9 *m_device;
         IDirect3D9 *m_d3d9;
         D3DPRESENT_PARAMETERS m_d3dpp;
-        std::map<GUID, std::shared_ptr<Actor>> m_actors;
+        std::map<boost::uuids::uuid, std::shared_ptr<Actor>> m_actors;
         Grid m_grid;
-        std::vector<GUID> m_selectedActorIds;
+        std::vector<boost::uuids::uuid> m_selectedActorIds;
         float m_mouseSmoothX, m_mouseSmoothY;
         ViewType m_activeViewType;
         std::string m_sceneName;

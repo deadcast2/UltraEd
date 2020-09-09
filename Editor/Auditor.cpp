@@ -47,7 +47,7 @@ namespace UltraEd
             // Keep undoing when this unit is a part of a group.
             int nextUndoPos = static_cast<int>(m_position - 1);
             if (nextUndoPos >= 0
-                && m_undoUnits[nextUndoPos].groupId != GUID_NULL
+                && !m_undoUnits[nextUndoPos].groupId.is_nil()
                 && m_undoUnits[nextUndoPos].groupId == m_undoUnits[m_position].groupId)
             {
                 RunUndo();
@@ -65,7 +65,7 @@ namespace UltraEd
 
             // Keep redoing when this unit is a part of a group.
             if (m_position < m_undoUnits.size()
-                && m_undoUnits[m_position].groupId != GUID_NULL
+                && !m_undoUnits[m_position].groupId.is_nil()
                 && m_undoUnits[m_position - 1].groupId == m_undoUnits[m_position].groupId)
             {
                 RunRedo();
@@ -110,7 +110,7 @@ namespace UltraEd
         m_savedStates.clear();
     }
 
-    cJSON *Auditor::SaveState(GUID id, std::function<cJSON*()> save)
+    cJSON *Auditor::SaveState(const boost::uuids::uuid &id, std::function<cJSON*()> save)
     {
         // Identifying states avoids storing duplicates.
         if (m_savedStates.find(id) == m_savedStates.end())
@@ -122,6 +122,8 @@ namespace UltraEd
 
     void Auditor::Lock(std::function<void()> block)
     {
+        // Prevent any additional undo/redo units from being submitted during
+        // a block execution.
         m_locked = true;
         try
         {
@@ -162,11 +164,11 @@ namespace UltraEd
         m_position = m_undoUnits.size();
     }
 
-    void Auditor::AddActor(const std::string &name, GUID actorId, GUID groupId)
+    void Auditor::AddActor(const std::string &name, const boost::uuids::uuid &actorId, const boost::uuids::uuid &groupId)
     {
         if (m_locked) return;
 
-        GUID redoStateId = Util::NewGuid();
+        const auto redoStateId = Util::NewUuid();
         Add({
             std::string("Add ").append(name),
             [=]() {
@@ -183,11 +185,11 @@ namespace UltraEd
         });
     }
 
-    void Auditor::DeleteActor(const std::string &name, GUID actorId, GUID groupId)
+    void Auditor::DeleteActor(const std::string &name, const boost::uuids::uuid &actorId, const boost::uuids::uuid &groupId)
     {
         if (m_locked) return;
 
-        auto state = SaveState(Util::NewGuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
+        auto state = SaveState(Util::NewUuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
         Add({
             std::string("Delete ").append(name),
             [=]() {
@@ -202,12 +204,12 @@ namespace UltraEd
         });
     }
 
-    void Auditor::ChangeActor(const std::string &name, GUID actorId, GUID groupId)
+    void Auditor::ChangeActor(const std::string &name, const boost::uuids::uuid &actorId, const boost::uuids::uuid &groupId)
     {
         if (m_locked) return;
 
-        auto state = SaveState(Util::NewGuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
-        GUID redoStateId = Util::NewGuid();
+        auto state = SaveState(Util::NewUuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
+        const auto redoStateId = Util::NewUuid();
         Add({
             name,
             [=]() {
@@ -228,11 +230,12 @@ namespace UltraEd
         });
     }
 
-    std::function<void()> Auditor::PotentialChangeActor(const std::string &name, GUID actorId, GUID groupId)
+    std::function<void()> Auditor::PotentialChangeActor(const std::string &name, 
+        const boost::uuids::uuid &actorId, const boost::uuids::uuid &groupId)
     {
         if (m_locked) return []() {};
 
-        std::string uniqueId = Util::GuidToString(actorId).append(Util::GuidToString(groupId));
+        std::string uniqueId = Util::UuidToString(actorId).append(Util::UuidToString(groupId));
 
         if (m_potentials.find(uniqueId) != m_potentials.end())
             return std::get<1>(m_potentials[uniqueId]);
@@ -248,8 +251,8 @@ namespace UltraEd
     {
         if (m_locked) return;
 
-        GUID redoStateId = Util::NewGuid();
-        auto sceneState = SaveState(Util::NewGuid(), [=]() { return m_scene->PartialSave(NULL); });
+        const auto redoStateId = Util::NewUuid();
+        auto sceneState = SaveState(Util::NewUuid(), [=]() { return m_scene->PartialSave(NULL); });
         Add({
             name,
             [=]() {

@@ -131,7 +131,7 @@ namespace UltraEd
         run.detach();
     }
 
-    void Scene::AddModel(const GUID &assetId)
+    void Scene::AddModel(const boost::uuids::uuid &assetId)
     {
         std::shared_ptr<Model> model = NULL;
         model = std::make_shared<Model>(assetId);
@@ -162,7 +162,7 @@ namespace UltraEd
             Debug::Instance().Warning("An object must be selected first.");
         }
 
-        GUID groupId = Util::NewGuid();
+        const auto groupId = Util::NewUuid();
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
@@ -186,7 +186,7 @@ namespace UltraEd
             Debug::Instance().Warning("An object must be selected first.");
         }
 
-        GUID groupId = Util::NewGuid();
+        const auto groupId = Util::NewUuid();
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
@@ -196,7 +196,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::AddTexture(const GUID &assetId)
+    void Scene::AddTexture(const boost::uuids::uuid &assetId)
     {
         if (m_selectedActorIds.empty())
         {
@@ -204,7 +204,7 @@ namespace UltraEd
             return;
         }
 
-        GUID groupId = Util::NewGuid();
+        const auto groupId = Util::NewUuid();
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
@@ -227,7 +227,7 @@ namespace UltraEd
             return;
         }
 
-        GUID groupId = Util::NewGuid();
+        const auto groupId = Util::NewUuid();
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
@@ -277,7 +277,7 @@ namespace UltraEd
     {
         View *view = GetActiveView();
         static bool prevGizmo = false;
-        static GUID groupId = Util::NewGuid();
+        static auto groupId = Util::NewUuid();
 
         const float deltaTime = m_gui->IO().DeltaTime;
         const float smoothingModifier = 20.0f;
@@ -312,7 +312,7 @@ namespace UltraEd
             ScreenRaycast(m_gui->IO().MousePos, &rayOrigin, &rayDir);
             if (prevGizmo || (prevGizmo = m_gizmo.Select(rayOrigin, rayDir)))
             {
-                GUID lastSelectedActorId = m_selectedActorIds.back();
+                const auto lastSelectedActorId = m_selectedActorIds.back();
                 for (const auto &selectedActorId : m_selectedActorIds)
                 {
                     auto action = m_auditor.PotentialChangeActor(m_gizmo.GetModifierName(), selectedActorId, groupId);
@@ -359,7 +359,7 @@ namespace UltraEd
             // Reset smoothing values for new mouse view movement.
             m_mouseSmoothX = m_mouseSmoothY = 0;
             prevGizmo = false;
-            groupId = Util::NewGuid();
+            groupId = Util::NewUuid();
             m_gizmo.Reset();
         }
     }
@@ -589,7 +589,7 @@ namespace UltraEd
     void Scene::Delete()
     {
         // Copy selected ids since loop modifies the master selected actor id vector.
-        GUID groupId = Util::NewGuid();
+        const auto groupId = Util::NewUuid();
         auto selectedActorIds = m_selectedActorIds;
         for (const auto &selectedActorId : selectedActorIds)
         {
@@ -619,7 +619,7 @@ namespace UltraEd
 
     void Scene::Duplicate()
     {
-        GUID groupId = Util::NewGuid();
+        const auto groupId = Util::NewUuid();
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
@@ -731,20 +731,20 @@ namespace UltraEd
         return actors;
     }
 
-    std::shared_ptr<Actor> Scene::GetActor(GUID id)
+    std::shared_ptr<Actor> Scene::GetActor(const boost::uuids::uuid &id)
     {
         if (m_actors.find(id) != m_actors.end())
             return m_actors[id];
         return NULL;
     }
 
-    bool Scene::IsActorSelected(GUID id)
+    bool Scene::IsActorSelected(const boost::uuids::uuid &id)
     {
         auto it = std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), id);
         return it != m_selectedActorIds.end();
     }
 
-    void Scene::SelectActorById(GUID id, bool clearAll)
+    void Scene::SelectActorById(const boost::uuids::uuid &id, bool clearAll)
     {
         if (clearAll) UnselectAll();
 

@@ -11,6 +11,7 @@ namespace UltraEd
         m_vertexBuffer(std::make_shared<VertexBuffer>()),
         m_type(ActorType::Model),
         m_id(),
+        m_modelId(),
         m_name(),
         m_vertices(),
         m_material(),
@@ -19,8 +20,7 @@ namespace UltraEd
         m_localRot(),
         m_worldRot(),
         m_script(),
-        m_collider(),
-        m_modelId()
+        m_collider()
     {
         ResetId();
         m_script = std::string("void $start()\n{\n\n}\n\nvoid $update()\n{\n\n}\n\nvoid $input(NUContData gamepads[4])\n{\n\n}");
@@ -55,9 +55,9 @@ namespace UltraEd
         device->SetMaterial(&m_material);
     }
 
-    void Actor::Import(const GUID &assetId)
+    void Actor::Import(const boost::uuids::uuid &assetId)
     {
-        auto modelPath = Project::GetAssetPath(assetId);
+        const auto modelPath = Project::GetAssetPath(assetId);
         if (!modelPath.empty())
         {
             m_modelId = assetId;
@@ -71,10 +71,10 @@ namespace UltraEd
         m_vertices = mesh.GetVertices();
     }
 
-    GUID Actor::GetId(cJSON *item)
+    boost::uuids::uuid Actor::GetId(cJSON *item)
     {
         cJSON *id = cJSON_GetObjectItem(item, "id");
-        return Util::StringToGuid(id->valuestring);
+        return Util::StringToUuid(id->valuestring);
     }
 
     ActorType Actor::GetType(cJSON *item)
@@ -224,7 +224,7 @@ namespace UltraEd
         char buffer[LINE_FORMAT_LENGTH];
         cJSON *actor = cJSON_CreateObject();
 
-        cJSON_AddStringToObject(actor, "id", Util::GuidToString(m_id).c_str());
+        cJSON_AddStringToObject(actor, "id", Util::UuidToString(m_id).c_str());
 
         cJSON_AddStringToObject(actor, "name", m_name.c_str());
 
@@ -249,7 +249,7 @@ namespace UltraEd
             cJSON_AddItemToObject(actor, "collider", m_collider->Save());
         }
 
-        cJSON_AddStringToObject(actor, "modelId", Util::GuidToString(m_modelId).c_str());
+        cJSON_AddStringToObject(actor, "modelId", Util::UuidToString(m_modelId).c_str());
 
         SetDirty(false);
 
@@ -301,7 +301,7 @@ namespace UltraEd
         }
 
         cJSON *modelId = cJSON_GetObjectItem(root, "modelId");
-        Import(Util::StringToGuid(modelId->valuestring));
+        Import(Util::StringToUuid(modelId->valuestring));
 
         SetDirty(false);
 

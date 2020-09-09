@@ -5,7 +5,6 @@
 #include <map>
 #include <nlohmann/json.hpp>
 #include <set>
-#include <rpc.h>
 #include "Common.h"
 #include "ModelPreviewer.h"
 #include "Records.h"
@@ -36,18 +35,18 @@ namespace UltraEd
         static void Activate();
         static bool Save(const char *name = 0);
         static bool IsLoaded();
-        static std::map<GUID, LPDIRECT3DTEXTURE9> Previews(const AssetType &type, LPDIRECT3DDEVICE9 device);
-        static path GetAssetPath(const GUID &id);
+        static std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9> Previews(const AssetType &type, LPDIRECT3DDEVICE9 device);
+        static path GetAssetPath(const boost::uuids::uuid &id);
         static path BuildPath();
     
     private:
         path ParentPath();
         path LibraryPath(const AssetRecord *record = 0);
         AssetType DetectAssetType(const path &path);
-        const AssetRecord *GetAsset(const GUID &id);
+        const AssetRecord *GetAsset(const boost::uuids::uuid &id);
         void Scan();
-        void PreparePreview(const AssetType &type, const GUID &id);
-        void RemovePreview(const AssetType &type, const GUID &id);
+        void PreparePreview(const AssetType &type, const boost::uuids::uuid &id);
+        void RemovePreview(const AssetType &type, const boost::uuids::uuid &id);
         void AddAsset(const AssetType &type, const directory_entry &entry);
         void UpdateAsset(const AssetType &type, const directory_entry &entry);
         void BuildIndex();
@@ -60,8 +59,8 @@ namespace UltraEd
         bool AssetExists(const AssetType &type, const path &path);
         bool InsertAsset(const AssetType &type, const path &path);
         bool InitializePath(const path &path);
-        void VerifyAsset(const GUID &purgeId, const AssetType &type, const directory_entry &entry);
-        void PurgeMissingAssets(const GUID &purgeId);
+        void VerifyAsset(const boost::uuids::uuid &purgeId, const AssetType &type, const directory_entry &entry);
+        void PurgeMissingAssets(const boost::uuids::uuid &purgeId);
 
     private:
         static std::unique_ptr<Project> m_projectInstance;
@@ -70,7 +69,7 @@ namespace UltraEd
         std::map<AssetType, std::string> m_assetTypeNames;
         std::set<std::string> m_modelExtensions;
         std::set<std::string> m_textureExtensions;
-        std::map<AssetType, std::map<GUID, LPDIRECT3DTEXTURE9>> m_assetPreviews;
+        std::map<AssetType, std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9>> m_assetPreviews;
         ModelPreviewer m_modelPreviewer;
         ProjectRecord m_projectRecord;
     };

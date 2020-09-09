@@ -22,13 +22,13 @@ namespace UltraEd
         virtual ~Actor() { }
         virtual void Release();
         virtual void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
-        const GUID &GetId() { return m_id; }
-        const GUID &GetModelId() { return m_modelId; }
-        void ResetId() { m_id = Util::NewGuid(); }
+        const boost::uuids::uuid &GetId() { return m_id; }
+        const boost::uuids::uuid &GetModelId() { return m_modelId; }
+        void ResetId() { m_id = Util::NewUuid(); }
         const std::string &GetName() { return m_name; }
         bool SetName(std::string name) { return Dirty([&] {  m_name = name.empty() ? "Actor" : name; }, &m_name); }
         const ActorType &GetType() { return m_type; }
-        static GUID GetId(cJSON *item);
+        static boost::uuids::uuid GetId(cJSON *item);
         static ActorType GetType(cJSON *item);
         D3DXMATRIX GetMatrix();
         const D3DXMATRIX &GetRotationMatrix() { return m_worldRot; }
@@ -59,11 +59,12 @@ namespace UltraEd
     protected:
         std::shared_ptr<VertexBuffer> m_vertexBuffer;
         ActorType m_type;
-        void Import(const GUID &assetId);
+        void Import(const boost::uuids::uuid &assetId);
         void Import(const char *filePath);
 
     private:
-        GUID m_id;
+        boost::uuids::uuid m_id;
+        boost::uuids::uuid m_modelId;
         std::string m_name;
         std::vector<Vertex> m_vertices;
         D3DMATERIAL9 m_material;
@@ -75,7 +76,6 @@ namespace UltraEd
         bool IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir,
             const D3DXVECTOR3 &v0, const D3DXVECTOR3 &v1, const D3DXVECTOR3 &v2, float *dist);
         std::shared_ptr<Collider> m_collider;
-        GUID m_modelId;
     };
 }
 

@@ -1,7 +1,7 @@
 #ifndef _RECORDS_H_
 #define _RECORDS_H_
 
-#include <rpc.h>
+#include <boost/uuid/uuid.hpp>
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
@@ -18,9 +18,9 @@ namespace UltraEd
     class AssetRecord
     {
     public:
-        GUID id;
+        boost::uuids::uuid id;
         AssetType type;
-        GUID purgeId;
+        boost::uuids::uuid purgeId;
         std::string sourcePath;
         long long lastModified;
     };

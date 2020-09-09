@@ -2,7 +2,6 @@
 #define _MODEL_H_
 
 #include <filesystem>
-#include <rpc.h>
 #include "Actor.h"
 
 namespace UltraEd
@@ -16,13 +15,13 @@ namespace UltraEd
     {
     public:
         Model();
-        Model(const GUID &assetId);
+        Model(const boost::uuids::uuid &assetId);
         Model(const char *filePath);
         Model(const Model &model);
         cJSON *Save();
         bool Load(cJSON *root, IDirect3DDevice9 *device);
-        const GUID &GetTextureId() { return m_textureId; }
-        bool SetTexture(IDirect3DDevice9 *device, const GUID &assetId);
+        const boost::uuids::uuid &GetTextureId() { return m_textureId; }
+        bool SetTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId);
         bool HasTexture() { return m_texture != NULL; }
         void DeleteTexture();
         void Release(ModelRelease type);
@@ -33,7 +32,7 @@ namespace UltraEd
         bool LoadTexture(IDirect3DDevice9 *device);
         bool IsTextureValid();
         LPDIRECT3DTEXTURE9 m_texture;
-        GUID m_textureId;
+        boost::uuids::uuid m_textureId;
     };
 }
 

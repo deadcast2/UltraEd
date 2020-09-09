@@ -501,7 +501,7 @@ namespace UltraEd
             D3DXVECTOR3 tempScale = D3DXVECTOR3(scale);
             ImGui::InputFloat3("Scale", scale, "%g");
 
-            GUID groupId = Util::NewGuid();
+            const auto groupId = Util::NewUuid();
 
             // Only apply changes to selected actors when one if it's properties has changed
             // to make all actors mutate as expected.
@@ -894,7 +894,7 @@ namespace UltraEd
                 if (ImGui::ImageButton(texture.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
                     m_scene->AddTexture(texture.first);
-                    Debug::Instance().Info("Picked texture: " + Util::GuidToString(texture.first));
+                    Debug::Instance().Info("Picked texture: " + Util::UuidToString(texture.first));
                     ImGui::CloseCurrentPopup();
                 }
 
@@ -933,7 +933,7 @@ namespace UltraEd
                 if (ImGui::ImageButton(model.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
                     m_scene->AddModel(model.first);
-                    Debug::Instance().Info("Picked model: " + Util::GuidToString(model.first));
+                    Debug::Instance().Info("Picked model: " + Util::UuidToString(model.first));
                     ImGui::CloseCurrentPopup();
                 }
 

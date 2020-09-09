@@ -258,7 +258,7 @@ namespace UltraEd
 
     void FileIO::CreateDirectoryRecursively(const char *path)
     {
-        std::vector<std::string> folders = Util::SplitString(path, '\\');
+        std::vector<std::string> folders = Util::SplitString(path, "\\");
         std::string currentPath;
 
         // Walk up path creating each folder as we go deeper.

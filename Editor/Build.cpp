@@ -54,7 +54,7 @@ namespace UltraEd
 
             if (find(resourceCache.begin(), resourceCache.end(), modelPath) == resourceCache.end())
             {
-                std::string id = Util::GuidToString(actor->GetId());
+                std::string id = Util::UuidToString(actor->GetId());
                 id.insert(0, Project::BuildPath().string().append("\\")).append(".sos");
 
                 std::string modelName(newResName);
@@ -285,7 +285,7 @@ namespace UltraEd
 
                 // Write out mesh data.
                 std::vector<Vertex> vertices = actor->GetVertices();
-                std::string id = Util::GuidToString(actor->GetId());
+                std::string id = Util::UuidToString(actor->GetId());
                 id.insert(0, Project::BuildPath().string().append("\\")).append(".sos");
                 FILE *file = fopen(id.c_str(), "w");
                 if (file == NULL) return false;
@@ -406,12 +406,12 @@ namespace UltraEd
 
             std::string newResName = Util::NewResourceName(++actorCount);
             std::string script = actor->GetScript();
-            auto result = std::unique_ptr<char>(Util::ReplaceString(script.c_str(), "$", newResName.c_str()));
+            auto result = Util::ReplaceString(script, "$", newResName);
 
             _itoa(actorCount, countBuffer, 10);
             actorRef.append(countBuffer).append("]->");
-            result = std::unique_ptr<char>(Util::ReplaceString(result.get(), "self->", actorRef.c_str()));
-            scripts.append(result.get()).append("\n\n");
+            result = Util::ReplaceString(result, "self->", actorRef);
+            scripts.append(result).append("\n\n");
 
             if (scripts.find(std::string(newResName).append("start(")) != std::string::npos)
             {
