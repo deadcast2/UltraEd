@@ -30,9 +30,9 @@ namespace UltraEd
         Project(m_constructor_tag tag, const path &path);
         Project(m_constructor_tag tag, const char *name, const path &path, bool createDirectory);
         ~Project();
+        static void Activate();
         static void New(const char *name, const path &path, bool createDirectory);
         static void Load(const path &path);
-        static void Activate();
         static bool Save(const char *name = 0);
         static bool IsLoaded();
         static std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9> Previews(const AssetType &type, LPDIRECT3DDEVICE9 device);

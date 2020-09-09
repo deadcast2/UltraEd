@@ -11,6 +11,12 @@ namespace UltraEd
 {
     std::unique_ptr<Project> Project::m_projectInstance = NULL;
 
+    void Project::Activate()
+    {
+        if (IsLoaded())
+            m_projectInstance->Scan();
+    }
+
     void Project::New(const char *name, const path &path, bool createDirectory)
     {
         m_projectInstance = std::make_unique<Project>(m_constructor_tag {}, name, path, createDirectory);
@@ -19,12 +25,6 @@ namespace UltraEd
     void Project::Load(const path &path)
     {
         m_projectInstance = std::make_unique<Project>(m_constructor_tag {}, path);
-    }
-
-    void Project::Activate()
-    {
-        if (IsLoaded())
-            m_projectInstance->Scan();
     }
 
     bool Project::Save(const char *name)
@@ -71,7 +71,7 @@ namespace UltraEd
 
     path Project::GetAssetPath(const boost::uuids::uuid &id)
     {
-        if (m_projectInstance)
+        if (IsLoaded())
         {
             auto asset = m_projectInstance->GetAsset(id);
             if (asset)
@@ -79,6 +79,18 @@ namespace UltraEd
                 return m_projectInstance->LibraryPath(asset);
             }
         }
+        return path();
+    }
+
+    path Project::BuildPath()
+    {
+        if (IsLoaded())
+        {
+            auto path = m_projectInstance->LibraryPath() / "Build";
+            if (m_projectInstance->InitializePath(path))
+                return path;
+        }
+
         return path();
     }
 
@@ -186,18 +198,6 @@ namespace UltraEd
     path Project::ParentPath()
     {
         return m_databasePath.parent_path();
-    }
-
-    path Project::BuildPath()
-    {
-        if (m_projectInstance)
-        {
-            auto path = m_projectInstance->ParentPath() / "Build";
-            if (m_projectInstance->InitializePath(path))
-                return path;
-        }
-
-        return path();
     }
 
     path Project::LibraryPath(const AssetRecord *record)
@@ -332,7 +332,7 @@ namespace UltraEd
         auto filePath = entry.path();
         while (filePath.has_parent_path() && filePath != filePath.root_path())
         {
-            if (filePath.parent_path() == LibraryPath() || filePath.parent_path() == BuildPath())
+            if (filePath.parent_path() == LibraryPath())
                 return false;
 
             filePath = filePath.parent_path();
