@@ -30,7 +30,7 @@ namespace UltraEd
         Project(m_constructor_tag tag, const path &path);
         Project(m_constructor_tag tag, const char *name, const path &path, bool createDirectory);
         ~Project();
-        static void Activate();
+        static void Activate(std::vector<boost::uuids::uuid> *updatedAssetIds = 0);
         static void New(const char *name, const path &path, bool createDirectory);
         static void Load(const path &path);
         static bool Save(const char *name = 0);
@@ -38,17 +38,18 @@ namespace UltraEd
         static std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9> Previews(const AssetType &type, LPDIRECT3DDEVICE9 device);
         static path GetAssetPath(const boost::uuids::uuid &id);
         static path BuildPath();
+        static void Refresh();
     
     private:
         path ParentPath();
         path LibraryPath(const AssetRecord *record = 0);
         AssetType DetectAssetType(const path &path);
         const AssetRecord *GetAsset(const boost::uuids::uuid &id);
-        void Scan();
+        void Scan(std::vector<boost::uuids::uuid> *updatedAssetIds = 0);
         void PreparePreview(const AssetType &type, const boost::uuids::uuid &id);
         void RemovePreview(const AssetType &type, const boost::uuids::uuid &id);
         void AddAsset(const AssetType &type, const directory_entry &entry);
-        void UpdateAsset(const AssetType &type, const directory_entry &entry);
+        const AssetRecord *UpdateAsset(const AssetType &type, const directory_entry &entry);
         void BuildIndex();
         bool Persist(const char *name = 0);
         bool IsValidDatabase();

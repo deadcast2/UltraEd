@@ -81,10 +81,10 @@ namespace UltraEd
             (*texture)->GetSurfaceLevel(0, &newTextureSurface);
             D3DXLoadSurfaceFromSurface(newTextureSurface, 0, 0, tempTextureSurface, 0, 0, D3DX_DEFAULT, 0);
 
-            surface->Release();
-            tempTextureSurface->Release();
             newTextureSurface->Release();
+            tempTextureSurface->Release();
             tempTexture->Release();
+            surface->Release();
         }
 
         stack->Release();

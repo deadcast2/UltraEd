@@ -11,10 +11,10 @@ namespace UltraEd
 {
     std::unique_ptr<Project> Project::m_projectInstance = NULL;
 
-    void Project::Activate()
+    void Project::Activate(std::vector<boost::uuids::uuid> *updatedAssetIds)
     {
         if (IsLoaded())
-            m_projectInstance->Scan();
+            m_projectInstance->Scan(updatedAssetIds);
     }
 
     void Project::New(const char *name, const path &path, bool createDirectory)
@@ -94,6 +94,14 @@ namespace UltraEd
         return path();
     }
 
+    void Project::Refresh()
+    {
+        if (IsLoaded())
+        {
+            m_projectInstance->BuildIndex();
+        }
+    }
+
     Project::Project(m_constructor_tag tag) :
         m_databasePath(),
         m_assetIndex(),
@@ -161,14 +169,8 @@ namespace UltraEd
 
     Project::~Project()
     {
-        for (const auto &name : m_assetTypeNames)
-        {
-            for (auto &assetPreview : m_assetPreviews[name.first])
-            {
-                if (assetPreview.second != NULL)
-                    assetPreview.second->Release();
-            }
-        }
+        // Will release all preview assets.
+        BuildIndex();
     }
 
     bool Project::Persist(const char *name)
@@ -211,7 +213,7 @@ namespace UltraEd
         return path;
     }
 
-    void Project::Scan()
+    void Project::Scan(std::vector<boost::uuids::uuid> *updatedAssetIds)
     {
         auto purgeId = Util::NewUuid();
 
@@ -231,7 +233,8 @@ namespace UltraEd
                 }
                 else if (IsAssetModified(detectedType, entry))
                 {
-                    UpdateAsset(detectedType, entry);
+                    auto assetRecord = UpdateAsset(detectedType, entry);
+                    if (updatedAssetIds) updatedAssetIds->push_back(assetRecord->id);
                     Debug::Instance().Info("Updated " + m_assetTypeNames[detectedType] + ": " + entry.path().string());
                 }
 
@@ -297,14 +300,16 @@ namespace UltraEd
         UpdateAsset(type, entry);
     }
 
-    void Project::UpdateAsset(const AssetType &type, const directory_entry &entry)
+    const AssetRecord *Project::UpdateAsset(const AssetType &type, const directory_entry &entry)
     {
         auto lastModified = entry.last_write_time().time_since_epoch().count();
+        auto assetRecord = &m_assetIndex[type][entry.path()];
 
-        m_assetIndex[type][entry.path()].lastModified = lastModified;
-
+        assetRecord->lastModified = lastModified;
         InsertAsset(type, entry.path());
-        PreparePreview(type, m_assetIndex[type][entry.path()].id);
+        PreparePreview(type, assetRecord->id);
+
+        return assetRecord;
     }
 
     void Project::BuildIndex()

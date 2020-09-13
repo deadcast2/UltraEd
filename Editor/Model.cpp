@@ -91,6 +91,12 @@ namespace UltraEd
         DeleteTexture();
     }
 
+    void Model::SetMesh(const boost::uuids::uuid &assetId)
+    {
+        Import(assetId);
+        Release(ModelRelease::VertexBufferOnly);
+    }
+
     bool Model::LoadTexture(IDirect3DDevice9 *device)
     {
         auto assetPath = Project::GetAssetPath(m_textureId);
@@ -117,7 +123,7 @@ namespace UltraEd
         {
             m_texture->Release();
             m_texture = 0;
-            m_textureId = {0};
+            m_textureId = boost::uuids::nil_uuid();
         }
     }
 

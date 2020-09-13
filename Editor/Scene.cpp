@@ -379,6 +379,25 @@ namespace UltraEd
         }
     }
 
+    void Scene::Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds)
+    {
+        for (const auto &changedAssetId : changedAssetIds)
+        {
+            for (const auto &actor : m_actors)
+            {
+                auto model = std::static_pointer_cast<Model>(actor.second);
+                if (model)
+                {
+                    if (model->GetModelId() == changedAssetId)
+                        model->SetMesh(changedAssetId);
+
+                    if (model->GetTextureId() == changedAssetId)
+                        model->SetTexture(m_device, changedAssetId);
+                }
+            }
+        }
+    }
+
     void Scene::UpdateViewMatrix()
     {
         D3DXMATRIX viewMat;

@@ -67,7 +67,9 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_ACTIVATE:
             if (LOWORD(wParam) == WA_ACTIVE)
             {
-                Project::Activate();
+                std::vector<boost::uuids::uuid> changedAssetIds;
+                Project::Activate(&changedAssetIds);
+                scene.Refresh(changedAssetIds);
             }
             return 0;
         case WM_SIZE:

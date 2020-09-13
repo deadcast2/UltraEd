@@ -119,6 +119,7 @@ namespace UltraEd
         ImGui_ImplDX9_InvalidateDeviceObjects();
 
         if (inner) inner();
+        Project::Refresh();
 
         ImGui_ImplDX9_CreateDeviceObjects();
     }
