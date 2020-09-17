@@ -4,14 +4,75 @@
 #include "Records.h"
 #include "Util.h"
 
+namespace nlohmann
+{
+    template <>
+    struct adl_serializer<D3DXVECTOR3>
+    {
+        static void to_json(json &j, const D3DXVECTOR3 &a)
+        {
+            j = json {
+                { "x", a.x },
+                { "y", a.y },
+                { "z", a.z }
+            };
+        }
+
+        static void from_json(const json &j, D3DXVECTOR3 &a)
+        {
+            j.at("x").get_to(a.x);
+            j.at("y").get_to(a.y);
+            j.at("z").get_to(a.z);
+        }
+    };
+
+    template <>
+    struct adl_serializer<D3DXVECTOR4>
+    {
+        static void to_json(json &j, const D3DXVECTOR4 &a)
+        {
+            j = json {
+                { "x", a.x },
+                { "y", a.y },
+                { "z", a.z },
+                { "w", a.w }
+            };
+        }
+
+        static void from_json(const json &j, D3DXVECTOR4 &a)
+        {
+            j.at("x").get_to(a.x);
+            j.at("y").get_to(a.y);
+            j.at("z").get_to(a.z);
+            j.at("w").get_to(a.w);
+        }
+    };
+
+    template <>
+    struct adl_serializer<boost::uuids::uuid>
+    {
+        static void to_json(json &j, const  boost::uuids::uuid &a)
+        {
+            j = json {
+                { "id", UltraEd::Util::UuidToString(a) }
+            };
+        }
+
+        static void from_json(const json &j, boost::uuids::uuid &a)
+        {
+            a = UltraEd::Util::StringToUuid(j.at("id").get<std::string>().c_str());
+        }
+    };
+}
+
 namespace UltraEd
 {
     inline void to_json(json &j, const AssetRecord &a)
     {
         j = json {
-            { "id", Util::UuidToString(a.id) },
+            { "id", a.id },
             { "type", a.type },
-            { "purgeId", Util::UuidToString(a.purgeId) },
+            { "purgeId", a.purgeId },
             { "sourcePath", a.sourcePath },
             { "lastModified", a.lastModified }
         };
@@ -19,8 +80,8 @@ namespace UltraEd
 
     inline void from_json(const json &j, AssetRecord &a)
     {
-        a.id = Util::StringToUuid(j.at("id").get<std::string>().c_str());
-        a.purgeId = Util::StringToUuid(j.at("purgeId").get<std::string>().c_str());
+        j.at("id").get_to(a.id);
+        j.at("purgeId").get_to(a.purgeId);
         j.at("type").get_to(a.type);
         j.at("sourcePath").get_to(a.sourcePath);
         j.at("lastModified").get_to(a.lastModified);
