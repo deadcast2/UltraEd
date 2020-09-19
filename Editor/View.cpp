@@ -1,3 +1,4 @@
+#include "Converters.h"
 #include "View.h"
 
 namespace UltraEd
@@ -151,46 +152,21 @@ namespace UltraEd
         Walk(delta * m_step);
     }
 
-    cJSON *View::Save()
+    nlohmann::json View::Save()
     {
-        char buffer[128];
-        cJSON *view = cJSON_CreateObject();
-
-        sprintf(buffer, "%f %f %f", m_pos.x, m_pos.y, m_pos.z);
-        cJSON_AddStringToObject(view, "position", buffer);
-
-        sprintf(buffer, "%f %f %f", m_forward.x, m_forward.y, m_forward.z);
-        cJSON_AddStringToObject(view, "forward", buffer);
-
-        sprintf(buffer, "%f %f %f", m_right.x, m_right.y, m_right.z);
-        cJSON_AddStringToObject(view, "right", buffer);
-
-        sprintf(buffer, "%f %f %f", m_up.x, m_up.y, m_up.z);
-        cJSON_AddStringToObject(view, "up", buffer);
-
-        return view;
+        return {
+            { "position", m_pos },
+            { "forward", m_forward },
+            { "right", m_right },
+            { "up", m_up },
+        };
     }
 
-    bool View::Load(cJSON *root)
+    void View::Load(const nlohmann::json &root)
     {
-        float x, y, z;
-
-        cJSON *position = cJSON_GetObjectItem(root, "position");
-        sscanf(position->valuestring, "%f %f %f", &x, &y, &z);
-        m_pos = D3DXVECTOR3(x, y, z);
-
-        cJSON *forward = cJSON_GetObjectItem(root, "forward");
-        sscanf(forward->valuestring, "%f %f %f", &x, &y, &z);
-        m_forward = D3DXVECTOR3(x, y, z);
-
-        cJSON *right = cJSON_GetObjectItem(root, "right");
-        sscanf(right->valuestring, "%f %f %f", &x, &y, &z);
-        m_right = D3DXVECTOR3(x, y, z);
-
-        cJSON *up = cJSON_GetObjectItem(root, "up");
-        sscanf(up->valuestring, "%f %f %f", &x, &y, &z);
-        m_up = D3DXVECTOR3(x, y, z);
-
-        return true;
+        m_pos = root["position"];
+        m_forward = root["forward"];
+        m_right = root["right"];
+        m_up = root["up"];
     }
 }

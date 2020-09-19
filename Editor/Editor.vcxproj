@@ -43,7 +43,6 @@
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Auditor.cpp" />
     <ClCompile Include="Util.cpp" />
-    <ClCompile Include="Vendor\cJSON\cJSON.c" />
     <ClCompile Include="Vendor\FastLZ\fastlz.c" />
     <ClCompile Include="Vendor\ImGui\imgui.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_demo.cpp" />
@@ -82,7 +81,6 @@
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Auditor.h" />
     <ClInclude Include="Util.h" />
-    <ClInclude Include="Vendor\cJSON\cJSON.h" />
     <ClInclude Include="Vendor\FastLZ\fastlz.h" />
     <ClInclude Include="Vendor\ImGui\imconfig.h" />
     <ClInclude Include="Vendor\ImGui\imgui.h" />

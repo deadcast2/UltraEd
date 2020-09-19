@@ -5,7 +5,7 @@ namespace UltraEd
 {
     BoxCollider::BoxCollider() :
         m_extents(1, 1, 1)
-    { 
+    {
         m_type = ColliderType::Box;
     }
 
@@ -67,26 +67,22 @@ namespace UltraEd
 
         Vertex v2;
         v2.position = end + m_center;
-        m_vertices.push_back(v2);    
+        m_vertices.push_back(v2);
     }
 
-    cJSON *BoxCollider::Save()
+    nlohmann::json BoxCollider::Save()
     {
-        auto state = Collider::Save();
-        char buffer[LINE_FORMAT_LENGTH];
-        sprintf(buffer, "%f %f %f", m_extents.x, m_extents.y, m_extents.z);
-        cJSON_AddStringToObject(state, "extents", buffer);
-        return state;
+        auto collider = Collider::Save();
+        collider.update({
+            { "extents", m_extents }
+        });
+        return collider;
     }
 
-    bool BoxCollider::Load(cJSON *root)
+    void BoxCollider::Load(const nlohmann::json &root)
     {
         Collider::Load(root);
-        cJSON *extents = cJSON_GetObjectItem(root, "extents");
-        float x, y, z;
-        sscanf(extents->valuestring, "%f %f %f", &x, &y, &z);
-        m_extents = D3DXVECTOR3(x, y, z);
+        m_extents = root["extents"];
         Build();
-        return true;
     }
 }

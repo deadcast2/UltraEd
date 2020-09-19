@@ -27,24 +27,31 @@ namespace nlohmann
     };
 
     template <>
-    struct adl_serializer<D3DXVECTOR4>
+    struct adl_serializer<D3DXMATRIX>
     {
-        static void to_json(json &j, const D3DXVECTOR4 &a)
+        static void to_json(json &j, const D3DXMATRIX &a)
         {
+            D3DXQUATERNION quat;
+            D3DXQuaternionRotationMatrix(&quat, &a);
+
             j = json {
-                { "x", a.x },
-                { "y", a.y },
-                { "z", a.z },
-                { "w", a.w }
+                { "x", quat.x },
+                { "y", quat.y },
+                { "z", quat.z },
+                { "w", quat.w }
             };
         }
 
-        static void from_json(const json &j, D3DXVECTOR4 &a)
+        static void from_json(const json &j, D3DXMATRIX &a)
         {
-            j.at("x").get_to(a.x);
-            j.at("y").get_to(a.y);
-            j.at("z").get_to(a.z);
-            j.at("w").get_to(a.w);
+            D3DXQUATERNION quat;
+
+            j.at("x").get_to(quat.x);
+            j.at("y").get_to(quat.y);
+            j.at("z").get_to(quat.z);
+            j.at("w").get_to(quat.w);
+
+            D3DXMatrixRotationQuaternion(&a, &quat);
         }
     };
 

@@ -77,21 +77,19 @@ namespace UltraEd
         }
     }
 
-    cJSON *SphereCollider::Save()
+    nlohmann::json SphereCollider::Save()
     {
-        auto state = Collider::Save();
-        char buffer[LINE_FORMAT_LENGTH];
-        sprintf(buffer, "%f", m_radius);
-        cJSON_AddStringToObject(state, "radius", buffer);
-        return state;
+        auto collider = Collider::Save();
+        collider.update({
+            { "radius", m_radius }
+        });
+        return collider;
     }
 
-    bool SphereCollider::Load(cJSON *root)
+    void SphereCollider::Load(const nlohmann::json &root)
     {
         Collider::Load(root);
-        cJSON *radius = cJSON_GetObjectItem(root, "radius");
-        sscanf(radius->valuestring, "%f", &m_radius);
+        m_radius = root["radius"];
         Build();
-        return true;
     }
 }

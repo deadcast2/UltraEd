@@ -36,14 +36,6 @@ namespace UltraEd
         }
     }
 
-    ColliderType Collider::GetType(cJSON *item)
-    {
-        int typeValue;
-        cJSON *type = cJSON_GetObjectItem(item, "type");
-        sscanf(type->valuestring, "%i", &typeValue);
-        return (ColliderType)typeValue;
-    }
-
     void Collider::DistantAABBPoints(D3DXVECTOR3 &min, D3DXVECTOR3 &max, const std::vector<Vertex> &vertices)
     {
         int minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
@@ -61,29 +53,17 @@ namespace UltraEd
         max = D3DXVECTOR3(vertices[maxX].position.x, vertices[maxY].position.y, vertices[maxZ].position.z);
     }
 
-    cJSON *Collider::Save()
+    nlohmann::json Collider::Save()
     {
-        char buffer[LINE_FORMAT_LENGTH];
-        cJSON *root = cJSON_CreateObject();
-
-        sprintf(buffer, "%i", (int)m_type);
-        cJSON_AddStringToObject(root, "type", buffer);
-
-        sprintf(buffer, "%f %f %f", m_center.x, m_center.y, m_center.z);
-        cJSON_AddStringToObject(root, "center", buffer);
-
-        return root;
+        return {
+            { "type", m_type },
+            { "center", m_center }
+        };
     }
 
-    bool Collider::Load(cJSON *root)
+    void Collider::Load(const nlohmann::json &root)
     {
-        m_type = GetType(root);
-
-        float x, y, z;
-        cJSON *center = cJSON_GetObjectItem(root, "center");
-        sscanf(center->valuestring, "%f %f %f", &x, &y, &z);
-        m_center = D3DXVECTOR3(x, y, z);
-
-        return true;
+        m_type = root["type"];
+        m_center = root["center"];
     }
 }

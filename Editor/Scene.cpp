@@ -98,14 +98,14 @@ namespace UltraEd
     {
         if (!Confirm()) return;
 
-        cJSON *root = NULL;
+        std::shared_ptr<nlohmann::json> root;
         std::string loadedName;
-        if (FileIO::Load(&root, loadedName))
+
+        if (FileIO::Load(root, loadedName))
         {
             OnNew(false);
             SetTitle(loadedName);
-            Load(root);
-            cJSON_Delete(root);
+            Load(*root.get());
         }
     }
 
@@ -852,116 +852,78 @@ namespace UltraEd
             SetCursorPos(mousePoint.x, screenY - 1);
     }
 
-    cJSON *Scene::Save()
+    nlohmann::json Scene::Save()
     {
-        char buffer[128];
-        cJSON *scene = cJSON_CreateObject();
+        json scene = {
+            { "active_view", GetActiveView()->GetType() }
+        };
 
-        cJSON *viewArray = cJSON_CreateArray();
-        cJSON_AddItemToObject(scene, "views", viewArray);
         for (int i = 0; i < 4; i++)
         {
-            cJSON_AddItemToArray(viewArray, m_views[i].Save());
+            scene["views"].push_back(m_views[i].Save());
         }
 
-        sprintf(buffer, "%i", (int)GetActiveView()->GetType());
-        cJSON_AddStringToObject(scene, "active_view", buffer);
-
-        cJSON *actorArray = cJSON_CreateArray();
-        cJSON_AddItemToObject(scene, "actors", actorArray);
         for (const auto &actor : m_actors)
         {
-            cJSON_AddItemToArray(actorArray, actor.second->Save());
+            scene["actors"].push_back(actor.second->Save());
         }
 
-        PartialSave(scene);
+        auto partial = PartialSave();
+        scene.update(partial);
 
         return scene;
     }
 
-    cJSON *Scene::PartialSave(cJSON *root)
+    nlohmann::json Scene::PartialSave()
     {
-        char buffer[128];
-        cJSON *scene = NULL;
-
-        if (root == NULL)
-            scene = cJSON_CreateObject();
-        else
-            scene = root;
-
-        sprintf(buffer, "%i %i %i", m_backgroundColorRGB[0], m_backgroundColorRGB[1],
-            m_backgroundColorRGB[2]);
-        cJSON_AddStringToObject(scene, "background_color", buffer);
-
-        sprintf(buffer, "%f", m_gizmo.GetSnapSize());
-        cJSON_AddStringToObject(scene, "gizmo_snap_size", buffer);
-
-        return scene;
+        return {
+            { "background_color", m_backgroundColorRGB },
+            { "gizmo_snap_size", m_gizmo.GetSnapSize() }
+        };
     }
 
-    bool Scene::Load(cJSON *root)
+    void Scene::Load(const nlohmann::json &root)
     {
-        // Restore editor views.
         int count = 0;
-        cJSON *views = cJSON_GetObjectItem(root, "views");
-        cJSON *viewItem = NULL;
-        cJSON_ArrayForEach(viewItem, views)
+        for (const auto &view : root["views"])
         {
-            m_views[count++].Load(viewItem);
+            m_views[count++].Load(view);
         }
 
-        // Set the active view.
-        ViewType viewType;
-        cJSON *activeView = cJSON_GetObjectItem(root, "active_view");
-        sscanf(activeView->valuestring, "%i", &viewType);
-        SetViewType(viewType);
+        SetViewType(root["active_view"]);
 
-        // Restore saved actors.
-        cJSON *actors = cJSON_GetObjectItem(root, "actors");
-        cJSON *actor = NULL;
-        cJSON_ArrayForEach(actor, actors)
+        for (const auto &actor : root["actors"])
         {
             RestoreActor(actor);
         }
 
         PartialLoad(root);
-
-        return true;
     }
 
-    bool Scene::PartialLoad(cJSON *root)
+    void Scene::PartialLoad(const nlohmann::json &root)
     {
-        // Set the background color.
-        cJSON *backgroundColor = cJSON_GetObjectItem(root, "background_color");
-        sscanf(backgroundColor->valuestring, "%i %i %i", &m_backgroundColorRGB[0],
-            &m_backgroundColorRGB[1], &m_backgroundColorRGB[2]);
-
-        // Set gizmo snap size.
-        float snapSize;
-        cJSON *gizmoSnapSize = cJSON_GetObjectItem(root, "gizmo_snap_size");
-        sscanf(gizmoSnapSize->valuestring, "%f", &snapSize);
-        m_gizmo.SetSnapSize(snapSize);
-
-        return true;
+        m_backgroundColorRGB = root["background_color"];
+        m_gizmo.SetSnapSize(root["gizmo_snap_size"]);
     }
 
-    void Scene::RestoreActor(cJSON *item)
+    void Scene::RestoreActor(const nlohmann::json &actor)
     {
         // Avoid creation of new actor objects when restoring.
-        auto existingActor = GetActor(Actor::GetId(item));
-        switch (Actor::GetType(item))
+        auto existingActor = GetActor(actor["id"]);
+
+        switch (actor["type"].get<ActorType>())
         {
             case ActorType::Model:
             {
                 auto model = existingActor ? std::static_pointer_cast<Model>(existingActor) : std::make_shared<Model>();
-                model->Load(item, m_device);
+                model->Load(actor, m_device);
                 if (!existingActor) m_actors[model->GetId()] = model;
                 break;
             }
             case ActorType::Camera:
             {
                 auto camera = existingActor ? std::static_pointer_cast<Camera>(existingActor) : std::make_shared<Camera>();
-                camera->Load(item);
+                camera->Load(actor);
                 if (!existingActor) m_actors[camera->GetId()] = camera;
                 break;
             }

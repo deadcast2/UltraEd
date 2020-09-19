@@ -5,7 +5,7 @@
 #include <map>
 #include <d3d9.h>
 #include <d3dx9.h>
-#include <cJSON/cJSON.h>
+#include <nlohmann/json.hpp>
 #include "Gui.h"
 #include "View.h"
 #include "Common.h"
@@ -35,12 +35,12 @@ namespace UltraEd
         COLORREF GetBackgroundColor();
         HWND GetWndHandle();
         void Render();
-        cJSON *Save();
-        cJSON *PartialSave(cJSON *root);
-        bool PartialLoad(cJSON *root);
+        nlohmann::json Save();
+        nlohmann::json PartialSave();
+        void PartialLoad(const nlohmann::json &root);
         void UnselectAll();
         std::shared_ptr<Actor> GetActor(const boost::uuids::uuid &id);
-        void RestoreActor(cJSON *item);
+        void RestoreActor(const nlohmann::json &item);
         void Delete(std::shared_ptr<Actor> actor);
         void SelectActorById(const boost::uuids::uuid &id, bool clearAll = true);
         void Resize(int width, int height);
@@ -71,7 +71,7 @@ namespace UltraEd
         View *GetActiveView();
         bool ToggleMovementSpace();
         void SelectAll();
-        bool Load(cJSON *root);
+        void Load(const nlohmann::json &root);
         void SetDirty(bool value);
         void ResetViews();
         std::string GetStats();

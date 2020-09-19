@@ -1,9 +1,9 @@
 #ifndef _COLLIDER_H_
 #define _COLLIDER_H_
 
-#include <cJSON/cJSON.h>
 #include <memory>
 #include <vector>
+#include "Converters.h"
 #include "Savable.h"
 #include "VertexBuffer.h"
 
@@ -25,10 +25,9 @@ namespace UltraEd
         void Render(IDirect3DDevice9 *device);
         virtual void Build() = 0;
         D3DXVECTOR3 GetCenter() { return m_center; }
-        cJSON *Save();
-        bool Load(cJSON *root);
+        nlohmann::json Save();
+        void Load(const nlohmann::json &root);
         ColliderType GetType() { return m_type; };
-        static ColliderType GetType(cJSON *item);
         const char *GetName() { return ColliderTypeNames[static_cast<int>(m_type)]; }
         
     protected:

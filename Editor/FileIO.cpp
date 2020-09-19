@@ -1,5 +1,8 @@
 #include <shlwapi.h>
 #include <FastLZ/fastlz.h>
+#include <fstream>
+#include <istream>
+#include <sstream>
 #include "Common.h"
 #include "FileIO.h"
 #include "Util.h"
@@ -18,48 +21,34 @@ namespace UltraEd
 
             fileName = CleanFileName(file.c_str());
 
-            // Prepare tar file for writing.
-            mtar_t tar;
-            mtar_open(&tar, file.c_str(), "w");
-
-            cJSON *root = scene->Save();
-            auto rendered = std::unique_ptr<char>(cJSON_Print(root));
-            cJSON_Delete(root);
-
-            mtar_write_file_header(&tar, "scene.json", static_cast<unsigned>(strlen(rendered.get())));
-            mtar_write_data(&tar, rendered.get(), static_cast<unsigned>(strlen(rendered.get())));
-
-            mtar_finalize(&tar);
-            mtar_close(&tar);
-
-            return Compress(file);
+            std::ofstream writer(file);
+            if (writer)
+            {
+                writer << scene->Save().dump(1);
+                return true;
+            }
         }
 
         return false;
     }
 
-    bool FileIO::Load(cJSON **data, std::string &fileName)
+    bool FileIO::Load(std::shared_ptr<nlohmann::json> &data, std::string &fileName)
     {
         std::string file;
 
-        if (Dialog::Open("Load Scene", APP_FILE_FILTER, file) && Decompress(file))
+        if (Dialog::Open("Load Scene", APP_FILE_FILTER, file))
         {
             fileName = CleanFileName(file.c_str());
 
-            mtar_t tar;
-            mtar_header_t header;
+            std::ifstream reader(file);
+            if (reader)
+            {
+                std::stringstream stream;
+                stream << reader.rdbuf();
+                data = std::make_shared<nlohmann::json>(json::parse(stream.str()));
 
-            mtar_open(&tar, file.c_str(), "r");
-            mtar_find(&tar, "scene.json", &header);
-
-            auto contents = std::make_unique<char[]>(header.size + 1);
-            mtar_read_data(&tar, contents.get(), header.size);
-
-            *data = cJSON_Parse(contents.get());
-            mtar_close(&tar);
-            remove(file.c_str());
-
-            return true;
+                return true;
+            }
         }
 
         return false;

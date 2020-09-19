@@ -1,7 +1,6 @@
 #ifndef _BOXCOLLIDER_H_
 #define _BOXCOLLIDER_H_
 
-#include <cJSON/cJSON.h>
 #include "Collider.h"
 
 namespace UltraEd
@@ -13,8 +12,8 @@ namespace UltraEd
         BoxCollider(const std::vector<Vertex> &vertices);
         void Build();
         const D3DXVECTOR3 &GetExtents() { return m_extents; }
-        cJSON *Save();
-        bool Load(cJSON *root);
+        nlohmann::json Save();
+        void Load(const nlohmann::json &root);
 
     private:
         void BuildLine(const D3DXVECTOR3 &start, const D3DXVECTOR3 &end);

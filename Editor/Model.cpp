@@ -3,9 +3,10 @@
 
 namespace UltraEd
 {
-    Model::Model() : 
+    Model::Model() :
         m_texture(0),
-        m_textureId()
+        m_textureId(),
+        m_modelId()
     { }
 
     Model::Model(const Model &model) : Model()
@@ -21,7 +22,7 @@ namespace UltraEd
 
     Model::Model(const boost::uuids::uuid &assetId) : Model()
     {
-        Import(assetId);
+        SetMesh(assetId);
     }
 
     void Model::Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack)
@@ -65,10 +66,10 @@ namespace UltraEd
         auto dimensions = TextureDimensions();
 
         // Valid sizes for the RDP.
-        std::vector<std::tuple<int, int>> validSizes = { 
+        std::vector<std::tuple<int, int>> validSizes = {
             { 8, 8 }, { 8, 16 }, { 16, 8 },
             { 16, 16 }, { 16, 32 }, { 32, 16 },
-            { 32, 32 },  { 32, 64 }, { 64, 32 }
+            { 32, 32 }, { 32, 64 }, { 64, 32 }
         };
 
         auto size = std::find_if(validSizes.begin(), validSizes.end(), [&](const auto &t) {
@@ -85,7 +86,7 @@ namespace UltraEd
     {
         Actor::Release();
 
-        if (type == ModelRelease::VertexBufferOnly) 
+        if (type == ModelRelease::VertexBufferOnly)
             return;
 
         DeleteTexture();
@@ -93,8 +94,14 @@ namespace UltraEd
 
     void Model::SetMesh(const boost::uuids::uuid &assetId)
     {
-        Import(assetId);
-        Release(ModelRelease::VertexBufferOnly);
+        const auto modelPath = Project::GetAssetPath(assetId);
+
+        if (!modelPath.empty())
+        {
+            m_modelId = assetId;
+            Import(modelPath.string().c_str());
+            Release(ModelRelease::VertexBufferOnly);
+        }
     }
 
     bool Model::LoadTexture(IDirect3DDevice9 *device)
@@ -109,11 +116,11 @@ namespace UltraEd
 
     bool Model::SetTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId)
     {
+        DeleteTexture();
+        m_textureId = assetId;
+
         bool result = false;
-        Dirty([&] { 
-            m_textureId = assetId;
-            result = LoadTexture(device); 
-        }, &result);
+        Dirty([&] { result = LoadTexture(device); }, &result);
         return result;
     }
 
@@ -127,22 +134,21 @@ namespace UltraEd
         }
     }
 
-    cJSON *Model::Save()
+    nlohmann::json Model::Save()
     {
-        cJSON *root = Actor::Save();
-        cJSON_AddStringToObject(root, "textureId", Util::UuidToString(m_textureId).c_str());
-        return root;
+        auto actor = Actor::Save();
+        actor.update({
+            { "texture_id", m_textureId },
+            { "model_id", m_modelId }
+        });
+        return actor;
     }
 
-    bool Model::Load(cJSON *root, IDirect3DDevice9 *device)
+    void Model::Load(const nlohmann::json &root, IDirect3DDevice9 *device)
     {
         Actor::Load(root);
 
-        DeleteTexture();
-
-        cJSON *textureId = cJSON_GetObjectItem(root, "textureId");
-        SetTexture(device, Util::StringToUuid(textureId->valuestring));
-
-        return true;
+        SetTexture(device, root["texture_id"]);
+        SetMesh(root["model_id"]);
     }
 }

@@ -1,7 +1,6 @@
 #ifndef _VIEW_H_
 #define _VIEW_H_
 
-#include <cJSON/cJSON.h>
 #include <d3dx9.h>
 #include "Savable.h"
 
@@ -13,8 +12,8 @@ namespace UltraEd
     {
     public:
         View();
-        cJSON *Save();
-        bool Load(cJSON *root);
+        nlohmann::json Save();
+        void Load(const nlohmann::json &root);
         D3DXVECTOR3 GetPosition();
         void SetPosition(D3DXVECTOR3 position);
         D3DXVECTOR3 GetForward();

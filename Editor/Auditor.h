@@ -3,12 +3,15 @@
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/nil_generator.hpp>
-#include <cJSON/cJSON.h>
+#include <nlohmann/json.hpp>
 #include <functional>
 #include <map>
 #include <tuple>
 #include <vector>
 #include "Actor.h"
+
+using json = nlohmann::json;
+using uuid = boost::uuids::uuid;
 
 namespace UltraEd
 {
@@ -17,10 +20,10 @@ namespace UltraEd
     struct UndoUnit
     {
         std::string name;
-        std::function<cJSON*()> undo;
-        std::function<void(cJSON*)> redo;
-        boost::uuids::uuid groupId;
-        cJSON *state;
+        std::function<json()> undo;
+        std::function<void(const json&)> redo;
+        uuid groupId;
+        json state;
     };
 
     class Auditor
@@ -31,30 +34,26 @@ namespace UltraEd
         void Undo();
         void Redo();
         void Reset();
-        void AddActor(const std::string &name, const boost::uuids::uuid &actorId, 
-            const boost::uuids::uuid &groupId = boost::uuids::nil_uuid());
-        void DeleteActor(const std::string &name, const boost::uuids::uuid &actorId, 
-            const boost::uuids::uuid &groupId = boost::uuids::nil_uuid());
-        void ChangeActor(const std::string &name, const boost::uuids::uuid &actorId, 
-            const boost::uuids::uuid &groupId = boost::uuids::nil_uuid());
+        void AddActor(const std::string &name, const uuid &actorId, const uuid &groupId = boost::uuids::nil_uuid());
+        void DeleteActor(const std::string &name, const uuid &actorId, const uuid &groupId = boost::uuids::nil_uuid());
+        void ChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId = boost::uuids::nil_uuid());
         void ChangeScene(const std::string &name);
         std::array<std::string, 2> Titles();
-        std::function<void()> PotentialChangeActor(const std::string &name, 
-            const boost::uuids::uuid &actorId, const boost::uuids::uuid &groupId);
+        std::function<void()> PotentialChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId);
 
     private:
         void Add(UndoUnit unit);
         void RunUndo();
         void RunRedo();
         void CleanUp();
-        cJSON *SaveState(const boost::uuids::uuid &id, std::function<cJSON*()> save);
+        json SaveState(const uuid &id, std::function<json()> save);
         void Lock(std::function<void()> block);
 
     private:
         std::vector<UndoUnit> m_undoUnits;
         size_t m_position;
         Scene *m_scene;
-        std::map<boost::uuids::uuid, cJSON *> m_savedStates;
+        std::map<uuid, json> m_savedStates;
         std::map<std::string, std::tuple<bool, std::function<void()>>> m_potentials;
         const int m_maxUnits;
         bool m_locked;

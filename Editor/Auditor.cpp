@@ -103,14 +103,10 @@ namespace UltraEd
 
     void Auditor::CleanUp()
     {
-        for (auto state : m_savedStates)
-        {
-            cJSON_Delete(state.second);
-        }
         m_savedStates.clear();
     }
 
-    cJSON *Auditor::SaveState(const boost::uuids::uuid &id, std::function<cJSON*()> save)
+    json Auditor::SaveState(const uuid &id, std::function<json()> save)
     {
         // Identifying states avoids storing duplicates.
         if (m_savedStates.find(id) == m_savedStates.end())
@@ -164,20 +160,22 @@ namespace UltraEd
         m_position = m_undoUnits.size();
     }
 
-    void Auditor::AddActor(const std::string &name, const boost::uuids::uuid &actorId, const boost::uuids::uuid &groupId)
+    void Auditor::AddActor(const std::string &name, const uuid &actorId, const uuid &groupId)
     {
         if (m_locked) return;
 
         const auto redoStateId = Util::NewUuid();
+
         Add({
             std::string("Add ").append(name),
             [=]() {
                 auto actor = m_scene->GetActor(actorId);
                 auto state = SaveState(redoStateId, [=]() { return actor->Save(); });
-                m_scene->Delete(actor);
+
+                m_scene->Delete(actor);             
                 return state;
             },
-            [=](cJSON *oldState) {
+            [=](const json &oldState) {
                 m_scene->RestoreActor(oldState);
                 m_scene->SelectActorById(actorId);
             },
@@ -185,36 +183,45 @@ namespace UltraEd
         });
     }
 
-    void Auditor::DeleteActor(const std::string &name, const boost::uuids::uuid &actorId, const boost::uuids::uuid &groupId)
+    void Auditor::DeleteActor(const std::string &name, const uuid &actorId, const uuid &groupId)
     {
         if (m_locked) return;
 
-        auto state = SaveState(Util::NewUuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
+        auto state = SaveState(Util::NewUuid(), [=]() {
+            return m_scene->GetActor(actorId)->Save();
+        });
+
         Add({
             std::string("Delete ").append(name),
             [=]() {
                 m_scene->RestoreActor(state);
                 m_scene->SelectActorById(actorId);
+
                 return state;
             },
-            [=](cJSON *oldState) {
+            [=](const json &oldState) {
                 m_scene->Delete(m_scene->GetActor(actorId));
             },
             groupId
         });
     }
 
-    void Auditor::ChangeActor(const std::string &name, const boost::uuids::uuid &actorId, const boost::uuids::uuid &groupId)
+    void Auditor::ChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId)
     {
         if (m_locked) return;
 
-        auto state = SaveState(Util::NewUuid(), [=]() { return m_scene->GetActor(actorId)->Save(); });
         const auto redoStateId = Util::NewUuid();
+        auto state = SaveState(Util::NewUuid(), [=]() { 
+            return m_scene->GetActor(actorId)->Save();
+        });
+
         Add({
             name,
             [=]() {
                 auto actor = m_scene->GetActor(actorId);
-                auto oldState = SaveState(redoStateId, [=]() { return actor->Save(); });
+                auto oldState = SaveState(redoStateId, [=]() { 
+                    return actor->Save();
+                });
 
                 m_scene->RestoreActor(state);
                 m_scene->SelectActorById(actorId, false);
@@ -222,7 +229,7 @@ namespace UltraEd
                 // Return state saved before restore so system can "undo" to this point.
                 return oldState;
             },
-            [=](cJSON *oldState) {
+            [=](const json &oldState) {
                 m_scene->RestoreActor(oldState);
                 m_scene->SelectActorById(actorId, false);
             },
@@ -230,15 +237,16 @@ namespace UltraEd
         });
     }
 
-    std::function<void()> Auditor::PotentialChangeActor(const std::string &name, 
-        const boost::uuids::uuid &actorId, const boost::uuids::uuid &groupId)
+    std::function<void()> Auditor::PotentialChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId)
     {
         if (m_locked) return []() {};
 
         std::string uniqueId = Util::UuidToString(actorId).append(Util::UuidToString(groupId));
 
         if (m_potentials.find(uniqueId) != m_potentials.end())
+        {
             return std::get<1>(m_potentials[uniqueId]);
+        }
 
         return std::get<1>(m_potentials[uniqueId]) = [=]() {
             if (std::get<0>(m_potentials[uniqueId])) return;
@@ -252,18 +260,21 @@ namespace UltraEd
         if (m_locked) return;
 
         const auto redoStateId = Util::NewUuid();
-        auto sceneState = SaveState(Util::NewUuid(), [=]() { return m_scene->PartialSave(NULL); });
+        auto sceneState = SaveState(Util::NewUuid(), [=]() { 
+            return m_scene->PartialSave(); 
+        });
+
         Add({
             name,
             [=]() {
-                auto oldState = SaveState(redoStateId, [=]() { return m_scene->PartialSave(NULL); });
+                auto oldState = SaveState(redoStateId, [=]() { return m_scene->PartialSave(); });
 
                 m_scene->PartialLoad(sceneState);
 
                 // Return state saved before restore so system can "undo" to this point.
                 return oldState;
             },
-            [=](cJSON *oldState) {
+            [=](const json &oldState) {
                 m_scene->PartialLoad(oldState);
             }
         });

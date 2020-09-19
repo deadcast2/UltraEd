@@ -1,7 +1,6 @@
 #ifndef _ACTOR_H_
 #define _ACTOR_H_
 
-#include <cJSON/cJSON.h>
 #include <vector>
 #include "VertexBuffer.h"
 #include "Savable.h"
@@ -23,13 +22,10 @@ namespace UltraEd
         virtual void Release();
         virtual void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
         const boost::uuids::uuid &GetId() { return m_id; }
-        const boost::uuids::uuid &GetModelId() { return m_modelId; }
         void ResetId() { m_id = Util::NewUuid(); }
         const std::string &GetName() { return m_name; }
         bool SetName(std::string name) { return Dirty([&] {  m_name = name.empty() ? "Actor" : name; }, &m_name); }
         const ActorType &GetType() { return m_type; }
-        static boost::uuids::uuid GetId(cJSON *item);
-        static ActorType GetType(cJSON *item);
         D3DXMATRIX GetMatrix();
         const D3DXMATRIX &GetRotationMatrix() { return m_worldRot; }
         void SetLocalRotationMatrix(const D3DXMATRIX &mat) { m_localRot = mat; }
@@ -53,18 +49,16 @@ namespace UltraEd
         Collider *GetCollider() { return m_collider.get(); }
         void SetCollider(Collider *collider) { Dirty([&] { m_collider = std::shared_ptr<Collider>(collider); }, &m_collider); }
         bool HasCollider() { return GetCollider() != NULL; }
-        cJSON *Save();
-        bool Load(cJSON *root);
+        nlohmann::json Save();
+        void Load(const nlohmann::json &root);
 
     protected:
         std::shared_ptr<VertexBuffer> m_vertexBuffer;
         ActorType m_type;
-        void Import(const boost::uuids::uuid &assetId);
         void Import(const char *filePath);
 
     private:
         boost::uuids::uuid m_id;
-        boost::uuids::uuid m_modelId;
         std::string m_name;
         std::vector<Vertex> m_vertices;
         D3DMATERIAL9 m_material;

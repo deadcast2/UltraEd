@@ -1,7 +1,7 @@
 #ifndef _FILEIO_H_
 #define _FILEIO_H_
 
-#include <cJSON/cJSON.h>
+#include <nlohmann/json.hpp>
 #include <MicroTar/microtar.h>
 #include "Scene.h"
 
@@ -13,7 +13,7 @@ namespace UltraEd
     {
     public:
         static bool Save(Scene *scene, std::string &fileName);
-        static bool Load(cJSON **data, std::string &fileName);
+        static bool Load(std::shared_ptr<nlohmann::json> &data, std::string &fileName);
         static bool Pack(const char *path);
         static bool Unpack(const char *path);
 

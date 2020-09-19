@@ -46,11 +46,15 @@ namespace UltraEd
         int loopCount = 0;
         for (const auto &actor : actors)
         {
-            std::string newResName = Util::NewResourceName(loopCount++);
+            auto newResName = Util::NewResourceName(loopCount++);
 
             if (actor->GetType() != ActorType::Model) continue;
 
-            auto modelPath = Project::GetAssetPath(actor->GetModelId());
+            auto model = reinterpret_cast<Model *>(actor);
+
+            if (model == nullptr) continue;
+
+            auto modelPath = Project::GetAssetPath(model->GetModelId());
 
             if (find(resourceCache.begin(), resourceCache.end(), modelPath) == resourceCache.end())
             {
@@ -73,43 +77,39 @@ namespace UltraEd
                 resourceCache.push_back(modelPath);
             }
 
-            auto model = reinterpret_cast<Model *>(actor);
-            if (model != nullptr)
+            auto texturePath = Project::GetAssetPath(model->GetTextureId());
+
+            if (!texturePath.empty() && find(resourceCache.begin(), resourceCache.end(), texturePath) == resourceCache.end())
             {
-                auto texturePath = Project::GetAssetPath(model->GetTextureId());
-
-                if (!texturePath.empty() && find(resourceCache.begin(), resourceCache.end(), texturePath) == resourceCache.end())
+                // Load the set texture and resize to required dimensions.
+                auto path = Project::BuildPath() / texturePath.filename();
+                int width, height, channels;
+                unsigned char *data = stbi_load(texturePath.string().c_str(), &width, &height, &channels, 3);
+                if (data)
                 {
-                    // Load the set texture and resize to required dimensions.
-                    auto path = Project::BuildPath() / texturePath.filename();
-                    int width, height, channels;
-                    unsigned char *data = stbi_load(texturePath.string().c_str(), &width, &height, &channels, 3);
-                    if (data)
+                    auto dimensions = static_cast<Model *>(actor)->TextureDimensions();
+                    if (stbir_resize_uint8(data, width, height, 0, data, dimensions[0], dimensions[1], 0, 3))
                     {
-                        auto dimensions = static_cast<Model *>(actor)->TextureDimensions();
-                        if (stbir_resize_uint8(data, width, height, 0, data, dimensions[0], dimensions[1], 0, 3))
-                        {
-                            stbi_write_png(path.string().c_str(), dimensions[0], dimensions[1], 3, data, 0);
-                        }
-
-                        stbi_image_free(data);
+                        stbi_write_png(path.string().c_str(), dimensions[0], dimensions[1], 3, data, 0);
                     }
 
-                    std::string textureName(newResName);
-                    textureName.append("_T");
-
-                    specSegments.append("\nbeginseg\n\tname \"");
-                    specSegments.append(textureName);
-                    specSegments.append("\"\n\tflags RAW\n\tinclude \"");
-                    specSegments.append(path.string().c_str());
-                    specSegments.append("\"\nendseg\n");
-
-                    specIncludes.append("\n\tinclude \"");
-                    specIncludes.append(textureName);
-                    specIncludes.append("\"");
-
-                    resourceCache.push_back(texturePath);
+                    stbi_image_free(data);
                 }
+
+                std::string textureName(newResName);
+                textureName.append("_T");
+
+                specSegments.append("\nbeginseg\n\tname \"");
+                specSegments.append(textureName);
+                specSegments.append("\"\n\tflags RAW\n\tinclude \"");
+                specSegments.append(path.string().c_str());
+                specSegments.append("\"\nendseg\n");
+
+                specIncludes.append("\n\tinclude \"");
+                specIncludes.append(textureName);
+                specIncludes.append("\"");
+
+                resourceCache.push_back(texturePath);
             }
         }
 
@@ -144,18 +144,22 @@ namespace UltraEd
         return true;
     }
 
-    bool Build::WriteSegmentsFile(const std::vector<Actor *> &actors, 
+    bool Build::WriteSegmentsFile(const std::vector<Actor *> &actors,
         std::map<std::filesystem::path, std::string> *resourceCache)
     {
         std::string romSegments;
         int loopCount = 0;
         for (const auto &actor : actors)
         {
-            std::string newResName = Util::NewResourceName(loopCount++);
+            auto newResName = Util::NewResourceName(loopCount++);
 
             if (actor->GetType() != ActorType::Model) continue;
 
-            auto modelPath = Project::GetAssetPath(actor->GetModelId());
+            auto model = reinterpret_cast<Model *>(actor);
+
+            if (model == nullptr) continue;
+
+            auto modelPath = Project::GetAssetPath(model->GetModelId());
 
             if (resourceCache->find(modelPath) == resourceCache->end())
             {
@@ -172,24 +176,20 @@ namespace UltraEd
                 (*resourceCache)[modelPath] = newResName;
             }
 
-            auto model = reinterpret_cast<Model *>(actor);
-            if (model != nullptr)
+            auto texturePath = Project::GetAssetPath(model->GetTextureId());
+            if (!texturePath.empty() && resourceCache->find(texturePath) == resourceCache->end())
             {
-                auto texturePath = Project::GetAssetPath(model->GetTextureId());
-                if (!texturePath.empty() && resourceCache->find(texturePath) == resourceCache->end())
-                {
-                    std::string textureName(newResName);
-                    textureName.append("_T");
+                std::string textureName(newResName);
+                textureName.append("_T");
 
-                    romSegments.append("extern u8 _");
-                    romSegments.append(textureName);
-                    romSegments.append("SegmentRomStart[];\n");
-                    romSegments.append("extern u8 _");
-                    romSegments.append(textureName);
-                    romSegments.append("SegmentRomEnd[];\n");
+                romSegments.append("extern u8 _");
+                romSegments.append(textureName);
+                romSegments.append("SegmentRomStart[];\n");
+                romSegments.append("extern u8 _");
+                romSegments.append(textureName);
+                romSegments.append("SegmentRomEnd[];\n");
 
-                    (*resourceCache)[texturePath] = newResName;
-                }
+                (*resourceCache)[texturePath] = newResName;
             }
         }
 
@@ -214,7 +214,7 @@ namespace UltraEd
         return true;
     }
 
-    bool Build::WriteActorsFile(const std::vector<Actor *> &actors, 
+    bool Build::WriteActorsFile(const std::vector<Actor *> &actors,
         const std::map<std::filesystem::path, std::string> &resourceCache)
     {
         int actorCount = -1;
@@ -565,7 +565,7 @@ namespace UltraEd
             {
                 if (dwRead == 0) break;
                 auto buffer = std::make_unique<char[]>(dwRead + 1); // Add 1 to prevent garbage.
-                
+
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);
@@ -623,7 +623,7 @@ namespace UltraEd
             std::string currDir = GetPathFor("Engine");
 
             // Start the build with no window.
-            CreateProcess(NULL, const_cast<LPSTR>("cmd /c build.bat"), NULL, NULL, TRUE, CREATE_NO_WINDOW, 
+            CreateProcess(NULL, const_cast<LPSTR>("cmd /c build.bat"), NULL, NULL, TRUE, CREATE_NO_WINDOW,
                 NULL, currDir.c_str(), &si, &pi);
 
             DWORD dwRead;
@@ -635,7 +635,7 @@ namespace UltraEd
             {
                 if (dwRead == 0) break;
                 auto buffer = std::make_unique<char[]>(dwRead + 1); // Add 1 to prevent garbage.
-                
+
                 if (buffer)
                 {
                     memcpy(buffer.get(), chBuf, dwRead);

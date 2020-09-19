@@ -18,11 +18,12 @@ namespace UltraEd
         Model(const boost::uuids::uuid &assetId);
         Model(const char *filePath);
         Model(const Model &model);
-        cJSON *Save();
-        bool Load(cJSON *root, IDirect3DDevice9 *device);
-        void SetMesh(const boost::uuids::uuid &assetId);
+        nlohmann::json Save();
+        void Load(const nlohmann::json &root, IDirect3DDevice9 *device);
         const boost::uuids::uuid &GetTextureId() { return m_textureId; }
+        const boost::uuids::uuid &GetModelId() { return m_modelId; }
         bool SetTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId);
+        void SetMesh(const boost::uuids::uuid &assetId);
         bool HasTexture() { return m_texture != NULL; }
         void DeleteTexture();
         void Release(ModelRelease type);
@@ -34,6 +35,7 @@ namespace UltraEd
         bool IsTextureValid();
         LPDIRECT3DTEXTURE9 m_texture;
         boost::uuids::uuid m_textureId;
+        boost::uuids::uuid m_modelId;
     };
 }
 

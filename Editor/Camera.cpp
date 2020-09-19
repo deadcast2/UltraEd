@@ -36,22 +36,18 @@ namespace UltraEd
         Actor::Render(device, stack);
     }
 
-    cJSON *Camera::Save()
+    nlohmann::json Camera::Save()
     {
-        auto state = Actor::Save();
-        char buffer[LINE_FORMAT_LENGTH];
-        sprintf(buffer, "%f", m_fov);
-        cJSON_AddStringToObject(state, "fov", buffer);
-        return state;
+        auto actor = Actor::Save();
+        actor.update({
+            { "fov", m_fov }
+        });
+        return actor;
     }
 
-    bool Camera::Load(cJSON *root)
+    void Camera::Load(const nlohmann::json &root)
     {
         Actor::Load(root);
-        if (cJSON *fov = cJSON_GetObjectItem(root, "fov"))
-        {
-            sscanf(fov->valuestring, "%f", &m_fov);
-        }
-        return true;
+        m_fov = root["fov"];
     }
 }

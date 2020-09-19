@@ -2,7 +2,7 @@
 #define _SAVABLE_H_
 
 #include <functional>
-#include <cJSON/cJSON.h>
+#include <nlohmann/json.hpp>
 
 namespace UltraEd
 {
@@ -11,8 +11,8 @@ namespace UltraEd
     public:
         Savable();
         virtual ~Savable() { }
-        virtual cJSON *Save() = 0;
-        virtual bool Load(cJSON *root) = 0;
+        virtual nlohmann::json Save() = 0;
+        virtual void Load(const nlohmann::json &root) = 0;
         bool IsDirty();
 
     protected:

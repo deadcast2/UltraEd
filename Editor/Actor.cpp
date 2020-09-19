@@ -1,4 +1,5 @@
 #include "Actor.h"
+#include "Converters.h"
 #include "FileIO.h"
 #include "Util.h"
 #include "Mesh.h"
@@ -11,7 +12,6 @@ namespace UltraEd
         m_vertexBuffer(std::make_shared<VertexBuffer>()),
         m_type(ActorType::Model),
         m_id(),
-        m_modelId(),
         m_name(),
         m_vertices(),
         m_material(),
@@ -55,34 +55,10 @@ namespace UltraEd
         device->SetMaterial(&m_material);
     }
 
-    void Actor::Import(const boost::uuids::uuid &assetId)
-    {
-        const auto modelPath = Project::GetAssetPath(assetId);
-        if (!modelPath.empty())
-        {
-            m_modelId = assetId;
-            Import(modelPath.string().c_str());
-        }
-    }
-
     void Actor::Import(const char *filePath)
     {
         Mesh mesh(filePath);
         m_vertices = mesh.GetVertices();
-    }
-
-    boost::uuids::uuid Actor::GetId(cJSON *item)
-    {
-        cJSON *id = cJSON_GetObjectItem(item, "id");
-        return Util::StringToUuid(id->valuestring);
-    }
-
-    ActorType Actor::GetType(cJSON *item)
-    {
-        int typeValue;
-        cJSON *type = cJSON_GetObjectItem(item, "type");
-        sscanf(type->valuestring, "%i", &typeValue);
-        return (ActorType)typeValue;
     }
 
     D3DXVECTOR3 Actor::GetRotation()
@@ -219,92 +195,55 @@ namespace UltraEd
         return true;
     }
 
-    cJSON *Actor::Save()
+    nlohmann::json Actor::Save()
     {
-        char buffer[LINE_FORMAT_LENGTH];
-        cJSON *actor = cJSON_CreateObject();
-
-        cJSON_AddStringToObject(actor, "id", Util::UuidToString(m_id).c_str());
-
-        cJSON_AddStringToObject(actor, "name", m_name.c_str());
-
-        sprintf(buffer, "%i", (int)m_type);
-        cJSON_AddStringToObject(actor, "type", buffer);
-
-        sprintf(buffer, "%f %f %f", m_position.x, m_position.y, m_position.z);
-        cJSON_AddStringToObject(actor, "position", buffer);
-
-        sprintf(buffer, "%f %f %f", m_scale.x, m_scale.y, m_scale.z);
-        cJSON_AddStringToObject(actor, "scale", buffer);
-
-        D3DXQUATERNION quat;
-        D3DXQuaternionRotationMatrix(&quat, &m_worldRot);
-        sprintf(buffer, "%f %f %f %f", quat.x, quat.y, quat.z, quat.w);
-        cJSON_AddStringToObject(actor, "rotation", buffer);
-
-        cJSON_AddStringToObject(actor, "script", m_script.c_str());
+        json actor = {
+            { "id", m_id },
+            { "name", m_name },
+            { "type", m_type },
+            { "position", m_position },
+            { "scale", m_scale },
+            { "script", m_script },
+            { "rotation", m_worldRot },
+        };
 
         if (m_collider)
         {
-            cJSON_AddItemToObject(actor, "collider", m_collider->Save());
+            actor.update(m_collider->Save());
         }
-
-        cJSON_AddStringToObject(actor, "modelId", Util::UuidToString(m_modelId).c_str());
 
         SetDirty(false);
 
         return actor;
     }
 
-    bool Actor::Load(cJSON *root)
+    void Actor::Load(const nlohmann::json &root)
     {
-        float x, y, z, w;
-        cJSON *name = cJSON_GetObjectItem(root, "name");
-        cJSON *resources = cJSON_GetObjectItem(root, "resources");
-        cJSON *resource = NULL;
+        m_id = root["id"];
+        m_name = root["name"];
+        m_type = root["type"];
+        m_position = root["position"];
+        m_scale = root["scale"];
+        m_script = root["script"];
+        m_worldRot = root["rotation"];
 
-        m_id = GetId(root);
-        m_name = name->valuestring;
-        m_type = GetType(root);
+        SetCollider(nullptr);
 
-        cJSON *position = cJSON_GetObjectItem(root, "position");
-        sscanf(position->valuestring, "%f %f %f", &x, &y, &z);
-        m_position = D3DXVECTOR3(x, y, z);
-
-        cJSON *scale = cJSON_GetObjectItem(root, "scale");
-        sscanf(scale->valuestring, "%f %f %f", &x, &y, &z);
-        m_scale = D3DXVECTOR3(x, y, z);
-
-        cJSON *rotation = cJSON_GetObjectItem(root, "rotation");
-        sscanf(rotation->valuestring, "%f %f %f %f", &x, &y, &z, &w);
-        D3DXMatrixRotationQuaternion(&m_worldRot, &D3DXQUATERNION(x, y, z, w));
-
-        cJSON *script = cJSON_GetObjectItem(root, "script");
-        m_script = script->valuestring;
-
-        SetCollider(NULL);
-
-        cJSON *collider = cJSON_GetObjectItem(root, "collider");
-        if (collider)
+        if (root.contains("collider"))
         {
-            switch (Collider::GetType(collider))
+            switch (root["collider"]["type"].get<ColliderType>())
             {
                 case ColliderType::Box:
                     SetCollider(new BoxCollider());
-                    m_collider->Load(collider);
+                    m_collider->Load(root["collider"]);
                     break;
                 case ColliderType::Sphere:
                     SetCollider(new SphereCollider());
-                    m_collider->Load(collider);
+                    m_collider->Load(root["collider"]);
                     break;
             }
         }
 
-        cJSON *modelId = cJSON_GetObjectItem(root, "modelId");
-        Import(Util::StringToUuid(modelId->valuestring));
-
         SetDirty(false);
-
-        return true;
     }
 }

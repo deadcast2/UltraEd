@@ -12,8 +12,8 @@ namespace UltraEd
         SphereCollider(const std::vector<Vertex> &vertices);
         void Build();
         FLOAT GetRadius() { return m_radius; }
-        cJSON *Save();
-        bool Load(cJSON *root);
+        nlohmann::json Save();
+        void Load(const nlohmann::json &root);
 
     private:
         void SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices);
@@ -21,7 +21,7 @@ namespace UltraEd
         void FindCenterWithRadius(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices);
 
     private:
-        FLOAT m_radius;
+        float m_radius;
     };
 }
 
