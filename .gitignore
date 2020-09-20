@@ -1,9 +1,5 @@
 .vs/
-Debug/
-Release/
-Library/
-Player/Config
-Player/Logs
+x64/
 Engine/scene.h
 Engine/segments.h
 Engine/definitions.h
