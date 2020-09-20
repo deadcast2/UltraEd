@@ -58,16 +58,14 @@ namespace nlohmann
     template <>
     struct adl_serializer<boost::uuids::uuid>
     {
-        static void to_json(json &j, const  boost::uuids::uuid &a)
+        static void to_json(json &j, const boost::uuids::uuid &a)
         {
-            j = json {
-                { "id", UltraEd::Util::UuidToString(a) }
-            };
+            j = UltraEd::Util::UuidToString(a);
         }
 
         static void from_json(const json &j, boost::uuids::uuid &a)
         {
-            a = UltraEd::Util::StringToUuid(j.at("id").get<std::string>().c_str());
+            a = UltraEd::Util::StringToUuid(j.get<std::string>().c_str());
         }
     };
 }
