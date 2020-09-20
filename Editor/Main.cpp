@@ -84,10 +84,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
         case WM_CLOSE:
-            if (scene.Confirm())
-            {
-                PostQuitMessage(0);
-            }
+            scene.Confirm([]() { PostQuitMessage(0); });
             return 0;
         case WM_DESTROY:
             PostQuitMessage(0);

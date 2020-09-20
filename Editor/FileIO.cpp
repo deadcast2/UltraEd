@@ -10,45 +10,36 @@
 
 namespace UltraEd
 {
-    bool FileIO::Save(Scene *scene, std::string &fileName)
+    bool FileIO::Save(Scene *scene, const std::filesystem::path &path)
     {
-        std::string file;
+        std::string file = path.string();
 
-        if (Dialog::Save("Save Scene", APP_FILE_FILTER, file))
+        // Add the extension if not supplied in the dialog.
+        if (file.find(APP_SCENE_FILE_EXT) == std::string::npos)
         {
-            // Add the extension if not supplied in the dialog.
-            if (file.find(APP_FILE_EXT) == std::string::npos) file.append(APP_FILE_EXT);
+            file.append(APP_SCENE_FILE_EXT);
+        }
 
-            fileName = CleanFileName(file.c_str());
-
-            std::ofstream writer(file);
-            if (writer)
-            {
-                writer << scene->Save().dump(1);
-                return true;
-            }
+        std::ofstream writer(file);
+        if (writer)
+        {
+            writer << scene->Save().dump(1);
+            return true;
         }
 
         return false;
     }
 
-    bool FileIO::Load(std::shared_ptr<nlohmann::json> &data, std::string &fileName)
+    bool FileIO::Load(std::shared_ptr<nlohmann::json> &data, const std::filesystem::path &path)
     {
-        std::string file;
-
-        if (Dialog::Open("Load Scene", APP_FILE_FILTER, file))
+        std::ifstream reader(path);
+        if (reader)
         {
-            fileName = CleanFileName(file.c_str());
+            std::stringstream stream;
+            stream << reader.rdbuf();
+            data = std::make_shared<nlohmann::json>(json::parse(stream.str()));
 
-            std::ifstream reader(file);
-            if (reader)
-            {
-                std::stringstream stream;
-                stream << reader.rdbuf();
-                data = std::make_shared<nlohmann::json>(json::parse(stream.str()));
-
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -123,14 +114,6 @@ namespace UltraEd
 
         size_t bytesWritten = fwrite(decompressed.get(), 1, bytesDecompressed, file.get());
         return bytesWritten == bytesDecompressed;
-    }
-
-    std::string FileIO::CleanFileName(const char *fileName)
-    {
-        std::string cleanedName(PathFindFileName(fileName));
-        std::string::size_type pos = cleanedName.find('.');
-        if (pos != std::string::npos) cleanedName.erase(pos, std::string::npos);
-        return cleanedName;
     }
 
     bool FileIO::Pack(const char *path)

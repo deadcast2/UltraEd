@@ -66,10 +66,8 @@ namespace UltraEd
         return true;
     }
 
-    void Scene::OnNew(bool confirm)
+    void Scene::OnNew()
     {
-        if (confirm && !Confirm()) return;
-
         SetTitle("Untitled");
         UnselectAll();
         ReleaseResources(ModelRelease::AllResources);
@@ -81,32 +79,34 @@ namespace UltraEd
         SetDirty(false);
     }
 
-    bool Scene::OnSave()
+    bool Scene::OnSave(const std::filesystem::path &path)
     {
-        std::string savedName;
-        if (FileIO::Save(this, savedName))
+        if (FileIO::Save(this, path))
         {
-            SetTitle(savedName);
+            SetTitle(path.stem().string());
             SetDirty(false);
+
             return true;
         }
 
         return false;
     }
 
-    void Scene::OnLoad()
+    void Scene::OnLoad(const std::filesystem::path &path)
     {
-        if (!Confirm()) return;
-
         std::shared_ptr<nlohmann::json> root;
-        std::string loadedName;
 
-        if (FileIO::Load(root, loadedName))
+        if (FileIO::Load(root, path))
         {
-            OnNew(false);
-            SetTitle(loadedName);
+            OnNew();
+            SetTitle(path.stem().string());
             Load(*root.get());
         }
+    }
+
+    void Scene::Confirm(std::function<void()> block)
+    {
+        m_gui->ConfirmScene(block);
     }
 
     void Scene::OnBuildROM(BuildFlag flag)
@@ -816,22 +816,6 @@ namespace UltraEd
             newSceneName.append("*");
         }
         SetTitle(newSceneName, false);
-    }
-
-    bool Scene::Confirm()
-    {
-        if (IsDirty())
-        {
-            int choice = MessageBox(NULL, "Would you like to save your changes?", "Are you sure?", MB_YESNOCANCEL | MB_ICONQUESTION);
-            switch (choice)
-            {
-                case IDCANCEL:
-                    return false;
-                case IDYES:
-                    if (!OnSave()) return false;
-            }
-        }
-        return true;
     }
 
     void Scene::WrapCursor()

@@ -30,7 +30,7 @@ namespace UltraEd
         Scene();
         ~Scene();
         bool Create(HWND hWnd);
-        bool Confirm();
+        void Confirm(std::function<void()> block);
         std::vector<Actor *> GetActors(bool selectedOnly = false);
         COLORREF GetBackgroundColor();
         HWND GetWndHandle();
@@ -54,9 +54,9 @@ namespace UltraEd
         std::string GetScript();
         void SetBackgroundColor(COLORREF color);
         void SetGizmoSnapSize(float size);
-        void OnNew(bool confirm = true);
-        bool OnSave();
-        void OnLoad();
+        void OnNew();
+        bool OnSave(const std::filesystem::path &path);
+        void OnLoad(const std::filesystem::path &path);
         void OnAddCamera();
         void AddTexture(const boost::uuids::uuid &assetId);
         void DeleteTexture();

@@ -14,7 +14,8 @@ namespace UltraEd
         m_hWnd(hWnd),
         m_selectedActor(),
         m_textEditor(),
-        m_fileBrowser(ImGuiFileBrowserFlags_SelectDirectory),
+        m_fileBrowser(),
+        m_folderBrowser(ImGuiFileBrowserFlags_SelectDirectory),
         m_consoleText(),
         m_moveConsoleToBottom(false),
         m_openContextMenu(false),
@@ -24,7 +25,10 @@ namespace UltraEd
         m_newProjectModalOpen(false),
         m_loadProjectModalOpen(false),
         m_addTextureModalOpen(false),
-        m_addModelModalOpen(false)
+        m_addModelModalOpen(false),
+        m_loadSceneModalOpen(false),
+        m_saveSceneModalOpen(),
+        m_openConfirmSceneModal()
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -97,6 +101,10 @@ namespace UltraEd
             LoadProjectModal();
             AddTextureModal();
             AddModelModal();
+            ConfirmSceneModal();
+            SaveSceneModal();
+            LoadSceneModal();
+
             //ImGui::ShowDemoWindow();
         }
         ImGui::End();
@@ -128,6 +136,11 @@ namespace UltraEd
     {
         m_openContextMenu = true;
         m_selectedActor = selectedActor;
+    }
+
+    void Gui::ConfirmScene(std::function<void()> block)
+    {
+        m_openConfirmSceneModal = std::make_tuple(true, block);
     }
 
     void Gui::LoadColorTheme()
@@ -171,17 +184,21 @@ namespace UltraEd
 
                 if (ImGui::MenuItem("New Scene"))
                 {
-                    m_scene->OnNew();
+                    ConfirmScene([&]() {
+                        m_scene->OnNew();
+                    });
                 }
 
                 if (ImGui::MenuItem("Save Scene As..."))
                 {
-                    m_scene->OnSave();
+                    m_saveSceneModalOpen = std::make_tuple(true, []() {});
                 }
 
                 if (ImGui::MenuItem("Load Scene"))
                 {
-                    m_scene->OnLoad();
+                    ConfirmScene([&]() {
+                        m_loadSceneModalOpen = true;
+                    });
                 }
 
                 ImGui::Separator();
@@ -767,24 +784,24 @@ namespace UltraEd
 
         if (ImGui::BeginPopupModal("New Project", 0, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            if (m_fileBrowser.HasSelected())
+            if (m_folderBrowser.HasSelected())
             {
-                strcpy(projectPath, m_fileBrowser.GetSelected().string().c_str());
-                m_fileBrowser.ClearSelected();
+                strcpy(projectPath, m_folderBrowser.GetSelected().string().c_str());
+                m_folderBrowser.ClearSelected();
             }
 
-            ImGui::Text("Name"); 
-            ImGui::SameLine(); 
+            ImGui::Text("Name");
+            ImGui::SameLine();
             ImGui::InputTextWithHint("##projectName", "required", projectName, 64);
-            
-            ImGui::Text("Path"); 
-            ImGui::SameLine(); 
+
+            ImGui::Text("Path");
+            ImGui::SameLine();
             ImGui::InputTextWithHint("##projectPath", "required", projectPath, MAX_PATH);
             ImGui::SameLine();
 
             if (ImGui::Button("Choose..."))
             {
-                m_fileBrowser.Open();
+                m_folderBrowser.Open();
             }
 
             ImGui::Checkbox("Create directory?", &createDirectory);
@@ -810,7 +827,7 @@ namespace UltraEd
                 ImGui::CloseCurrentPopup();
             }
 
-            m_fileBrowser.Display();
+            m_folderBrowser.Display();
 
             ImGui::EndPopup();
         }
@@ -824,16 +841,16 @@ namespace UltraEd
         {
             ImGui::OpenPopup("Load Project");
             memset(projectPath, 0, strlen(projectPath));
-            strcpy(projectPath, "C:\\Users\\caleb\\Desktop\\test");
+            strcpy(projectPath, "C:\\Users\\deadcast\\Desktop\\test");
             m_loadProjectModalOpen = false;
         }
 
         if (ImGui::BeginPopupModal("Load Project", 0, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            if (m_fileBrowser.HasSelected())
+            if (m_folderBrowser.HasSelected())
             {
-                strcpy(projectPath, m_fileBrowser.GetSelected().string().c_str());
-                m_fileBrowser.ClearSelected();
+                strcpy(projectPath, m_folderBrowser.GetSelected().string().c_str());
+                m_folderBrowser.ClearSelected();
             }
 
             ImGui::Text("Path");
@@ -843,7 +860,7 @@ namespace UltraEd
 
             if (ImGui::Button("Choose..."))
             {
-                m_fileBrowser.Open();
+                m_folderBrowser.Open();
             }
 
             if (ImGui::Button("Open") && strlen(projectPath) > 0)
@@ -867,7 +884,7 @@ namespace UltraEd
                 ImGui::CloseCurrentPopup();
             }
 
-            m_fileBrowser.Display();
+            m_folderBrowser.Display();
 
             ImGui::EndPopup();
         }
@@ -941,6 +958,158 @@ namespace UltraEd
                 if ((i % rowLimit) != 0) ImGui::SameLine();
                 ImGui::PopID();
             }
+
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void Gui::LoadSceneModal()
+    {
+        static char scenePath[MAX_PATH];
+
+        if (m_loadSceneModalOpen)
+        {
+            ImGui::OpenPopup("Load Scene");
+            memset(scenePath, 0, strlen(scenePath));
+            m_loadSceneModalOpen = false;
+        }
+
+        if (ImGui::BeginPopupModal("Load Scene", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            if (m_fileBrowser.HasSelected())
+            {
+                strcpy(scenePath, m_fileBrowser.GetSelected().string().c_str());
+                m_fileBrowser.ClearSelected();
+            }
+
+            ImGui::Text("Path");
+            ImGui::SameLine();
+            ImGui::InputTextWithHint("##scenePath", "required", scenePath, MAX_PATH);
+            ImGui::SameLine();
+
+            if (ImGui::Button("Choose..."))
+            {
+                m_fileBrowser.Open();
+            }
+
+            if (ImGui::Button("Open") && strlen(scenePath) > 0)
+            {
+                try
+                {
+                    m_scene->OnLoad(std::filesystem::path(scenePath));
+                }
+                catch (const std::exception &e)
+                {
+                    Debug::Instance().Error(e.what());
+                }
+
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            m_fileBrowser.Display();
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void Gui::SaveSceneModal()
+    {
+        static char scenePath[MAX_PATH];
+
+        if (std::get<0>(m_saveSceneModalOpen))
+        {
+            ImGui::OpenPopup("Save Scene As...");
+            memset(scenePath, 0, strlen(scenePath));
+            std::get<0>(m_saveSceneModalOpen) = false;
+        }
+
+        if (ImGui::BeginPopupModal("Save Scene As...", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            if (m_fileBrowser.HasSelected())
+            {
+                strcpy(scenePath, m_fileBrowser.GetSelected().string().c_str());
+                m_fileBrowser.ClearSelected();
+            }
+
+            ImGui::Text("Path");
+            ImGui::SameLine();
+            ImGui::InputTextWithHint("##scenePath", "required", scenePath, MAX_PATH);
+            ImGui::SameLine();
+
+            if (ImGui::Button("Choose..."))
+            {
+                m_fileBrowser.Open();
+            }
+
+            if (ImGui::Button("Save") && strlen(scenePath) > 0)
+            {
+                try
+                {
+                    m_scene->OnSave(std::filesystem::path(scenePath));
+                }
+                catch (const std::exception &e)
+                {
+                    Debug::Instance().Error(e.what());
+                }
+
+                std::get<1>(m_saveSceneModalOpen)();
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel"))
+            {
+                std::get<1>(m_saveSceneModalOpen)();
+                ImGui::CloseCurrentPopup();
+            }
+
+            m_fileBrowser.Display();
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void Gui::ConfirmSceneModal()
+    {
+        if (std::get<0>(m_openConfirmSceneModal))
+        {
+            ImGui::OpenPopup("Are you sure?");
+            std::get<0>(m_openConfirmSceneModal) = false;
+        }
+
+        if (ImGui::BeginPopupModal("Are you sure?", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Would you like to save your changes?");
+
+            if (ImGui::Button("Yes"))
+            {
+                // Open save scene modal and forward defined callback.
+                m_saveSceneModalOpen = std::make_tuple(true, std::get<1>(m_openConfirmSceneModal));
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("No") || !m_scene->IsDirty())
+            {
+                std::get<1>(m_openConfirmSceneModal)();
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
 
             if (ImGui::Button("Cancel"))
             {

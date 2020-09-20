@@ -12,8 +12,8 @@ namespace UltraEd
     class FileIO
     {
     public:
-        static bool Save(Scene *scene, std::string &fileName);
-        static bool Load(std::shared_ptr<nlohmann::json> &data, std::string &fileName);
+        static bool Save(Scene *scene, const std::filesystem::path &path);
+        static bool Load(std::shared_ptr<nlohmann::json> &data, const std::filesystem::path &path);
         static bool Pack(const char *path);
         static bool Unpack(const char *path);
 
@@ -21,7 +21,6 @@ namespace UltraEd
         FileIO() {}
         static bool Compress(const std::string &path);
         static bool Decompress(std::string &path);
-        static std::string CleanFileName(const char *fileName);
         static void TarifyFile(mtar_t *tar, const char *file);
         static void CreateDirectoryRecursively(const char *path);
     };
