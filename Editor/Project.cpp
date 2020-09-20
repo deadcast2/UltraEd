@@ -31,6 +31,7 @@ namespace UltraEd
     {
         if (IsLoaded())
             return m_projectInstance->Persist(name);
+
         return false;
     }
 
@@ -128,7 +129,7 @@ namespace UltraEd
 
         m_databasePath = projectPath / "db.ultra";
 
-        if (Save(name) && exists(m_databasePath))
+        if (Persist(name) && exists(m_databasePath))
         {
             Debug::Instance().Info("New project successfully created!");
         }
