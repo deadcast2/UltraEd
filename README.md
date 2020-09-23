@@ -6,13 +6,16 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f246a65f5b4f480f922a5ed886eb37e8)](https://www.codacy.com/app/deadcast2/UltraEd?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=deadcast2/UltraEd&amp;utm_campaign=Badge_Grade)
 
+### Feature I'm Working On
+Asset tracking and browser system.
+
 ### Setup
 
-Open the editor solution file in Visual Studio 2019 and hit build. That's it! Make sure to also install OpenAL so you can test your rom out in the cen64 emulator included. I've included it in Editor/deps. Also if you so happen to have the excellent 64drive you can test on that too!
+Due to the project using Git LFS the zipped version from GitHub won't contain all necessary files. Clone the project using Git and then run `git lfs pull` to hydrate all of the pointer files. After that make sure that the Windows 10 SDK is installed and then open the editor solution file in Visual Studio 2019. Set the solution to build as a x64 application and then all should build fine. Make sure to also install OpenAL so you can test your rom out in the cen64 emulator included. I've included it in Editor/deps. Also if you so happen to have the excellent 64drive you can test on that too.
 
 ### Notes
 
-UltraEd isn't finished and is not a fully polished tool yet. It has enough functionality to throw a few models in a scene, texture them, script them and have some fun. I have many ideas and things I'm excited to implement in the future. Unfortunately, I have a full-time job and other life commitments so I work on this tool in my free time. I love the N64! :0)
+UltraEd isn't finished and is not a fully polished tool yet. It has enough functionality to throw a few models in a scene, texture them, script them and have some fun. I have many ideas and things I'm excited to implement in the future. I have a full-time job and other life commitments so I work on this tool in my free time. I love the N64! :0)
 
 ### Donations
 
