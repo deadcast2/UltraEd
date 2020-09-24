@@ -65,13 +65,13 @@ namespace UltraEd
         std::tuple<bool, std::function<void()>> m_saveSceneModalOpen;
         std::tuple<bool, std::function<void()>> m_openConfirmSceneModal;
         bool m_textEditorOpen;
-        int m_optionsModalOpen;
-        int m_sceneSettingsModalOpen;
-        int m_newProjectModalOpen;
-        int m_loadProjectModalOpen;
-        int m_addTextureModalOpen;
-        int m_addModelModalOpen;
-        int m_loadSceneModalOpen;
+        bool m_optionsModalOpen;
+        bool m_sceneSettingsModalOpen;
+        bool m_newProjectModalOpen;
+        bool m_loadProjectModalOpen;
+        bool m_addTextureModalOpen;
+        bool m_addModelModalOpen;
+        bool m_loadSceneModalOpen;
     };
 }
 
