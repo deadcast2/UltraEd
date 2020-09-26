@@ -9,7 +9,7 @@ using namespace UltraEd;
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-Scene scene;
+std::unique_ptr<Gui> gui;
 
 int main(int, char **)
 {
@@ -28,27 +28,23 @@ int main(int, char **)
         (GetSystemMetrics(SM_CYSCREEN) / 2) - (windowHeight / 2),
         windowWidth, windowHeight, NULL, NULL, wc.hInstance, NULL);
 
-    if (!scene.Create(hWnd))
-    {
-        UnregisterClass(wc.lpszClassName, wc.hInstance);
-        return 1;
-    }
-
     ShowWindow(hWnd, SW_SHOWDEFAULT);
     UpdateWindow(hWnd);
 
-    MSG msg;
-    ZeroMemory(&msg, sizeof(msg));
+    MSG msg {};
+    gui = std::make_unique<Gui>(hWnd);
+    
     while (msg.message != WM_QUIT)
     {
         if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+
             continue;
         }
 
-        scene.Render();
+        gui->Render();
     }
 
     DestroyWindow(hWnd);
@@ -69,12 +65,12 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 std::vector<boost::uuids::uuid> changedAssetIds;
                 Project::Activate(&changedAssetIds);
-                scene.Refresh(changedAssetIds);
+                //scene.Refresh(changedAssetIds);
             }
             return 0;
         case WM_SIZE:
         {
-            scene.Resize(LOWORD(lParam), HIWORD(lParam));
+            if (gui) gui->Resize(LOWORD(lParam), HIWORD(lParam));
             return 0;
         }
         case WM_SYSCOMMAND:
@@ -84,7 +80,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
         case WM_CLOSE:
-            scene.Confirm([]() { PostQuitMessage(0); });
+            //scene.Confirm([]() { PostQuitMessage(0); });
             return 0;
         case WM_DESTROY:
             PostQuitMessage(0);

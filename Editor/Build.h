@@ -14,7 +14,7 @@ namespace UltraEd
     public:
         static bool Start(Scene *scene);
         static bool Run();
-        static bool Load(const HWND &hWnd);
+        static bool Load();
 
     private:
         static bool WriteSpecFile(const std::vector<Actor*> &actors);
@@ -25,7 +25,7 @@ namespace UltraEd
         static bool WriteCollisionFile(const std::vector<Actor*> &actors);
         static bool WriteScriptsFile(const std::vector<Actor*> &actors);
         static bool WriteMappingsFile(const std::vector<Actor*> &actors);
-        static bool Compile(const HWND &hWnd);
+        static bool Compile();
         static std::string GetPathFor(const std::string &name);
     };
 }

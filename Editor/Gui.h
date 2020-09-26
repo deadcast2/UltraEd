@@ -21,17 +21,19 @@ namespace UltraEd
     class Gui
     {
     public:
-        Gui(Scene *scene, HWND hWnd);
+        Gui(HWND hWnd);
         ~Gui();
-        void PrepareFrame();
-        void RenderFrame();
+        void Render();
+        void Resize(UINT width, UINT height);
         ImGuiIO &IO();
-        void RebuildWith(std::function<void()> inner);
         void OpenContextMenu(Actor *selectedActor);
         void ConfirmScene(std::function<void()> block);
     
     private:
+        bool SetupDevice();
+        void PrepareFrame();
         void LoadColorTheme();
+        void ReleaseSceneTexture();
         void FileMenu();
         void EditMenu();
         void ActorMenu();
@@ -39,6 +41,7 @@ namespace UltraEd
         void GizmoMenu();
         void Console();
         void SceneGraph();
+        void SceneView();
         void ActorProperties();
         void OptionsModal();
         void SceneSettingsModal();
@@ -53,8 +56,12 @@ namespace UltraEd
         void ConfirmSceneModal();
 
     private:
-        Scene *m_scene;
+        std::unique_ptr<Scene> m_scene;
         HWND m_hWnd;
+        IDirect3DDevice9 *m_device;
+        IDirect3D9 *m_d3d9;
+        D3DPRESENT_PARAMETERS m_d3dpp;
+        LPDIRECT3DTEXTURE9 m_sceneTexture;
         Actor *m_selectedActor;
         TextEditor m_textEditor;
         ImGui::FileBrowser m_fileBrowser;

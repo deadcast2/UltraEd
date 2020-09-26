@@ -480,7 +480,7 @@ namespace UltraEd
         WriteMappingsFile(actors);
         WriteSceneFile(scene);
 
-        return Compile(scene->GetWndHandle());
+        return Compile();
     }
 
     bool Build::Run()
@@ -515,7 +515,7 @@ namespace UltraEd
         return false;
     }
 
-    bool Build::Load(const HWND &hWnd)
+    bool Build::Load()
     {
         // Get the path to where the program is running.
         char buffer[MAX_PATH];
@@ -585,7 +585,7 @@ namespace UltraEd
         return false;
     }
 
-    bool Build::Compile(const HWND &hWnd)
+    bool Build::Compile()
     {
         // Set the root env variable for the N64 build tools.
         SetEnvironmentVariable("ROOT", "..\\Engine\\n64sdk\\ultra");

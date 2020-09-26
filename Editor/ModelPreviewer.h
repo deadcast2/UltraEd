@@ -5,6 +5,7 @@
 #include <d3dx9.h>
 #include <filesystem>
 #include "Model.h"
+#include "RenderDevice.h"
 
 namespace UltraEd
 {
@@ -12,23 +13,16 @@ namespace UltraEd
     {
     public:
         ModelPreviewer();
-        ~ModelPreviewer();
-        void Render(LPDIRECT3DDEVICE9 device, const std::filesystem::path &path, LPDIRECT3DTEXTURE9 *texture);
+        void Render(LPDIRECT3DDEVICE9 deviceTarget, const std::filesystem::path &path, LPDIRECT3DTEXTURE9 *texture);
 
     public:
         static const int PreviewWidth = 64;
 
     private:
-        bool SetupWindow();
-        bool SetupRenderer();
         void CenterModel(Model &model);
 
     private:
-        IDirect3DDevice9 *m_device;
-        IDirect3D9 *m_d3d9;
-        D3DPRESENT_PARAMETERS m_d3dpp;
-        WNDCLASSEX m_wc;
-        HWND m_hWnd;
+        RenderDevice m_renderDevice;
         D3DLIGHT9 m_worldLight;
     };
 }

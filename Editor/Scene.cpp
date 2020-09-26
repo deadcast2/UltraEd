@@ -10,14 +10,11 @@
 
 namespace UltraEd
 {
-    Scene::Scene() :
+    Scene::Scene(Gui *gui) :
         m_defaultMaterial(),
         m_fillMode(D3DFILLMODE::D3DFILL_SOLID),
         m_gizmo(),
         m_views(),
-        m_device(0),
-        m_d3d9(0),
-        m_d3dpp(),
         m_actors(),
         m_grid(),
         m_selectedActorIds(),
@@ -25,45 +22,22 @@ namespace UltraEd
         m_mouseSmoothY(0),
         m_activeViewType(ViewType::Perspective),
         m_sceneName(),
-        m_backgroundColorRGB(),
+        m_backgroundColorRGB({ 0, 0, 0 }),
         m_auditor(this),
-        m_gui()
+        m_gui(gui),
+        m_renderDevice(320, 240)
     {
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
         m_defaultMaterial.Diffuse.b = m_defaultMaterial.Ambient.b = 1.0f;
         m_defaultMaterial.Diffuse.a = m_defaultMaterial.Ambient.a = 1.0f;
+
+        OnNew();
     }
 
     Scene::~Scene()
     {
         ReleaseResources(ModelRelease::AllResources);
-        if (m_device) m_device->Release();
-        if (m_d3d9) m_d3d9->Release();
-    }
-
-    bool Scene::Create(HWND hWnd)
-    {
-        if (hWnd == NULL) return false;
-        if ((m_d3d9 = Direct3DCreate9(D3D_SDK_VERSION)) == NULL) return false;
-
-        D3DDISPLAYMODE d3ddm;
-        if (FAILED(m_d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddm))) return false;
-
-        m_d3dpp.Windowed = TRUE;
-        m_d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
-        m_d3dpp.BackBufferFormat = d3ddm.Format;
-        m_d3dpp.EnableAutoDepthStencil = TRUE;
-        m_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
-
-        if (FAILED(m_d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-            D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device))) return false;
-
-        m_gui = std::make_unique<Gui>(this, hWnd);
-
-        OnNew();
-
-        return true;
     }
 
     void Scene::OnNew()
@@ -74,7 +48,6 @@ namespace UltraEd
         m_actors.clear();
         m_auditor.Reset();
         ResetViews();
-        m_backgroundColorRGB[0] = m_backgroundColorRGB[1] = m_backgroundColorRGB[2] = 0;
         m_gizmo.SetSnapSize(0.5f);
         SetDirty(false);
     }
@@ -120,7 +93,7 @@ namespace UltraEd
                 }
                 else if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Load))
                 {
-                    Build::Load(GetWndHandle());
+                    Build::Load();
                 }
             }
             else
@@ -212,7 +185,8 @@ namespace UltraEd
 
             m_auditor.ChangeActor("Add Texture", selectedActorId, groupId);
 
-            if (!dynamic_cast<Model *>(m_actors[selectedActorId].get())->SetTexture(m_device, assetId))
+            if (!dynamic_cast<Model *>(m_actors[selectedActorId].get())
+                ->SetTexture(m_renderDevice.GetDevice(), assetId))
             {
                 Debug::Instance().Warning("Texture could not be loaded.");
             }
@@ -366,17 +340,9 @@ namespace UltraEd
 
     void Scene::Resize(int width, int height)
     {
-        if (m_device && m_gui)
-        {
-            m_d3dpp.BackBufferWidth = width;
-            m_d3dpp.BackBufferHeight = height;
-
-            m_gui->RebuildWith([&]() {
-                ReleaseResources(ModelRelease::VertexBufferOnly);
-                m_device->Reset(&m_d3dpp);
-                UpdateViewMatrix();
-            });
-        }
+        ReleaseResources(ModelRelease::VertexBufferOnly);
+        m_renderDevice.Resize(width, height);
+        UpdateViewMatrix();
     }
 
     void Scene::Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds)
@@ -392,7 +358,7 @@ namespace UltraEd
                         model->SetMesh(changedAssetId);
 
                     if (model->GetTextureId() == changedAssetId)
-                        model->SetTexture(m_device, changedAssetId);
+                        model->SetTexture(m_renderDevice.GetDevice(), changedAssetId);
                 }
             }
         }
@@ -401,7 +367,8 @@ namespace UltraEd
     void Scene::UpdateViewMatrix()
     {
         D3DXMATRIX viewMat;
-        const float aspect = static_cast<float>(m_d3dpp.BackBufferWidth) / static_cast<float>(m_d3dpp.BackBufferHeight);
+        const float aspect = static_cast<float>(m_renderDevice.GetParameters()->BackBufferWidth) / 
+            static_cast<float>(m_renderDevice.GetParameters()->BackBufferHeight);
 
         if (GetActiveView()->GetType() == ViewType::Perspective)
         {
@@ -414,57 +381,55 @@ namespace UltraEd
             D3DXMatrixOrthoLH(&viewMat, zoom * aspect, zoom, -1000.0f, 1000.0f);
         }
 
-        m_device->SetTransform(D3DTS_PROJECTION, &viewMat);
+        m_renderDevice.GetDevice()->SetTransform(D3DTS_PROJECTION, &viewMat);
     }
 
-    void Scene::Render()
+    void Scene::Render(LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture)
     {
         CheckInput();
         CheckChanges();
-
-        if (!m_device || !m_gui) return;
-
-        m_gui->PrepareFrame();
 
         ID3DXMatrixStack *stack;
         if (!SUCCEEDED(D3DXCreateMatrixStack(0, &stack))) return;
         stack->LoadMatrix(&GetActiveView()->GetViewMatrix());
 
-        m_device->SetTransform(D3DTS_WORLD, stack->GetTop());
-        m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+        auto device = m_renderDevice.GetDevice();
+        device->SetTransform(D3DTS_WORLD, stack->GetTop());
+        device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
             D3DCOLOR_XRGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]), 1.0f, 0);
 
-        if (SUCCEEDED(m_device->BeginScene()))
+        if (SUCCEEDED(device->BeginScene()))
         {
-            m_grid.Render(m_device);
+            m_grid.Render(device);
 
             // Render all actors with selected fill mode.
-            m_device->SetMaterial(&m_defaultMaterial);
-            m_device->SetRenderState(D3DRS_ZENABLE, TRUE);
-            m_device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
-            m_device->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
+            device->SetMaterial(&m_defaultMaterial);
+            device->SetRenderState(D3DRS_ZENABLE, TRUE);
+            device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
+            device->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
 
             for (const auto &actor : m_actors)
             {
                 // Highlight any selected actors.
-                m_device->SetRenderState(D3DRS_AMBIENT, IsActorSelected(actor.first) ? 0x0000ff00 : 0xffffffff);
-                actor.second->Render(m_device, stack);
+                device->SetRenderState(D3DRS_AMBIENT, IsActorSelected(actor.first) ? 0x0000ff00 : 0xffffffff);
+                actor.second->Render(device, stack);
             }
 
             if (!m_selectedActorIds.empty())
             {
                 // Draw the gizmo on "top" of all objects in scene.
-                m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-                m_device->SetRenderState(D3DRS_ZENABLE, FALSE);
-                m_gizmo.Render(m_device, stack, GetActiveView());
+                device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+                device->SetRenderState(D3DRS_ZENABLE, FALSE);
+                m_gizmo.Render(device, stack, GetActiveView());
             }
 
-            // Render the GUI on top of scene.
-            m_device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-            m_gui->RenderFrame();
+            device->EndScene();
+            device->Present(NULL, NULL, NULL, NULL);
 
-            m_device->EndScene();
-            m_device->Present(NULL, NULL, NULL, NULL);
+            // Copy back buffer to supplied texture.
+            auto deviceParameters = m_renderDevice.GetParameters();
+            Util::BackBufferToTexture(deviceParameters->BackBufferWidth, deviceParameters->BackBufferHeight,
+                m_renderDevice.GetDevice(), target, texture);
         }
 
         stack->Release();
@@ -486,13 +451,14 @@ namespace UltraEd
 
     void Scene::ScreenRaycast(ImVec2 screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir)
     {
+        auto device = m_renderDevice.GetDevice();
         View *view = GetActiveView();
 
         D3DVIEWPORT9 viewport;
-        m_device->GetViewport(&viewport);
+        device->GetViewport(&viewport);
 
         D3DXMATRIX matProj;
-        m_device->GetTransform(D3DTS_PROJECTION, &matProj);
+        device->GetTransform(D3DTS_PROJECTION, &matProj);
 
         D3DXMATRIX matWorld;
         D3DXMatrixIdentity(&matWorld);
@@ -723,7 +689,7 @@ namespace UltraEd
     HWND Scene::GetWndHandle()
     {
         D3DDEVICE_CREATION_PARAMETERS params;
-        if (m_device && SUCCEEDED(m_device->GetCreationParameters(&params)))
+        if (SUCCEEDED(m_renderDevice.GetDevice()->GetCreationParameters(&params)))
         {
             return params.hFocusWindow;
         }
@@ -900,7 +866,7 @@ namespace UltraEd
             case ActorType::Model:
             {
                 auto model = existingActor ? std::static_pointer_cast<Model>(existingActor) : std::make_shared<Model>();
-                model->Load(actor, m_device);
+                model->Load(actor, m_renderDevice.GetDevice());
                 if (!existingActor) m_actors[model->GetId()] = model;
                 break;
             }

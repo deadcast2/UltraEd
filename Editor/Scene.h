@@ -14,6 +14,7 @@
 #include "Model.h"
 #include "Camera.h"
 #include "Auditor.h"
+#include "RenderDevice.h"
 
 namespace UltraEd
 {
@@ -27,14 +28,13 @@ namespace UltraEd
         friend Gui;
 
     public:
-        Scene();
+        Scene(Gui *gui);
         ~Scene();
-        bool Create(HWND hWnd);
         void Confirm(std::function<void()> block);
         std::vector<Actor *> GetActors(bool selectedOnly = false);
         COLORREF GetBackgroundColor();
         HWND GetWndHandle();
-        void Render();
+        void Render(LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture);
         nlohmann::json Save();
         nlohmann::json PartialSave();
         void PartialLoad(const nlohmann::json &root);
@@ -88,9 +88,6 @@ namespace UltraEd
         D3DFILLMODE m_fillMode;
         Gizmo m_gizmo;
         View m_views[4];
-        IDirect3DDevice9 *m_device;
-        IDirect3D9 *m_d3d9;
-        D3DPRESENT_PARAMETERS m_d3dpp;
         std::map<boost::uuids::uuid, std::shared_ptr<Actor>> m_actors;
         Grid m_grid;
         std::vector<boost::uuids::uuid> m_selectedActorIds;
@@ -100,6 +97,7 @@ namespace UltraEd
         std::array<int, 3> m_backgroundColorRGB;
         Auditor m_auditor;
         std::unique_ptr<Gui> m_gui;
+        RenderDevice m_renderDevice;
     };
 }
 
