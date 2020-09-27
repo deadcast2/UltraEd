@@ -61,11 +61,11 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         case WM_ACTIVATE:
-            if (LOWORD(wParam) == WA_ACTIVE)
+            if (LOWORD(wParam) == WA_ACTIVE && gui)
             {
                 std::vector<boost::uuids::uuid> changedAssetIds;
                 Project::Activate(&changedAssetIds);
-                //scene.Refresh(changedAssetIds);
+                gui->RefreshScene(changedAssetIds);
             }
             return 0;
         case WM_SIZE:

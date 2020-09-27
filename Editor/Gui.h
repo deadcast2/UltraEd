@@ -29,6 +29,7 @@ namespace UltraEd
         ImGuiIO &IO();
         void OpenContextMenu(Actor *selectedActor);
         void ConfirmScene(std::function<void()> block);
+        void RefreshScene(const std::vector<boost::uuids::uuid> &changedAssetIds);
     
     private:
         void PrepareFrame();

@@ -158,6 +158,11 @@ namespace UltraEd
         m_openConfirmSceneModal = std::make_tuple(true, block);
     }
 
+    void Gui::RefreshScene(const std::vector<boost::uuids::uuid> &changedAssetIds)
+    {
+        m_scene->Refresh(changedAssetIds);
+    }
+
     void Gui::LoadColorTheme()
     {
         switch (Settings::GetColorTheme())
