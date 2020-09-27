@@ -213,9 +213,7 @@ namespace UltraEd
 
                 if (ImGui::MenuItem("New Scene"))
                 {
-                    ConfirmScene([&]() {
-                        m_scene->OnNew();
-                    });
+                    ConfirmScene([&]() { m_scene->New(); });
                 }
 
                 if (ImGui::MenuItem("Save Scene As..."))
@@ -234,17 +232,17 @@ namespace UltraEd
 
                 if (ImGui::MenuItem("Build ROM"))
                 {
-                    m_scene->OnBuildROM(BuildFlag::Build);
+                    m_scene->BuildROM(BuildFlag::Build);
                 }
 
                 if (ImGui::MenuItem("Build ROM & Load"))
                 {
-                    m_scene->OnBuildROM(BuildFlag::Load);
+                    m_scene->BuildROM(BuildFlag::Load);
                 }
 
                 if (ImGui::MenuItem("Build ROM & Run"))
                 {
-                    m_scene->OnBuildROM(BuildFlag::Run);
+                    m_scene->BuildROM(BuildFlag::Run);
                 }
             }
 
@@ -335,7 +333,7 @@ namespace UltraEd
         {
             if (ImGui::MenuItem("Camera"))
             {
-                m_scene->OnAddCamera();
+                m_scene->AddCamera();
             }
 
             if (ImGui::MenuItem("Model"))
@@ -362,17 +360,17 @@ namespace UltraEd
             {
                 if (ImGui::MenuItem("Box"))
                 {
-                    m_scene->OnAddCollider(ColliderType::Box);
+                    m_scene->AddCollider(ColliderType::Box);
                 }
 
                 if (ImGui::MenuItem("Sphere"))
                 {
-                    m_scene->OnAddCollider(ColliderType::Sphere);
+                    m_scene->AddCollider(ColliderType::Sphere);
                 }
 
                 if (ImGui::MenuItem("Delete"))
                 {
-                    m_scene->OnDeleteCollider();
+                    m_scene->DeleteCollider();
                 }
 
                 ImGui::EndMenu();
@@ -749,12 +747,12 @@ namespace UltraEd
             {
                 if (ImGui::MenuItem("Box"))
                 {
-                    m_scene->OnAddCollider(ColliderType::Box);
+                    m_scene->AddCollider(ColliderType::Box);
                 }
 
                 if (ImGui::MenuItem("Sphere"))
                 {
-                    m_scene->OnAddCollider(ColliderType::Sphere);
+                    m_scene->AddCollider(ColliderType::Sphere);
                 }
 
                 if (m_selectedActor != NULL && m_selectedActor->HasCollider())
@@ -763,7 +761,7 @@ namespace UltraEd
 
                     if (ImGui::MenuItem("Delete"))
                     {
-                        m_scene->OnDeleteCollider();
+                        m_scene->DeleteCollider();
                     }
                 }
 
@@ -1050,7 +1048,7 @@ namespace UltraEd
             {
                 try
                 {
-                    m_scene->OnLoad(std::filesystem::path(scenePath));
+                    m_scene->Load(std::filesystem::path(scenePath));
                 }
                 catch (const std::exception &e)
                 {
@@ -1106,7 +1104,7 @@ namespace UltraEd
             {
                 try
                 {
-                    m_scene->OnSave(std::filesystem::path(scenePath));
+                    m_scene->Save(std::filesystem::path(scenePath));
                 }
                 catch (const std::exception &e)
                 {

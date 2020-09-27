@@ -32,7 +32,7 @@ namespace UltraEd
         m_defaultMaterial.Diffuse.b = m_defaultMaterial.Ambient.b = 1.0f;
         m_defaultMaterial.Diffuse.a = m_defaultMaterial.Ambient.a = 1.0f;
 
-        OnNew();
+        New();
     }
 
     Scene::~Scene()
@@ -40,7 +40,7 @@ namespace UltraEd
         ReleaseResources(ModelRelease::AllResources);
     }
 
-    void Scene::OnNew()
+    void Scene::New()
     {
         SetTitle("Untitled");
         UnselectAll();
@@ -52,7 +52,7 @@ namespace UltraEd
         SetDirty(false);
     }
 
-    bool Scene::OnSave(const std::filesystem::path &path)
+    bool Scene::Save(const std::filesystem::path &path)
     {
         if (FileIO::Save(this, path))
         {
@@ -65,19 +65,19 @@ namespace UltraEd
         return false;
     }
 
-    void Scene::OnLoad(const std::filesystem::path &path)
+    void Scene::Load(const std::filesystem::path &path)
     {
         std::shared_ptr<nlohmann::json> root;
 
         if (FileIO::Load(root, path))
         {
-            OnNew();
+            New();
             SetTitle(path.stem().string());
             Load(*root.get());
         }
     }
 
-    void Scene::OnBuildROM(BuildFlag flag)
+    void Scene::BuildROM(BuildFlag flag)
     {
         std::thread run([this, flag]() {
             if (Build::Start(this))
@@ -113,7 +113,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::OnAddCamera()
+    void Scene::AddCamera()
     {
         auto newCamera = std::make_shared<Camera>();
         m_actors[newCamera->GetId()] = newCamera;
@@ -123,7 +123,7 @@ namespace UltraEd
         SelectActorById(newCamera->GetId());
     }
 
-    void Scene::OnAddCollider(ColliderType type)
+    void Scene::AddCollider(ColliderType type)
     {
         if (m_selectedActorIds.empty())
         {
@@ -147,7 +147,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::OnDeleteCollider()
+    void Scene::DeleteCollider()
     {
         if (m_selectedActorIds.empty())
         {
