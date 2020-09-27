@@ -13,6 +13,7 @@
 #include <tuple>
 #include "Actor.h"
 #include "Project.h"
+#include "RenderDevice.h"
 
 namespace UltraEd
 {
@@ -30,7 +31,6 @@ namespace UltraEd
         void ConfirmScene(std::function<void()> block);
     
     private:
-        bool SetupDevice();
         void PrepareFrame();
         void LoadColorTheme();
         void ReleaseSceneTexture();
@@ -58,9 +58,7 @@ namespace UltraEd
     private:
         std::unique_ptr<Scene> m_scene;
         HWND m_hWnd;
-        IDirect3DDevice9 *m_device;
-        IDirect3D9 *m_d3d9;
-        D3DPRESENT_PARAMETERS m_d3dpp;
+        RenderDevice m_renderDevice;
         LPDIRECT3DTEXTURE9 m_sceneTexture;
         Actor *m_selectedActor;
         TextEditor m_textEditor;

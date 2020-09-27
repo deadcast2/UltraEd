@@ -9,6 +9,7 @@ namespace UltraEd
     class RenderDevice
     {
     public:
+        RenderDevice(HWND hWnd);
         RenderDevice(UINT width, UINT height);
         ~RenderDevice();
         const LPDIRECT3DDEVICE9 GetDevice();

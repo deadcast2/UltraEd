@@ -1,22 +1,25 @@
 #include "RenderDevice.h"
 #include "Util.h"
 
-namespace UltraEd 
+namespace UltraEd
 {
     LRESULT WINAPI RenderDeviceWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-    RenderDevice::RenderDevice(UINT width, UINT height) :
+    RenderDevice::RenderDevice(HWND hWnd) :
         m_id(Util::NewUuid()),
         m_device(),
         m_d3d9(),
         m_d3dpp(),
         m_wc(),
-        m_hWnd()
+        m_hWnd(hWnd)
+    {
+        SetupRenderer();
+    }
+
+    RenderDevice::RenderDevice(UINT width, UINT height) : RenderDevice(nullptr)
     {
         if (SetupWindow(width, height))
-        {
             SetupRenderer();
-        }
     }
 
     RenderDevice::~RenderDevice()
@@ -49,12 +52,12 @@ namespace UltraEd
     {
         m_wc = {
             sizeof(WNDCLASSEX), CS_CLASSDC, RenderDeviceWndProc, 0L, 0L, GetModuleHandle(NULL),
-            NULL, NULL, NULL, NULL, Util::UuidToString(m_id).c_str(), NULL
+            NULL, NULL, NULL, NULL, "UE_RenderDevice", NULL
         };
 
         RegisterClassEx(&m_wc);
 
-        m_hWnd = CreateWindow(m_wc.lpszClassName, Util::UuidToString(m_id).c_str(), 
+        m_hWnd = CreateWindow(m_wc.lpszClassName, Util::UuidToString(m_id).c_str(),
             WS_EX_TOOLWINDOW, 0, 0, width, height, NULL, NULL, m_wc.hInstance, NULL);
 
         return m_hWnd != NULL;

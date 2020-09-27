@@ -12,9 +12,7 @@ namespace UltraEd
     Gui::Gui(HWND hWnd) :
         m_scene(std::make_unique<Scene>(this)),
         m_hWnd(hWnd),
-        m_device(),
-        m_d3d9(),
-        m_d3dpp(),
+        m_renderDevice(hWnd),
         m_sceneTexture(),
         m_selectedActor(),
         m_textEditor(),
@@ -34,23 +32,20 @@ namespace UltraEd
         m_saveSceneModalOpen(),
         m_openConfirmSceneModal()
     {
-        if (SetupDevice())
-        {
-            IMGUI_CHECKVERSION();
-            ImGui::CreateContext();
-            LoadColorTheme();
-            ImGui_ImplWin32_Init(hWnd);
-            ImGui_ImplDX9_Init(m_device);
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        LoadColorTheme();
+        ImGui_ImplWin32_Init(hWnd);
+        ImGui_ImplDX9_Init(m_renderDevice.GetDevice());
 
-            ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-            m_textEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::C());
+        m_textEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::C());
 
-            Debug::Instance().Connect([&](std::string text) {
-                m_consoleText.append(text);
-                m_moveConsoleToBottom = true;
-            });
-        }
+        Debug::Instance().Connect([&](std::string text) {
+            m_consoleText.append(text);
+            m_moveConsoleToBottom = true;
+        });
     }
 
     Gui::~Gui()
@@ -58,25 +53,6 @@ namespace UltraEd
         ImGui_ImplDX9_Shutdown();
         ImGui_ImplWin32_Shutdown();
         ImGui::DestroyContext();
-    }
-
-    bool Gui::SetupDevice()
-    {
-        if ((m_d3d9 = Direct3DCreate9(D3D_SDK_VERSION)) == NULL) return false;
-
-        D3DDISPLAYMODE d3ddm;
-        if (FAILED(m_d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddm))) return false;
-
-        m_d3dpp.Windowed = TRUE;
-        m_d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
-        m_d3dpp.BackBufferFormat = d3ddm.Format;
-        m_d3dpp.EnableAutoDepthStencil = TRUE;
-        m_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
-
-        if (FAILED(m_d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd,
-            D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device))) return false;
-
-        return true;
     }
 
     void Gui::PrepareFrame()
@@ -141,34 +117,29 @@ namespace UltraEd
     void Gui::Render()
     {
         PrepareFrame();
+        auto device = m_renderDevice.GetDevice();
 
-        if (SUCCEEDED(m_device->BeginScene()))
+        if (SUCCEEDED(device->BeginScene()))
         {
-            m_device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(100, 100, 100), 1.0f, 0);
+            device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(100, 100, 100), 1.0f, 0);
 
             ImGui::Render();
             ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 
-            m_device->EndScene();
-            m_device->Present(NULL, NULL, NULL, NULL);
+            device->EndScene();
+            device->Present(NULL, NULL, NULL, NULL);
         }
     }
 
     void Gui::Resize(UINT width, UINT height)
     {
-        if (m_device)
-        {
-            ImGui_ImplDX9_InvalidateDeviceObjects();
+        ImGui_ImplDX9_InvalidateDeviceObjects();
 
-            Project::Refresh();
-            ReleaseSceneTexture();
+        Project::Refresh();
+        ReleaseSceneTexture();
+        m_renderDevice.Resize(width, height);
 
-            m_d3dpp.BackBufferWidth = width;
-            m_d3dpp.BackBufferHeight = height;
-            m_device->Reset(&m_d3dpp);
-
-            ImGui_ImplDX9_CreateDeviceObjects();
-        }
+        ImGui_ImplDX9_CreateDeviceObjects();
     }
 
     ImGuiIO &Gui::IO()
@@ -522,7 +493,7 @@ namespace UltraEd
 
             ReleaseSceneTexture();
             m_scene->Resize(static_cast<UINT>(width), static_cast<UINT>(height));
-            m_scene->Render(m_device, &m_sceneTexture);
+            m_scene->Render(m_renderDevice.GetDevice(), &m_sceneTexture);
 
             if (m_sceneTexture != nullptr)
             {
@@ -974,7 +945,7 @@ namespace UltraEd
         if (ImGui::BeginPopupModal("Add Texture", 0))
         {
             int i = 0;
-            auto textures = Project::Previews(AssetType::Texture, m_device);
+            auto textures = Project::Previews(AssetType::Texture, m_renderDevice.GetDevice());
             int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / ModelPreviewer::PreviewWidth));
 
             for (const auto &texture : textures)
@@ -1013,7 +984,7 @@ namespace UltraEd
         if (ImGui::BeginPopupModal("Add Model", 0))
         {
             int i = 0;
-            auto models = Project::Previews(AssetType::Model, m_device);
+            auto models = Project::Previews(AssetType::Model, m_renderDevice.GetDevice());
             int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / ModelPreviewer::PreviewWidth));
 
             for (const auto &model : models)
