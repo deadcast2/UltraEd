@@ -489,7 +489,8 @@ namespace UltraEd
 
     void Gui::SceneView()
     {
-        if (ImGui::Begin("Scene View"))
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        if (ImGui::Begin("Scene View", 0, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
             const auto width = ImGui::GetWindowWidth();
             const auto height = ImGui::GetWindowHeight();
@@ -500,11 +501,12 @@ namespace UltraEd
 
             if (m_sceneTexture != nullptr)
             {
-                ImGui::Image(m_sceneTexture, ImGui::GetWindowSize());
+                ImGui::Image(m_sceneTexture, { width, height });
             }
         }
 
         ImGui::End();
+        ImGui::PopStyleVar();
     }
 
     void Gui::Console()
