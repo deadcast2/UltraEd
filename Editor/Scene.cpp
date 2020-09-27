@@ -77,11 +77,6 @@ namespace UltraEd
         }
     }
 
-    void Scene::Confirm(std::function<void()> block)
-    {
-        m_gui->ConfirmScene(block);
-    }
-
     void Scene::OnBuildROM(BuildFlag flag)
     {
         std::thread run([this, flag]() {

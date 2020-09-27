@@ -30,7 +30,6 @@ namespace UltraEd
     public:
         Scene(Gui *gui);
         ~Scene();
-        void Confirm(std::function<void()> block);
         std::vector<Actor *> GetActors(bool selectedOnly = false);
         COLORREF GetBackgroundColor();
         HWND GetWndHandle();
@@ -87,7 +86,7 @@ namespace UltraEd
         D3DMATERIAL9 m_defaultMaterial;
         D3DFILLMODE m_fillMode;
         Gizmo m_gizmo;
-        View m_views[4];
+        std::array<View, 4> m_views;
         std::map<boost::uuids::uuid, std::shared_ptr<Actor>> m_actors;
         Grid m_grid;
         std::vector<boost::uuids::uuid> m_selectedActorIds;
@@ -96,7 +95,7 @@ namespace UltraEd
         std::string m_sceneName;
         std::array<int, 3> m_backgroundColorRGB;
         Auditor m_auditor;
-        std::unique_ptr<Gui> m_gui;
+        Gui *m_gui;
         RenderDevice m_renderDevice;
     };
 }

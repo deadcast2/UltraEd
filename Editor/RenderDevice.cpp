@@ -27,8 +27,11 @@ namespace UltraEd
         if (m_device) m_device->Release();
         if (m_d3d9) m_d3d9->Release();
 
-        DestroyWindow(m_hWnd);
-        UnregisterClass(m_wc.lpszClassName, m_wc.hInstance);
+        if (m_wc.hInstance != nullptr)
+        {
+            DestroyWindow(m_hWnd);
+            UnregisterClass(m_wc.lpszClassName, m_wc.hInstance);
+        }
     }
 
     const LPDIRECT3DDEVICE9 RenderDevice::GetDevice()

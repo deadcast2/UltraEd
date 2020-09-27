@@ -33,7 +33,7 @@ int main(int, char **)
 
     MSG msg {};
     gui = std::make_unique<Gui>(hWnd);
-    
+
     while (msg.message != WM_QUIT)
     {
         if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
@@ -80,7 +80,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
         case WM_CLOSE:
-            //scene.Confirm([]() { PostQuitMessage(0); });
+            if (gui) gui->ConfirmScene([]() { PostQuitMessage(0); });
             return 0;
         case WM_DESTROY:
             PostQuitMessage(0);
