@@ -33,6 +33,7 @@ namespace UltraEd
         std::vector<Actor *> GetActors(bool selectedOnly = false);
         COLORREF GetBackgroundColor();
         HWND GetWndHandle();
+        void UpdateInput(const ImVec2 &mousePos);
         void Render(LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture);
         nlohmann::json Save();
         nlohmann::json PartialSave();
@@ -76,7 +77,6 @@ namespace UltraEd
         std::string GetStats();
         bool ToggleFillMode();
         void CheckChanges();
-        void CheckInput();
         void SetTitle(std::string title, bool store = true);
         void UpdateViewMatrix();
         void WrapCursor();

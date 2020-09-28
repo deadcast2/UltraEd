@@ -39,6 +39,7 @@ namespace UltraEd
         ImGui_ImplDX9_Init(m_renderDevice.GetDevice());
 
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
 
         m_textEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::C());
 
@@ -490,10 +491,19 @@ namespace UltraEd
     void Gui::SceneView()
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        if (ImGui::Begin("Scene View", 0, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+        if (ImGui::Begin("Scene View", 0, ImGuiWindowFlags_NoScrollbar))
         {
+            if (ImGui::IsWindowHovered())
+            {
+                const auto mousePos = ImGui::GetMousePos();
+                const auto windowPos = ImGui::GetWindowPos();
+                const ImVec2 windowMousePos { mousePos.x - windowPos.x, mousePos.y - windowPos.y - ImGui::GetFrameHeight() };
+                
+                m_scene->UpdateInput(windowMousePos);
+            }
+
             const auto width = ImGui::GetWindowWidth();
-            const auto height = ImGui::GetWindowHeight();
+            const auto height = ImGui::GetWindowHeight() - ImGui::GetFrameHeight();
 
             ReleaseSceneTexture();
             m_scene->Resize(static_cast<UINT>(width), static_cast<UINT>(height));

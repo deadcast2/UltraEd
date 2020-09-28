@@ -242,7 +242,53 @@ namespace UltraEd
         return false;
     }
 
-    void Scene::CheckInput()
+    void Scene::Resize(int width, int height)
+    {
+        ReleaseResources(ModelRelease::VertexBufferOnly);
+        m_renderDevice.Resize(width, height);
+        UpdateViewMatrix();
+    }
+
+    void Scene::Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds)
+    {
+        for (const auto &changedAssetId : changedAssetIds)
+        {
+            for (const auto &actor : m_actors)
+            {
+                auto model = std::static_pointer_cast<Model>(actor.second);
+                if (model)
+                {
+                    if (model->GetModelId() == changedAssetId)
+                        model->SetMesh(changedAssetId);
+
+                    if (model->GetTextureId() == changedAssetId)
+                        model->SetTexture(m_renderDevice.GetDevice(), changedAssetId);
+                }
+            }
+        }
+    }
+
+    void Scene::UpdateViewMatrix()
+    {
+        D3DXMATRIX viewMat;
+        const float aspect = static_cast<float>(m_renderDevice.GetParameters()->BackBufferWidth) /
+            static_cast<float>(m_renderDevice.GetParameters()->BackBufferHeight);
+
+        if (GetActiveView()->GetType() == ViewType::Perspective)
+        {
+            const float fov = D3DX_PI / 2.0f;
+            D3DXMatrixPerspectiveFovLH(&viewMat, fov, aspect, 0.1f, 1000.0f);
+        }
+        else
+        {
+            const float zoom = GetActiveView()->GetZoom();
+            D3DXMatrixOrthoLH(&viewMat, zoom * aspect, zoom, -1000.0f, 1000.0f);
+        }
+
+        m_renderDevice.GetDevice()->SetTransform(D3DTS_PROJECTION, &viewMat);
+    }
+
+    void Scene::UpdateInput(const ImVec2 &mousePos)
     {
         View *view = GetActiveView();
         static bool prevGizmo = false;
@@ -252,18 +298,15 @@ namespace UltraEd
         const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
 
-        if (m_gui->IO().WantCaptureMouse || m_gui->IO().WantCaptureKeyboard)
-            return;
-
         Actor *selectedActor = NULL;
         if (m_gui->IO().MouseReleased[1] &&
             m_gui->IO().MouseDownDurationPrev[1] < 0.2f &&
-            Pick(m_gui->IO().MousePos, true, &selectedActor))
+            Pick(mousePos, true, &selectedActor))
         {
             m_gui->OpenContextMenu(selectedActor);
         }
 
-        if (m_gui->IO().MouseClicked[0]) Pick(m_gui->IO().MousePos);
+        if (m_gui->IO().MouseClicked[0]) Pick(mousePos);
         if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('A', false)) SelectAll();
         if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('D', false)) Duplicate();
         if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Z', false)) m_auditor.Undo();
@@ -278,7 +321,7 @@ namespace UltraEd
         if (m_gui->IO().MouseDown[0] && !m_selectedActorIds.empty())
         {
             D3DXVECTOR3 rayOrigin, rayDir;
-            ScreenRaycast(m_gui->IO().MousePos, &rayOrigin, &rayDir);
+            ScreenRaycast(mousePos, &rayOrigin, &rayDir);
             if (prevGizmo || (prevGizmo = m_gizmo.Select(rayOrigin, rayDir)))
             {
                 const auto lastSelectedActorId = m_selectedActorIds.back();
@@ -333,55 +376,8 @@ namespace UltraEd
         }
     }
 
-    void Scene::Resize(int width, int height)
-    {
-        ReleaseResources(ModelRelease::VertexBufferOnly);
-        m_renderDevice.Resize(width, height);
-        UpdateViewMatrix();
-    }
-
-    void Scene::Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds)
-    {
-        for (const auto &changedAssetId : changedAssetIds)
-        {
-            for (const auto &actor : m_actors)
-            {
-                auto model = std::static_pointer_cast<Model>(actor.second);
-                if (model)
-                {
-                    if (model->GetModelId() == changedAssetId)
-                        model->SetMesh(changedAssetId);
-
-                    if (model->GetTextureId() == changedAssetId)
-                        model->SetTexture(m_renderDevice.GetDevice(), changedAssetId);
-                }
-            }
-        }
-    }
-
-    void Scene::UpdateViewMatrix()
-    {
-        D3DXMATRIX viewMat;
-        const float aspect = static_cast<float>(m_renderDevice.GetParameters()->BackBufferWidth) / 
-            static_cast<float>(m_renderDevice.GetParameters()->BackBufferHeight);
-
-        if (GetActiveView()->GetType() == ViewType::Perspective)
-        {
-            const float fov = D3DX_PI / 2.0f;
-            D3DXMatrixPerspectiveFovLH(&viewMat, fov, aspect, 0.1f, 1000.0f);
-        }
-        else
-        {
-            const float zoom = GetActiveView()->GetZoom();
-            D3DXMatrixOrthoLH(&viewMat, zoom * aspect, zoom, -1000.0f, 1000.0f);
-        }
-
-        m_renderDevice.GetDevice()->SetTransform(D3DTS_PROJECTION, &viewMat);
-    }
-
     void Scene::Render(LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture)
     {
-        CheckInput();
         CheckChanges();
 
         ID3DXMatrixStack *stack;
