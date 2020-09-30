@@ -206,6 +206,7 @@ namespace UltraEd
             if (ImGui::MenuItem("Load Project"))
             {
                 m_loadProjectModalOpen = true;
+                m_folderBrowser.Open();
             }
 
             if (Project::IsLoaded())
@@ -226,6 +227,7 @@ namespace UltraEd
                 {
                     ConfirmScene([&]() {
                         m_loadSceneModalOpen = true;
+                        m_fileBrowser.Open();
                     });
                 }
 
@@ -498,7 +500,7 @@ namespace UltraEd
                 const auto mousePos = ImGui::GetMousePos();
                 const auto windowPos = ImGui::GetWindowPos();
                 const ImVec2 windowMousePos { mousePos.x - windowPos.x, mousePos.y - windowPos.y - ImGui::GetFrameHeight() };
-                
+
                 m_scene->UpdateInput(windowMousePos);
             }
 
@@ -894,58 +896,24 @@ namespace UltraEd
 
     void Gui::LoadProjectModal()
     {
-        static char projectPath[MAX_PATH];
-
         if (m_loadProjectModalOpen)
         {
-            ImGui::OpenPopup("Load Project");
-            memset(projectPath, 0, strlen(projectPath));
-            strcpy(projectPath, "C:\\Users\\deadcast\\Desktop\\test");
-            m_loadProjectModalOpen = false;
-        }
+            m_folderBrowser.Display();
 
-        if (ImGui::BeginPopupModal("Load Project", 0, ImGuiWindowFlags_AlwaysAutoResize))
-        {
             if (m_folderBrowser.HasSelected())
-            {
-                strcpy(projectPath, m_folderBrowser.GetSelected().string().c_str());
-                m_folderBrowser.ClearSelected();
-            }
-
-            ImGui::Text("Path");
-            ImGui::SameLine();
-            ImGui::InputTextWithHint("##projectPath", "required", projectPath, MAX_PATH);
-            ImGui::SameLine();
-
-            if (ImGui::Button("Choose..."))
-            {
-                m_folderBrowser.Open();
-            }
-
-            if (ImGui::Button("Open") && strlen(projectPath) > 0)
             {
                 try
                 {
-                    Project::Load(projectPath);
+                    Project::Load(m_folderBrowser.GetSelected());
+                    m_folderBrowser.Close();
                 }
                 catch (const std::exception &e)
                 {
                     Debug::Instance().Error(e.what());
                 }
-
-                ImGui::CloseCurrentPopup();
             }
 
-            ImGui::SameLine();
-
-            if (ImGui::Button("Cancel"))
-            {
-                ImGui::CloseCurrentPopup();
-            }
-
-            m_folderBrowser.Display();
-
-            ImGui::EndPopup();
+            m_loadProjectModalOpen = m_folderBrowser.IsOpened();
         }
     }
 
@@ -1029,57 +997,24 @@ namespace UltraEd
 
     void Gui::LoadSceneModal()
     {
-        static char scenePath[MAX_PATH];
-
         if (m_loadSceneModalOpen)
         {
-            ImGui::OpenPopup("Load Scene");
-            memset(scenePath, 0, strlen(scenePath));
-            m_loadSceneModalOpen = false;
-        }
+            m_fileBrowser.Display();
 
-        if (ImGui::BeginPopupModal("Load Scene", 0, ImGuiWindowFlags_AlwaysAutoResize))
-        {
             if (m_fileBrowser.HasSelected())
-            {
-                strcpy(scenePath, m_fileBrowser.GetSelected().string().c_str());
-                m_fileBrowser.ClearSelected();
-            }
-
-            ImGui::Text("Path");
-            ImGui::SameLine();
-            ImGui::InputTextWithHint("##scenePath", "required", scenePath, MAX_PATH);
-            ImGui::SameLine();
-
-            if (ImGui::Button("Choose..."))
-            {
-                m_fileBrowser.Open();
-            }
-
-            if (ImGui::Button("Open") && strlen(scenePath) > 0)
             {
                 try
                 {
-                    m_scene->Load(std::filesystem::path(scenePath));
+                    m_scene->Load(m_fileBrowser.GetSelected());
+                    m_fileBrowser.Close();
                 }
                 catch (const std::exception &e)
                 {
                     Debug::Instance().Error(e.what());
                 }
-
-                ImGui::CloseCurrentPopup();
             }
 
-            ImGui::SameLine();
-
-            if (ImGui::Button("Cancel"))
-            {
-                ImGui::CloseCurrentPopup();
-            }
-
-            m_fileBrowser.Display();
-
-            ImGui::EndPopup();
+            m_loadSceneModalOpen = m_fileBrowser.IsOpened();
         }
     }
 
