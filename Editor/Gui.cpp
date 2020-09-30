@@ -1084,7 +1084,7 @@ namespace UltraEd
             std::get<0>(m_openConfirmSceneModal) = false;
         }
 
-        if (ImGui::BeginPopupModal("Are you sure?", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        if (ImGui::BeginPopupModal("Are you sure?", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
         {
             ImGui::Text("Would you like to save your changes?");
 
