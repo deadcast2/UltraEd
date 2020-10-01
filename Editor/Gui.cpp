@@ -1020,59 +1020,25 @@ namespace UltraEd
 
     void Gui::SaveSceneModal()
     {
-        static char scenePath[MAX_PATH];
-
         if (std::get<0>(m_saveSceneModalOpen))
         {
-            ImGui::OpenPopup("Save Scene As...");
-            memset(scenePath, 0, strlen(scenePath));
-            std::get<0>(m_saveSceneModalOpen) = false;
-        }
+            m_fileBrowser.Display();
 
-        if (ImGui::BeginPopupModal("Save Scene As...", 0, ImGuiWindowFlags_AlwaysAutoResize))
-        {
             if (m_fileBrowser.HasSelected())
-            {
-                strcpy(scenePath, m_fileBrowser.GetSelected().string().c_str());
-                m_fileBrowser.ClearSelected();
-            }
-
-            ImGui::Text("Path");
-            ImGui::SameLine();
-            ImGui::InputTextWithHint("##scenePath", "required", scenePath, MAX_PATH);
-            ImGui::SameLine();
-
-            if (ImGui::Button("Choose..."))
-            {
-                m_fileBrowser.Open();
-            }
-
-            if (ImGui::Button("Save") && strlen(scenePath) > 0)
             {
                 try
                 {
-                    m_scene->Save(std::filesystem::path(scenePath));
+                    m_scene->Save(m_fileBrowser.GetSelected());
+                    m_fileBrowser.Close();
+                    std::get<1>(m_saveSceneModalOpen)();
                 }
                 catch (const std::exception &e)
                 {
                     Debug::Instance().Error(e.what());
                 }
-
-                std::get<1>(m_saveSceneModalOpen)();
-                ImGui::CloseCurrentPopup();
             }
 
-            ImGui::SameLine();
-
-            if (ImGui::Button("Cancel"))
-            {
-                std::get<1>(m_saveSceneModalOpen)();
-                ImGui::CloseCurrentPopup();
-            }
-
-            m_fileBrowser.Display();
-
-            ImGui::EndPopup();
+            std::get<0>(m_saveSceneModalOpen) = m_fileBrowser.IsOpened();
         }
     }
 
@@ -1092,6 +1058,7 @@ namespace UltraEd
             {
                 // Open save scene modal and forward defined callback.
                 m_saveSceneModalOpen = std::make_tuple(true, std::get<1>(m_openConfirmSceneModal));
+                m_fileBrowser.Open();
                 ImGui::CloseCurrentPopup();
             }
 
