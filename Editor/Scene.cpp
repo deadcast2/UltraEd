@@ -26,7 +26,8 @@ namespace UltraEd
         m_backgroundColorRGB({ 0, 0, 0 }),
         m_auditor(this),
         m_gui(gui),
-        m_renderDevice(800, 600)
+        m_renderDevice(800, 600),
+        m_path()
     {
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
@@ -51,15 +52,22 @@ namespace UltraEd
         m_auditor.Reset();
         m_gizmo.SetSnapSize(0.5f);
         m_backgroundColorRGB = { 0, 0, 0 };
+        m_path.clear();
         SetDirty(false);
     }
 
-    bool Scene::Save(const std::filesystem::path &path)
+    bool Scene::SaveAs()
+    {
+        return HasPath() && SaveAs(m_path);
+    }
+
+    bool Scene::SaveAs(const std::filesystem::path &path)
     {
         if (FileIO::Save(this, path))
         {
             SetTitle(path.stem().string());
             SetDirty(false);
+            m_path = path;
 
             return true;
         }
@@ -76,6 +84,7 @@ namespace UltraEd
             New();
             SetTitle(path.stem().string());
             Load(*root.get());
+            m_path = path;
         }
     }
 
@@ -783,6 +792,11 @@ namespace UltraEd
             SetCursorPos(mousePoint.x, 1);
         else if (mousePoint.y < 1)
             SetCursorPos(mousePoint.x, screenY - 1);
+    }
+
+    bool Scene::HasPath()
+    {
+        return !m_path.empty();
     }
 
     nlohmann::json Scene::Save()

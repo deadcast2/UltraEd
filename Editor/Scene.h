@@ -44,6 +44,7 @@ namespace UltraEd
         void SelectActorById(const boost::uuids::uuid &id, bool clearAll = true);
         void Resize(int width, int height);
         void Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds);
+        bool HasPath();
      
     private:
         void Delete();
@@ -54,7 +55,8 @@ namespace UltraEd
         void SetBackgroundColor(COLORREF color);
         void SetGizmoSnapSize(float size);
         void New();
-        bool Save(const std::filesystem::path &path);
+        bool SaveAs();
+        bool SaveAs(const std::filesystem::path &path);
         void Load(const std::filesystem::path &path);
         void AddCamera();
         void AddTexture(const boost::uuids::uuid &assetId);
@@ -97,6 +99,7 @@ namespace UltraEd
         Auditor m_auditor;
         Gui *m_gui;
         RenderDevice m_renderDevice;
+        std::filesystem::path m_path;
     };
 }
 

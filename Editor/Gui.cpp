@@ -218,7 +218,12 @@ namespace UltraEd
                     ConfirmScene([&]() { m_scene->New(); });
                 }
 
-                if (ImGui::MenuItem("Save Scene As..."))
+                if (m_scene->HasPath() && ImGui::MenuItem("Save Scene", "Ctrl+S"))
+                {
+                    m_scene->SaveAs();
+                }
+
+                if (ImGui::MenuItem("Save Scene As...", m_scene->HasPath() ? 0 : "Ctrl+S"))
                 {
                     m_saveSceneModalOpen = std::make_tuple(true, []() {});
                     m_fileBrowser.Open();
@@ -1029,7 +1034,7 @@ namespace UltraEd
             {
                 try
                 {
-                    m_scene->Save(m_fileBrowser.GetSelected());
+                    m_scene->SaveAs(m_fileBrowser.GetSelected());
                     m_fileBrowser.Close();
                     std::get<1>(m_saveSceneModalOpen)();
                 }
