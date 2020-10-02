@@ -104,11 +104,12 @@ namespace UltraEd
         }
     }
 
-    bool Model::LoadTexture(IDirect3DDevice9 *device)
+    bool Model::LoadTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId)
     {
-        auto assetPath = Project::GetAssetPath(m_textureId);
+        auto assetPath = Project::GetAssetPath(assetId);
         if (!assetPath.empty())
         {
+            m_textureId = assetId;
             return SUCCEEDED(D3DXCreateTextureFromFile(device, assetPath.string().c_str(), &m_texture));
         }
         return false;
@@ -117,10 +118,10 @@ namespace UltraEd
     bool Model::SetTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId)
     {
         DeleteTexture();
-        m_textureId = assetId;
 
         bool result = false;
-        Dirty([&] { result = LoadTexture(device); }, &result);
+        Dirty([&] { result = LoadTexture(device, assetId); }, &result);
+
         return result;
     }
 
@@ -148,7 +149,7 @@ namespace UltraEd
     {
         Actor::Load(root);
 
-        SetTexture(device, root["texture_id"]);
         SetMesh(root["model_id"]);
+        LoadTexture(device, root["texture_id"]);
     }
 }

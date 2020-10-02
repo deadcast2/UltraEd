@@ -31,7 +31,7 @@ namespace UltraEd
         std::array<int, 2> TextureDimensions();
 
     private:
-        bool LoadTexture(IDirect3DDevice9 *device);
+        bool LoadTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId);
         bool IsTextureValid();
         LPDIRECT3DTEXTURE9 m_texture;
         boost::uuids::uuid m_textureId;
