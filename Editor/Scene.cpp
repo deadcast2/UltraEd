@@ -26,7 +26,7 @@ namespace UltraEd
         m_backgroundColorRGB({ 0, 0, 0 }),
         m_auditor(this),
         m_gui(gui),
-        m_renderDevice(320, 240)
+        m_renderDevice(800, 600)
     {
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
@@ -46,10 +46,11 @@ namespace UltraEd
         SetTitle("Untitled");
         UnselectAll();
         ReleaseResources(ModelRelease::AllResources);
+        ResetViews();
         m_actors.clear();
         m_auditor.Reset();
-        ResetViews();
         m_gizmo.SetSnapSize(0.5f);
+        m_backgroundColorRGB = { 0, 0, 0 };
         SetDirty(false);
     }
 
