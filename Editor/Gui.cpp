@@ -221,6 +221,7 @@ namespace UltraEd
                 if (ImGui::MenuItem("Save Scene As..."))
                 {
                     m_saveSceneModalOpen = std::make_tuple(true, []() {});
+                    m_fileBrowser.Open();
                 }
 
                 if (ImGui::MenuItem("Load Scene"))
