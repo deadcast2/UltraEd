@@ -10,7 +10,7 @@
 namespace UltraEd
 {
     Gui::Gui(HWND hWnd) :
-        m_scene(std::make_unique<Scene>(this)),
+        m_scene(std::make_unique<Scene>(hWnd, this)),
         m_hWnd(hWnd),
         m_renderDevice(hWnd),
         m_sceneTexture(),

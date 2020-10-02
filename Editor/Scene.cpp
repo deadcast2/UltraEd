@@ -10,7 +10,8 @@
 
 namespace UltraEd
 {
-    Scene::Scene(Gui *gui) :
+    Scene::Scene(HWND hWnd, Gui *gui) :
+        m_hWnd(hWnd),
         m_defaultMaterial(),
         m_fillMode(D3DFILLMODE::D3DFILL_SOLID),
         m_gizmo(),
@@ -677,16 +678,6 @@ namespace UltraEd
         return RGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]);
     }
 
-    HWND Scene::GetWndHandle()
-    {
-        D3DDEVICE_CREATION_PARAMETERS params;
-        if (SUCCEEDED(m_renderDevice.GetDevice()->GetCreationParameters(&params)))
-        {
-            return params.hFocusWindow;
-        }
-        return NULL;
-    }
-
     std::vector<Actor *> Scene::GetActors(bool selectedOnly)
     {
         std::vector<Actor *> actors;
@@ -760,7 +751,7 @@ namespace UltraEd
     {
         if (store) m_sceneName = title;
         title.append(" - ").append(APP_NAME);
-        SetWindowText(GetWndHandle(), title.c_str());
+        SetWindowText(m_hWnd, title.c_str());
     }
 
     void Scene::SetDirty(bool value)

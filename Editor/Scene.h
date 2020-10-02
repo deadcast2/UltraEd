@@ -28,11 +28,10 @@ namespace UltraEd
         friend Gui;
 
     public:
-        Scene(Gui *gui);
+        Scene(HWND hWnd, Gui *gui);
         ~Scene();
         std::vector<Actor *> GetActors(bool selectedOnly = false);
         COLORREF GetBackgroundColor();
-        HWND GetWndHandle();
         void UpdateInput(const ImVec2 &mousePos);
         void Render(LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture);
         nlohmann::json Save();
@@ -83,6 +82,7 @@ namespace UltraEd
         bool IsActorSelected(const boost::uuids::uuid &id);
 
     private:
+        HWND m_hWnd;
         D3DMATERIAL9 m_defaultMaterial;
         D3DFILLMODE m_fillMode;
         Gizmo m_gizmo;
