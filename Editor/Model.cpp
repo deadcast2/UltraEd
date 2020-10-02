@@ -106,22 +106,22 @@ namespace UltraEd
 
     bool Model::LoadTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId)
     {
+        DeleteTexture();
+        
         auto assetPath = Project::GetAssetPath(assetId);
         if (!assetPath.empty())
         {
             m_textureId = assetId;
             return SUCCEEDED(D3DXCreateTextureFromFile(device, assetPath.string().c_str(), &m_texture));
         }
+        
         return false;
     }
 
     bool Model::SetTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId)
     {
-        DeleteTexture();
-
         bool result = false;
         Dirty([&] { result = LoadTexture(device, assetId); }, &result);
-
         return result;
     }
 
