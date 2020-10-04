@@ -81,11 +81,8 @@ namespace UltraEd
         m_d3dpp.EnableAutoDepthStencil = TRUE;
         m_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 
-        if (FAILED(m_d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd,
-            D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_device)))
-            return false;
-
-        return true;
+        return SUCCEEDED(m_d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd,
+            D3DCREATE_HARDWARE_VERTEXPROCESSING, &m_d3dpp, &m_device));
     }
 
     LRESULT WINAPI RenderDeviceWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
