@@ -65,32 +65,23 @@ namespace UltraEd
     void Util::CopyBackBuffer(UINT width, UINT height, LPDIRECT3DDEVICE9 source, LPDIRECT3DDEVICE9 target, 
         LPDIRECT3DTEXTURE9 *texture)
     {
-        if (source == nullptr || target == nullptr || texture == nullptr)
+        if (source == nullptr || target == nullptr)
             return;
 
         // Create texture with source device and apply the backbuffer.
         LPDIRECT3DSURFACE9 surface;
         source->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &surface);
 
-        LPDIRECT3DTEXTURE9 tempTexture;
-        source->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET,
-            D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &tempTexture, 0);
-
-        LPDIRECT3DSURFACE9 tempTextureSurface;
-        tempTexture->GetSurfaceLevel(0, &tempTextureSurface);
-        source->StretchRect(surface, NULL, tempTextureSurface, NULL, D3DTEXF_NONE);
-
         // Create a texture with the target device and copy the rendered surface to its context.
-        target->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET,
-            D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, texture, 0);
+        target->CreateTexture(width, height, 0, D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, texture, 0);
 
         PDIRECT3DSURFACE9 newTextureSurface;
         (*texture)->GetSurfaceLevel(0, &newTextureSurface);
-        D3DXLoadSurfaceFromSurface(newTextureSurface, 0, 0, tempTextureSurface, 0, 0, D3DX_DEFAULT, 0);
+
+        // Not the most effcient but works for now. :/
+        D3DXLoadSurfaceFromSurface(newTextureSurface, 0, 0, surface, 0, 0, D3DX_DEFAULT, 0);
 
         newTextureSurface->Release();
-        tempTextureSurface->Release();
-        tempTexture->Release();
         surface->Release();
     }
 }
