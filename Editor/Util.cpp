@@ -62,26 +62,26 @@ namespace UltraEd
         return strCopy;
     }
 
-    void Util::BackBufferToTexture(UINT width, UINT height, LPDIRECT3DDEVICE9 deviceSource, 
-        LPDIRECT3DDEVICE9 deviceTarget, LPDIRECT3DTEXTURE9 *texture)
+    void Util::CopyBackBuffer(UINT width, UINT height, LPDIRECT3DDEVICE9 source, LPDIRECT3DDEVICE9 target, 
+        LPDIRECT3DTEXTURE9 *texture)
     {
-        if (deviceSource == nullptr || deviceTarget == nullptr || texture == nullptr)
+        if (source == nullptr || target == nullptr || texture == nullptr)
             return;
 
         // Create texture with source device and apply the backbuffer.
         LPDIRECT3DSURFACE9 surface;
-        deviceSource->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &surface);
+        source->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &surface);
 
         LPDIRECT3DTEXTURE9 tempTexture;
-        deviceSource->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET,
+        source->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET,
             D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &tempTexture, 0);
 
         LPDIRECT3DSURFACE9 tempTextureSurface;
         tempTexture->GetSurfaceLevel(0, &tempTextureSurface);
-        deviceSource->StretchRect(surface, NULL, tempTextureSurface, NULL, D3DTEXF_NONE);
+        source->StretchRect(surface, NULL, tempTextureSurface, NULL, D3DTEXF_NONE);
 
         // Create a texture with the target device and copy the rendered surface to its context.
-        deviceTarget->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET,
+        target->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET,
             D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, texture, 0);
 
         PDIRECT3DSURFACE9 newTextureSurface;

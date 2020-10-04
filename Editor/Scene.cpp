@@ -426,11 +426,9 @@ namespace UltraEd
             }
 
             device->EndScene();
-            device->Present(NULL, NULL, NULL, NULL);
 
-            // Copy back buffer to supplied texture.
             auto deviceParameters = m_renderDevice.GetParameters();
-            Util::BackBufferToTexture(deviceParameters->BackBufferWidth, deviceParameters->BackBufferHeight,
+            Util::CopyBackBuffer(deviceParameters->BackBufferWidth, deviceParameters->BackBufferHeight,
                 m_renderDevice.GetDevice(), target, texture);
         }
 

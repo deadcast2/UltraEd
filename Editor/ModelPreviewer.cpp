@@ -40,9 +40,8 @@ namespace UltraEd
             }
             
             device->EndScene();
-            device->Present(NULL, NULL, NULL, NULL);
 
-            Util::BackBufferToTexture(PreviewWidth, PreviewWidth, device, deviceTarget, texture);
+            Util::CopyBackBuffer(PreviewWidth, PreviewWidth, device, deviceTarget, texture);
         }
 
         stack->Release();

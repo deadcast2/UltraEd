@@ -25,8 +25,8 @@ namespace UltraEd
         static std::vector<std::string> SplitString(const std::string &str, const std::string &delimiter);
         static void ToFloat3(const D3DXVECTOR3 &vec, float *position);
         static std::string ToLower(const std::string &str);
-        static void BackBufferToTexture(UINT width, UINT height, LPDIRECT3DDEVICE9 deviceSource,
-            LPDIRECT3DDEVICE9 deviceTarget, LPDIRECT3DTEXTURE9 *texture);
+        static void CopyBackBuffer(UINT width, UINT height, LPDIRECT3DDEVICE9 source,
+            LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture);
 
     private:
         Util() {};
