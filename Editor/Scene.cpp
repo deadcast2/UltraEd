@@ -253,11 +253,15 @@ namespace UltraEd
         return false;
     }
 
-    void Scene::Resize(int width, int height)
+    void Scene::Resize(UINT width, UINT height)
     {
-        ReleaseResources(ModelRelease::VertexBufferOnly);
-        m_renderDevice.Resize(width, height);
-        UpdateViewMatrix();
+        auto params = m_renderDevice.GetParameters();
+        if (params->BackBufferWidth != width || params->BackBufferHeight != height)
+        {
+            ReleaseResources(ModelRelease::VertexBufferOnly);
+            m_renderDevice.Resize(width, height);
+            UpdateViewMatrix();
+        }
     }
 
     void Scene::Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds)

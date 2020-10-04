@@ -42,7 +42,7 @@ namespace UltraEd
         void RestoreActor(const nlohmann::json &item);
         void Delete(std::shared_ptr<Actor> actor);
         void SelectActorById(const boost::uuids::uuid &id, bool clearAll = true);
-        void Resize(int width, int height);
+        void Resize(UINT width, UINT height);
         void Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds);
         bool HasPath();
      
