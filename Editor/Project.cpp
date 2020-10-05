@@ -57,8 +57,9 @@ namespace UltraEd
             switch (type)
             {
                 case AssetType::Texture:
-                    D3DXCreateTextureFromFile(device,
-                        m_projectInstance->LibraryPath(asset).string().c_str(), &preview.second);
+                    D3DXCreateTextureFromFileEx(device, m_projectInstance->LibraryPath(asset).string().c_str(),
+                        ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth, 1, 0, D3DFMT_X8R8G8B8, 
+                        D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, 0, 0, &preview.second);
                     break;
                 case AssetType::Model:
                     m_projectInstance->m_modelPreviewer.Render(device,
