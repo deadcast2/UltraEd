@@ -34,8 +34,8 @@ namespace UltraEd
         bool Rotate(const float &angle, const D3DXVECTOR3 &dir);
         const D3DXVECTOR3 &GetPosition() { return m_position; }
         bool SetPosition(const D3DXVECTOR3 &position) { return Dirty([&] { m_position = position; }, &m_position); }
-        D3DXVECTOR3 GetRotation();
-        bool SetRotation(const D3DXVECTOR3 &rotation);
+        const D3DXVECTOR3 &GetEulerAngles();
+        bool SetRotation(const D3DXVECTOR3 &eulerAngles);
         const D3DXVECTOR3 &GetScale() { return m_scale; }
         bool SetScale(const D3DXVECTOR3 &scale) { return Dirty([&] { m_scale = scale; }, &m_scale); }
         D3DXVECTOR3 GetRight();
@@ -66,6 +66,7 @@ namespace UltraEd
         D3DXVECTOR3 m_scale;
         D3DXMATRIX m_localRot;
         D3DXMATRIX m_worldRot;
+        D3DXVECTOR3 m_eulerAngles;
         std::string m_script;
         bool IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir,
             const D3DXVECTOR3 &v0, const D3DXVECTOR3 &v1, const D3DXVECTOR3 &v2, float *dist);

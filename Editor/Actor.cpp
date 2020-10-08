@@ -19,6 +19,7 @@ namespace UltraEd
         m_scale(1, 1, 1),
         m_localRot(),
         m_worldRot(),
+        m_eulerAngles(0, 0, 0),
         m_script(),
         m_collider()
     {
@@ -61,32 +62,18 @@ namespace UltraEd
         m_vertices = mesh.GetVertices();
     }
 
-    D3DXVECTOR3 Actor::GetRotation()
+    const D3DXVECTOR3 &Actor::GetEulerAngles()
     {
-        D3DXVECTOR3 rotation;
-        D3DXMATRIX mat = GetRotationMatrix();
-
-        rotation.x = asinf(-mat._32);
-
-        if (cosf(rotation.x) > 0.0001f)
-        {
-            rotation.y = atan2f(mat._31, mat._33);
-            rotation.z = atan2f(mat._12, mat._22);
-        }
-        else
-        {
-            rotation.y = 0.0f;
-            rotation.z = atan2f(-mat._21, mat._11);
-        }
-
-        return D3DXVECTOR3(D3DXToDegree(rotation.x), D3DXToDegree(rotation.y), D3DXToDegree(rotation.z));
+        return m_eulerAngles;
     }
 
-    bool Actor::SetRotation(const D3DXVECTOR3 &rotation)
+    bool Actor::SetRotation(const D3DXVECTOR3 &eulerAngles)
     {
+        m_eulerAngles = eulerAngles;
+
         return Dirty([&]() {
-            D3DXMatrixRotationYawPitchRoll(&m_worldRot, D3DXToRadian(rotation.y),
-                D3DXToRadian(rotation.x), D3DXToRadian(rotation.z));
+            D3DXMatrixRotationYawPitchRoll(&m_worldRot, D3DXToRadian(eulerAngles.y), 
+                D3DXToRadian(eulerAngles.x), D3DXToRadian(eulerAngles.z));
         }, &m_worldRot);
     }
 
@@ -120,6 +107,10 @@ namespace UltraEd
 
     bool Actor::Rotate(const float &angle, const D3DXVECTOR3 &dir)
     {
+        D3DXVECTOR3 scaled;
+        D3DXVec3Scale(&scaled, &dir, D3DXToDegree(angle));
+        m_eulerAngles += scaled;
+
         D3DXMATRIX newWorld;
         D3DXMatrixRotationAxis(&newWorld, &dir, angle);
         return Dirty([&] { m_worldRot *= newWorld; }, &m_worldRot);
@@ -205,6 +196,7 @@ namespace UltraEd
             { "scale", m_scale },
             { "script", m_script },
             { "rotation", m_worldRot },
+            { "euler_angles", m_eulerAngles },
         };
 
         if (m_collider)
@@ -226,6 +218,7 @@ namespace UltraEd
         m_scale = root["scale"];
         m_script = root["script"];
         m_worldRot = root["rotation"];
+        m_eulerAngles = root["euler_angles"];
 
         SetCollider(nullptr);
 

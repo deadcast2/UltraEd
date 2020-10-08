@@ -569,7 +569,7 @@ namespace UltraEd
                 targetActor = actors[actors.size() - 1];
                 sprintf(name, targetActor->GetName().c_str());
                 Util::ToFloat3(targetActor->GetPosition(), position);
-                Util::ToFloat3(targetActor->GetRotation(), rotation);
+                Util::ToFloat3(targetActor->GetEulerAngles(), rotation);
                 Util::ToFloat3(targetActor->GetScale(), scale);
             }
 
@@ -615,7 +615,7 @@ namespace UltraEd
 
                 if (tempRot != D3DXVECTOR3(rotation))
                 {
-                    auto curRot = actors[i]->GetRotation();
+                    auto curRot = actors[i]->GetEulerAngles();
                     m_scene->m_auditor.ChangeActor("Rotation Set", actors[i]->GetId(), groupId);
                     actors[i]->SetRotation(D3DXVECTOR3(
                         tempRot.x != rotation[0] ? rotation[0] : curRot.x,
