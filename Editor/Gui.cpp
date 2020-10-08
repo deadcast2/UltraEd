@@ -622,6 +622,10 @@ namespace UltraEd
                         tempRot.y != rotation[1] ? rotation[1] : curRot.y,
                         tempRot.z != rotation[2] ? rotation[2] : curRot.z
                     ));
+
+                    // Make sure the gizmo follows the target actor.
+                    if (actors[i] == targetActor && !m_scene->m_gizmo.m_worldSpaceToggled)
+                        m_scene->m_gizmo.Update(targetActor);
                 }
 
                 if (tempScale != D3DXVECTOR3(scale))
