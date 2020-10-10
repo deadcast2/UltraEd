@@ -92,6 +92,7 @@
     <ClInclude Include="Vendor\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Vendor\ImGui\imstb_textedit.h" />
     <ClInclude Include="Vendor\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Vendor\ImGui\Plugins\imfilebrowser.h" />
     <ClInclude Include="Vendor\ImGui\Plugins\TextEditor.h" />
     <ClInclude Include="Vendor\MicroTar\microtar.h" />
     <ClInclude Include="Vendor\STB\stb_image.h" />
