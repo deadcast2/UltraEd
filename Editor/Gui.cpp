@@ -195,7 +195,9 @@ namespace UltraEd
         {
             if (ImGui::MenuItem("New Project"))
             {
-                m_newProjectModalOpen = true;
+                ConfirmScene([&]() {
+                    m_newProjectModalOpen = true;
+                });
             }
 
             if (Project::IsLoaded() && ImGui::MenuItem("Save Project"))
@@ -205,9 +207,11 @@ namespace UltraEd
 
             if (ImGui::MenuItem("Load Project"))
             {
-                m_loadProjectModalOpen = true;
-                m_folderBrowser.SetTitle("Load Project");
-                m_folderBrowser.Open();
+                ConfirmScene([&]() {
+                    m_loadProjectModalOpen = true;
+                    m_folderBrowser.SetTitle("Load Project");
+                    m_folderBrowser.Open();
+                });
             }
 
             if (Project::IsLoaded())
@@ -887,6 +891,7 @@ namespace UltraEd
                 try
                 {
                     Project::New(projectName, projectPath, createDirectory);
+                    m_scene->New();
                 }
                 catch (const std::exception &e)
                 {
@@ -920,6 +925,7 @@ namespace UltraEd
                 try
                 {
                     Project::Load(m_folderBrowser.GetSelected());
+                    m_scene->New();
                     m_folderBrowser.Close();
                 }
                 catch (const std::exception &e)
@@ -1071,9 +1077,20 @@ namespace UltraEd
 
             if (ImGui::Button("Yes"))
             {
-                // Open save scene modal and forward defined callback.
-                m_saveSceneModalOpen = std::make_tuple(true, std::get<1>(m_openConfirmSceneModal));
-                m_fileBrowser.Open();
+                if (m_scene->HasPath())
+                {
+                    // Has already been saved so just save and run callback.
+                    m_scene->SaveAs();
+                    std::get<1>(m_openConfirmSceneModal)();
+                }
+                else
+                {
+                    // Open save scene modal and forward defined callback.
+                    m_saveSceneModalOpen = std::make_tuple(true, std::get<1>(m_openConfirmSceneModal));
+                    m_fileBrowser.SetTitle("Save Scene As...");
+                    m_fileBrowser.Open();
+                }
+
                 ImGui::CloseCurrentPopup();
             }
 
