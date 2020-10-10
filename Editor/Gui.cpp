@@ -16,7 +16,7 @@ namespace UltraEd
         m_sceneTexture(),
         m_selectedActor(),
         m_textEditor(),
-        m_fileBrowser(),
+        m_fileBrowser(ImGuiFileBrowserFlags_EnterNewFilename),
         m_folderBrowser(ImGuiFileBrowserFlags_SelectDirectory),
         m_consoleText(),
         m_moveConsoleToBottom(false),
@@ -206,6 +206,7 @@ namespace UltraEd
             if (ImGui::MenuItem("Load Project"))
             {
                 m_loadProjectModalOpen = true;
+                m_folderBrowser.SetTitle("Load Project");
                 m_folderBrowser.Open();
             }
 
@@ -226,6 +227,7 @@ namespace UltraEd
                 if (ImGui::MenuItem("Save Scene As...", m_scene->HasPath() ? 0 : "Ctrl+S"))
                 {
                     m_saveSceneModalOpen = std::make_tuple(true, []() {});
+                    m_fileBrowser.SetTitle("Save Scene As...");
                     m_fileBrowser.Open();
                 }
 
@@ -233,6 +235,8 @@ namespace UltraEd
                 {
                     ConfirmScene([&]() {
                         m_loadSceneModalOpen = true;
+                        m_fileBrowser.SetTitle("Load Scene");
+                        m_fileBrowser.SetTypeFilters({ ".scene" });
                         m_fileBrowser.Open();
                     });
                 }
@@ -872,6 +876,7 @@ namespace UltraEd
 
             if (ImGui::Button("Choose..."))
             {
+                m_folderBrowser.SetTitle("New Project");
                 m_folderBrowser.Open();
             }
 
