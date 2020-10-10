@@ -665,7 +665,7 @@ namespace UltraEd
             m_optionsModalOpen = false;
         }
 
-        if (ImGui::BeginPopupModal("Options", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        if (ImGui::BeginPopupModal("Options", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
         {
             ImGui::Combo("Color Theme", &colorTheme, "Classic\0Dark\0Light\0\0");
             ImGui::Combo("Video Mode", &videoMode, "NTSC\0PAL\0\0");
@@ -710,7 +710,7 @@ namespace UltraEd
             m_sceneSettingsModalOpen = false;
         }
 
-        if (ImGui::BeginPopupModal("Scene Settings", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        if (ImGui::BeginPopupModal("Scene Settings", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
         {
             ImGui::ColorEdit3("Background Color", backgroundColor);
             ImGui::InputFloat("Grid Snap Size", &gridSnapSize);
@@ -844,8 +844,8 @@ namespace UltraEd
 
     void Gui::NewProjectModal()
     {
-        static char projectName[64];
-        static char projectPath[MAX_PATH];
+        static char projectName[64] { '\0' };
+        static char projectPath[MAX_PATH] { '\0' };
         static bool createDirectory = true;
 
         if (m_newProjectModalOpen)
@@ -857,7 +857,7 @@ namespace UltraEd
             m_newProjectModalOpen = false;
         }
 
-        if (ImGui::BeginPopupModal("New Project", 0, ImGuiWindowFlags_AlwaysAutoResize))
+        if (ImGui::BeginPopupModal("New Project", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
         {
             if (m_folderBrowser.HasSelected())
             {
