@@ -16,7 +16,7 @@ int main(int, char **)
     WNDCLASSEX wc = {
         sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL),
         LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN_ICON)),
-        NULL, NULL, NULL, APP_CLASS, NULL
+        NULL, NULL, NULL, APP_NAME, NULL
     };
 
     RegisterClassEx(&wc);

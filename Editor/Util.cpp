@@ -84,4 +84,9 @@ namespace UltraEd
         newTextureSurface->Release();
         surface->Release();
     }
+
+    float Util::Snap(float value)
+    {
+        return floorf(value + 0.5f);
+    }
 }

@@ -240,7 +240,7 @@ namespace UltraEd
                     ConfirmScene([&]() {
                         m_loadSceneModalOpen = true;
                         m_fileBrowser.SetTitle("Load Scene");
-                        m_fileBrowser.SetTypeFilters({ ".scene" });
+                        m_fileBrowser.SetTypeFilters({ APP_SCENE_FILE_EXT });
                         m_fileBrowser.Open();
                     });
                 }
@@ -960,7 +960,6 @@ namespace UltraEd
                 if (ImGui::ImageButton(texture.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
                     m_scene->AddTexture(texture.first);
-                    Debug::Instance().Info("Picked texture: " + Util::UuidToString(texture.first));
                     ImGui::CloseCurrentPopup();
                 }
 
@@ -999,7 +998,6 @@ namespace UltraEd
                 if (ImGui::ImageButton(model.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
                     m_scene->AddModel(model.first);
-                    Debug::Instance().Info("Picked model: " + Util::UuidToString(model.first));
                     ImGui::CloseCurrentPopup();
                 }
 

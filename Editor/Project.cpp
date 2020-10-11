@@ -128,7 +128,7 @@ namespace UltraEd
             create_directory(projectPath);
         }
 
-        m_databasePath = projectPath / "db.ultra";
+        m_databasePath = projectPath / APP_PROJECT_FILE;
 
         if (Persist(name) && exists(m_databasePath))
         {
@@ -144,7 +144,7 @@ namespace UltraEd
 
     Project::Project(m_constructor_tag tag, const path &path) : Project(tag)
     {
-        m_databasePath = path / "db.ultra";
+        m_databasePath = path / APP_PROJECT_FILE;
 
         if (!exists(m_databasePath))
         {
@@ -178,7 +178,7 @@ namespace UltraEd
     bool Project::Persist(const char *name)
     {
         // Use existing project name when no name is passed.
-        m_projectRecord = ProjectRecord({ name ? name : m_projectRecord.name, 1 });
+        m_projectRecord = ProjectRecord({ name ? name : m_projectRecord.name, APP_PROJECT_VERSION });
 
         for (const auto &name : m_assetTypeNames)
         {

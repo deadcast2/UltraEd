@@ -84,6 +84,7 @@ namespace UltraEd
         bool IsActorSelected(const boost::uuids::uuid &id);
 
     private:
+        int m_version;
         HWND m_hWnd;
         D3DMATERIAL9 m_defaultMaterial;
         D3DFILLMODE m_fillMode;

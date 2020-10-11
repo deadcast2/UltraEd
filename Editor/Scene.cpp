@@ -11,6 +11,7 @@
 namespace UltraEd
 {
     Scene::Scene(HWND hWnd, Gui *gui) :
+        m_version(APP_SCENE_VERSION),
         m_hWnd(hWnd),
         m_defaultMaterial(),
         m_fillMode(D3DFILLMODE::D3DFILL_SOLID),
@@ -804,6 +805,7 @@ namespace UltraEd
     nlohmann::json Scene::Save()
     {
         json scene = {
+            { "version", m_version },
             { "active_view", GetActiveView()->GetType() }
         };
 
@@ -833,6 +835,8 @@ namespace UltraEd
 
     void Scene::Load(const nlohmann::json &root)
     {
+        m_version = root["version"];
+
         int count = 0;
         for (const auto &view : root["views"])
         {
