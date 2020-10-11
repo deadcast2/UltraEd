@@ -55,11 +55,14 @@ namespace UltraEd
                 vertex.position.y = transformedVertex.y;
                 vertex.position.z = transformedVertex.z;
 
-                aiVector3D normal = mesh->mNormals[face.mIndices[j]];
-                vertex.normal.x = normal.x;
-                vertex.normal.y = normal.y;
-                vertex.normal.z = normal.z;
-              
+                if (mesh->HasNormals())
+                {
+                    aiVector3D normal = mesh->mNormals[face.mIndices[j]];
+                    vertex.normal.x = normal.x;
+                    vertex.normal.y = normal.y;
+                    vertex.normal.z = normal.z;
+                }
+
                 if (mesh->HasTextureCoords(0))
                 {
                     vertex.tu = mesh->mTextureCoords[0][face.mIndices[j]].x;
