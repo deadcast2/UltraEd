@@ -2,6 +2,8 @@
 #define _DEBUG_H_
 
 #include <string>
+#include <filesystem>
+#include <fstream>
 #include <boost/signals2/signal.hpp>
 
 namespace UltraEd
@@ -9,7 +11,7 @@ namespace UltraEd
     class Debug
     {
     private:
-        Debug() {}
+        Debug();
 
     public:
         static Debug &Instance();
@@ -20,7 +22,11 @@ namespace UltraEd
 
     private:
         std::string *Clean(std::string *text);
+        void WriteToLog(const std::string &str);
+
+    private:
         boost::signals2::signal<void(std::string)> m_signal;
+        std::ofstream m_logFile;
     };
 }
 
