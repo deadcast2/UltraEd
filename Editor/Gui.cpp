@@ -948,13 +948,16 @@ namespace UltraEd
 
     void Gui::AddTextureModal()
     {
+        static bool modalOpen;
+
         if (m_addTextureModalOpen)
         {
             ImGui::OpenPopup("Add Texture");
             m_addTextureModalOpen = false;
+            modalOpen = true;
         }
 
-        if (ImGui::BeginPopupModal("Add Texture", 0))
+        if (ImGui::BeginPopupModal("Add Texture", &modalOpen))
         {
             int i = 0;
             auto textures = Project::Previews(AssetType::Texture, m_renderDevice.GetDevice());
@@ -975,24 +978,22 @@ namespace UltraEd
                 ImGui::PopID();
             }
 
-            if (ImGui::Button("Cancel"))
-            {
-                ImGui::CloseCurrentPopup();
-            }
-
             ImGui::EndPopup();
         }
     }
 
     void Gui::AddModelModal()
     {
+        static bool modalOpen;
+
         if (m_addModelModalOpen)
         {
             ImGui::OpenPopup("Add Model");
             m_addModelModalOpen = false;
+            modalOpen = true;
         }
 
-        if (ImGui::BeginPopupModal("Add Model", 0))
+        if (ImGui::BeginPopupModal("Add Model", &modalOpen))
         {
             int i = 0;
             auto models = Project::Previews(AssetType::Model, m_renderDevice.GetDevice());
@@ -1011,11 +1012,6 @@ namespace UltraEd
 
                 if ((i % rowLimit) != 0) ImGui::SameLine();
                 ImGui::PopID();
-            }
-
-            if (ImGui::Button("Cancel"))
-            {
-                ImGui::CloseCurrentPopup();
             }
 
             ImGui::EndPopup();
