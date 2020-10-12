@@ -43,6 +43,7 @@ namespace UltraEd
         void Console();
         void SceneGraph();
         void SceneView();
+        void Properties();
         void ActorProperties();
         void OptionsModal();
         void SceneSettingsModal();

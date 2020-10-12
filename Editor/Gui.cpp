@@ -19,16 +19,16 @@ namespace UltraEd
         m_fileBrowser(ImGuiFileBrowserFlags_EnterNewFilename),
         m_folderBrowser(ImGuiFileBrowserFlags_SelectDirectory),
         m_consoleText(),
-        m_moveConsoleToBottom(false),
-        m_openContextMenu(false),
-        m_textEditorOpen(false),
-        m_optionsModalOpen(false),
-        m_sceneSettingsModalOpen(false),
-        m_newProjectModalOpen(false),
-        m_loadProjectModalOpen(false),
-        m_addTextureModalOpen(false),
-        m_addModelModalOpen(false),
-        m_loadSceneModalOpen(false),
+        m_moveConsoleToBottom(),
+        m_openContextMenu(),
+        m_textEditorOpen(),
+        m_optionsModalOpen(),
+        m_sceneSettingsModalOpen(),
+        m_newProjectModalOpen(),
+        m_loadProjectModalOpen(),
+        m_addTextureModalOpen(),
+        m_addModelModalOpen(),
+        m_loadSceneModalOpen(),
         m_saveSceneModalOpen(),
         m_openConfirmSceneModal()
     {
@@ -96,7 +96,7 @@ namespace UltraEd
             SceneGraph();
             SceneView();
             Console();
-            ActorProperties();
+            Properties();
             OptionsModal();
             SceneSettingsModal();
             ContextMenu();
@@ -560,96 +560,104 @@ namespace UltraEd
         ImGui::End();
     }
 
-    void Gui::ActorProperties()
+    void Gui::Properties()
     {
         if (ImGui::Begin("Properties", 0, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            char name[100] = { 0 };
-            float position[3] = { 0 };
-            float rotation[3] = { 0 };
-            float scale[3] = { 0 };
-            auto actors = m_scene->GetActors(true);
-            Actor *targetActor = NULL;
-
-            if (actors.size() > 0)
+            if (m_scene->GetActors(true).size() > 0)
             {
-                // Show the properties of the last selected actor.
-                targetActor = actors[actors.size() - 1];
-                sprintf(name, targetActor->GetName().c_str());
-                Util::ToFloat3(targetActor->GetPosition(), position);
-                Util::ToFloat3(targetActor->GetEulerAngles(), rotation);
-                Util::ToFloat3(targetActor->GetScale(), scale);
-            }
-
-            char tempName[100];
-            sprintf(tempName, name);
-            ImGui::InputText("Name", name, 100);
-
-            D3DXVECTOR3 tempPos = D3DXVECTOR3(position);
-            ImGui::InputFloat3("Position", position, "%g");
-
-            D3DXVECTOR3 tempRot = D3DXVECTOR3(rotation);
-            ImGui::InputFloat3("Rotation", rotation, "%g");
-
-            D3DXVECTOR3 tempScale = D3DXVECTOR3(scale);
-            ImGui::InputFloat3("Scale", scale, "%g");
-
-            const auto groupId = Util::NewUuid();
-
-            // Only apply changes to selected actors when one if it's properties has changed
-            // to make all actors mutate as expected.
-            for (int i = 0; i < actors.size(); i++)
-            {
-                if (strcmp(tempName, name) != 0)
-                {
-                    m_scene->m_auditor.ChangeActor("Name Set", actors[i]->GetId(), groupId);
-                    actors[i]->SetName(std::string(name));
-                }
-
-                if (tempPos != D3DXVECTOR3(position))
-                {
-                    auto curPos = actors[i]->GetPosition();
-                    m_scene->m_auditor.ChangeActor("Position Set", actors[i]->GetId(), groupId);
-                    actors[i]->SetPosition(D3DXVECTOR3(
-                        tempPos.x != position[0] ? position[0] : curPos.x,
-                        tempPos.y != position[1] ? position[1] : curPos.y,
-                        tempPos.z != position[2] ? position[2] : curPos.z
-                    ));
-
-                    // Make sure the gizmo follows the target actor.
-                    if (actors[i] == targetActor)
-                        m_scene->m_gizmo.Update(targetActor);
-                }
-
-                if (tempRot != D3DXVECTOR3(rotation))
-                {
-                    auto curRot = actors[i]->GetEulerAngles();
-                    m_scene->m_auditor.ChangeActor("Rotation Set", actors[i]->GetId(), groupId);
-                    actors[i]->SetRotation(D3DXVECTOR3(
-                        tempRot.x != rotation[0] ? rotation[0] : curRot.x,
-                        tempRot.y != rotation[1] ? rotation[1] : curRot.y,
-                        tempRot.z != rotation[2] ? rotation[2] : curRot.z
-                    ));
-
-                    // Make sure the gizmo follows the target actor.
-                    if (actors[i] == targetActor && !m_scene->m_gizmo.m_worldSpaceToggled)
-                        m_scene->m_gizmo.Update(targetActor);
-                }
-
-                if (tempScale != D3DXVECTOR3(scale))
-                {
-                    auto curScale = actors[i]->GetScale();
-                    m_scene->m_auditor.ChangeActor("Scale Set", actors[i]->GetId(), groupId);
-                    actors[i]->SetScale(D3DXVECTOR3(
-                        tempScale.x != scale[0] ? scale[0] : curScale.x,
-                        tempScale.y != scale[1] ? scale[1] : curScale.y,
-                        tempScale.z != scale[2] ? scale[2] : curScale.z
-                    ));
-                }
+                ActorProperties();
             }
         }
 
         ImGui::End();
+    }
+
+    void Gui::ActorProperties()
+    {
+        char name[100] { 0 };
+        float position[3] { 0 };
+        float rotation[3] { 0 };
+        float scale[3] { 0 };
+        auto actors = m_scene->GetActors(true);
+        Actor *targetActor = NULL;
+
+        if (actors.size() > 0)
+        {
+            // Show the properties of the last selected actor.
+            targetActor = actors[actors.size() - 1];
+            sprintf(name, targetActor->GetName().c_str());
+            Util::ToFloat3(targetActor->GetPosition(), position);
+            Util::ToFloat3(targetActor->GetEulerAngles(), rotation);
+            Util::ToFloat3(targetActor->GetScale(), scale);
+        }
+
+        char tempName[100];
+        sprintf(tempName, name);
+        ImGui::InputText("Name", name, 100);
+
+        D3DXVECTOR3 tempPos = D3DXVECTOR3(position);
+        ImGui::InputFloat3("Position", position, "%g");
+
+        D3DXVECTOR3 tempRot = D3DXVECTOR3(rotation);
+        ImGui::InputFloat3("Rotation", rotation, "%g");
+
+        D3DXVECTOR3 tempScale = D3DXVECTOR3(scale);
+        ImGui::InputFloat3("Scale", scale, "%g");
+
+        const auto groupId = Util::NewUuid();
+
+        // Only apply changes to selected actors when one if it's properties has changed
+        // to make all actors mutate as expected.
+        for (int i = 0; i < actors.size(); i++)
+        {
+            if (strcmp(tempName, name) != 0)
+            {
+                m_scene->m_auditor.ChangeActor("Name Set", actors[i]->GetId(), groupId);
+                actors[i]->SetName(std::string(name));
+            }
+
+            if (tempPos != D3DXVECTOR3(position))
+            {
+                auto curPos = actors[i]->GetPosition();
+                m_scene->m_auditor.ChangeActor("Position Set", actors[i]->GetId(), groupId);
+                actors[i]->SetPosition(D3DXVECTOR3(
+                    tempPos.x != position[0] ? position[0] : curPos.x,
+                    tempPos.y != position[1] ? position[1] : curPos.y,
+                    tempPos.z != position[2] ? position[2] : curPos.z
+                ));
+
+                // Make sure the gizmo follows the target actor.
+                if (actors[i] == targetActor)
+                    m_scene->m_gizmo.Update(targetActor);
+            }
+
+            if (tempRot != D3DXVECTOR3(rotation))
+            {
+                auto curRot = actors[i]->GetEulerAngles();
+                m_scene->m_auditor.ChangeActor("Rotation Set", actors[i]->GetId(), groupId);
+                actors[i]->SetRotation(D3DXVECTOR3(
+                    tempRot.x != rotation[0] ? rotation[0] : curRot.x,
+                    tempRot.y != rotation[1] ? rotation[1] : curRot.y,
+                    tempRot.z != rotation[2] ? rotation[2] : curRot.z
+                ));
+
+                // Make sure the gizmo follows the target actor.
+                if (actors[i] == targetActor && !m_scene->m_gizmo.m_worldSpaceToggled)
+                    m_scene->m_gizmo.Update(targetActor);
+            }
+
+            if (tempScale != D3DXVECTOR3(scale))
+            {
+                auto curScale = actors[i]->GetScale();
+                m_scene->m_auditor.ChangeActor("Scale Set", actors[i]->GetId(), groupId);
+                actors[i]->SetScale(D3DXVECTOR3(
+                    tempScale.x != scale[0] ? scale[0] : curScale.x,
+                    tempScale.y != scale[1] ? scale[1] : curScale.y,
+                    tempScale.z != scale[2] ? scale[2] : curScale.z
+                ));
+            }
+        }
     }
 
     void Gui::OptionsModal()
