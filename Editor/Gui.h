@@ -14,6 +14,8 @@
 #include "Actor.h"
 #include "Project.h"
 #include "RenderDevice.h"
+#include "font-fk.h"
+#include "font-roboto.h"
 
 namespace UltraEd
 {
@@ -33,6 +35,13 @@ namespace UltraEd
     
     private:
         void PrepareFrame();
+        void LoadFonts();
+
+        void CustomStyle(ImGuiStyle* style);
+        void DarkColors();
+        void LightColors();
+
+        void ThemeEditor();
         void LoadColorTheme();
         void ReleaseSceneTexture();
         void FileMenu();

@@ -34,6 +34,7 @@ namespace UltraEd
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+        LoadFonts();
         LoadColorTheme();
         ImGui_ImplWin32_Init(hWnd);
         ImGui_ImplDX9_Init(m_renderDevice.GetDevice());
@@ -109,6 +110,7 @@ namespace UltraEd
             SaveSceneModal();
             LoadSceneModal();
 
+            //ThemeEditor();
             //ImGui::ShowDemoWindow();
         }
         ImGui::End();
@@ -164,20 +166,248 @@ namespace UltraEd
         m_scene->Refresh(changedAssetIds);
     }
 
+    void Gui::LoadFonts()
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        //io.Fonts->AddFontDefault();
+        io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, 13.0f);
+        ImFontConfig config;
+        config.MergeMode = true;
+        const ImWchar icon_ranges[] = { ICON_MIN_FK, ICON_MAX_FK, 0 };
+        io.Fonts->AddFontFromMemoryCompressedTTF(fk_compressed_data, fk_compressed_size, 13.0f, &config, icon_ranges);
+        //io.Fonts->AddFontFromFileTTF("D:/Dev/CPPaCS/tst/kenney-icon-font.ttf", 13.0f, &config, icon_ranges);
+        io.Fonts->Build();
+    }
+    void Gui::LightColors() {
+        ImGuiStyle* style = &ImGui::GetStyle();
+        ImVec4* colors = style->Colors;
+
+        colors[ImGuiCol_Text] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
+        colors[ImGuiCol_TextDisabled] = ImVec4(0.55f, 0.55f, 0.55f, 1.00f);
+        colors[ImGuiCol_WindowBg] = ImVec4(0.82f, 0.82f, 0.82f, 1.00f);
+        colors[ImGuiCol_ChildBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.00f);
+        colors[ImGuiCol_PopupBg] = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);
+        colors[ImGuiCol_Border] = ImVec4(0.98f, 0.09f, 1.00f, 1.00f);
+        colors[ImGuiCol_BorderShadow] = ImVec4(0.73f, 0.08f, 0.47f, 0.00f);
+        colors[ImGuiCol_FrameBg] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
+        colors[ImGuiCol_FrameBgHovered] = ImVec4(0.71f, 0.71f, 0.71f, 1.00f);
+        colors[ImGuiCol_FrameBgActive] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+        colors[ImGuiCol_TitleBg] = ImVec4(0.87f, 0.87f, 0.87f, 1.00f);
+        colors[ImGuiCol_TitleBgActive] = ImVec4(0.93f, 0.93f, 0.93f, 1.00f);
+        colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
+        colors[ImGuiCol_MenuBarBg] = ImVec4(0.75f, 0.75f, 0.75f, 1.00f);
+        colors[ImGuiCol_ScrollbarBg] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.82f, 0.82f, 0.82f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.71f, 0.71f, 0.71f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_CheckMark] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        colors[ImGuiCol_SliderGrab] = ImVec4(0.82f, 0.82f, 0.82f, 1.00f);
+        colors[ImGuiCol_SliderGrabActive] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_Button] = ImVec4(0.62f, 0.62f, 0.62f, 1.00f);
+        colors[ImGuiCol_ButtonHovered] = ImVec4(0.71f, 0.71f, 0.71f, 1.00f);
+        colors[ImGuiCol_ButtonActive] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+        colors[ImGuiCol_Header] = ImVec4(0.62f, 0.62f, 0.62f, 1.00f);
+        colors[ImGuiCol_HeaderHovered] = ImVec4(0.71f, 0.71f, 0.71f, 1.00f);
+        colors[ImGuiCol_HeaderActive] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+        colors[ImGuiCol_Separator] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
+        colors[ImGuiCol_SeparatorHovered] = ImVec4(0.71f, 0.71f, 0.71f, 1.00f);
+        colors[ImGuiCol_SeparatorActive] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.25f);
+        colors[ImGuiCol_ResizeGripHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.67f);
+        colors[ImGuiCol_ResizeGripActive] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_Tab] = ImVec4(0.62f, 0.62f, 0.62f, 1.00f);
+        colors[ImGuiCol_TabHovered] = ImVec4(0.71f, 0.71f, 0.71f, 1.00f);
+        colors[ImGuiCol_TabActive] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
+        colors[ImGuiCol_TabUnfocused] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
+        colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+        colors[ImGuiCol_DockingPreview] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+        colors[ImGuiCol_PlotLines] = ImVec4(0.47f, 0.47f, 0.47f, 1.00f);
+        colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_PlotHistogram] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
+        colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_TextSelectedBg] = ImVec4(0.69f, 0.69f, 0.69f, 0.16f);
+        colors[ImGuiCol_DragDropTarget] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_NavHighlight] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.59f);
+        colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.59f);
+
+        CustomStyle(style);
+    }
+    void Gui::DarkColors() {
+        ImGuiStyle* style = &ImGui::GetStyle();
+        ImVec4* colors = style->Colors;
+
+        colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+        colors[ImGuiCol_WindowBg] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+        colors[ImGuiCol_ChildBg] = ImVec4(0.28f, 0.28f, 0.28f, 0.00f);
+        colors[ImGuiCol_PopupBg] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+        colors[ImGuiCol_Border] = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
+        colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        colors[ImGuiCol_FrameBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+        colors[ImGuiCol_FrameBgHovered] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+        colors[ImGuiCol_FrameBgActive] = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
+        colors[ImGuiCol_TitleBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+        colors[ImGuiCol_TitleBgActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+        colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+        colors[ImGuiCol_MenuBarBg] = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
+        colors[ImGuiCol_ScrollbarBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_CheckMark] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        colors[ImGuiCol_SliderGrab] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+        colors[ImGuiCol_SliderGrabActive] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_Button] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+        colors[ImGuiCol_ButtonHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.16f);
+        colors[ImGuiCol_ButtonActive] = ImVec4(1.00f, 1.00f, 1.00f, 0.39f);
+        colors[ImGuiCol_Header] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+        colors[ImGuiCol_HeaderHovered] = ImVec4(0.47f, 0.47f, 0.47f, 1.00f);
+        colors[ImGuiCol_HeaderActive] = ImVec4(0.47f, 0.47f, 0.47f, 1.00f);
+        colors[ImGuiCol_Separator] = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
+        colors[ImGuiCol_SeparatorHovered] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+        colors[ImGuiCol_SeparatorActive] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.25f);
+        colors[ImGuiCol_ResizeGripHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.67f);
+        colors[ImGuiCol_ResizeGripActive] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_Tab] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+        colors[ImGuiCol_TabHovered] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+        colors[ImGuiCol_TabActive] = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
+        colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+        colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
+        colors[ImGuiCol_DockingPreview] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+        colors[ImGuiCol_PlotLines] = ImVec4(0.47f, 0.47f, 0.47f, 1.00f);
+        colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_PlotHistogram] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
+        colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_TextSelectedBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.16f);
+        colors[ImGuiCol_DragDropTarget] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_NavHighlight] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.59f);
+        colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.59f);
+
+        CustomStyle(style);
+    }
+    void Gui::CustomStyle(ImGuiStyle* style) {
+        style->WindowPadding = ImVec2(4, 4);
+        style->FramePadding = ImVec2(4, 4);
+        style->ItemSpacing = ImVec2(4, 4);
+        style->ItemInnerSpacing = ImVec2(4, 4);
+        style->TouchExtraPadding = ImVec2(0, 0);
+        style->IndentSpacing = 0.0f;
+        style->ScrollbarSize = 10.0f;
+        style->GrabMinSize = 10.0f;
+
+        style->WindowBorderSize = 0.0f;
+        style->ChildBorderSize = 0.0f;
+        style->PopupBorderSize = 0.0f;
+        style->FrameBorderSize = 0.0f;
+        style->TabBorderSize = 0.0f;
+
+        style->WindowRounding = 0.0f;
+        style->ChildRounding = 0.0f;
+        style->FrameRounding = 12.0f;
+        style->PopupRounding = 0.0f;
+        style->ScrollbarRounding = 12.0f;
+        style->GrabRounding = 12.0f;
+        style->LogSliderDeadzone = 0.0f;
+        style->TabRounding = 0.0f;
+
+        style->WindowTitleAlign = ImVec2(0.5f, 0.5f);
+        style->WindowMenuButtonPosition = ImGuiDir_::ImGuiDir_Right;
+        style->ColorButtonPosition = ImGuiDir_::ImGuiDir_Right;
+        style->ButtonTextAlign = ImVec2(0.5f, 0.5f);
+        style->SelectableTextAlign = ImVec2(0.0f, 0.0f);
+
+        style->DisplaySafeAreaPadding = ImVec2(3.0f, 3.0f);
+    }
     void Gui::LoadColorTheme()
     {
         switch (Settings::GetColorTheme())
         {
-            case ColorTheme::Classic:
-                ImGui::StyleColorsClassic();
+            case ColorTheme::Dark: {
+                DarkColors();
                 break;
-            case ColorTheme::Dark:
-                ImGui::StyleColorsDark();
-                break;
+            }                
             case ColorTheme::Light:
-                ImGui::StyleColorsLight();
+            {
+                LightColors();
                 break;
+            }
         }
+
+    }
+
+    void Gui::ThemeEditor() {
+        if (ImGui::Begin("Theme Editor", 0, ImGuiWindowFlags_HorizontalScrollbar))
+        {
+            ImGuiStyle* style = &ImGui::GetStyle();
+            ImVec4* colors = style->Colors;
+
+            ImGui::Text("Main");
+            ImGui::SliderFloat2("WindowPadding", (float*)&style->WindowPadding, 0.0f, 20.0f, "%.0f");
+            ImGui::SliderFloat2("FramePadding", (float*)&style->FramePadding, 0.0f, 20.0f, "%.0f");
+            ImGui::SliderFloat2("ItemSpacing", (float*)&style->ItemSpacing, 0.0f, 20.0f, "%.0f");
+            ImGui::SliderFloat2("ItemInnerSpacing", (float*)&style->ItemInnerSpacing, 0.0f, 20.0f, "%.0f");
+            ImGui::SliderFloat2("TouchExtraPadding", (float*)&style->TouchExtraPadding, 0.0f, 10.0f, "%.0f");
+            ImGui::SliderFloat("IndentSpacing", &style->IndentSpacing, 0.0f, 30.0f, "%.0f");
+            ImGui::SliderFloat("ScrollbarSize", &style->ScrollbarSize, 1.0f, 20.0f, "%.0f");
+            ImGui::SliderFloat("GrabMinSize", &style->GrabMinSize, 1.0f, 20.0f, "%.0f");
+            ImGui::Text("Borders");
+            ImGui::SliderFloat("WindowBorderSize", &style->WindowBorderSize, 0.0f, 1.0f, "%.0f");
+            ImGui::SliderFloat("ChildBorderSize", &style->ChildBorderSize, 0.0f, 1.0f, "%.0f");
+            ImGui::SliderFloat("PopupBorderSize", &style->PopupBorderSize, 0.0f, 1.0f, "%.0f");
+            ImGui::SliderFloat("FrameBorderSize", &style->FrameBorderSize, 0.0f, 1.0f, "%.0f");
+            ImGui::SliderFloat("TabBorderSize", &style->TabBorderSize, 0.0f, 1.0f, "%.0f");
+            ImGui::Text("Rounding");
+            ImGui::SliderFloat("WindowRounding", &style->WindowRounding, 0.0f, 12.0f, "%.0f");
+            ImGui::SliderFloat("ChildRounding", &style->ChildRounding, 0.0f, 12.0f, "%.0f");
+            ImGui::SliderFloat("FrameRounding", &style->FrameRounding, 0.0f, 12.0f, "%.0f");
+            ImGui::SliderFloat("PopupRounding", &style->PopupRounding, 0.0f, 12.0f, "%.0f");
+            ImGui::SliderFloat("ScrollbarRounding", &style->ScrollbarRounding, 0.0f, 12.0f, "%.0f");
+            ImGui::SliderFloat("GrabRounding", &style->GrabRounding, 0.0f, 12.0f, "%.0f");
+            ImGui::SliderFloat("LogSliderDeadzone", &style->LogSliderDeadzone, 0.0f, 12.0f, "%.0f");
+            ImGui::SliderFloat("TabRounding", &style->TabRounding, 0.0f, 12.0f, "%.0f");
+            ImGui::Text("Alignment");
+            ImGui::SliderFloat2("WindowTitleAlign", (float*)&style->WindowTitleAlign, 0.0f, 1.0f, "%.2f");
+            int window_menu_button_position = style->WindowMenuButtonPosition + 1;
+            if (ImGui::Combo("WindowMenuButtonPosition", (int*)&window_menu_button_position, "None\0Left\0Right\0"))
+                style->WindowMenuButtonPosition = window_menu_button_position - 1;
+            ImGui::Combo("ColorButtonPosition", (int*)&style->ColorButtonPosition, "Left\0Right\0");
+            ImGui::SliderFloat2("ButtonTextAlign", (float*)&style->ButtonTextAlign, 0.0f, 1.0f, "%.2f");
+            ImGui::SliderFloat2("SelectableTextAlign", (float*)&style->SelectableTextAlign, 0.0f, 1.0f, "%.2f");
+            ImGui::Text("Safe Area Padding");
+            ImGui::SliderFloat2("DisplaySafeAreaPadding", (float*)&style->DisplaySafeAreaPadding, 0.0f, 30.0f, "%.0f");
+
+            ImGui::Text("Colors");
+            for (int i = 0; i < ImGuiCol_COUNT; i++)
+            {
+                const char* name = ImGui::GetStyleColorName(i);
+                ImGui::PushID(i);
+                ImGui::ColorEdit4("##color", (float*)&style->Colors[i], ImGuiColorEditFlags_AlphaBar);
+                ImGui::SameLine(0.0f, style->ItemInnerSpacing.x);
+                ImGui::TextUnformatted(name);
+                ImGui::PopID();
+            }
+            if (ImGui::Button("Export"))
+            {
+                ImGui::LogToClipboard();
+                ImGui::LogText("ImVec4* colors = ImGui::GetStyle().Colors;" "\n");
+                for (int i = 0; i < ImGuiCol_COUNT; i++)
+                {
+                    const ImVec4& col = style->Colors[i];
+                    const char* name = ImGui::GetStyleColorName(i);
+                    ImGui::LogText("colors[ImGuiCol_%s]%*s= ImVec4(%.2ff, %.2ff, %.2ff, %.2ff);" "\n", name, 23 - (int)strlen(name), "", col.x, col.y, col.z, col.w);
+                }
+                ImGui::LogFinish();
+            }
+        }
+
+        ImGui::End();
     }
 
     void Gui::ReleaseSceneTexture()
@@ -193,19 +423,19 @@ namespace UltraEd
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("New Project"))
+            if (ImGui::MenuItem(ICON_FK_FILE" New Project"))
             {
                 ConfirmScene([&]() {
                     m_newProjectModalOpen = true;
                 });
             }
 
-            if (Project::IsLoaded() && ImGui::MenuItem("Save Project"))
+            if (Project::IsLoaded() && ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Project"))
             {
                 Project::Save();
             }
 
-            if (ImGui::MenuItem("Load Project"))
+            if (ImGui::MenuItem(ICON_FK_FOLDER" Load Project"))
             {
                 ConfirmScene([&]() {
                     m_loadProjectModalOpen = true;
@@ -218,24 +448,24 @@ namespace UltraEd
             {
                 ImGui::Separator();
 
-                if (ImGui::MenuItem("New Scene"))
+                if (ImGui::MenuItem(ICON_FK_FILE" New Scene"))
                 {
                     ConfirmScene([&]() { m_scene->New(); });
                 }
 
-                if (m_scene->HasPath() && ImGui::MenuItem("Save Scene", "Ctrl+S"))
+                if (m_scene->HasPath() && ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Scene", "Ctrl+S"))
                 {
                     m_scene->SaveAs();
                 }
 
-                if (ImGui::MenuItem("Save Scene As...", m_scene->HasPath() ? 0 : "Ctrl+S"))
+                if (ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Scene As...", m_scene->HasPath() ? 0 : "Ctrl+S"))
                 {
                     m_saveSceneModalOpen = std::make_tuple(true, []() {});
                     m_fileBrowser.SetTitle("Save Scene As...");
                     m_fileBrowser.Open();
                 }
 
-                if (ImGui::MenuItem("Load Scene"))
+                if (ImGui::MenuItem(ICON_FK_FOLDER" Load Scene"))
                 {
                     ConfirmScene([&]() {
                         m_loadSceneModalOpen = true;
@@ -284,7 +514,7 @@ namespace UltraEd
                 run.detach();
             }
 
-            if (ImGui::MenuItem("Options"))
+            if (ImGui::MenuItem(ICON_FK_COGS" Options"))
             {
                 m_optionsModalOpen = true;
             }
@@ -483,7 +713,7 @@ namespace UltraEd
 
     void Gui::SceneGraph()
     {
-        if (ImGui::Begin("Scene Graph", 0, ImGuiWindowFlags_HorizontalScrollbar))
+        if (ImGui::Begin(ICON_FK_TH_LIST" Scene Graph", 0, ImGuiWindowFlags_HorizontalScrollbar))
         {
             ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick
                 | ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -507,7 +737,7 @@ namespace UltraEd
     void Gui::SceneView()
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        if (ImGui::Begin("Scene View", 0, ImGuiWindowFlags_NoScrollbar))
+        if (ImGui::Begin(ICON_FK_TH" Scene View", 0, ImGuiWindowFlags_NoScrollbar))
         {
             if (ImGui::IsWindowHovered())
             {
@@ -562,7 +792,7 @@ namespace UltraEd
 
     void Gui::Properties()
     {
-        if (ImGui::Begin("Properties", 0, ImGuiWindowFlags_HorizontalScrollbar))
+        if (ImGui::Begin(ICON_FK_COG" Properties", 0, ImGuiWindowFlags_HorizontalScrollbar))
         {
             if (m_scene->GetActors(true).size() > 0)
             {
@@ -679,7 +909,7 @@ namespace UltraEd
 
         if (ImGui::BeginPopupModal("Options", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
         {
-            ImGui::Combo("Color Theme", &colorTheme, "Classic\0Dark\0Light\0\0");
+            ImGui::Combo("Color Theme", &colorTheme, "Dark\0Light\0\0");
             ImGui::Combo("Video Mode", &videoMode, "NTSC\0PAL\0\0");
             ImGui::Combo("Build Cart", &buildCart, "64drive\0EverDrive-64 X7\0\0");
 
@@ -827,13 +1057,13 @@ namespace UltraEd
         if (!m_textEditorOpen)
             return;
 
-        ImGui::Begin("Script Editor", &m_textEditorOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+        ImGui::Begin(ICON_FK_CODE" Script Editor", &m_textEditorOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
 
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("Save Changes"))
+                if (ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Changes"))
                 {
                     m_scene->SetScript(m_textEditor.GetText());
                 }

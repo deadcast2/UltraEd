@@ -257,6 +257,12 @@
     <ClInclude Include="Vendor\ImGui\Plugins\imfilebrowser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="font-fk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="font-roboto.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\ImGui\imgui.ini" />
