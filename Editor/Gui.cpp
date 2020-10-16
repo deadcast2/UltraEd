@@ -298,7 +298,7 @@ namespace UltraEd
         style->ItemSpacing = ImVec2(4, 4);
         style->ItemInnerSpacing = ImVec2(4, 4);
         style->TouchExtraPadding = ImVec2(0, 0);
-        style->IndentSpacing = 0.0f;
+        style->IndentSpacing = 12.0f;
         style->ScrollbarSize = 10.0f;
         style->GrabMinSize = 10.0f;
 
