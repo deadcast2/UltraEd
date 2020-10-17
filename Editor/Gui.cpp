@@ -35,11 +35,13 @@ namespace UltraEd
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         LoadColorTheme();
-        ImGui_ImplWin32_Init(hWnd);
-        ImGui_ImplDX9_Init(m_renderDevice.GetDevice());
 
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
+
+        ImGui_ImplWin32_Init(hWnd);
+        ImGui_ImplDX9_Init(m_renderDevice.GetDevice());
 
         m_textEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::C());
 
@@ -126,6 +128,9 @@ namespace UltraEd
 
             ImGui::Render();
             ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
 
             device->EndScene();
             device->Present(NULL, NULL, NULL, NULL);
