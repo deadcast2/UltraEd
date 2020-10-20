@@ -69,6 +69,8 @@
     <ClInclude Include="Gizmo.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="font-fk.h" />
+    <ClInclude Include="font-roboto.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelPreviewer.h" />

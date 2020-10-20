@@ -10,7 +10,7 @@ namespace UltraEd
 {
     enum class BuildCart { _64drive, EverDrive };
     enum class VideoMode { NTSC, PAL };
-    enum class ColorTheme { Classic, Dark, Light };
+    enum class ColorTheme { Dark, Light };
 
     class Settings
     {
