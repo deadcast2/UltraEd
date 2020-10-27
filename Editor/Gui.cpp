@@ -173,19 +173,19 @@ namespace UltraEd
 
     void Gui::LoadFonts()
     {
-        ImGuiIO& io = ImGui::GetIO();
-        //io.Fonts->AddFontDefault();
+        ImGuiIO &io = ImGui::GetIO();
         io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, 13.0f);
         ImFontConfig config;
         config.MergeMode = true;
         const ImWchar icon_ranges[] = { ICON_MIN_FK, ICON_MAX_FK, 0 };
         io.Fonts->AddFontFromMemoryCompressedTTF(fk_compressed_data, fk_compressed_size, 13.0f, &config, icon_ranges);
-        //io.Fonts->AddFontFromFileTTF("D:/Dev/CPPaCS/tst/kenney-icon-font.ttf", 13.0f, &config, icon_ranges);
         io.Fonts->Build();
     }
-    void Gui::LightColors() {
-        ImGuiStyle* style = &ImGui::GetStyle();
-        ImVec4* colors = style->Colors;
+
+    void Gui::LightColors() 
+    {
+        ImGuiStyle *style = &ImGui::GetStyle();
+        ImVec4 *colors = style->Colors;
 
         colors[ImGuiCol_Text] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
         colors[ImGuiCol_TextDisabled] = ImVec4(0.55f, 0.55f, 0.55f, 1.00f);
@@ -240,9 +240,11 @@ namespace UltraEd
 
         CustomStyle(style);
     }
-    void Gui::DarkColors() {
-        ImGuiStyle* style = &ImGui::GetStyle();
-        ImVec4* colors = style->Colors;
+
+    void Gui::DarkColors() 
+    {
+        ImGuiStyle *style = &ImGui::GetStyle();
+        ImVec4 *colors = style->Colors;
 
         colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
@@ -297,7 +299,9 @@ namespace UltraEd
 
         CustomStyle(style);
     }
-    void Gui::CustomStyle(ImGuiStyle* style) {
+
+    void Gui::CustomStyle(ImGuiStyle *style)
+    {
         style->WindowPadding = ImVec2(4, 4);
         style->FramePadding = ImVec2(4, 4);
         style->ItemSpacing = ImVec2(4, 4);
@@ -330,35 +334,37 @@ namespace UltraEd
 
         style->DisplaySafeAreaPadding = ImVec2(3.0f, 3.0f);
     }
+
     void Gui::LoadColorTheme()
     {
         switch (Settings::GetColorTheme())
         {
-            case ColorTheme::Dark: {
+            case ColorTheme::Dark:
+            {
                 DarkColors();
                 break;
-            }                
+            }
             case ColorTheme::Light:
             {
                 LightColors();
                 break;
             }
         }
-
     }
 
-    void Gui::ThemeEditor() {
+    void Gui::ThemeEditor()
+    {
         if (ImGui::Begin("Theme Editor", 0, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            ImGuiStyle* style = &ImGui::GetStyle();
-            ImVec4* colors = style->Colors;
+            ImGuiStyle *style = &ImGui::GetStyle();
+            ImVec4 *colors = style->Colors;
 
             ImGui::Text("Main");
-            ImGui::SliderFloat2("WindowPadding", (float*)&style->WindowPadding, 0.0f, 20.0f, "%.0f");
-            ImGui::SliderFloat2("FramePadding", (float*)&style->FramePadding, 0.0f, 20.0f, "%.0f");
-            ImGui::SliderFloat2("ItemSpacing", (float*)&style->ItemSpacing, 0.0f, 20.0f, "%.0f");
-            ImGui::SliderFloat2("ItemInnerSpacing", (float*)&style->ItemInnerSpacing, 0.0f, 20.0f, "%.0f");
-            ImGui::SliderFloat2("TouchExtraPadding", (float*)&style->TouchExtraPadding, 0.0f, 10.0f, "%.0f");
+            ImGui::SliderFloat2("WindowPadding", (float *)&style->WindowPadding, 0.0f, 20.0f, "%.0f");
+            ImGui::SliderFloat2("FramePadding", (float *)&style->FramePadding, 0.0f, 20.0f, "%.0f");
+            ImGui::SliderFloat2("ItemSpacing", (float *)&style->ItemSpacing, 0.0f, 20.0f, "%.0f");
+            ImGui::SliderFloat2("ItemInnerSpacing", (float *)&style->ItemInnerSpacing, 0.0f, 20.0f, "%.0f");
+            ImGui::SliderFloat2("TouchExtraPadding", (float *)&style->TouchExtraPadding, 0.0f, 10.0f, "%.0f");
             ImGui::SliderFloat("IndentSpacing", &style->IndentSpacing, 0.0f, 30.0f, "%.0f");
             ImGui::SliderFloat("ScrollbarSize", &style->ScrollbarSize, 1.0f, 20.0f, "%.0f");
             ImGui::SliderFloat("GrabMinSize", &style->GrabMinSize, 1.0f, 20.0f, "%.0f");
@@ -378,36 +384,39 @@ namespace UltraEd
             ImGui::SliderFloat("LogSliderDeadzone", &style->LogSliderDeadzone, 0.0f, 12.0f, "%.0f");
             ImGui::SliderFloat("TabRounding", &style->TabRounding, 0.0f, 12.0f, "%.0f");
             ImGui::Text("Alignment");
-            ImGui::SliderFloat2("WindowTitleAlign", (float*)&style->WindowTitleAlign, 0.0f, 1.0f, "%.2f");
+            ImGui::SliderFloat2("WindowTitleAlign", (float *)&style->WindowTitleAlign, 0.0f, 1.0f, "%.2f");
             int window_menu_button_position = style->WindowMenuButtonPosition + 1;
-            if (ImGui::Combo("WindowMenuButtonPosition", (int*)&window_menu_button_position, "None\0Left\0Right\0"))
+            if (ImGui::Combo("WindowMenuButtonPosition", (int *)&window_menu_button_position, "None\0Left\0Right\0"))
                 style->WindowMenuButtonPosition = window_menu_button_position - 1;
-            ImGui::Combo("ColorButtonPosition", (int*)&style->ColorButtonPosition, "Left\0Right\0");
-            ImGui::SliderFloat2("ButtonTextAlign", (float*)&style->ButtonTextAlign, 0.0f, 1.0f, "%.2f");
-            ImGui::SliderFloat2("SelectableTextAlign", (float*)&style->SelectableTextAlign, 0.0f, 1.0f, "%.2f");
+            ImGui::Combo("ColorButtonPosition", (int *)&style->ColorButtonPosition, "Left\0Right\0");
+            ImGui::SliderFloat2("ButtonTextAlign", (float *)&style->ButtonTextAlign, 0.0f, 1.0f, "%.2f");
+            ImGui::SliderFloat2("SelectableTextAlign", (float *)&style->SelectableTextAlign, 0.0f, 1.0f, "%.2f");
             ImGui::Text("Safe Area Padding");
-            ImGui::SliderFloat2("DisplaySafeAreaPadding", (float*)&style->DisplaySafeAreaPadding, 0.0f, 30.0f, "%.0f");
+            ImGui::SliderFloat2("DisplaySafeAreaPadding", (float *)&style->DisplaySafeAreaPadding, 0.0f, 30.0f, "%.0f");
 
             ImGui::Text("Colors");
             for (int i = 0; i < ImGuiCol_COUNT; i++)
             {
-                const char* name = ImGui::GetStyleColorName(i);
+                const char *name = ImGui::GetStyleColorName(i);
                 ImGui::PushID(i);
-                ImGui::ColorEdit4("##color", (float*)&style->Colors[i], ImGuiColorEditFlags_AlphaBar);
+                ImGui::ColorEdit4("##color", (float *)&style->Colors[i], ImGuiColorEditFlags_AlphaBar);
                 ImGui::SameLine(0.0f, style->ItemInnerSpacing.x);
                 ImGui::TextUnformatted(name);
                 ImGui::PopID();
             }
+
             if (ImGui::Button("Export"))
             {
                 ImGui::LogToClipboard();
                 ImGui::LogText("ImVec4* colors = ImGui::GetStyle().Colors;" "\n");
+                
                 for (int i = 0; i < ImGuiCol_COUNT; i++)
                 {
-                    const ImVec4& col = style->Colors[i];
-                    const char* name = ImGui::GetStyleColorName(i);
+                    const ImVec4 &col = style->Colors[i];
+                    const char *name = ImGui::GetStyleColorName(i);
                     ImGui::LogText("colors[ImGuiCol_%s]%*s= ImVec4(%.2ff, %.2ff, %.2ff, %.2ff);" "\n", name, 23 - (int)strlen(name), "", col.x, col.y, col.z, col.w);
                 }
+
                 ImGui::LogFinish();
             }
         }
