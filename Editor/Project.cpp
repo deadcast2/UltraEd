@@ -171,6 +171,8 @@ namespace UltraEd
 
     Project::~Project()
     {
+        Persist();
+        
         // Will release all preview assets.
         BuildIndex();
     }
