@@ -77,7 +77,7 @@ namespace UltraEd
     {
         for (int i = 0; i < GIZMO_COUNT; i++)
         {
-            m_models[i].Release(ModelRelease::AllResources);
+            m_models[i].Release();
         }
     }
 

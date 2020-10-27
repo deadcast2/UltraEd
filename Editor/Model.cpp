@@ -82,12 +82,9 @@ namespace UltraEd
         return false;
     }
 
-    void Model::Release(ModelRelease type)
+    void Model::Release()
     {
         Actor::Release();
-
-        if (type == ModelRelease::VertexBufferOnly)
-            return;
 
         DeleteTexture();
     }
@@ -100,7 +97,7 @@ namespace UltraEd
         {
             m_modelId = assetId;
             Import(modelPath.string().c_str());
-            Release(ModelRelease::VertexBufferOnly);
+            Release();
         }
     }
 
@@ -113,7 +110,7 @@ namespace UltraEd
         {
             m_textureId = assetId;
             return SUCCEEDED(D3DXCreateTextureFromFileEx(device, assetPath.string().c_str(),
-                D3DX_DEFAULT, D3DX_DEFAULT, 1, 0, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, D3DX_DEFAULT, 
+                D3DX_DEFAULT, D3DX_DEFAULT, 1, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, D3DX_DEFAULT, 
                 D3DX_DEFAULT, 0, 0, 0, &m_texture));
         }
 

@@ -40,14 +40,14 @@ namespace UltraEd
 
     Scene::~Scene()
     {
-        ReleaseResources(ModelRelease::AllResources);
+        Release();
     }
 
     void Scene::New()
     {
         SetTitle("Untitled");
         UnselectAll();
-        ReleaseResources(ModelRelease::AllResources);
+        Release();
         ResetViews();
         m_actors.clear();
         m_auditor.Reset();
@@ -94,11 +94,11 @@ namespace UltraEd
         std::thread run([this, flag]() {
             if (Build::Start(this))
             {
-                if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Run))
+                if (static_cast<int>(flag) &static_cast<int>(BuildFlag::Run))
                 {
                     Build::Run();
                 }
-                else if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Load))
+                else if (static_cast<int>(flag) &static_cast<int>(BuildFlag::Load))
                 {
                     Build::Load();
                 }
@@ -259,7 +259,6 @@ namespace UltraEd
         auto params = m_renderDevice.GetParameters();
         if (params->BackBufferWidth != width || params->BackBufferHeight != height)
         {
-            ReleaseResources(ModelRelease::VertexBufferOnly);
             m_renderDevice.Resize(width, height);
             UpdateViewMatrix();
         }
@@ -558,21 +557,14 @@ namespace UltraEd
         return true;
     }
 
-    void Scene::ReleaseResources(ModelRelease type)
+    void Scene::Release()
     {
         m_grid.Release();
         m_gizmo.Release();
 
         for (const auto &actor : m_actors)
         {
-            if (auto model = dynamic_cast<Model *>(actor.second.get()))
-            {
-                model->Release(type);
-            }
-            else
-            {
-                actor.second->Release();
-            }
+            actor.second->Release();
         }
     }
 
@@ -581,6 +573,7 @@ namespace UltraEd
         // Copy selected ids since loop modifies the master selected actor id vector.
         const auto groupId = Util::NewUuid();
         auto selectedActorIds = m_selectedActorIds;
+
         for (const auto &selectedActorId : selectedActorIds)
         {
             m_auditor.DeleteActor("Actor", selectedActorId, groupId);
@@ -591,14 +584,7 @@ namespace UltraEd
 
     void Scene::Delete(std::shared_ptr<Actor> actor)
     {
-        if (auto model = dynamic_cast<Model *>(actor.get()))
-        {
-            model->Release(ModelRelease::AllResources);
-        }
-        else
-        {
-            actor->Release();
-        }
+        actor->Release();
 
         // Unselect actor if selected.
         auto it = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor->GetId());

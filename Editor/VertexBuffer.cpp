@@ -17,7 +17,7 @@ namespace UltraEd
                 (UINT)vertices.size() * sizeof(Vertex),
                 0,
                 D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1,
-                D3DPOOL_DEFAULT,
+                D3DPOOL_MANAGED,
                 &m_vertexBuffer, 0)))
             {
                 return NULL;

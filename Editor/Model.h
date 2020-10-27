@@ -6,11 +6,6 @@
 
 namespace UltraEd
 {
-    enum class ModelRelease
-    {
-        AllResources, VertexBufferOnly
-    };
-
     class Model : public Actor
     {
     public:
@@ -26,7 +21,7 @@ namespace UltraEd
         void SetMesh(const boost::uuids::uuid &assetId);
         bool HasTexture() { return m_texture != NULL; }
         void DeleteTexture();
-        void Release(ModelRelease type);
+        void Release();
         void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
         std::array<int, 2> TextureDimensions();
 
