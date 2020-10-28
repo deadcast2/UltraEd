@@ -73,7 +73,11 @@ namespace UltraEd
         source->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &surface);
 
         // Create a texture with the target device and copy the rendered surface to its context.
-        target->CreateTexture(width, height, 0, D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, texture, 0);
+        if (FAILED(target->CreateTexture(width, height, 0, D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, texture, 0)))
+        {
+            surface->Release();
+            return;
+        }
 
         PDIRECT3DSURFACE9 newTextureSurface;
         (*texture)->GetSurfaceLevel(0, &newTextureSurface);

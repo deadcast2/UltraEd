@@ -131,12 +131,12 @@ namespace UltraEd
             ImGui::Render();
             ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
-
             device->EndScene();
             device->Present(NULL, NULL, NULL, NULL);
         }
+
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
     }
 
     void Gui::Resize(UINT width, UINT height)
