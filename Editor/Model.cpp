@@ -12,6 +12,7 @@ namespace UltraEd
     Model::Model(const Model &model) : Model()
     {
         *this = model;
+        m_texture = 0;
         ResetId();
     }
 

@@ -603,9 +603,15 @@ namespace UltraEd
             {
                 case ActorType::Model:
                 {
-                    auto model = std::make_shared<Model>(*dynamic_cast<Model *>(m_actors[selectedActorId].get()));
+                    const auto selectedModel = dynamic_cast<Model *>(m_actors[selectedActorId].get());
+                    auto model = std::make_shared<Model>(*selectedModel);
                     m_actors[model->GetId()] = model;
                     m_auditor.AddActor("Model", model->GetId(), groupId);
+
+                    // Give duplicate a fresh copy of texture.
+                    if (selectedModel->HasTexture())
+                        model->SetTexture(m_renderDevice.GetDevice(), selectedModel->GetTextureId());
+
                     break;
                 }
                 case ActorType::Camera:
