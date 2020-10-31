@@ -1205,7 +1205,8 @@ namespace UltraEd
         {
             int i = 0;
             auto textures = Project::Previews(AssetType::Texture, m_renderDevice.GetDevice());
-            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / ModelPreviewer::PreviewWidth));
+            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / 
+                (ModelPreviewer::PreviewWidth + ImGui::GetStyle().FramePadding.x * 3)));
 
             for (const auto &texture : textures)
             {
@@ -1241,7 +1242,8 @@ namespace UltraEd
         {
             int i = 0;
             auto models = Project::Previews(AssetType::Model, m_renderDevice.GetDevice());
-            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / ModelPreviewer::PreviewWidth));
+            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() /
+                (ModelPreviewer::PreviewWidth + ImGui::GetStyle().FramePadding.x * 3)));
 
             for (const auto &model : models)
             {
