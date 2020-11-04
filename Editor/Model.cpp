@@ -62,7 +62,7 @@ namespace UltraEd
         return { 0, 0 };
     }
 
-    bool Model::IsTextureValid()
+    bool Model::IsTextureValid(std::string &reason)
     {
         auto dimensions = TextureDimensions();
 
@@ -79,6 +79,8 @@ namespace UltraEd
 
         if (size != validSizes.end())
             return true;
+
+        reason = std::string("Wrong dimensions");
 
         return false;
     }
@@ -111,7 +113,7 @@ namespace UltraEd
         {
             m_textureId = assetId;
             return SUCCEEDED(D3DXCreateTextureFromFileEx(device, assetPath.string().c_str(),
-                D3DX_DEFAULT, D3DX_DEFAULT, 1, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, D3DX_DEFAULT, 
+                D3DX_DEFAULT, D3DX_DEFAULT, 1, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, D3DX_DEFAULT,
                 D3DX_DEFAULT, 0, 0, 0, &m_texture));
         }
 

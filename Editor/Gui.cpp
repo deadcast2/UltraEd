@@ -14,6 +14,7 @@ namespace UltraEd
         m_hWnd(hWnd),
         m_renderDevice(hWnd),
         m_sceneTexture(),
+        m_noTexture(),
         m_selectedActor(),
         m_textEditor(),
         m_fileBrowser(ImGuiFileBrowserFlags_EnterNewFilename),
@@ -50,6 +51,13 @@ namespace UltraEd
             m_consoleText.append(text);
             m_moveConsoleToBottom = true;
         });
+
+        if (FAILED(D3DXCreateTextureFromFileEx(m_renderDevice.GetDevice(), "Assets/no-texture.png",
+            ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth, 1, 0, D3DFMT_X8R8G8B8,
+            D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, 0, 0, &m_noTexture)))
+        {
+            Debug::Instance().Error("Could not load no texture asset.");
+        }
     }
 
     Gui::~Gui()
@@ -57,6 +65,12 @@ namespace UltraEd
         ImGui_ImplDX9_Shutdown();
         ImGui_ImplWin32_Shutdown();
         ImGui::DestroyContext();
+
+        if (m_noTexture != nullptr)
+        {
+            m_noTexture->Release();
+            m_noTexture = 0;
+        }
     }
 
     void Gui::PrepareFrame()
@@ -848,6 +862,32 @@ namespace UltraEd
 
         D3DXVECTOR3 tempScale = D3DXVECTOR3(scale);
         ImGui::InputFloat3("Scale", scale, "%g");
+
+        if (targetActor->GetType() == ActorType::Model)
+        {
+            const auto model = reinterpret_cast<Model*>(targetActor);
+            auto texture = m_noTexture;
+
+            if (model->HasTexture())
+            {
+                std::string reason;
+                if (!model->IsTextureValid(reason))
+                {
+                    ImGui::TextColored({ 1, 0, 0, 1 }, reason.c_str());
+                }
+
+                auto previews = Project::Previews(AssetType::Texture, m_renderDevice.GetDevice());
+                if (previews.find(model->GetTextureId()) != previews.cend())
+                {
+                    texture = previews[model->GetTextureId()];
+                }
+            }
+
+            if (ImGui::ImageButton(texture, { ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth }))
+            {
+                m_addTextureModalOpen = true;
+            }
+        }
 
         const auto groupId = Util::NewUuid();
 

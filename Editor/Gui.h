@@ -71,6 +71,7 @@ namespace UltraEd
         HWND m_hWnd;
         RenderDevice m_renderDevice;
         LPDIRECT3DTEXTURE9 m_sceneTexture;
+        LPDIRECT3DTEXTURE9 m_noTexture;
         Actor *m_selectedActor;
         TextEditor m_textEditor;
         ImGui::FileBrowser m_fileBrowser;

@@ -20,6 +20,7 @@ namespace UltraEd
         bool SetTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId);
         void SetMesh(const boost::uuids::uuid &assetId);
         bool HasTexture() { return m_texture != NULL; }
+        bool IsTextureValid(std::string &reason);
         void DeleteTexture();
         void Release();
         void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
@@ -27,7 +28,6 @@ namespace UltraEd
 
     private:
         bool LoadTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId);
-        bool IsTextureValid();
         LPDIRECT3DTEXTURE9 m_texture;
         boost::uuids::uuid m_textureId;
         boost::uuids::uuid m_modelId;
