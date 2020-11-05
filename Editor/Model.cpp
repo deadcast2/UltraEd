@@ -64,25 +64,18 @@ namespace UltraEd
 
     bool Model::IsTextureValid(std::string &reason)
     {
-        auto dimensions = TextureDimensions();
+        const std::vector<int> validSizes { 4, 8, 16, 32, 64 };
+        const auto dimensions = TextureDimensions();
+        const auto isXValid = std::find(validSizes.cbegin(), validSizes.cend(), dimensions[0]) != validSizes.cend();
+        const auto isYValid = std::find(validSizes.cbegin(), validSizes.cend(), dimensions[1]) != validSizes.cend();
 
-        // Valid sizes for the RDP.
-        std::vector<std::tuple<int, int>> validSizes = {
-            { 8, 8 }, { 8, 16 }, { 16, 8 },
-            { 16, 16 }, { 16, 32 }, { 32, 16 },
-            { 32, 32 }, { 32, 64 }, { 64, 32 }
-        };
+        if (!isXValid || !isYValid)
+        {
+            reason = std::string("Invalid dimensions");
+            return false;
+        }
 
-        auto size = std::find_if(validSizes.begin(), validSizes.end(), [&](const auto &t) {
-            return std::get<0>(t) == dimensions[0] && std::get<1>(t) == dimensions[1];
-        });
-
-        if (size != validSizes.end())
-            return true;
-
-        reason = std::string("Wrong dimensions");
-
-        return false;
+        return true;
     }
 
     void Model::Release()
