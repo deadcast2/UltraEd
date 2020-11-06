@@ -1,12 +1,4 @@
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_NO_SIMD
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-
 #include <regex>
-#include <STB/stb_image.h>
-#include <STB/stb_image_resize.h>
-#include <STB/stb_image_write.h>
 #include "Build.h"
 #include "Util.h"
 #include "BoxCollider.h"
@@ -77,39 +69,36 @@ namespace UltraEd
                 resourceCache.push_back(modelPath);
             }
 
-            auto texturePath = Project::GetAssetPath(model->GetTexture()->GetId());
+            const auto texturePath = model->GetTexture()->GetPath();
 
             if (!texturePath.empty() && find(resourceCache.begin(), resourceCache.end(), texturePath) == resourceCache.end())
             {
-                // Load the set texture and resize to required dimensions.
-                auto path = Project::BuildPath() / texturePath.filename();
-                int width, height, channels;
-                unsigned char *data = stbi_load(texturePath.string().c_str(), &width, &height, &channels, 3);
-                if (data)
+                std::string reason;
+                if (model->GetTexture()->IsValid(reason))
                 {
-                    auto dimensions = static_cast<Model *>(actor)->GetTexture()->Dimensions();
-                    if (stbir_resize_uint8(data, width, height, 0, data, dimensions[0], dimensions[1], 0, 3))
-                    {
-                        stbi_write_png(path.string().c_str(), dimensions[0], dimensions[1], 3, data, 0);
-                    }
+                    auto path = Project::BuildPath() / texturePath.filename();
+                    model->GetTexture()->WritePngData(path);
 
-                    stbi_image_free(data);
+                    std::string textureName(newResName);
+                    textureName.append("_T");
+
+                    specSegments.append("\nbeginseg\n\tname \"");
+                    specSegments.append(textureName);
+                    specSegments.append("\"\n\tflags RAW\n\tinclude \"");
+                    specSegments.append(path.string().c_str());
+                    specSegments.append("\"\nendseg\n");
+
+                    specIncludes.append("\n\tinclude \"");
+                    specIncludes.append(textureName);
+                    specIncludes.append("\"");
+
+                    resourceCache.push_back(texturePath);
                 }
-
-                std::string textureName(newResName);
-                textureName.append("_T");
-
-                specSegments.append("\nbeginseg\n\tname \"");
-                specSegments.append(textureName);
-                specSegments.append("\"\n\tflags RAW\n\tinclude \"");
-                specSegments.append(path.string().c_str());
-                specSegments.append("\"\nendseg\n");
-
-                specIncludes.append("\n\tinclude \"");
-                specIncludes.append(textureName);
-                specIncludes.append("\"");
-
-                resourceCache.push_back(texturePath);
+                else
+                {
+                    Debug::Instance().Error(std::string("Invalid texture for model ")
+                        .append(model->GetName()).append(": ").append(reason));
+                }
             }
         }
 

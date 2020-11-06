@@ -1,3 +1,9 @@
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_SIMD
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#include <STB/stb_image.h>
+#include <STB/stb_image_write.h>
 #include "Project.h"
 #include "Texture.h"
 
@@ -35,9 +41,35 @@ namespace UltraEd
         return m_texture;
     }
 
+    std::unique_ptr<unsigned char> Texture::GetPngData()
+    {
+        int width, height, channels;
+        unsigned char *data = stbi_load(GetPath().string().c_str(), &width, &height, &channels, 3);
+
+        return std::unique_ptr<unsigned char>(data);
+    }
+
+    bool Texture::WritePngData(const std::filesystem::path &path)
+    {
+        const auto dimensions = Dimensions();
+        const auto pngData = GetPngData();
+
+        if (pngData)
+        {
+            return stbi_write_png(path.string().c_str(), dimensions[0], dimensions[1], 3, pngData.get(), 0) == 1;
+        }
+
+        return false;
+    }
+
     const boost::uuids::uuid &Texture::GetId()
     {
         return m_textureId;
+    }
+
+    std::filesystem::path Texture::GetPath()
+    {
+        return Project::GetAssetPath(m_textureId);
     }
 
     std::array<int, 2> Texture::Dimensions()

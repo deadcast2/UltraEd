@@ -14,7 +14,10 @@ namespace UltraEd
         ~Texture();
         bool Load(IDirect3DDevice9 *device, const boost::uuids::uuid &textureId);
         LPDIRECT3DTEXTURE9 Get();
+        std::unique_ptr<unsigned char> GetPngData();
+        bool WritePngData(const std::filesystem::path &path);
         const boost::uuids::uuid &GetId();
+        std::filesystem::path GetPath();
         bool IsLoaded();
         bool IsValid(std::string &reason);
         void Delete();
