@@ -77,7 +77,7 @@ namespace UltraEd
                 resourceCache.push_back(modelPath);
             }
 
-            auto texturePath = Project::GetAssetPath(model->GetTextureId());
+            auto texturePath = Project::GetAssetPath(model->GetTexture()->GetId());
 
             if (!texturePath.empty() && find(resourceCache.begin(), resourceCache.end(), texturePath) == resourceCache.end())
             {
@@ -87,7 +87,7 @@ namespace UltraEd
                 unsigned char *data = stbi_load(texturePath.string().c_str(), &width, &height, &channels, 3);
                 if (data)
                 {
-                    auto dimensions = static_cast<Model *>(actor)->TextureDimensions();
+                    auto dimensions = static_cast<Model *>(actor)->GetTexture()->Dimensions();
                     if (stbir_resize_uint8(data, width, height, 0, data, dimensions[0], dimensions[1], 0, 3))
                     {
                         stbi_write_png(path.string().c_str(), dimensions[0], dimensions[1], 3, data, 0);
@@ -176,7 +176,7 @@ namespace UltraEd
                 (*resourceCache)[modelPath] = newResName;
             }
 
-            auto texturePath = Project::GetAssetPath(model->GetTextureId());
+            auto texturePath = Project::GetAssetPath(model->GetTexture()->GetId());
             if (!texturePath.empty() && resourceCache->find(texturePath) == resourceCache->end())
             {
                 std::string textureName(newResName);
@@ -240,7 +240,7 @@ namespace UltraEd
             {
                 auto model = reinterpret_cast<Model *>(actor);
                 auto modelPath = Project::GetAssetPath(model->GetModelId());
-                auto texturePath = Project::GetAssetPath(model->GetTextureId());
+                auto texturePath = Project::GetAssetPath(model->GetTexture()->GetId());
 
                 if (resourceCache.find(modelPath) != resourceCache.end())
                     resourceName = resourceCache.at(modelPath);
@@ -263,7 +263,7 @@ namespace UltraEd
                     std::string textureName(resourceName);
                     textureName.append("_T");
 
-                    auto dimensions = model->TextureDimensions();
+                    auto dimensions = model->GetTexture()->Dimensions();
                     actorInits.append(", _").append(textureName).append("SegmentRomStart, _")
                         .append(textureName).append("SegmentRomEnd, ").append(std::to_string(dimensions[0])).append(", ")
                         .append(std::to_string(dimensions[1]));

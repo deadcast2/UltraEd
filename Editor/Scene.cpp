@@ -216,7 +216,7 @@ namespace UltraEd
 
             m_auditor.ChangeActor("Delete Texture", selectedActorId, groupId);
 
-            dynamic_cast<Model *>(m_actors[selectedActorId].get())->DeleteTexture();
+            reinterpret_cast<Model *>(m_actors[selectedActorId].get())->GetTexture()->Delete();
         }
     }
 
@@ -270,13 +270,13 @@ namespace UltraEd
         {
             for (const auto &actor : m_actors)
             {
-                auto model = std::static_pointer_cast<Model>(actor.second);
-                if (model)
+                const auto model = std::static_pointer_cast<Model>(actor.second);
+                if (actor.second->GetType() == ActorType::Model && model != nullptr)
                 {
                     if (model->GetModelId() == changedAssetId)
                         model->SetMesh(changedAssetId);
 
-                    if (model->GetTextureId() == changedAssetId)
+                    if (model->GetTexture()->GetId() == changedAssetId)
                         model->SetTexture(m_renderDevice.GetDevice(), changedAssetId);
                 }
             }
@@ -609,8 +609,8 @@ namespace UltraEd
                     m_auditor.AddActor("Model", model->GetId(), groupId);
 
                     // Give duplicate a fresh copy of texture.
-                    if (selectedModel->HasTexture())
-                        model->SetTexture(m_renderDevice.GetDevice(), selectedModel->GetTextureId());
+                    if (selectedModel->GetTexture()->IsLoaded())
+                        model->SetTexture(m_renderDevice.GetDevice(), selectedModel->GetTexture()->GetId());
 
                     break;
                 }

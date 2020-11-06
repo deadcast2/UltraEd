@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include "Actor.h"
+#include "Texture.h"
 
 namespace UltraEd
 {
@@ -15,21 +16,14 @@ namespace UltraEd
         Model(const Model &model);
         nlohmann::json Save();
         void Load(const nlohmann::json &root, IDirect3DDevice9 *device);
-        const boost::uuids::uuid &GetTextureId() { return m_textureId; }
+        Texture *GetTexture() { return m_texture.get(); }
         const boost::uuids::uuid &GetModelId() { return m_modelId; }
         bool SetTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId);
         void SetMesh(const boost::uuids::uuid &assetId);
-        bool HasTexture() { return m_texture != NULL; }
-        bool IsTextureValid(std::string &reason);
-        void DeleteTexture();
-        void Release();
         void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
-        std::array<int, 2> TextureDimensions();
 
     private:
-        bool LoadTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId);
-        LPDIRECT3DTEXTURE9 m_texture;
-        boost::uuids::uuid m_textureId;
+        std::shared_ptr<Texture> m_texture;
         boost::uuids::uuid m_modelId;
     };
 }

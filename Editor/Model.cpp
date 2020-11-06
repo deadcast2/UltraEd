@@ -4,15 +4,14 @@
 namespace UltraEd
 {
     Model::Model() :
-        m_texture(0),
-        m_textureId(),
+        m_texture(std::make_shared<Texture>()),
         m_modelId()
     { }
 
     Model::Model(const Model &model) : Model()
     {
         *this = model;
-        m_texture = 0;
+        m_texture = std::make_shared<Texture>();
         ResetId();
     }
 
@@ -35,7 +34,7 @@ namespace UltraEd
             stack->Push();
             stack->MultMatrixLocal(&GetMatrix());
 
-            if (m_texture != NULL) device->SetTexture(0, m_texture);
+            if (m_texture->IsLoaded()) device->SetTexture(0, m_texture->Get());
 
             device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
             device->SetTransform(D3DTS_WORLD, stack->GetTop());
@@ -50,41 +49,6 @@ namespace UltraEd
         Actor::Render(device, stack);
     }
 
-    std::array<int, 2> Model::TextureDimensions()
-    {
-        D3DSURFACE_DESC desc;
-        if (m_texture != NULL && SUCCEEDED(m_texture->GetLevelDesc(0, &desc)))
-        {
-            int width = static_cast<int>(desc.Width);
-            int height = static_cast<int>(desc.Height);
-            return { width, height };
-        }
-        return { 0, 0 };
-    }
-
-    bool Model::IsTextureValid(std::string &reason)
-    {
-        const std::vector<int> validSizes { 4, 8, 16, 32, 64 };
-        const auto dimensions = TextureDimensions();
-        const auto isXValid = std::find(validSizes.cbegin(), validSizes.cend(), dimensions[0]) != validSizes.cend();
-        const auto isYValid = std::find(validSizes.cbegin(), validSizes.cend(), dimensions[1]) != validSizes.cend();
-
-        if (!isXValid || !isYValid)
-        {
-            reason = std::string("Invalid dimensions");
-            return false;
-        }
-
-        return true;
-    }
-
-    void Model::Release()
-    {
-        Actor::Release();
-
-        DeleteTexture();
-    }
-
     void Model::SetMesh(const boost::uuids::uuid &assetId)
     {
         const auto modelPath = Project::GetAssetPath(assetId);
@@ -97,46 +61,20 @@ namespace UltraEd
         }
     }
 
-    bool Model::LoadTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId)
-    {
-        DeleteTexture();
-
-        auto assetPath = Project::GetAssetPath(assetId);
-        if (!assetPath.empty())
-        {
-            m_textureId = assetId;
-            return SUCCEEDED(D3DXCreateTextureFromFileEx(device, assetPath.string().c_str(),
-                D3DX_DEFAULT, D3DX_DEFAULT, 1, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, D3DX_DEFAULT,
-                D3DX_DEFAULT, 0, 0, 0, &m_texture));
-        }
-
-        return false;
-    }
-
     bool Model::SetTexture(IDirect3DDevice9 *device, const boost::uuids::uuid &assetId)
     {
         bool result = false;
-        Dirty([&] { result = LoadTexture(device, assetId); }, &result);
+        Dirty([&] { result = m_texture->Load(device, assetId); }, &result);
         return result;
-    }
-
-    void Model::DeleteTexture()
-    {
-        if (HasTexture())
-        {
-            m_texture->Release();
-            m_texture = 0;
-            m_textureId = boost::uuids::nil_uuid();
-        }
     }
 
     nlohmann::json Model::Save()
     {
         auto actor = Actor::Save();
         actor.update({
-            { "texture_id", m_textureId },
+            { "texture_id", m_texture->GetId() },
             { "model_id", m_modelId }
-            });
+        });
         return actor;
     }
 
@@ -145,6 +83,6 @@ namespace UltraEd
         Actor::Load(root);
 
         SetMesh(root["model_id"]);
-        LoadTexture(device, root["texture_id"]);
+        m_texture->Load(device, root["texture_id"]);
     }
 }

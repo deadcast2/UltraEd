@@ -868,18 +868,18 @@ namespace UltraEd
             const auto model = reinterpret_cast<Model*>(targetActor);
             auto texture = m_noTexture;
 
-            if (model->HasTexture())
+            if (model->GetTexture()->IsLoaded())
             {
                 std::string reason;
-                if (!model->IsTextureValid(reason))
+                if (!model->GetTexture()->IsValid(reason))
                 {
                     ImGui::TextColored({ 1, 0, 0, 1 }, reason.c_str());
                 }
 
                 auto previews = Project::Previews(AssetType::Texture, m_renderDevice.GetDevice());
-                if (previews.find(model->GetTextureId()) != previews.cend())
+                if (previews.find(model->GetTexture()->GetId()) != previews.cend())
                 {
-                    texture = previews[model->GetTextureId()];
+                    texture = previews[model->GetTexture()->GetId()];
                 }
             }
 
@@ -1047,14 +1047,14 @@ namespace UltraEd
                 m_textEditor.SetText(m_scene->GetScript());
             }
 
-            if (ImGui::BeginMenu("Texture"))
+            if (m_selectedActor != nullptr && m_selectedActor->GetType() == ActorType::Model && ImGui::BeginMenu("Texture"))
             {
                 if (ImGui::MenuItem("Add"))
                 {
                     m_addTextureModalOpen = true;
                 }
 
-                if (m_selectedActor != NULL && reinterpret_cast<Model *>(m_selectedActor)->HasTexture())
+                if (reinterpret_cast<Model *>(m_selectedActor)->GetTexture()->IsLoaded())
                 {
                     ImGui::Separator();
 

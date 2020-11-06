@@ -43,6 +43,7 @@
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Auditor.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="Vendor\FastLZ\fastlz.c" />
     <ClCompile Include="Vendor\ImGui\imgui.cpp" />
@@ -84,6 +85,7 @@
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Auditor.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Vendor\FastLZ\fastlz.h" />
     <ClInclude Include="Vendor\ImGui\imconfig.h" />
