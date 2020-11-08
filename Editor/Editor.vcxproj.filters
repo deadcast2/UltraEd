@@ -182,9 +182,6 @@
     <ClInclude Include="Vendor\STB\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vendor\STB\stb_image_resize.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Vendor\STB\stb_image_write.h">
       <Filter>Header Files</Filter>
     </ClInclude>

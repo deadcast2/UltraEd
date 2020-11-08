@@ -100,7 +100,6 @@
     <ClInclude Include="Vendor\ImGui\Plugins\TextEditor.h" />
     <ClInclude Include="Vendor\MicroTar\microtar.h" />
     <ClInclude Include="Vendor\STB\stb_image.h" />
-    <ClInclude Include="Vendor\STB\stb_image_resize.h" />
     <ClInclude Include="Vendor\STB\stb_image_write.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VertexBuffer.h" />
