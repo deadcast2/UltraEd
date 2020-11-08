@@ -1218,12 +1218,13 @@ namespace UltraEd
                 {
                     Project::Load(m_renderDevice.GetDevice(), m_folderBrowser.GetSelected());
                     m_scene->New();
-                    m_folderBrowser.Close();
                 }
                 catch (const std::exception &e)
                 {
                     Debug::Instance().Error(e.what());
                 }
+
+                m_folderBrowser.Close();
             }
 
             m_loadProjectModalOpen = m_folderBrowser.IsOpened();
@@ -1315,12 +1316,13 @@ namespace UltraEd
                 try
                 {
                     m_scene->Load(m_fileBrowser.GetSelected());
-                    m_fileBrowser.Close();
                 }
                 catch (const std::exception &e)
                 {
                     Debug::Instance().Error(e.what());
                 }
+
+                m_fileBrowser.Close();
             }
 
             m_loadSceneModalOpen = m_fileBrowser.IsOpened();
@@ -1338,13 +1340,14 @@ namespace UltraEd
                 try
                 {
                     m_scene->SaveAs(m_fileBrowser.GetSelected());
-                    m_fileBrowser.Close();
                     std::get<1>(m_saveSceneModalOpen)();
                 }
                 catch (const std::exception &e)
                 {
                     Debug::Instance().Error(e.what());
                 }
+
+                m_fileBrowser.Close();
             }
 
             std::get<0>(m_saveSceneModalOpen) = m_fileBrowser.IsOpened();
