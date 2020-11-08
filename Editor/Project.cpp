@@ -149,7 +149,10 @@ namespace UltraEd
 
     Project::~Project()
     {
-        Persist();
+        if (IsValidDatabase())
+        {
+            Persist();
+        }
 
         for (const auto &asset : m_projectRecord.assets)
         {
