@@ -17,14 +17,14 @@ namespace UltraEd
             m_projectInstance->Scan(updatedAssetIds);
     }
 
-    void Project::New(const char *name, const path &path, bool createDirectory)
+    void Project::New(LPDIRECT3DDEVICE9 device, const char *name, const path &path, bool createDirectory)
     {
-        m_projectInstance = std::make_unique<Project>(m_constructor_tag {}, name, path, createDirectory);
+        m_projectInstance = std::make_unique<Project>(m_constructor_tag {}, device, name, path, createDirectory);
     }
 
-    void Project::Load(const path &path)
+    void Project::Load(LPDIRECT3DDEVICE9 device, const path &path)
     {
-        m_projectInstance = std::make_unique<Project>(m_constructor_tag {}, path);
+        m_projectInstance = std::make_unique<Project>(m_constructor_tag {}, device, path);
     }
 
     bool Project::Save(const char *name)
@@ -40,33 +40,10 @@ namespace UltraEd
         return m_projectInstance != NULL;
     }
 
-    std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9> Project::Previews(const AssetType &type, LPDIRECT3DDEVICE9 device)
+    std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9> Project::Previews(const AssetType &type)
     {
         if (!IsLoaded())
             return std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9>();
-
-        for (auto &preview : m_projectInstance->m_assetPreviews[type])
-        {
-            if (preview.second != NULL)
-                continue;
-
-            auto asset = m_projectInstance->GetAsset(preview.first);
-            if (asset == NULL)
-                continue;
-
-            switch (type)
-            {
-                case AssetType::Texture:
-                    D3DXCreateTextureFromFileEx(device, m_projectInstance->LibraryPath(asset).string().c_str(),
-                        ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth, 1, 0, D3DFMT_X8R8G8B8, 
-                        D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, 0, 0, &preview.second);
-                    break;
-                case AssetType::Model:
-                    m_projectInstance->m_modelPreviewer.Render(device,
-                        m_projectInstance->LibraryPath(asset).string().c_str(), &preview.second);
-                    break;
-            }
-        }
 
         return m_projectInstance->m_assetPreviews[type];
     }
@@ -104,7 +81,8 @@ namespace UltraEd
         }
     }
 
-    Project::Project(m_constructor_tag tag) :
+    Project::Project(m_constructor_tag tag, LPDIRECT3DDEVICE9 device) :
+        m_device(device),
         m_databasePath(),
         m_assetIndex(),
         m_assetTypeNames({ { AssetType::Unknown, "unknown" }, { AssetType::Model, "model" }, { AssetType::Texture, "texture" } }),
@@ -115,7 +93,7 @@ namespace UltraEd
         m_projectRecord()
     { }
 
-    Project::Project(m_constructor_tag tag, const char *name, const path &path, bool createDirectory) : Project(tag)
+    Project::Project(m_constructor_tag tag, LPDIRECT3DDEVICE9 device, const char *name, const path &path, bool createDirectory) : Project(tag, device)
     {
         if (!exists(path))
         {
@@ -142,7 +120,7 @@ namespace UltraEd
         Scan();
     }
 
-    Project::Project(m_constructor_tag tag, const path &path) : Project(tag)
+    Project::Project(m_constructor_tag tag, LPDIRECT3DDEVICE9 device, const path &path) : Project(tag, device)
     {
         m_databasePath = path / APP_PROJECT_FILE;
 
@@ -172,9 +150,11 @@ namespace UltraEd
     Project::~Project()
     {
         Persist();
-        
-        // Will release all preview assets.
-        BuildIndex();
+
+        for (const auto &asset : m_projectRecord.assets)
+        {
+            RemovePreview(asset.type, asset.id);
+        }
     }
 
     bool Project::Persist(const char *name)
@@ -253,7 +233,19 @@ namespace UltraEd
     {
         RemovePreview(type, id);
 
-        m_assetPreviews[type][id] = 0;
+        const auto asset = GetAsset(id);
+
+        switch (type)
+        {
+            case AssetType::Texture:
+                D3DXCreateTextureFromFileEx(m_device, LibraryPath(GetAsset(id)).string().c_str(),
+                    ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth, 1, 0, D3DFMT_X8R8G8B8,
+                    D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, 0, 0, &m_assetPreviews[type][id]);
+                break;
+            case AssetType::Model:
+                m_modelPreviewer.Render(m_device, LibraryPath(asset).string().c_str(), &m_assetPreviews[type][id]);
+                break;
+        }
     }
 
     void Project::RemovePreview(const AssetType &type, const boost::uuids::uuid &id)

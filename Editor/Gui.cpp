@@ -876,7 +876,7 @@ namespace UltraEd
                     ImGui::TextColored({ 1, 0, 0, 1 }, reason.c_str());
                 }
 
-                auto previews = Project::Previews(AssetType::Texture, m_renderDevice.GetDevice());
+                auto previews = Project::Previews(AssetType::Texture);
                 if (previews.find(model->GetTexture()->GetId()) != previews.cend())
                 {
                     texture = previews[model->GetTexture()->GetId()];
@@ -1182,7 +1182,7 @@ namespace UltraEd
             {
                 try
                 {
-                    Project::New(projectName, projectPath, createDirectory);
+                    Project::New(m_renderDevice.GetDevice(), projectName, projectPath, createDirectory);
                     m_scene->New();
                 }
                 catch (const std::exception &e)
@@ -1216,7 +1216,7 @@ namespace UltraEd
             {
                 try
                 {
-                    Project::Load(m_folderBrowser.GetSelected());
+                    Project::Load(m_renderDevice.GetDevice(), m_folderBrowser.GetSelected());
                     m_scene->New();
                     m_folderBrowser.Close();
                 }
@@ -1244,7 +1244,7 @@ namespace UltraEd
         if (ImGui::BeginPopupModal("Add Texture", &modalOpen))
         {
             int i = 0;
-            auto textures = Project::Previews(AssetType::Texture, m_renderDevice.GetDevice());
+            auto textures = Project::Previews(AssetType::Texture);
             int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / 
                 (ModelPreviewer::PreviewWidth + ImGui::GetStyle().FramePadding.x * 3)));
 
@@ -1281,7 +1281,7 @@ namespace UltraEd
         if (ImGui::BeginPopupModal("Add Model", &modalOpen))
         {
             int i = 0;
-            auto models = Project::Previews(AssetType::Model, m_renderDevice.GetDevice());
+            auto models = Project::Previews(AssetType::Model);
             int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() /
                 (ModelPreviewer::PreviewWidth + ImGui::GetStyle().FramePadding.x * 3)));
 

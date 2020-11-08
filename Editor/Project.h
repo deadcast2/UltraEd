@@ -26,16 +26,16 @@ namespace UltraEd
         };
 
     public:
-        Project(m_constructor_tag tag);
-        Project(m_constructor_tag tag, const path &path);
-        Project(m_constructor_tag tag, const char *name, const path &path, bool createDirectory);
+        Project(m_constructor_tag tag, LPDIRECT3DDEVICE9 device);
+        Project(m_constructor_tag tag, LPDIRECT3DDEVICE9 device, const path &path);
+        Project(m_constructor_tag tag, LPDIRECT3DDEVICE9 device, const char *name, const path &path, bool createDirectory);
         ~Project();
         static void Activate(std::vector<boost::uuids::uuid> *updatedAssetIds = 0);
-        static void New(const char *name, const path &path, bool createDirectory);
-        static void Load(const path &path);
+        static void New(LPDIRECT3DDEVICE9 device, const char *name, const path &path, bool createDirectory);
+        static void Load(LPDIRECT3DDEVICE9 device, const path &path);
         static bool Save(const char *name = 0);
         static bool IsLoaded();
-        static std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9> Previews(const AssetType &type, LPDIRECT3DDEVICE9 device);
+        static std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9> Previews(const AssetType &type);
         static path GetAssetPath(const boost::uuids::uuid &id);
         static path BuildPath();
         static void Refresh();
@@ -65,6 +65,7 @@ namespace UltraEd
 
     private:
         static std::unique_ptr<Project> m_projectInstance;
+        LPDIRECT3DDEVICE9 m_device;
         path m_databasePath;
         std::map<AssetType, std::map<path, AssetRecord>> m_assetIndex;
         std::map<AssetType, std::string> m_assetTypeNames;
