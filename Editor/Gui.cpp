@@ -54,7 +54,7 @@ namespace UltraEd
 
         if (FAILED(D3DXCreateTextureFromFileEx(m_renderDevice.GetDevice(), "Assets/no-texture.png",
             ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth, 1, 0, D3DFMT_X8R8G8B8,
-            D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, 0, 0, &m_noTexture)))
+            D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, 0, 0, &m_noTexture)))
         {
             Debug::Instance().Error("Could not load no texture asset.");
         }
