@@ -196,7 +196,7 @@ namespace UltraEd
         io.Fonts->Build();
     }
 
-    void Gui::LightColors() 
+    void Gui::LightColors()
     {
         ImGuiStyle *style = &ImGui::GetStyle();
         ImVec4 *colors = style->Colors;
@@ -255,7 +255,7 @@ namespace UltraEd
         CustomStyle(style);
     }
 
-    void Gui::DarkColors() 
+    void Gui::DarkColors()
     {
         ImGuiStyle *style = &ImGui::GetStyle();
         ImVec4 *colors = style->Colors;
@@ -423,7 +423,7 @@ namespace UltraEd
             {
                 ImGui::LogToClipboard();
                 ImGui::LogText("ImVec4* colors = ImGui::GetStyle().Colors;" "\n");
-                
+
                 for (int i = 0; i < ImGuiCol_COUNT; i++)
                 {
                     const ImVec4 &col = style->Colors[i];
@@ -865,7 +865,7 @@ namespace UltraEd
 
         if (targetActor->GetType() == ActorType::Model)
         {
-            const auto model = reinterpret_cast<Model*>(targetActor);
+            const auto model = reinterpret_cast<Model *>(targetActor);
             auto texture = m_noTexture;
 
             if (model->GetTexture()->IsLoaded())
@@ -1246,8 +1246,11 @@ namespace UltraEd
         {
             int i = 0;
             auto textures = Project::Previews(AssetType::Texture);
-            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() / 
+            const int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() /
                 (ModelPreviewer::PreviewWidth + ImGui::GetStyle().FramePadding.x * 3)));
+
+            // Add "no texture" that when clicked removes the model's texture.
+            textures[boost::uuids::nil_uuid()] = m_noTexture;
 
             for (const auto &texture : textures)
             {
@@ -1256,7 +1259,15 @@ namespace UltraEd
                 ImGui::PushID(i++);
                 if (ImGui::ImageButton(texture.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
                 {
-                    m_scene->AddTexture(texture.first);
+                    if (texture.first.is_nil())
+                    {
+                        m_scene->DeleteTexture();
+                    }
+                    else
+                    {
+                        m_scene->AddTexture(texture.first);
+                    }
+
                     ImGui::CloseCurrentPopup();
                 }
 
@@ -1282,8 +1293,8 @@ namespace UltraEd
         if (ImGui::BeginPopupModal("Add Model", &modalOpen))
         {
             int i = 0;
-            auto models = Project::Previews(AssetType::Model);
-            int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() /
+            const auto models = Project::Previews(AssetType::Model);
+            const int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() /
                 (ModelPreviewer::PreviewWidth + ImGui::GetStyle().FramePadding.x * 3)));
 
             for (const auto &model : models)
