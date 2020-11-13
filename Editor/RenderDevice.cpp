@@ -44,6 +44,11 @@ namespace UltraEd
         return &m_d3dpp;
     }
 
+    bool RenderDevice::IsLost()
+    {
+        return m_device->TestCooperativeLevel() == D3DERR_DEVICENOTRESET;
+    }
+
     void RenderDevice::Resize(UINT width, UINT height)
     {
         m_d3dpp.BackBufferWidth = width;

@@ -256,8 +256,8 @@ namespace UltraEd
 
     void Scene::Resize(UINT width, UINT height)
     {
-        auto params = m_renderDevice.GetParameters();
-        if (params->BackBufferWidth != width || params->BackBufferHeight != height)
+        const auto params = m_renderDevice.GetParameters();
+        if (m_renderDevice.IsLost() || params->BackBufferWidth != width || params->BackBufferHeight != height)
         {
             m_renderDevice.Resize(width, height);
             UpdateViewMatrix();

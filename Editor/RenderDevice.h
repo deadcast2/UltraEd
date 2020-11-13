@@ -14,6 +14,7 @@ namespace UltraEd
         ~RenderDevice();
         const LPDIRECT3DDEVICE9 GetDevice();
         const D3DPRESENT_PARAMETERS *GetParameters();
+        bool IsLost();
         void Resize(UINT width, UINT height);
 
     private:

@@ -147,6 +147,12 @@ namespace UltraEd
 
             device->EndScene();
             device->Present(NULL, NULL, NULL, NULL);
+
+            if (m_renderDevice.IsLost())
+            {
+                const auto parameters = m_renderDevice.GetParameters();
+                Resize(parameters->BackBufferWidth, parameters->BackBufferHeight);
+            }
         }
 
         ImGui::UpdatePlatformWindows();
