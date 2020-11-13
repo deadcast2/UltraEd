@@ -60,7 +60,7 @@ namespace UltraEd
         bool InsertAsset(const AssetType &type, const path &path);
         bool InitializePath(const path &path);
         void VerifyAsset(const boost::uuids::uuid &purgeId, const AssetType &type, const directory_entry &entry);
-        void PurgeMissingAssets(const boost::uuids::uuid &purgeId);
+        void PurgeMissingAssets(const boost::uuids::uuid &purgeId, std::vector<boost::uuids::uuid> *updatedAssetIds);
 
     private:
         static std::unique_ptr<Project> m_projectInstance;

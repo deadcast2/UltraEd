@@ -221,7 +221,7 @@ namespace UltraEd
             }
         }
 
-        PurgeMissingAssets(purgeId);
+        PurgeMissingAssets(purgeId, updatedAssetIds);
     }
 
     void Project::PreparePreview(const AssetType &type, const boost::uuids::uuid &id)
@@ -402,7 +402,7 @@ namespace UltraEd
         m_assetIndex[type][entry.path()].purgeId = purgeId;
     }
 
-    void Project::PurgeMissingAssets(const boost::uuids::uuid &purgeId)
+    void Project::PurgeMissingAssets(const boost::uuids::uuid &purgeId, std::vector<boost::uuids::uuid> *updatedAssetIds)
     {
         for (const auto &name : m_assetTypeNames)
         {
@@ -413,6 +413,7 @@ namespace UltraEd
                 if (asset.second.purgeId != purgeId)
                 {
                     assetsToRemove.push_back(asset);
+                    if (updatedAssetIds) updatedAssetIds->push_back(asset.second.id);
                     Debug::Instance().Warning("Removed " + name.second + ": " + asset.first.string());
                 }
             }
