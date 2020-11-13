@@ -73,14 +73,6 @@ namespace UltraEd
         return path();
     }
 
-    void Project::Refresh()
-    {
-        if (IsLoaded())
-        {
-            m_projectInstance->BuildIndex();
-        }
-    }
-
     Project::Project(m_constructor_tag tag, LPDIRECT3DDEVICE9 device) :
         m_device(device),
         m_databasePath(),
@@ -243,7 +235,7 @@ namespace UltraEd
             case AssetType::Texture:
                 D3DXCreateTextureFromFileEx(m_device, LibraryPath(GetAsset(id)).string().c_str(),
                     ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth, 1, 0, D3DFMT_X8R8G8B8,
-                    D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, 0, 0, &m_assetPreviews[type][id]);
+                    D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, 0, 0, &m_assetPreviews[type][id]);
                 break;
             case AssetType::Model:
                 m_modelPreviewer.Render(m_device, LibraryPath(asset).string().c_str(), &m_assetPreviews[type][id]);

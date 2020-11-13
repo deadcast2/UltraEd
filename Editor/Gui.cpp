@@ -157,7 +157,6 @@ namespace UltraEd
     {
         ImGui_ImplDX9_InvalidateDeviceObjects();
 
-        Project::Refresh();
         ReleaseSceneTexture();
         m_renderDevice.Resize(width, height);
 
