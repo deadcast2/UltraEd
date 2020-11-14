@@ -36,11 +36,9 @@ namespace UltraEd
     private:
         void PrepareFrame();
         void LoadFonts();
-
         void CustomStyle(ImGuiStyle* style);
         void DarkColors();
         void LightColors();
-
         void ThemeEditor();
         void LoadColorTheme();
         void ReleaseSceneTexture();
@@ -50,6 +48,7 @@ namespace UltraEd
         void ViewMenu();
         void GizmoMenu();
         void Console();
+        void KeyListener();
         void SceneGraph();
         void SceneView();
         void Properties();
@@ -65,6 +64,7 @@ namespace UltraEd
         void LoadSceneModal();
         void SaveSceneModal();
         void ConfirmSceneModal();
+        void SaveScene(bool openModal = false);
 
     private:
         std::unique_ptr<Scene> m_scene;

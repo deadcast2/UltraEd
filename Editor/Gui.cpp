@@ -110,6 +110,7 @@ namespace UltraEd
                 ImGui::EndMainMenuBar();
             }
 
+            KeyListener();
             SceneGraph();
             SceneView();
             Console();
@@ -488,14 +489,12 @@ namespace UltraEd
 
                 if (m_scene->HasPath() && ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Scene", "Ctrl+S"))
                 {
-                    m_scene->SaveAs();
+                    SaveScene();
                 }
 
                 if (ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Scene As...", m_scene->HasPath() ? 0 : "Ctrl+S"))
                 {
-                    m_saveSceneModalOpen = std::make_tuple(true, []() {});
-                    m_fileBrowser.SetTitle("Save Scene As...");
-                    m_fileBrowser.Open();
+                    SaveScene(true);
                 }
 
                 if (ImGui::MenuItem(ICON_FK_FOLDER" Load Scene"))
@@ -741,6 +740,14 @@ namespace UltraEd
             }
 
             ImGui::EndMenu();
+        }
+    }
+
+    void Gui::KeyListener()
+    {
+        if (Project::IsLoaded() && IO().KeyCtrl && ImGui::IsKeyPressed('S', false))
+        {
+            SaveScene(!m_scene->HasPath());
         }
     }
 
@@ -1417,6 +1424,20 @@ namespace UltraEd
             }
 
             ImGui::EndPopup();
+        }
+    }
+
+    void Gui::SaveScene(bool openModal)
+    {
+        if (openModal)
+        {
+            m_saveSceneModalOpen = std::make_tuple(true, []() {});
+            m_fileBrowser.SetTitle("Save Scene As...");
+            m_fileBrowser.Open();
+        }
+        else
+        {
+            m_scene->SaveAs();
         }
     }
 }
