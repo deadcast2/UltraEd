@@ -31,18 +31,18 @@ typedef struct actor
 {
     enum actorType type;
     enum colliderType collider;
-    mesh *mesh;
+    mesh mesh;
     unsigned short *texture;
     int textureWidth;
     int textureHeight;
     double rotationAngle;
     double radius;
     int visible;
-    vector3 *position;
-    vector3 *rotationAxis;
-    vector3 *scale;
-    vector3 *center;
-    vector3 *extents;
+    vector3 position;
+    vector3 rotationAxis;
+    vector3 scale;
+    vector3 center;
+    vector3 extents;
     transform transform;
 } actor;
 

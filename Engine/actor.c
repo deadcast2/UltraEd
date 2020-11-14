@@ -23,7 +23,7 @@ actor *loadTexturedModel(void *dataStart, void *dataEnd, void *textureStart, voi
     double extentX, double extentY, double extentZ, enum colliderType collider)
 {
     unsigned char dataBuffer[200000];
-    unsigned char textureBuffer[20000];
+    unsigned char textureBuffer[200000];
     int dataSize = dataEnd - dataStart;
     int textureSize = textureEnd - textureStart;
     actor *newModel;
@@ -33,10 +33,6 @@ actor *loadTexturedModel(void *dataStart, void *dataEnd, void *textureStart, voi
     rom_2_ram(textureStart, textureBuffer, textureSize);
 
     newModel = (actor*)malloc(sizeof(actor));
-    newModel->mesh = (mesh*)malloc(sizeof(mesh));
-    newModel->position = (vector3*)malloc(sizeof(vector3));
-    newModel->rotationAxis = (vector3*)malloc(sizeof(vector3));
-    newModel->scale = (vector3*)malloc(sizeof(vector3));
     newModel->visible = 1;
     newModel->type = Model;
     newModel->collider = collider;
@@ -44,23 +40,21 @@ actor *loadTexturedModel(void *dataStart, void *dataEnd, void *textureStart, voi
     newModel->textureWidth = textureWidth;
     newModel->textureHeight = textureHeight;
 
-    newModel->center = (vector3*)malloc(sizeof(vector3));
-    newModel->center->x = centerX;
-    newModel->center->y = centerY;
-    newModel->center->z = centerZ;
+    newModel->center.x = centerX;
+    newModel->center.y = centerY;
+    newModel->center.z = centerZ;
     newModel->radius = radius;
 
-    newModel->extents = (vector3 *)malloc(sizeof(vector3));
-    newModel->extents->x = extentX;
-    newModel->extents->y = extentY;
-    newModel->extents->z = extentZ;
+    newModel->extents.x = extentX;
+    newModel->extents.y = extentY;
+    newModel->extents.z = extentZ;
 
     // Read how many vertices for this mesh.
     int vertexCount = 0;
     char *line = (char*)strtok(dataBuffer, "\n");
     sscanf(line, "%i", &vertexCount);
-    newModel->mesh->vertices = (Vtx*)malloc(vertexCount * sizeof(Vtx));
-    newModel->mesh->vertexCount = vertexCount;
+    newModel->mesh.vertices = (Vtx*)malloc(vertexCount * sizeof(Vtx));
+    newModel->mesh.vertexCount = vertexCount;
 
     // Gather all of the X, Y, and Z vertex info.
     for (int i = 0; i < vertexCount; i++)
@@ -69,30 +63,30 @@ actor *loadTexturedModel(void *dataStart, void *dataEnd, void *textureStart, voi
         line = (char*)strtok(NULL, "\n");
         sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf %lf", &x, &y, &z, &r, &g, &b, &a, &s, &t);
 
-        newModel->mesh->vertices[i].v.ob[0] = x * scaleX * 100;
-        newModel->mesh->vertices[i].v.ob[1] = y * scaleY * 100;
-        newModel->mesh->vertices[i].v.ob[2] = -z * scaleZ * 100;
-        newModel->mesh->vertices[i].v.flag = 0;
-        newModel->mesh->vertices[i].v.tc[0] = (int)(s * textureWidth) << 5;
-        newModel->mesh->vertices[i].v.tc[1] = (int)(t * textureHeight) << 5;
-        newModel->mesh->vertices[i].v.cn[0] = r * 255;
-        newModel->mesh->vertices[i].v.cn[1] = g * 255;
-        newModel->mesh->vertices[i].v.cn[2] = b * 255;
-        newModel->mesh->vertices[i].v.cn[3] = a * 255;
+        newModel->mesh.vertices[i].v.ob[0] = x * scaleX * 100;
+        newModel->mesh.vertices[i].v.ob[1] = y * scaleY * 100;
+        newModel->mesh.vertices[i].v.ob[2] = -z * scaleZ * 100;
+        newModel->mesh.vertices[i].v.flag = 0;
+        newModel->mesh.vertices[i].v.tc[0] = (int)(s * textureWidth) << 5;
+        newModel->mesh.vertices[i].v.tc[1] = (int)(t * textureHeight) << 5;
+        newModel->mesh.vertices[i].v.cn[0] = r * 255;
+        newModel->mesh.vertices[i].v.cn[1] = g * 255;
+        newModel->mesh.vertices[i].v.cn[2] = b * 255;
+        newModel->mesh.vertices[i].v.cn[3] = a * 255;
     }
 
     // Entire axis can't be zero or it won't render.
     if (rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
 
-    newModel->position->x = positionX;
-    newModel->position->y = positionY;
-    newModel->position->z = -positionZ;
-    newModel->scale->x = 0.01;
-    newModel->scale->y = 0.01;
-    newModel->scale->z = 0.01;
-    newModel->rotationAxis->x = rotX;
-    newModel->rotationAxis->y = rotY;
-    newModel->rotationAxis->z = -rotZ;
+    newModel->position.x = positionX;
+    newModel->position.y = positionY;
+    newModel->position.z = -positionZ;
+    newModel->scale.x = 0.01;
+    newModel->scale.y = 0.01;
+    newModel->scale.z = 0.01;
+    newModel->rotationAxis.x = rotX;
+    newModel->rotationAxis.y = rotY;
+    newModel->rotationAxis.z = -rotZ;
     newModel->rotationAngle = -angle;
 
     // Load in the png texture data.
@@ -115,14 +109,14 @@ void modelDraw(actor *model, Gfx **displayList)
 {
     if (!model->visible) return;
 
-    guTranslate(&model->transform.translation, model->position->x,
-        model->position->y, model->position->z);
+    guTranslate(&model->transform.translation, model->position.x,
+        model->position.y, model->position.z);
 
     guRotate(&model->transform.rotation, model->rotationAngle,
-        model->rotationAxis->x, model->rotationAxis->y, model->rotationAxis->z);
+        model->rotationAxis.x, model->rotationAxis.y, model->rotationAxis.z);
 
-    guScale(&model->transform.scale, model->scale->x,
-        model->scale->y, model->scale->z);
+    guScale(&model->transform.scale, model->scale.x,
+        model->scale.y, model->scale.z);
 
     gSPMatrix((*displayList)++, OS_K0_TO_PHYSICAL(&model->transform.translation),
         G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
@@ -156,14 +150,14 @@ void modelDraw(actor *model, Gfx **displayList)
     }
 
     int skip = 0;
-    int remainingVertices = model->mesh->vertexCount;
+    int remainingVertices = model->mesh.vertexCount;
     const int size = 30;
 
     // Send vertex data in batches.
     while (remainingVertices > 0)
     {
         int take = remainingVertices >= size ? size : remainingVertices;
-        gSPVertex((*displayList)++, &(model->mesh->vertices[skip]), take, 0);
+        gSPVertex((*displayList)++, &(model->mesh.vertices[skip]), take, 0);
         gDPPipeSync((*displayList)++);
 
         for (int i = 0; i < take / 3; i++)
@@ -184,30 +178,26 @@ actor *createCamera(double positionX, double positionY, double positionZ,
     double extentX, double extentY, double extentZ, enum colliderType collider)
 {
     actor *camera = (actor*)malloc(sizeof(actor));
-    camera->position = (vector3*)malloc(sizeof(vector3));
-    camera->rotationAxis = (vector3*)malloc(sizeof(vector3));
     camera->visible = 1;
     camera->type = Camera;
     camera->collider = collider;
 
-    camera->center = (vector3*)malloc(sizeof(vector3));
-    camera->center->x = centerX;
-    camera->center->y = centerY;
-    camera->center->z = centerZ;
+    camera->center.x = centerX;
+    camera->center.y = centerY;
+    camera->center.z = centerZ;
     camera->radius = radius;
 
-    camera->extents = (vector3 *)malloc(sizeof(vector3));
-    camera->extents->x = extentX;
-    camera->extents->y = extentY;
-    camera->extents->z = extentZ;
+    camera->extents.x = extentX;
+    camera->extents.y = extentY;
+    camera->extents.z = extentZ;
 
     if (rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
-    camera->position->x = positionX;
-    camera->position->y = positionY;
-    camera->position->z = positionZ;
-    camera->rotationAxis->x = rotX;
-    camera->rotationAxis->y = rotY;
-    camera->rotationAxis->z = rotZ;
+    camera->position.x = positionX;
+    camera->position.y = positionY;
+    camera->position.z = positionZ;
+    camera->rotationAxis.x = rotX;
+    camera->rotationAxis.y = rotY;
+    camera->rotationAxis.z = rotZ;
     camera->rotationAngle = angle;
 
     return camera;

@@ -18,8 +18,8 @@ int check_collision(actor *a, actor *b)
 int sphere_sphere_collision(actor *a, actor *b)
 {
     const float radiusSum = a->radius + b->radius;
-    vector3 aPos = vec3_add(*a->position, vec3_mul_mat3x3(*a->center, a->transform.rotation));
-    vector3 bPos = vec3_add(*b->position, vec3_mul_mat3x3(*b->center, b->transform.rotation));
+    vector3 aPos = vec3_add(a->position, vec3_mul_mat3x3(a->center, a->transform.rotation));
+    vector3 bPos = vec3_add(b->position, vec3_mul_mat3x3(b->center, b->transform.rotation));
     vector3 dist = vec3_sub(aPos, bPos);
 
     return vec3_dot(dist, dist) <= radiusSum * radiusSum;
@@ -27,8 +27,8 @@ int sphere_sphere_collision(actor *a, actor *b)
 
 int box_box_collision(actor *a, actor *b)
 {
-    vector3 aPos = vec3_add(*a->position, vec3_mul_mat3x3(*a->center, a->transform.rotation));
-    vector3 bPos = vec3_add(*b->position, vec3_mul_mat3x3(*b->center, b->transform.rotation));
+    vector3 aPos = vec3_add(a->position, vec3_mul_mat3x3(a->center, a->transform.rotation));
+    vector3 bPos = vec3_add(b->position, vec3_mul_mat3x3(b->center, b->transform.rotation));
     
     vector3 aAxis[3] = { 
         vec3_mul_mat3x3((vector3) { 1, 0, 0 }, a->transform.rotation),
@@ -36,7 +36,7 @@ int box_box_collision(actor *a, actor *b)
         vec3_mul_mat3x3((vector3) { 0, 0, 1 }, a->transform.rotation)
     };
 
-    float aExt[3] = { a->extents->x, a->extents->y, a->extents->z };
+    float aExt[3] = { a->extents.x, a->extents.y, a->extents.z };
 
     vector3 bAxis[3] = {
         vec3_mul_mat3x3((vector3) { 1, 0, 0 }, b->transform.rotation),
@@ -44,7 +44,7 @@ int box_box_collision(actor *a, actor *b)
         vec3_mul_mat3x3((vector3) { 0, 0, 1 }, b->transform.rotation)
     };
 
-    float bExt[3] = { b->extents->x, b->extents->y, b->extents->z };
+    float bExt[3] = { b->extents.x, b->extents.y, b->extents.z };
 
     float ra, rb;
     float R[3][3], AbsR[3][3];
@@ -116,8 +116,8 @@ int box_box_collision(actor *a, actor *b)
 
 int box_sphere_collision(actor *a, actor *b)
 {
-    vector3 aPos = vec3_add(*a->position, vec3_mul_mat3x3(*a->center, a->transform.rotation));
-    vector3 bPos = vec3_add(*b->position, vec3_mul_mat3x3(*b->center, b->transform.rotation));
+    vector3 aPos = vec3_add(a->position, vec3_mul_mat3x3(a->center, a->transform.rotation));
+    vector3 bPos = vec3_add(b->position, vec3_mul_mat3x3(b->center, b->transform.rotation));
 
     vector3 aAxis[3] = {
         vec3_mul_mat3x3((vector3) { 1, 0, 0 }, a->transform.rotation),
@@ -125,7 +125,7 @@ int box_sphere_collision(actor *a, actor *b)
         vec3_mul_mat3x3((vector3) { 0, 0, 1 }, a->transform.rotation)
     };
 
-    float aExt[3] = { a->extents->x, a->extents->y, a->extents->z };
+    float aExt[3] = { a->extents.x, a->extents.y, a->extents.z };
 
     vector3 abDir = vec3_sub(bPos, aPos);
     vector3 closestPoint = aPos;

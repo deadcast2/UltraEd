@@ -122,9 +122,9 @@ void update_camera()
     actor *camera = _UER_ActiveCamera;
     if (camera != NULL)
     {
-        guTranslate(&world.translation, -camera->position->x, -camera->position->y, camera->position->z);
-        guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis->x, camera->rotationAxis->y,
-            -camera->rotationAxis->z);
+        guTranslate(&world.translation, -camera->position.x, -camera->position.y, camera->position.z);
+        guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis.x, camera->rotationAxis.y,
+            -camera->rotationAxis.z);
     }
 }
 
