@@ -176,7 +176,7 @@ namespace UltraEd
                 return state;
             },
             [=](const json &oldState) {
-                m_scene->RestoreActor(oldState);
+                m_scene->RestoreActor(oldState, true);
                 m_scene->SelectActorById(actorId);
             },
             groupId
@@ -194,7 +194,7 @@ namespace UltraEd
         Add({
             std::string("Delete ").append(name),
             [=]() {
-                m_scene->RestoreActor(state);
+                m_scene->RestoreActor(state, true);
                 m_scene->SelectActorById(actorId);
 
                 return state;
@@ -223,14 +223,14 @@ namespace UltraEd
                     return actor->Save();
                 });
 
-                m_scene->RestoreActor(state);
+                m_scene->RestoreActor(state, true);
                 m_scene->SelectActorById(actorId, false);
 
                 // Return state saved before restore so system can "undo" to this point.
                 return oldState;
             },
             [=](const json &oldState) {
-                m_scene->RestoreActor(oldState);
+                m_scene->RestoreActor(oldState, true);
                 m_scene->SelectActorById(actorId, false);
             },
             groupId

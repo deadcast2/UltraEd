@@ -39,7 +39,7 @@ namespace UltraEd
         void PartialLoad(const nlohmann::json &root);
         void UnselectAll();
         std::shared_ptr<Actor> GetActor(const boost::uuids::uuid &id);
-        void RestoreActor(const nlohmann::json &item);
+        void RestoreActor(const nlohmann::json &item, bool markSceneDirty = false);
         void Delete(std::shared_ptr<Actor> actor);
         void SelectActorById(const boost::uuids::uuid &id, bool clearAll = true);
         void Resize(UINT width, UINT height);

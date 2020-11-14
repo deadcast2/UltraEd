@@ -578,7 +578,6 @@ namespace UltraEd
         {
             m_auditor.DeleteActor("Actor", selectedActorId, groupId);
             Delete(m_actors[selectedActorId]);
-            SetDirty(true);
         }
     }
 
@@ -591,6 +590,7 @@ namespace UltraEd
         if (it != m_selectedActorIds.end()) m_selectedActorIds.erase(it);
 
         m_actors.erase(actor->GetId());
+        SetDirty(true);
     }
 
     void Scene::Duplicate()
@@ -851,7 +851,7 @@ namespace UltraEd
         m_gizmo.SetSnapSize(root["gizmo_snap_size"]);
     }
 
-    void Scene::RestoreActor(const nlohmann::json &actor)
+    void Scene::RestoreActor(const nlohmann::json &actor, bool markSceneDirty)
     {
         // Avoid creation of new actor objects when restoring.
         auto existingActor = GetActor(actor["id"]);
@@ -873,5 +873,7 @@ namespace UltraEd
                 break;
             }
         }
+
+        SetDirty(markSceneDirty);
     }
 }
