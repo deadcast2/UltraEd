@@ -201,7 +201,7 @@ namespace UltraEd
 
         if (m_collider)
         {
-            actor.update(m_collider->Save());
+            actor["collider"] = m_collider->Save();
         }
 
         SetDirty(false);
