@@ -147,17 +147,18 @@ namespace UltraEd
             ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 
             device->EndScene();
-            device->Present(NULL, NULL, NULL, NULL);
-
-            if (m_renderDevice.IsLost())
-            {
-                const auto parameters = m_renderDevice.GetParameters();
-                Resize(parameters->BackBufferWidth, parameters->BackBufferHeight);
-            }
         }
 
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
+
+        device->Present(NULL, NULL, NULL, NULL);
+
+        if (m_renderDevice.IsLost())
+        {
+            const auto parameters = m_renderDevice.GetParameters();
+            Resize(parameters->BackBufferWidth, parameters->BackBufferHeight);
+        }
     }
 
     void Gui::Resize(UINT width, UINT height)
