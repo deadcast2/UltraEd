@@ -70,7 +70,10 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             return 0;
         case WM_SIZE:
         {
-            if (gui) gui->Resize(LOWORD(lParam), HIWORD(lParam));
+            if (gui && wParam != SIZE_MINIMIZED)
+            {
+                gui->Resize(LOWORD(lParam), HIWORD(lParam));
+            }
             return 0;
         }
         case WM_SYSCOMMAND:
