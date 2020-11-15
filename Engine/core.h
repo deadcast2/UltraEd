@@ -21,4 +21,25 @@ void SetActiveCamera(actor *camera)
     }
 }
 
+actor *Instantiate(actor *other)
+{
+    if (other == NULL) return NULL;
+
+    actor *clonedActor = (actor *)malloc(sizeof(actor));
+    if (clonedActor)
+    {
+        memcpy(clonedActor, other, sizeof(*clonedActor));
+
+        actor **expanded = realloc(_UER_Actors, (_UER_ActorCount + 1) * sizeof(actor *));
+        if (expanded)
+        {
+            _UER_Actors[_UER_ActorCount++] = clonedActor;
+        }
+
+        return clonedActor;
+    }
+
+    return NULL;
+}
+
 #endif

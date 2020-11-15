@@ -208,11 +208,12 @@ namespace UltraEd
     {
         int actorCount = -1;
         std::string totalActors = std::to_string(actors.size());
-        std::string actorInits, modelDraws;
+        
+        std::string actorInits("\n\t_UER_Actors = malloc(");
+        actorInits.append(totalActors).append(" * sizeof(actor *));\n");
 
-        std::string actorsArrayDef("const int _UER_ActorCount = ");
-        actorsArrayDef.append(totalActors).append(";\nactor *_UER_Actors[")
-            .append(totalActors).append("];\n").append("actor *_UER_ActiveCamera = NULL;\n");
+        std::string actorsArrayDef("int _UER_ActorCount = ");
+        actorsArrayDef.append(totalActors).append(";\nactor **_UER_Actors;").append("\nactor *_UER_ActiveCamera = NULL;\n");
 
         for (const auto &actor : actors)
         {
@@ -287,8 +288,6 @@ namespace UltraEd
                         color.r, color.g, color.b, color.a, vert.tu, vert.tv);
                 }
                 fclose(file);
-
-                modelDraws.append("\n\tmodelDraw(_UER_Actors[").append(std::to_string(actorCount)).append("], display_list);\n");
             }
             else if (actor->GetType() == ActorType::Camera)
             {
@@ -320,8 +319,10 @@ namespace UltraEd
         fwrite("}", 1, 1, file.get());
 
         const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
+        std::string drawLoop("\n\tfor (int i = 0; i < _UER_ActorCount; i++) {\n\t\tmodelDraw(_UER_Actors[i], display_list);\n\t}\n");
+
         fwrite(drawStart, 1, strlen(drawStart), file.get());
-        fwrite(modelDraws.c_str(), 1, modelDraws.size(), file.get());
+        fwrite(drawLoop.c_str(), 1, drawLoop.size(), file.get());
         fwrite("}", 1, 1, file.get());
         return true;
     }
