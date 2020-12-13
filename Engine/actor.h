@@ -2,7 +2,6 @@
 #define _ACTOR_H_
 
 #include <nusys.h>
-#include "upng.h"
 
 enum actorType { Model, Camera };
 

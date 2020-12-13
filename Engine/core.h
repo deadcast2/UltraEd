@@ -10,7 +10,7 @@ actor *FindActorByName(const char *name)
 {
     nlist *np = lookup(name);
     if (np == NULL) return NULL;
-    return _UER_Actors[np->gameObjectIndex];
+    return vector_get(_UER_Actors, np->gameObjectIndex);
 }
 
 void SetActiveCamera(actor *camera)
@@ -30,11 +30,7 @@ actor *Instantiate(actor *other)
     {
         memcpy(clonedActor, other, sizeof(*clonedActor));
 
-        actor **expanded = realloc(_UER_Actors, (_UER_ActorCount + 1) * sizeof(actor *));
-        if (expanded)
-        {
-            _UER_Actors[_UER_ActorCount++] = clonedActor;
-        }
+        vector_add(_UER_Actors, clonedActor);
 
         return clonedActor;
     }

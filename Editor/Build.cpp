@@ -209,16 +209,15 @@ namespace UltraEd
         int actorCount = -1;
         std::string totalActors = std::to_string(actors.size());
         
-        std::string actorInits("\n\t_UER_Actors = malloc(");
-        actorInits.append(totalActors).append(" * sizeof(actor *));\n");
+        std::string actorsArrayDef("vector _UER_Actors = NULL;");
+        actorsArrayDef.append("\nactor *_UER_ActiveCamera = NULL;\n");
 
-        std::string actorsArrayDef("int _UER_ActorCount = ");
-        actorsArrayDef.append(totalActors).append(";\nactor **_UER_Actors;").append("\nactor *_UER_ActiveCamera = NULL;\n");
-
+        std::string actorInits("\n\t_UER_Actors = vector_create();\n");
+        
         for (const auto &actor : actors)
         {
             std::string resourceName = Util::NewResourceName(++actorCount);
-            actorInits.append("\n\t_UER_Actors[").append(std::to_string(actorCount)).append("] = ");
+            actorInits.append("\n\tvector_add(_UER_Actors, ");
 
             D3DXVECTOR3 colliderCenter = actor->HasCollider() ? actor->GetCollider()->GetCenter() : D3DXVECTOR3(0, 0, 0);
             FLOAT colliderRadius = actor->HasCollider() && actor->GetCollider()->GetType() == ColliderType::Sphere ?
@@ -239,9 +238,9 @@ namespace UltraEd
                 modelName.append("_M");
 
                 if (!texturePath.empty())
-                    actorInits.append("(actor*)loadTexturedModel(_");
+                    actorInits.append("loadTexturedModel(_");
                 else
-                    actorInits.append("(actor*)loadModel(_");
+                    actorInits.append("loadModel(_");
 
                 actorInits.append(modelName).append("SegmentRomStart, _").append(modelName).append("SegmentRomEnd");
 
@@ -271,7 +270,7 @@ namespace UltraEd
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius,
                     colliderExtents.x, colliderExtents.y, colliderExtents.z,
                     actor->HasCollider() ? actor->GetCollider()->GetName() : "None");
-                actorInits.append(vectorBuffer).append(");\n");
+                actorInits.append(vectorBuffer).append("));\n");
 
                 // Write out mesh data.
                 std::vector<Vertex> vertices = actor->GetVertices();
@@ -291,7 +290,7 @@ namespace UltraEd
             }
             else if (actor->GetType() == ActorType::Camera)
             {
-                actorInits.append("(actor*)createCamera(");
+                actorInits.append("createCamera(");
                 char vectorBuffer[256];
                 D3DXVECTOR3 position = actor->GetPosition();
                 D3DXVECTOR3 axis;
@@ -303,7 +302,7 @@ namespace UltraEd
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius,
                     colliderExtents.x, colliderExtents.y, colliderExtents.z,
                     actor->HasCollider() ? actor->GetCollider()->GetName() : "None");
-                actorInits.append(vectorBuffer).append(");\n");
+                actorInits.append(vectorBuffer).append("));\n");
             }
         }
 
@@ -319,7 +318,7 @@ namespace UltraEd
         fwrite("}", 1, 1, file.get());
 
         const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
-        std::string drawLoop("\n\tfor (int i = 0; i < _UER_ActorCount; i++) {\n\t\tmodelDraw(_UER_Actors[i], display_list);\n\t}\n");
+        std::string drawLoop("\n\tfor (int i = 0; i < vector_size(_UER_Actors); i++) {\n\t\tmodelDraw(vector_get(_UER_Actors, i), display_list);\n\t}\n");
 
         fwrite(drawStart, 1, strlen(drawStart), file.get());
         fwrite(drawLoop.c_str(), 1, drawLoop.size(), file.get());
@@ -354,17 +353,17 @@ namespace UltraEd
                     continue;
 
                 _itoa(collisionCount - 1, countBuffer, 10);
-                collisions.append("\n\tif(check_collision(_UER_Actors[").append(countBuffer);
+                collisions.append("\n\tif(check_collision(vector_get(_UER_Actors, ").append(countBuffer);
                 _itoa(subLoop, countBuffer, 10);
-                collisions.append("], _UER_Actors[").append(countBuffer).append("]))\n\t{\n");
+                collisions.append("), vector_get(_UER_Actors, ").append(countBuffer).append(")))\n\t{\n");
 
                 collisions.append("\t\t").append(Util::NewResourceName(subLoop)).append("collide(");
                 _itoa(collisionCount - 1, countBuffer, 10);
-                collisions.append("_UER_Actors[").append(countBuffer).append("]);\n");
+                collisions.append("vector_get(_UER_Actors, ").append(countBuffer).append("));\n");
 
                 collisions.append("\t\t").append(Util::NewResourceName(collisionCount - 1)).append("collide(");
                 _itoa(subLoop, countBuffer, 10);
-                collisions.append("_UER_Actors[").append(countBuffer).append("]);\n");
+                collisions.append("vector_get(_UER_Actors, ").append(countBuffer).append("));\n");
 
                 collisions.append("\t}\n");
             }
@@ -392,14 +391,14 @@ namespace UltraEd
         for (const auto &actor : actors)
         {
             std::string actorRef;
-            actorRef.append("_UER_Actors[");
+            actorRef.append("vector_get(_UER_Actors, ");
 
             std::string newResName = Util::NewResourceName(++actorCount);
             std::string script = actor->GetScript();
             auto result = Util::ReplaceString(script, "$", newResName);
 
             _itoa(actorCount, countBuffer, 10);
-            actorRef.append(countBuffer).append("]->");
+            actorRef.append(countBuffer).append(")->");
             result = Util::ReplaceString(result, "self->", actorRef);
             scripts.append(result).append("\n\n");
 

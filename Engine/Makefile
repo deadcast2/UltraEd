@@ -16,7 +16,7 @@ LDFLAGS = $(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) -lnualsgi_d -lnusys -lgultra_rom
 OPTIMIZER =	-g
 APP = main.out
 TARGETS = main.n64
-CODEFILES = main.c utilities.c upng.c actor.c collision.c
+CODEFILES = main.c utilities.c upng.c actor.c collision.c vector.c
 CODEOBJECTS = $(CODEFILES:.c=.o)  $(NUSYSLIBDIR)\nusys.o
 DATAOBJECTS = $(DATAFILES:.c=.o)
 CODESEGMENT = codesegment.o

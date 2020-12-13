@@ -5,6 +5,7 @@
 #include "actor.h"
 #include "collision.h"
 #include "scene.h"
+#include "vector.h"
 
 // Generated includes.
 #include "definitions.h"
@@ -147,11 +148,11 @@ int init_heap_memory()
 
 void set_default_camera()
 {
-    for (int i = 0; i < _UER_ActorCount; i++)
+    for (int i = 0; i < vector_size(_UER_Actors); i++)
     {
-        if (_UER_Actors[i]->type == Camera)
+        if (vector_get(_UER_Actors, i)->type == Camera)
         {
-            _UER_ActiveCamera = _UER_Actors[i];
+            _UER_ActiveCamera = vector_get(_UER_Actors, i);
             break;
         }
     }
