@@ -25,7 +25,6 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="Gizmo.cpp" />
     <ClCompile Include="Grid.cpp" />
@@ -65,7 +64,6 @@
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="Dialog.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="Gizmo.h" />
     <ClInclude Include="Grid.h" />

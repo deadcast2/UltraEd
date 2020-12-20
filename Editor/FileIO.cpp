@@ -6,7 +6,6 @@
 #include "Common.h"
 #include "FileIO.h"
 #include "Util.h"
-#include "Dialog.h"
 
 namespace UltraEd
 {

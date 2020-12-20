@@ -28,6 +28,7 @@ namespace UltraEd
         static void CopyBackBuffer(UINT width, UINT height, LPDIRECT3DDEVICE9 source,
             LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture);
         static float Snap(float value);
+        static float GetDPIScale();
 
     private:
         Util() {};

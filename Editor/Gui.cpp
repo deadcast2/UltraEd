@@ -194,12 +194,15 @@ namespace UltraEd
 
     void Gui::LoadFonts()
     {
+        const float fontSize = 14.0f * Util::GetDPIScale();
         ImGuiIO &io = ImGui::GetIO();
-        io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, 13.0f);
+        io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, fontSize);
+
         ImFontConfig config;
         config.MergeMode = true;
         const ImWchar icon_ranges[] = { ICON_MIN_FK, ICON_MAX_FK, 0 };
-        io.Fonts->AddFontFromMemoryCompressedTTF(fk_compressed_data, fk_compressed_size, 13.0f, &config, icon_ranges);
+        
+        io.Fonts->AddFontFromMemoryCompressedTTF(fk_compressed_data, fk_compressed_size, fontSize, &config, icon_ranges);
         io.Fonts->Build();
     }
 
@@ -354,6 +357,7 @@ namespace UltraEd
         style->SelectableTextAlign = ImVec2(0.0f, 0.0f);
 
         style->DisplaySafeAreaPadding = ImVec2(3.0f, 3.0f);
+        style->ScaleAllSizes(Util::GetDPIScale());
     }
 
     void Gui::LoadColorTheme()

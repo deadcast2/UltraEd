@@ -3,7 +3,6 @@
 #include "Debug.h"
 #include "Scene.h"
 #include "FileIO.h"
-#include "Dialog.h"
 #include "Util.h"
 #include "BoxCollider.h"
 #include "SphereCollider.h"

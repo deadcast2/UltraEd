@@ -93,4 +93,13 @@ namespace UltraEd
     {
         return floorf(value + 0.5f);
     }
+
+    float Util::GetDPIScale()
+    {
+        HDC dc = GetDC(0);
+        const int dpi = GetDeviceCaps(dc, LOGPIXELSX);
+        ReleaseDC(0, dc);
+
+        return dpi / 96.0f;
+    }
 }

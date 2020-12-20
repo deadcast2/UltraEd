@@ -13,6 +13,8 @@ std::unique_ptr<Gui> gui;
 
 int main(int, char **)
 {
+    SetProcessDPIAware();
+
     WNDCLASSEX wc = {
         sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL),
         LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN_ICON)),
@@ -21,8 +23,9 @@ int main(int, char **)
 
     RegisterClassEx(&wc);
 
-    const int windowWidth = 1024;
-    const int windowHeight = 768;
+    const float dpiScale = Util::GetDPIScale();
+    const int windowWidth = static_cast<int>(1024 * dpiScale);
+    const int windowHeight = static_cast<int>(768 * dpiScale);
     HWND hWnd = CreateWindow(wc.lpszClassName, APP_NAME, WS_OVERLAPPEDWINDOW,
         (GetSystemMetrics(SM_CXSCREEN) / 2) - (windowWidth / 2),
         (GetSystemMetrics(SM_CYSCREEN) / 2) - (windowHeight / 2),
