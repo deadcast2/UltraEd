@@ -62,3 +62,7 @@ The dollar signs are necessary to allow correct namespacing of all defined funct
 If you would like... you can donate to UltraEd's development! Give any amount. Even $0.00 lol! ^_^
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R25G2EARP89AL)
+
+### License
+
+UltraEd is MIT licensed and was previously GPL v3. The decision to change was due to no longer using Qt for the GUI. ImGui was chosen instead due to its immediate-mode style rendering and more flexible license.
