@@ -1,13 +1,13 @@
 <img src="https://s3.amazonaws.com/kittypizza/ultraed.png" width="550">
 
-## A level editor/game engine for the Nintendo 64
+## A WIP level editor/game engine for the Nintendo 64
 
 <img src="https://i.imgur.com/TSwNWNs.png" width="600">
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f246a65f5b4f480f922a5ed886eb37e8)](https://www.codacy.com/app/deadcast2/UltraEd?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=deadcast2/UltraEd&amp;utm_campaign=Badge_Grade)
 
 ### What I'm Working on Currently
-Parenting system for actors in the parenting branch.
+Bugs in the issues list. :p
 
 ### Setup
 
