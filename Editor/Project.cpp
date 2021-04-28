@@ -73,6 +73,16 @@ namespace UltraEd
         return path();
     }
 
+    path Project::RootPath()
+    {
+        if (IsLoaded())
+        {
+            return m_projectInstance->ParentPath();
+        }
+
+        return path();
+    }
+
     Project::Project(m_constructor_tag tag, LPDIRECT3DDEVICE9 device) :
         m_device(device),
         m_databasePath(),

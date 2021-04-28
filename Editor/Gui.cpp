@@ -201,7 +201,7 @@ namespace UltraEd
         ImFontConfig config;
         config.MergeMode = true;
         const ImWchar icon_ranges[] = { ICON_MIN_FK, ICON_MAX_FK, 0 };
-        
+
         io.Fonts->AddFontFromMemoryCompressedTTF(fk_compressed_data, fk_compressed_size, fontSize, &config, icon_ranges);
         io.Fonts->Build();
     }
@@ -509,6 +509,7 @@ namespace UltraEd
                         m_fileBrowser.SetTitle("Load Scene");
                         m_fileBrowser.SetTypeFilters({ APP_SCENE_FILE_EXT });
                         m_fileBrowser.Open();
+                        m_fileBrowser.SetPwd(Project::RootPath());
                     });
                 }
 
@@ -685,6 +686,11 @@ namespace UltraEd
                 m_scene->SetViewType(ViewType::Left);
             }
 
+            if (ImGui::MenuItem("Right", 0, viewType == ViewType::Right))
+            {
+                m_scene->SetViewType(ViewType::Right);
+            }
+
             if (ImGui::MenuItem("Front", 0, viewType == ViewType::Front))
             {
                 m_scene->SetViewType(ViewType::Front);
@@ -760,23 +766,75 @@ namespace UltraEd
     {
         if (ImGui::Begin(ICON_FK_TH_LIST" Scene Graph", 0, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick
-                | ImGuiTreeNodeFlags_SpanAvailWidth;
-
-            auto actors = m_scene->GetActors();
-            for (int i = 0; i < actors.size(); i++)
+            for (const auto actor : m_scene->GetActors())
             {
-                ImGuiTreeNodeFlags leafFlags = baseFlags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-                if (m_scene->IsActorSelected(actors[i]->GetId()))
-                    leafFlags |= ImGuiTreeNodeFlags_Selected;
+                if (actor->GetParent() != nullptr)
+                    continue;
 
-                ImGui::TreeNodeEx((void *)(intptr_t)i, leafFlags, actors[i]->GetName().c_str());
-                if (ImGui::IsItemClicked())
-                    m_scene->SelectActorById(actors[i]->GetId(), !IO().KeyShift);
+                RenderTreeNode(actor);
             }
         }
 
         ImGui::End();
+    }
+
+    void Gui::RenderTreeNode(Actor *actor)
+    {
+        if (actor == nullptr)
+            return;
+
+        ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth |
+            ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+        if (m_scene->IsActorSelected(actor->GetId()))
+            leafFlags |= ImGuiTreeNodeFlags_Selected;
+
+        if (actor->GetChildren().empty())
+            leafFlags |= ImGuiTreeNodeFlags_Leaf;
+
+        const bool isOpen = ImGui::TreeNodeEx(&actor->GetId(), leafFlags, actor->GetName().c_str());
+
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        {
+            m_scene->SelectActorById(actor->GetId(), !IO().KeyShift);
+            
+            if (IO().MouseClicked[ImGuiMouseButton_Right])
+            {
+                OpenContextMenu(actor);
+            }
+        }
+
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+        {
+            ImGui::SetDragDropPayload("ACTOR_NODE_ID", &actor->GetId(), sizeof(boost::uuids::uuid));
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ACTOR_NODE_ID"))
+            {
+                const auto selectedActor = m_scene->GetActor(*(boost::uuids::uuid *)payload->Data);
+                if (selectedActor != nullptr)
+                {
+                    m_scene->m_auditor.ParentActor("Parent", actor->GetId(), Util::NewUuid());
+                    selectedActor->SetParent(actor);
+                }
+            }
+
+            ImGui::EndDragDropTarget();
+        }
+
+        if (!isOpen) return;
+
+        ImGui::TreePush();
+
+        for (const auto child : actor->GetChildren())
+        {
+            RenderTreeNode(child.second);
+        }
+
+        ImGui::TreePop();
     }
 
     void Gui::SceneView()
@@ -784,11 +842,11 @@ namespace UltraEd
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         if (ImGui::Begin(ICON_FK_TH" Scene View", 0, ImGuiWindowFlags_NoScrollbar))
         {
-            if (ImGui::IsWindowHovered())
+            if (ImGui::IsWindowHovered() || m_scene->IsDragging())
             {
                 const auto mousePos = ImGui::GetMousePos();
                 const auto windowPos = ImGui::GetWindowPos();
-                const ImVec2 windowMousePos { mousePos.x - windowPos.x, mousePos.y - windowPos.y - ImGui::GetFrameHeight() };
+                const D3DXVECTOR2 windowMousePos = D3DXVECTOR2(mousePos.x - windowPos.x, mousePos.y - windowPos.y - ImGui::GetFrameHeight());
 
                 m_scene->UpdateInput(windowMousePos);
             }
@@ -862,7 +920,7 @@ namespace UltraEd
             // Show the properties of the last selected actor.
             targetActor = actors[actors.size() - 1];
             sprintf(name, targetActor->GetName().c_str());
-            Util::ToFloat3(targetActor->GetPosition(), position);
+            Util::ToFloat3(targetActor->GetPosition(false), position);
             Util::ToFloat3(targetActor->GetEulerAngles(), rotation);
             Util::ToFloat3(targetActor->GetScale(), scale);
         }
@@ -920,7 +978,7 @@ namespace UltraEd
 
             if (tempPos != D3DXVECTOR3(position))
             {
-                auto curPos = actors[i]->GetPosition();
+                auto curPos = actors[i]->GetPosition(false);
                 m_scene->m_auditor.ChangeActor("Position Set", actors[i]->GetId(), groupId);
                 actors[i]->SetPosition(D3DXVECTOR3(
                     tempPos.x != position[0] ? position[0] : curPos.x,
@@ -1117,6 +1175,15 @@ namespace UltraEd
             if (ImGui::MenuItem("Duplicate"))
             {
                 m_scene->Duplicate();
+            }
+
+            if (m_selectedActor != nullptr && m_selectedActor->GetParent() != nullptr)
+            {
+                if (ImGui::MenuItem("Unparent"))
+                {
+                    m_scene->m_auditor.UnparentActor("Unparent", m_selectedActor->GetParent()->GetId(), Util::NewUuid());
+                    m_selectedActor->Unparent();
+                }
             }
 
             ImGui::EndPopup();
@@ -1439,6 +1506,7 @@ namespace UltraEd
             m_saveSceneModalOpen = std::make_tuple(true, []() {});
             m_fileBrowser.SetTitle("Save Scene As...");
             m_fileBrowser.Open();
+            m_fileBrowser.SetPwd(Project::RootPath());
         }
         else
         {

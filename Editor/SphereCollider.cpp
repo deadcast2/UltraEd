@@ -12,14 +12,19 @@ namespace UltraEd
     SphereCollider::SphereCollider(const std::vector<Vertex> &vertices) : SphereCollider()
     {
         // Compute optimal center and radius (sphere)
-        FindCenterWithRadius(m_center, m_radius, vertices);
+        RitterIterative(m_center, m_radius, vertices);
+
         Build();
+
+        m_originalCenter = m_center;
     }
 
     void SphereCollider::Build()
     {
         const int segments = 32;
         const float sample = (2 * D3DX_PI) / segments;
+
+        m_vertices.clear();
 
         // Horizontal
         for (int i = 0; i < segments; i++)
@@ -46,10 +51,22 @@ namespace UltraEd
         }
     }
 
+    void SphereCollider::Update(D3DXMATRIX &mat)
+    {
+        // Clear translation from matrix.
+        mat._41 = mat._42 = mat._43 = 0;
+
+        D3DXVec3TransformCoord(&m_center, &m_originalCenter, &mat);
+
+        Build();
+        Release();
+    }
+
     void SphereCollider::SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices)
     {
         D3DXVECTOR3 min, max;
-        DistantAABBPoints(min, max, vertices);
+        MostDistantAABBPoints(min, max, vertices);
+
         center = (min + max) * 0.5f;
         radius = sqrtf(D3DXVec3Dot(&(max - center), &(max - center)));
     }
@@ -68,12 +85,43 @@ namespace UltraEd
         }
     }
 
-    void SphereCollider::FindCenterWithRadius(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices)
+    void SphereCollider::RitterSphere(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices)
     {
         SphereFromDistPoints(center, radius, vertices);
+
         for (size_t i = 0; i < vertices.size(); i++)
         {
             AdjustSphere(center, radius, vertices[i]);
+        }
+    }
+
+    void SphereCollider::RitterIterative(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices)
+    {
+        const int iterations = 12;
+        const int vertexCount = static_cast<int>(vertices.size());
+
+        RitterSphere(center, radius, vertices);
+
+        D3DXVECTOR3 newCenter = center;
+        FLOAT newRadius = radius;
+        boost::random::mt19937 engine;
+
+        for (int k = 0; k < iterations; k++)
+        {
+            newRadius = newRadius * 0.95f;
+
+            for (int i = 0; i < vertexCount; i++)
+            {
+                boost::random::uniform_int_distribution<> range(i, vertexCount - 1);
+
+                AdjustSphere(newCenter, newRadius, vertices[range(engine)]);
+            }
+
+            if (newRadius < radius)
+            {
+                center = newCenter;
+                radius = newRadius;
+            }
         }
     }
 

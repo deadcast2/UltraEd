@@ -17,6 +17,7 @@ namespace UltraEd
 
     protected:
         virtual void SetDirty(bool value);
+        virtual void OnChanged();
         template<typename T>
         bool Dirty(std::function<void()> set, const T *var)
         {
@@ -27,6 +28,8 @@ namespace UltraEd
             if (before != *var)
             {
                 m_isDirty = true;
+                OnChanged();
+
                 return true;
             }
 

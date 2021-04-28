@@ -37,6 +37,8 @@ namespace UltraEd
         void AddActor(const std::string &name, const uuid &actorId, const uuid &groupId = boost::uuids::nil_uuid());
         void DeleteActor(const std::string &name, const uuid &actorId, const uuid &groupId = boost::uuids::nil_uuid());
         void ChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId = boost::uuids::nil_uuid());
+        void ParentActor(const std::string &name, const uuid &actorId, const uuid &groupId = boost::uuids::nil_uuid());
+        void UnparentActor(const std::string &name, const uuid &actorId, const uuid &groupId = boost::uuids::nil_uuid());
         void ChangeScene(const std::string &name);
         std::array<std::string, 2> Titles();
         std::function<void()> PotentialChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId);

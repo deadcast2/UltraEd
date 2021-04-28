@@ -32,7 +32,7 @@ namespace UltraEd
         ~Scene();
         std::vector<Actor *> GetActors(bool selectedOnly = false);
         COLORREF GetBackgroundColor();
-        void UpdateInput(const ImVec2 &mousePos);
+        void UpdateInput(const D3DXVECTOR2 &mousePos);
         void Render(LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture);
         nlohmann::json Save();
         nlohmann::json PartialSave();
@@ -40,11 +40,12 @@ namespace UltraEd
         void UnselectAll();
         std::shared_ptr<Actor> GetActor(const boost::uuids::uuid &id);
         void RestoreActor(const nlohmann::json &item, bool markSceneDirty = false);
-        void Delete(std::shared_ptr<Actor> actor);
+        void Delete(Actor *actor);
         void SelectActorById(const boost::uuids::uuid &id, bool clearAll = true);
         void Resize(UINT width, UINT height);
         void Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds);
         bool HasPath();
+        bool IsDragging() { return m_isDragging; }
      
     private:
         void Delete();
@@ -65,9 +66,8 @@ namespace UltraEd
         void AddCollider(ColliderType type);
         void DeleteCollider();
         void BuildROM(BuildFlag flag);
-        bool Pick(ImVec2 mousePoint, bool ignoreGizmo = false, Actor **selectedActor = NULL);
+        bool Pick(const D3DXVECTOR2 &mousePoint, bool ignoreGizmo = false, Actor **selectedActor = NULL);
         void Release();
-        void ScreenRaycast(ImVec2 screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
         void SetViewType(ViewType type);
         View *GetActiveView();
         bool ToggleMovementSpace();
@@ -89,7 +89,7 @@ namespace UltraEd
         D3DMATERIAL9 m_defaultMaterial;
         D3DFILLMODE m_fillMode;
         Gizmo m_gizmo;
-        std::array<View, 4> m_views;
+        std::array<View, 5> m_views;
         std::map<boost::uuids::uuid, std::shared_ptr<Actor>> m_actors;
         Grid m_grid;
         std::vector<boost::uuids::uuid> m_selectedActorIds;
@@ -101,6 +101,7 @@ namespace UltraEd
         Gui *m_gui;
         RenderDevice m_renderDevice;
         std::filesystem::path m_path;
+        bool m_isDragging;
     };
 }
 

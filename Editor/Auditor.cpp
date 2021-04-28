@@ -172,7 +172,7 @@ namespace UltraEd
                 auto actor = m_scene->GetActor(actorId);
                 auto state = SaveState(redoStateId, [=]() { return actor->Save(); });
 
-                m_scene->Delete(actor);             
+                m_scene->Delete(actor.get());             
                 return state;
             },
             [=](const json &oldState) {
@@ -200,7 +200,7 @@ namespace UltraEd
                 return state;
             },
             [=](const json &oldState) {
-                m_scene->Delete(m_scene->GetActor(actorId));
+                m_scene->Delete(m_scene->GetActor(actorId).get());
             },
             groupId
         });
@@ -232,6 +232,72 @@ namespace UltraEd
             [=](const json &oldState) {
                 m_scene->RestoreActor(oldState, true);
                 m_scene->SelectActorById(actorId, false);
+            },
+            groupId
+        });
+    }
+
+    void Auditor::ParentActor(const std::string &name, const uuid &actorId, const uuid &groupId)
+    {
+        if (m_locked) return;      
+
+        Add({
+            name,
+            [=]() {
+                auto actor = m_scene->GetActor(actorId);
+                actor->LinkChildren(m_scene, false);
+                return json();
+            },
+            [=](const json &ignored) {
+            },
+            groupId
+        });
+
+        ChangeActor(name, actorId, groupId);
+
+        Add({
+            name,
+            [=]() {
+                return json();
+            },
+            [=](const json &ignored) {
+                auto actor = m_scene->GetActor(actorId);
+                actor->LinkChildren(m_scene, true);
+            },
+            groupId
+        });
+    }
+
+    void Auditor::UnparentActor(const std::string &name, const uuid &actorId, const uuid &groupId)
+    {
+        if (m_locked) return;
+
+        Add({
+            name,
+            [=]() {
+                auto actor = m_scene->GetActor(actorId);
+                actor->LinkChildren(m_scene, true);
+                return json();
+            },
+            [=](const json &ignored) {
+                auto actor = m_scene->GetActor(actorId);
+                actor->LinkChildren(m_scene, false);
+            },
+            groupId
+        });
+
+        ChangeActor(name, actorId, groupId);
+
+        Add({
+            name,
+            [=]() {
+                auto actor = m_scene->GetActor(actorId);
+                actor->LinkChildren(m_scene, false);
+                return json();
+            },
+            [=](const json &ignored) {
+                auto actor = m_scene->GetActor(actorId);
+                actor->LinkChildren(m_scene, true);
             },
             groupId
         });

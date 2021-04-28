@@ -23,13 +23,13 @@ namespace UltraEd
         if (buffer != NULL)
         {
             stack->Push();
-            stack->MultMatrixLocal(&GetMatrix());
-
-            device->SetTransform(D3DTS_WORLD, stack->GetTop());
-            device->SetStreamSource(0, buffer, 0, sizeof(Vertex));
-            device->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE);
-            device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, static_cast<UINT>(GetVertices().size() / 3));
-
+            {
+                stack->MultMatrixLocal(&GetMatrix());
+                device->SetTransform(D3DTS_WORLD, stack->GetTop());
+                device->SetStreamSource(0, buffer, 0, sizeof(Vertex));
+                device->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE);
+                device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, static_cast<UINT>(GetVertices().size() / 3));
+            }
             stack->Pop();
         }
 

@@ -2,7 +2,7 @@
 #include <malloc.h>
 #include "vector.h"
 
-#define INITIAL_CAPACITY 64
+#define INITIAL_CAPACITY 8
 #define min(x,y) (((x)<(y))?(x):(y))
 
 struct _vector

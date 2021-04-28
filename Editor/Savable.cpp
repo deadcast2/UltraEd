@@ -14,4 +14,6 @@ namespace UltraEd
     { 
         m_isDirty = value; 
     }
+
+    void Savable::OnChanged() { }
 }

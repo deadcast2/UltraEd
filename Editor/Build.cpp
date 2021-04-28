@@ -213,6 +213,8 @@ namespace UltraEd
         actorsArrayDef.append("\nactor *_UER_ActiveCamera = NULL;\n");
 
         std::string actorInits("\n\t_UER_Actors = vector_create();\n");
+
+        std::map<boost::uuids::uuid, int> reducedActorIds;
         
         for (const auto &actor : actors)
         {
@@ -224,6 +226,9 @@ namespace UltraEd
                 dynamic_cast<SphereCollider *>(actor->GetCollider())->GetRadius() : 0.0f;
             D3DXVECTOR3 colliderExtents = actor->HasCollider() && actor->GetCollider()->GetType() == ColliderType::Box ?
                 dynamic_cast<BoxCollider *>(actor->GetCollider())->GetExtents() : D3DXVECTOR3(0, 0, 0);
+
+            // Store assigned int id to use for child linking.
+            reducedActorIds[actor->GetId()] = actorCount;
 
             if (actor->GetType() == ActorType::Model)
             {
@@ -238,9 +243,9 @@ namespace UltraEd
                 modelName.append("_M");
 
                 if (!texturePath.empty())
-                    actorInits.append("loadTexturedModel(_");
+                    actorInits.append("loadTexturedModel(").append(std::to_string(actorCount)).append(", _");
                 else
-                    actorInits.append("loadModel(_");
+                    actorInits.append("loadModel(").append(std::to_string(actorCount)).append(", _");
 
                 actorInits.append(modelName).append("SegmentRomStart, _").append(modelName).append("SegmentRomEnd");
 
@@ -260,7 +265,7 @@ namespace UltraEd
 
                 // Add transform data.
                 char vectorBuffer[256];
-                D3DXVECTOR3 position = actor->GetPosition(), scale = actor->GetScale(), axis;
+                D3DXVECTOR3 position = actor->GetPosition(false), scale = actor->GetScale(), axis;
                 float angle;
                 actor->GetAxisAngle(&axis, &angle);
                 sprintf(vectorBuffer, ", %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %s",
@@ -290,9 +295,9 @@ namespace UltraEd
             }
             else if (actor->GetType() == ActorType::Camera)
             {
-                actorInits.append("createCamera(");
+                actorInits.append("createCamera(").append(std::to_string(actorCount)).append(", ");
                 char vectorBuffer[256];
-                D3DXVECTOR3 position = actor->GetPosition();
+                D3DXVECTOR3 position = actor->GetPosition(false);
                 D3DXVECTOR3 axis;
                 float angle;
                 actor->GetAxisAngle(&axis, &angle);
@@ -303,6 +308,15 @@ namespace UltraEd
                     colliderExtents.x, colliderExtents.y, colliderExtents.z,
                     actor->HasCollider() ? actor->GetCollider()->GetName() : "None");
                 actorInits.append(vectorBuffer).append("));\n");
+            }
+        }
+
+        for (const auto &actor : actors)
+        {
+            for (const auto &child : actor->GetChildren())
+            {
+                actorInits.append("\n\tlinkChildToParent(_UER_Actors, ").append(std::to_string(reducedActorIds[child.first]))
+                    .append(", ").append(std::to_string(reducedActorIds[actor->GetId()])).append(");\n");
             }
         }
 
@@ -318,7 +332,7 @@ namespace UltraEd
         fwrite("}", 1, 1, file.get());
 
         const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
-        std::string drawLoop("\n\tfor (int i = 0; i < vector_size(_UER_Actors); i++) {\n\t\tmodelDraw(vector_get(_UER_Actors, i), display_list);\n\t}\n");
+        std::string drawLoop("\n\tfor (int i = 0; i < vector_size(_UER_Actors); i++) {\n\t\tactor *curr = vector_get(_UER_Actors, i);\n\t\tif (curr->parent == NULL) {\n\t\t\tmodelDraw(curr, display_list);\n\t\t}\n\t}\n");
 
         fwrite(drawStart, 1, strlen(drawStart), file.get());
         fwrite(drawLoop.c_str(), 1, drawLoop.size(), file.get());

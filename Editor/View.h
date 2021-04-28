@@ -6,7 +6,7 @@
 
 namespace UltraEd
 {
-    enum class ViewType { Perspective, Top, Left, Front };
+    enum class ViewType { Perspective, Top, Left, Right, Front };
 
     class View : public Savable
     {

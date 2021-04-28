@@ -62,6 +62,26 @@ namespace UltraEd
         return strCopy;
     }
 
+    D3DXVECTOR3 Util::ToEuler(const D3DXMATRIX &rotation)
+    {
+        D3DXVECTOR3 euler;
+
+        euler.x = asinf(-rotation._32);
+
+        if (cosf(euler.x) > 0.0001f)
+        {
+            euler.y = atan2f(rotation._31, rotation._33);
+            euler.z = atan2f(rotation._12, rotation._22);
+        }
+        else
+        {
+            euler.y = 0.0f;
+            euler.z = atan2f(-rotation._21, rotation._11);
+        }
+
+        return D3DXVECTOR3(D3DXToDegree(euler.x), D3DXToDegree(euler.y), D3DXToDegree(euler.z));
+    }
+
     void Util::CopyBackBuffer(UINT width, UINT height, LPDIRECT3DDEVICE9 source, LPDIRECT3DDEVICE9 target, 
         LPDIRECT3DTEXTURE9 *texture)
     {
@@ -101,5 +121,63 @@ namespace UltraEd
         ReleaseDC(0, dc);
 
         return dpi / 96.0f;
+    }
+
+    bool Util::IntersectTriangle(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir, const D3DXVECTOR3 &v0,
+        const D3DXVECTOR3 &v1, const D3DXVECTOR3 &v2, float *dist)
+    {
+        // Find vectors for two edges sharing vert0
+        D3DXVECTOR3 edge1 = v1 - v0;
+        D3DXVECTOR3 edge2 = v2 - v0;
+
+        // Begin calculating determinant - also used to calculate U parameter.
+        D3DXVECTOR3 pvec;
+        D3DXVec3Cross(&pvec, &dir, &edge2);
+
+        // If determinant is near zero, ray lies in plane of triangle.
+        float det = D3DXVec3Dot(&edge1, &pvec);
+
+        if (det < 0.0001f) return false;
+
+        // Calculate U parameter and test bounds.
+        D3DXVECTOR3 tvec = orig - v0;
+        float u = D3DXVec3Dot(&tvec, &pvec);
+        if (u < 0.0f || u > det) return false;
+
+        // Prepare to test V parameter.
+        D3DXVECTOR3 qvec;
+        D3DXVec3Cross(&qvec, &tvec, &edge1);
+
+        // Calculate V parameter and test bounds.
+        float v = D3DXVec3Dot(&dir, &qvec);
+        if (v < 0.0f || u + v > det) return false;
+
+        *dist = D3DXVec3Dot(&edge2, &qvec) * (1.0f / det);
+
+        return true;
+    }
+
+    void Util::ScreenRaycast(LPDIRECT3DDEVICE9 device, const D3DXVECTOR2 &screenPoint, const D3DXMATRIX &view,
+        D3DXVECTOR3 *origin, D3DXVECTOR3 *dir)
+    {
+        D3DVIEWPORT9 viewport;
+        device->GetViewport(&viewport);
+
+        D3DXMATRIX matProj;
+        device->GetTransform(D3DTS_PROJECTION, &matProj);
+
+        D3DXMATRIX matWorld;
+        D3DXMatrixIdentity(&matWorld);
+
+        D3DXVECTOR3 v1;
+        D3DXVECTOR3 start = D3DXVECTOR3(screenPoint.x, screenPoint.y, 0.0f);
+        D3DXVec3Unproject(&v1, &start, &viewport, &matProj, &view, &matWorld);
+
+        D3DXVECTOR3 v2;
+        D3DXVECTOR3 end = D3DXVECTOR3(screenPoint.x, screenPoint.y, 1.0f);
+        D3DXVec3Unproject(&v2, &end, &viewport, &matProj, &view, &matWorld);
+
+        *origin = v1;
+        D3DXVec3Normalize(dir, &(v2 - v1));
     }
 }

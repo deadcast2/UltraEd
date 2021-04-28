@@ -65,6 +65,7 @@ namespace UltraEd
         void SaveSceneModal();
         void ConfirmSceneModal();
         void SaveScene(bool openModal = false);
+        void RenderTreeNode(Actor *actor);
 
     private:
         std::unique_ptr<Scene> m_scene;

@@ -195,7 +195,7 @@ namespace UltraEd
             // Keep gizmo in-sync with the actor's rotation.
             for (int i = 0; i < GIZMO_COUNT; i++)
             {
-                m_models[i].SetLocalRotationMatrix(mat);
+                m_models[i].SetRotationMatrix(mat, false);
             }
 
             SetPosition(currentActor->GetPosition());
@@ -213,7 +213,7 @@ namespace UltraEd
         // Determine orientation for plane to produce depending on selected axis.
         if (m_axisState == GizmoAxisState::XAxis)
         {
-            D3DXVECTOR3 right = m_worldSpaceToggled ? D3DXVECTOR3(1, 0, 0) : selectedActor->GetRight();
+            const D3DXVECTOR3 right = m_worldSpaceToggled ? D3DXVECTOR3(1, 0, 0) : selectedActor->GetRight();
             D3DXVECTOR3 up;
             D3DXVec3Cross(&up, &right, &look);
             D3DXVec3Cross(&look, &right, &up);
@@ -226,7 +226,7 @@ namespace UltraEd
         }
         else if (m_axisState == GizmoAxisState::YAxis)
         {
-            D3DXVECTOR3 up = m_worldSpaceToggled ? D3DXVECTOR3(0, 1, 0) : selectedActor->GetUp();
+            const D3DXVECTOR3 up = m_worldSpaceToggled ? D3DXVECTOR3(0, 1, 0) : selectedActor->GetUp();
             D3DXVECTOR3 right;
             D3DXVec3Cross(&right, &up, &look);
             D3DXVec3Cross(&look, &up, &right);
@@ -239,7 +239,7 @@ namespace UltraEd
         }
         else if (m_axisState == GizmoAxisState::ZAxis)
         {
-            D3DXVECTOR3 forward = m_worldSpaceToggled ? D3DXVECTOR3(0, 0, 1) : selectedActor->GetForward();
+            const D3DXVECTOR3 forward = m_worldSpaceToggled ? D3DXVECTOR3(0, 0, 1) : selectedActor->GetForward();
             D3DXVECTOR3 up;
             D3DXVec3Cross(&up, &forward, &look);
             D3DXVec3Cross(&look, &forward, &up);
@@ -251,9 +251,19 @@ namespace UltraEd
             targetDir = forward;
         }
 
+        const D3DXVECTOR3 origTargetDir = targetDir;
+
+        // Adjust the target direction to compensate for any parent rotations.
+        if (selectedActor->GetParent() != nullptr)
+        {
+            D3DXMATRIX inverse;
+            D3DXMatrixInverse(&inverse, NULL, &(selectedActor->GetParent()->GetScaleMatrix() * selectedActor->GetParent()->GetRotationMatrix()));
+            D3DXVec3TransformCoord(&targetDir, &targetDir, &inverse);
+        }
+
         D3DXPLANE testPlane;
         D3DXPlaneFromPoints(&testPlane, &v0, &v1, &v2);
-        D3DXVECTOR3 rayEnd = orig + (dir * 1000);
+        const D3DXVECTOR3 rayEnd = orig + (dir * 1000);
 
         if (D3DXPlaneIntersectLine(&intersectPoint, &testPlane, &orig, &rayEnd) != NULL)
         {
@@ -262,27 +272,27 @@ namespace UltraEd
                 m_updateStartPoint = intersectPoint;
             }
 
-            D3DXVECTOR3 mouseDir = intersectPoint - m_updateStartPoint;
+            const D3DXVECTOR3 mouseDir = intersectPoint - m_updateStartPoint;
             D3DXVECTOR3 normMouseDir;
             D3DXVec3Normalize(&normMouseDir, &mouseDir);
-            FLOAT moveDist = D3DXVec3Length(&mouseDir);
+            const float moveDist = D3DXVec3Length(&mouseDir);
             const float epsilon = 0.1f;
-            bool shouldSnap = fabsf((moveDist > m_snapSize ? m_snapSize : moveDist) - m_snapSize) < epsilon;
+            const bool shouldSnap = fabsf((moveDist > m_snapSize ? m_snapSize : moveDist) - m_snapSize) < epsilon;
 
             // Clamp the dot product between -1, 1 to not cause a undefined result.
-            FLOAT dot = D3DXVec3Dot(&targetDir, &normMouseDir);
+            float dot = D3DXVec3Dot(&origTargetDir, &normMouseDir);
             dot = dot < -1.0f ? -1.0f : dot > 1.0f ? 1.0f : dot;
-            FLOAT angle = acosf(dot);
 
             // Only allow movement when mouse following axis.
-            FLOAT modifier = 1.0f - (angle / (D3DX_PI / 2));
-            FLOAT sign = modifier < 0 ? -1.0f : 1.0f;
+            const float modifier = 1.0f - (acosf(dot) / (D3DX_PI / 2));
 
             if (m_modifierState == GizmoModifierState::Translate)
             {
                 if (shouldSnap && m_snapToGridToggled)
                 {
+                    const float sign = modifier < 0 ? -1.0f : 1.0f;
                     D3DXVECTOR3 newPos = currentActor->GetPosition();
+                    
                     newPos.x = Util::Snap(newPos.x * (1 / m_snapSize)) / (1 / m_snapSize);
                     newPos.y = Util::Snap(newPos.y * (1 / m_snapSize)) / (1 / m_snapSize);
                     newPos.z = Util::Snap(newPos.z * (1 / m_snapSize)) / (1 / m_snapSize);
@@ -303,14 +313,14 @@ namespace UltraEd
             }
 
             // Snapping only applies to translation.
-            if (selectedActor == currentActor && (shouldSnap || !m_snapToGridToggled
-                || m_modifierState != GizmoModifierState::Translate))
+            if (selectedActor == currentActor && (shouldSnap || !m_snapToGridToggled || m_modifierState != GizmoModifierState::Translate))
             {
                 m_updateStartPoint = intersectPoint;
             }
         }
 
         Update(selectedActor);
+
         return changeDetected;
     }
 

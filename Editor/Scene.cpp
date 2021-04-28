@@ -27,7 +27,8 @@ namespace UltraEd
         m_auditor(this),
         m_gui(gui),
         m_renderDevice(800, 600),
-        m_path()
+        m_path(),
+        m_isDragging(false)
     {
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
@@ -93,11 +94,11 @@ namespace UltraEd
         std::thread run([this, flag]() {
             if (Build::Start(this))
             {
-                if (static_cast<int>(flag) &static_cast<int>(BuildFlag::Run))
+                if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Run))
                 {
                     Build::Run();
                 }
-                else if (static_cast<int>(flag) &static_cast<int>(BuildFlag::Load))
+                else if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Load))
                 {
                     Build::Load();
                 }
@@ -219,10 +220,11 @@ namespace UltraEd
         }
     }
 
-    bool Scene::Pick(ImVec2 mousePoint, bool ignoreGizmo, Actor **selectedActor)
+    bool Scene::Pick(const D3DXVECTOR2 &mousePoint, bool ignoreGizmo, Actor **selectedActor)
     {
         D3DXVECTOR3 orig, dir;
-        ScreenRaycast(mousePoint, &orig, &dir);
+        Util::ScreenRaycast(m_renderDevice.GetDevice(), mousePoint, GetActiveView()->GetViewMatrix(), &orig, &dir);
+
         const bool gizmoSelected = m_gizmo.Select(orig, dir);
         float closestDist = FLT_MAX;
 
@@ -302,10 +304,9 @@ namespace UltraEd
         m_renderDevice.GetDevice()->SetTransform(D3DTS_PROJECTION, &viewMat);
     }
 
-    void Scene::UpdateInput(const ImVec2 &mousePos)
+    void Scene::UpdateInput(const D3DXVECTOR2 &mousePos)
     {
         View *view = GetActiveView();
-        static bool prevGizmo = false;
         static auto groupId = Util::NewUuid();
 
         const float deltaTime = m_gui->IO().DeltaTime;
@@ -313,14 +314,12 @@ namespace UltraEd
         const float mouseSpeedModifier = 0.55f;
 
         Actor *selectedActor = NULL;
-        if (m_gui->IO().MouseReleased[1] &&
-            m_gui->IO().MouseDownDurationPrev[1] < 0.2f &&
-            Pick(mousePos, true, &selectedActor))
+        if (m_gui->IO().MouseReleased[1] && m_gui->IO().MouseDownDurationPrev[1] < 0.2f && Pick(mousePos, true, &selectedActor))
         {
             m_gui->OpenContextMenu(selectedActor);
         }
 
-        if (m_gui->IO().MouseClicked[0]) Pick(mousePos);
+        if (m_gui->IO().MouseClicked[ImGuiMouseButton_Left]) Pick(mousePos);
         if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('A', false)) SelectAll();
         if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('D', false)) Duplicate();
         if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('Z', false)) m_auditor.Undo();
@@ -335,8 +334,9 @@ namespace UltraEd
         if (m_gui->IO().MouseDown[0] && !m_selectedActorIds.empty())
         {
             D3DXVECTOR3 rayOrigin, rayDir;
-            ScreenRaycast(mousePos, &rayOrigin, &rayDir);
-            if (prevGizmo || (prevGizmo = m_gizmo.Select(rayOrigin, rayDir)))
+            Util::ScreenRaycast(m_renderDevice.GetDevice(), mousePos, view->GetViewMatrix(), &rayOrigin, &rayDir);
+
+            if (m_isDragging || (m_isDragging = m_gizmo.Select(rayOrigin, rayDir)))
             {
                 const auto lastSelectedActorId = m_selectedActorIds.back();
                 for (const auto &selectedActorId : m_selectedActorIds)
@@ -351,7 +351,7 @@ namespace UltraEd
                 }
             }
         }
-        else if (m_gui->IO().MouseDown[1] && m_activeViewType == ViewType::Perspective)
+        else if ((m_isDragging = m_gui->IO().MouseDown[1]) && m_activeViewType == ViewType::Perspective)
         {
             if (ImGui::IsKeyDown('W')) view->Walk(5.0f * deltaTime);
             if (ImGui::IsKeyDown('S')) view->Walk(-5.0f * deltaTime);
@@ -363,28 +363,33 @@ namespace UltraEd
 
             view->Yaw(m_mouseSmoothX * mouseSpeedModifier * deltaTime);
             view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
+
             WrapCursor();
         }
-        else if (m_gui->IO().MouseDown[2])
+        else if (m_isDragging = m_gui->IO().MouseDown[2])
         {
             m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, -m_gui->IO().MouseDelta.x);
             m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
 
             view->Strafe(m_mouseSmoothX * deltaTime);
             view->Fly(m_mouseSmoothY * deltaTime);
+            
             WrapCursor();
         }
         else if (m_gui->IO().MouseWheel != 0)
         {
             view->SingleStep(m_gui->IO().MouseWheel * 150);
+
             if (view->GetType() != ViewType::Perspective)
+            {
                 UpdateViewMatrix();
+            }
         }
         else
         {
             // Reset smoothing values for new mouse view movement.
             m_mouseSmoothX = m_mouseSmoothY = 0;
-            prevGizmo = false;
+            m_isDragging = false;
             groupId = Util::NewUuid();
             m_gizmo.Reset();
         }
@@ -452,32 +457,6 @@ namespace UltraEd
         }
     }
 
-    void Scene::ScreenRaycast(ImVec2 screenPoint, D3DXVECTOR3 *origin, D3DXVECTOR3 *dir)
-    {
-        auto device = m_renderDevice.GetDevice();
-        View *view = GetActiveView();
-
-        D3DVIEWPORT9 viewport;
-        device->GetViewport(&viewport);
-
-        D3DXMATRIX matProj;
-        device->GetTransform(D3DTS_PROJECTION, &matProj);
-
-        D3DXMATRIX matWorld;
-        D3DXMatrixIdentity(&matWorld);
-
-        D3DXVECTOR3 v1;
-        D3DXVECTOR3 start = D3DXVECTOR3(screenPoint.x, screenPoint.y, 0.0f);
-        D3DXVec3Unproject(&v1, &start, &viewport, &matProj, &view->GetViewMatrix(), &matWorld);
-
-        D3DXVECTOR3 v2;
-        D3DXVECTOR3 end = D3DXVECTOR3(screenPoint.x, screenPoint.y, 1.0f);
-        D3DXVec3Unproject(&v2, &end, &viewport, &matProj, &view->GetViewMatrix(), &matWorld);
-
-        *origin = v1;
-        D3DXVec3Normalize(dir, &(v2 - v1));
-    }
-
     View *Scene::GetActiveView()
     {
         return &m_views[static_cast<int>(m_activeViewType)];
@@ -486,14 +465,16 @@ namespace UltraEd
     void Scene::SetViewType(ViewType type)
     {
         m_activeViewType = type;
+
         UpdateViewMatrix();
     }
 
     void Scene::ResetViews()
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < m_views.size(); i++)
         {
             m_views[i].Reset();
+
             switch (static_cast<ViewType>(i))
             {
                 case ViewType::Perspective:
@@ -510,6 +491,11 @@ namespace UltraEd
                     m_views[i].Yaw(D3DX_PI / 2);
                     m_views[i].Walk(-12);
                     m_views[i].SetViewType(ViewType::Left);
+                    break;
+                case ViewType::Right:
+                    m_views[i].Yaw(-D3DX_PI / 2);
+                    m_views[i].Walk(-12);
+                    m_views[i].SetViewType(ViewType::Right);
                     break;
                 case ViewType::Front:
                     m_views[i].Yaw(D3DX_PI);
@@ -576,13 +562,21 @@ namespace UltraEd
         for (const auto &selectedActorId : selectedActorIds)
         {
             m_auditor.DeleteActor("Actor", selectedActorId, groupId);
-            Delete(m_actors[selectedActorId]);
+            Delete(m_actors[selectedActorId].get());
         }
     }
 
-    void Scene::Delete(std::shared_ptr<Actor> actor)
+    void Scene::Delete(Actor *actor)
     {
+        // Remove any children actors first.
+        auto children = actor->GetChildren();
+        for (const auto &child : children)
+        {
+            Delete(child.second);
+        }
+
         actor->Release();
+        actor->Unparent();
 
         // Unselect actor if selected.
         auto it = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor->GetId());
@@ -800,7 +794,7 @@ namespace UltraEd
             { "active_view", GetActiveView()->GetType() }
         };
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < m_views.size(); i++)
         {
             scene["views"].push_back(m_views[i].Save());
         }
@@ -839,6 +833,12 @@ namespace UltraEd
         for (const auto &actor : root["actors"])
         {
             RestoreActor(actor);
+        }
+
+        for (const auto &actor : m_actors)
+        {
+            // Don't need transformations applied since those have been persisted.
+            actor.second->LinkChildren(this, true, false);
         }
 
         PartialLoad(root);

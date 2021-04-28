@@ -12,13 +12,15 @@ namespace UltraEd
         SphereCollider(const std::vector<Vertex> &vertices);
         void Build();
         FLOAT GetRadius() { return m_radius; }
+        void Update(D3DXMATRIX &mat);
         nlohmann::json Save();
         void Load(const nlohmann::json &root);
 
     private:
         void SphereFromDistPoints(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices);
         void AdjustSphere(D3DXVECTOR3 &center, FLOAT &radius, const Vertex &vertex);
-        void FindCenterWithRadius(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices);
+        void RitterSphere(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices);
+        void RitterIterative(D3DXVECTOR3 &center, FLOAT &radius, const std::vector<Vertex> &vertices);
 
     private:
         float m_radius;

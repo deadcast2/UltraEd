@@ -134,6 +134,8 @@ namespace UltraEd
                 return m_pos.y;
             case ViewType::Left:
                 return -m_pos.x;
+            case ViewType::Right:
+                return m_pos.x;
             case ViewType::Front:
                 return m_pos.z;
             default:

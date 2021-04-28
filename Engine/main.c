@@ -92,8 +92,11 @@ void setup_world_matrix(Gfx **display_list)
     gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.projection),
         G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
 
-    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.rotation),
+    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.scale),
         G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+
+    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.rotation),
+        G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
 
     gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.translation),
         G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
@@ -123,9 +126,9 @@ void update_camera()
     actor *camera = _UER_ActiveCamera;
     if (camera != NULL)
     {
-        guTranslate(&world.translation, -camera->position.x, -camera->position.y, camera->position.z);
-        guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis.x, camera->rotationAxis.y,
-            -camera->rotationAxis.z);
+        guTranslate(&world.translation, -camera->position.x * SCALE_FACTOR, -camera->position.y * SCALE_FACTOR, camera->position.z * SCALE_FACTOR);
+        guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis.x, camera->rotationAxis.y, camera->rotationAxis.z);
+        guScale(&world.scale, 1, 1, 1);
     }
 }
 

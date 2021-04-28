@@ -32,17 +32,16 @@ namespace UltraEd
         if (buffer != NULL)
         {
             stack->Push();
-            stack->MultMatrixLocal(&GetMatrix());
-
-            if (m_texture->IsLoaded()) device->SetTexture(0, m_texture->Get());
-
-            device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-            device->SetTransform(D3DTS_WORLD, stack->GetTop());
-            device->SetStreamSource(0, buffer, 0, sizeof(Vertex));
-            device->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1);
-            device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, static_cast<UINT>(GetVertices().size() / 3));
-            device->SetTexture(0, NULL);
-
+            {
+                stack->MultMatrixLocal(&GetMatrix());
+                if (m_texture->IsLoaded()) device->SetTexture(0, m_texture->Get());
+                device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+                device->SetTransform(D3DTS_WORLD, stack->GetTop());
+                device->SetStreamSource(0, buffer, 0, sizeof(Vertex));
+                device->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1);
+                device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, static_cast<UINT>(GetVertices().size() / 3));
+                device->SetTexture(0, NULL);
+            }
             stack->Pop();
         }
 

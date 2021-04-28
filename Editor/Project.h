@@ -38,6 +38,7 @@ namespace UltraEd
         static std::map<boost::uuids::uuid, LPDIRECT3DTEXTURE9> Previews(const AssetType &type);
         static path GetAssetPath(const boost::uuids::uuid &id);
         static path BuildPath();
+        static path RootPath();
     
     private:
         path ParentPath();

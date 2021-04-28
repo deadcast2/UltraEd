@@ -23,8 +23,8 @@ vector3 vec3_sub(vector3 a, vector3 b);
 
 vector3 vec3_mul(vector3 vector, float scalar);
 
-vector3 vec3_mul_mat3x3(vector3 vector, Mtx mat);
+vector3 vec3_mul_mat(vector3 vector, Mtx mat);
 
-vector3 vec3_mul_mat4x4(vector3 vector, Mtx mat);
+Mtx mat_mul_mat(Mtx a, Mtx b);
 
 #endif
