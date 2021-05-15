@@ -62,9 +62,9 @@ The dollar signs are necessary to allow correct namespacing of all defined funct
 
 ### Donations
 
-If you would like... you can donate to UltraEd's development! Give any amount. Even $0.00 lol! ^_^
+If you would like... you can donate to UltraEd's development! ^_^
 
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R25G2EARP89AL)
+BTC: bc1qxev0tlhhxuug6f4qhe0xh0u5u7su6hqdjsp30y
 
 ### License
 
