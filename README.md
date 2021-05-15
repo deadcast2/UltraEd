@@ -64,7 +64,7 @@ The dollar signs are necessary to allow correct namespacing of all defined funct
 
 If you would like... you can donate to UltraEd's development! ^_^
 
-BTC: bc1qxev0tlhhxuug6f4qhe0xh0u5u7su6hqdjsp30y
+<img src="https://i.imgur.com/vzHSER7.png" width="32" /> bc1qxev0tlhhxuug6f4qhe0xh0u5u7su6hqdjsp30y
 
 ### License
 
