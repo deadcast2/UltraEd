@@ -50,6 +50,7 @@
     <ClCompile Include="Vendor\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_impl_dx9.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Vendor\ImGui\Plugins\TextEditor.cpp" />
     <ClCompile Include="Vendor\MicroTar\microtar.c" />
