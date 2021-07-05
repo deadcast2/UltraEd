@@ -1,13 +1,13 @@
 <img src="https://s3.amazonaws.com/kittypizza/ultraed.png" width="550">
 
-## A level editor/game engine for the Nintendo 64
+## A WIP level editor/game engine for the Nintendo 64
 
 <img src="https://i.imgur.com/TSwNWNs.png" width="600">
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f246a65f5b4f480f922a5ed886eb37e8)](https://www.codacy.com/app/deadcast2/UltraEd?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=deadcast2/UltraEd&amp;utm_campaign=Badge_Grade)
 
 ### What I'm Working on Currently
-Parenting system for actors in the parenting branch.
+Bugs in the issues list. :p
 
 ### Setup
 
@@ -62,9 +62,9 @@ The dollar signs are necessary to allow correct namespacing of all defined funct
 
 ### Donations
 
-If you would like... you can donate to UltraEd's development! Give any amount. Even $0.00 lol! ^_^
+If you would like... you can donate to UltraEd's development! ^_^
 
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R25G2EARP89AL)
+<img src="https://i.imgur.com/vzHSER7.png" width="32" /> bc1qxev0tlhhxuug6f4qhe0xh0u5u7su6hqdjsp30y
 
 ### License
 
