@@ -28,7 +28,8 @@ namespace UltraEd
         m_gui(gui),
         m_renderDevice(800, 600),
         m_path(),
-        m_isDragging(false)
+        m_isDragging(false),
+        m_isSelecting(false)
     {
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
@@ -247,10 +248,9 @@ namespace UltraEd
             }
         }
 
-        if (closestDist != FLT_MAX)
-            return true;
+        if (closestDist != FLT_MAX) return true;
 
-        UnselectAll();
+        if (!m_gui->IO().KeyShift) UnselectAll();
 
         return false;
     }
@@ -308,13 +308,16 @@ namespace UltraEd
     {
         View *view = GetActiveView();
         static auto groupId = Util::NewUuid();
+        static std::tuple<D3DXVECTOR2, ImVec2> selectStart, selectStop;
 
         const float deltaTime = m_gui->IO().DeltaTime;
         const float smoothingModifier = 20.0f;
         const float mouseSpeedModifier = 0.55f;
 
+        // Since right mouse moves the camera and can open the context menu only open context menu when right click was very quick.
         Actor *selectedActor = NULL;
-        if (m_gui->IO().MouseReleased[1] && m_gui->IO().MouseDownDurationPrev[1] < 0.2f && Pick(mousePos, true, &selectedActor))
+        if (m_gui->IO().MouseReleased[ImGuiMouseButton_Right] && m_gui->IO().MouseDownDurationPrev[ImGuiMouseButton_Right] < 0.2f 
+            && Pick(mousePos, true, &selectedActor))
         {
             m_gui->OpenContextMenu(selectedActor);
         }
@@ -331,27 +334,61 @@ namespace UltraEd
         if (ImGui::IsKeyPressed(0x32, false)) m_gizmo.SetModifier(GizmoModifierState::Rotate);
         if (ImGui::IsKeyPressed(0x33, false)) m_gizmo.SetModifier(GizmoModifierState::Scale);
 
-        if (m_gui->IO().MouseDown[0] && !m_selectedActorIds.empty())
+        if (m_gui->IO().MouseDown[ImGuiMouseButton_Left])
         {
-            D3DXVECTOR3 rayOrigin, rayDir;
-            Util::ScreenRaycast(m_renderDevice.GetDevice(), mousePos, view->GetViewMatrix(), &rayOrigin, &rayDir);
-
-            if (m_isDragging || (m_isDragging = m_gizmo.Select(rayOrigin, rayDir)))
+            if (!m_selectedActorIds.empty())
             {
-                const auto lastSelectedActorId = m_selectedActorIds.back();
-                for (const auto &selectedActorId : m_selectedActorIds)
-                {
-                    auto action = m_auditor.PotentialChangeActor(m_gizmo.GetModifierName(), selectedActorId, groupId);
+                D3DXVECTOR3 rayOrigin, rayDir;
+                Util::ScreenRaycast(m_renderDevice.GetDevice(), mousePos, view->GetViewMatrix(), &rayOrigin, &rayDir);
 
-                    if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(),
-                        m_actors[lastSelectedActorId].get()))
+                // Once dragging has begun continue even when the mouse isn't touching the gizmo directly. Makes for a
+                // much nicer, natural feel.
+                if (!IsSelecting() && (m_isDragging || (m_isDragging = m_gizmo.Select(rayOrigin, rayDir))))
+                {
+                    const auto lastSelectedActorId = m_selectedActorIds.back();
+
+                    for (const auto &selectedActorId : m_selectedActorIds)
                     {
-                        action();
+                        auto action = m_auditor.PotentialChangeActor(m_gizmo.GetModifierName(), selectedActorId, groupId);
+
+                        if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(), m_actors[lastSelectedActorId].get()))
+                        {
+                            // Register that the actor was actually modified.
+                            action();
+                        }
                     }
                 }
             }
+
+            if (!IsDragging())
+            {
+                if (!IsSelecting())
+                {
+                    // Just starting a new drag-to-select so remember where the user started.
+                    m_isSelecting = true;
+
+                    // Storing two different locations: the mouse position relative to the scene view render and the mouse relative to the app window.
+                    selectStart = std::make_tuple(mousePos, ImGui::GetMousePos());
+                }
+
+                const ImVec2 diff { ImGui::GetMousePos().x - std::get<1>(selectStart).x, ImGui::GetMousePos().y - std::get<1>(selectStart).y };
+
+                // Calculate the current stopping point of the drag and clamp to the scene view.
+                selectStop = std::make_tuple(mousePos, ImVec2(
+                    std::clamp<float>(std::get<1>(selectStart).x + diff.x, ImGui::GetWindowPos().x + 1, ImGui::GetWindowPos().x + ImGui::GetWindowWidth()),
+                    std::clamp<float>(std::get<1>(selectStart).y + diff.y, ImGui::GetWindowPos().y + ImGui::GetFrameHeightWithSpacing() - 4, ImGui::GetWindowPos().y + ImGui::GetWindowHeight())
+                ));
+
+                ImDrawList *drawList = ImGui::GetWindowDrawList();
+                const ImU32 whiteBorder = ImColor(ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+                const ImU32 whiteFill = ImColor(ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
+
+                // Draw a nice edged rectangle to show the created dragged region.
+                drawList->AddRect(std::get<1>(selectStart), std::get<1>(selectStop), whiteBorder);
+                drawList->AddRectFilled(std::get<1>(selectStart), std::get<1>(selectStop), whiteFill);
+            }
         }
-        else if ((m_isDragging = m_gui->IO().MouseDown[1]) && m_activeViewType == ViewType::Perspective)
+        else if ((m_isDragging = m_gui->IO().MouseDown[ImGuiMouseButton_Right]) && m_activeViewType == ViewType::Perspective)
         {
             if (ImGui::IsKeyDown('W')) view->Walk(5.0f * deltaTime);
             if (ImGui::IsKeyDown('S')) view->Walk(-5.0f * deltaTime);
@@ -366,14 +403,14 @@ namespace UltraEd
 
             WrapCursor();
         }
-        else if (m_isDragging = m_gui->IO().MouseDown[2])
+        else if (m_isDragging = m_gui->IO().MouseDown[ImGuiMouseButton_Middle])
         {
             m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, -m_gui->IO().MouseDelta.x);
             m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
 
             view->Strafe(m_mouseSmoothX * deltaTime);
             view->Fly(m_mouseSmoothY * deltaTime);
-            
+
             WrapCursor();
         }
         else if (m_gui->IO().MouseWheel != 0)
@@ -391,7 +428,17 @@ namespace UltraEd
             m_mouseSmoothX = m_mouseSmoothY = 0;
             m_isDragging = false;
             groupId = Util::NewUuid();
+
             m_gizmo.Reset();
+
+            // Just finished a drag so run the select routine to pick any grabbed actors.
+            if (m_isSelecting)
+            {
+                SelectAllWithin(std::get<0>(selectStart), std::get<0>(selectStop));
+                
+                // Important this comes after since the select all routine will check to see if a select is being performed.
+                m_isSelecting = false;
+            }
         }
     }
 
@@ -700,6 +747,7 @@ namespace UltraEd
     {
         if (m_actors.find(id) != m_actors.end())
             return m_actors[id];
+
         return NULL;
     }
 
@@ -715,6 +763,10 @@ namespace UltraEd
 
         if (IsActorSelected(id))
         {
+            // Drag to select should always just keep adding selected actors.
+            if (!m_gui->IO().KeyShift || IsSelecting())
+                return;
+
             // Unselect actor when already selected and clicked on again.
             auto it = std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), id);
             m_selectedActorIds.erase(it);
@@ -733,10 +785,61 @@ namespace UltraEd
 
     void Scene::SelectAll()
     {
-        UnselectAll();
         for (const auto &actor : m_actors)
         {
             SelectActorById(actor.first, false);
+        }
+    }
+
+    void Scene::SelectAllWithin(D3DXVECTOR2 topLeft, D3DXVECTOR2 bottomRight)
+    {
+        if (topLeft == bottomRight) return;
+
+        // Swap around the start and end drag points to account for when the dragging either 
+        // starts from left -> right or right -> left. Also checks the vertical movement.
+        if (topLeft.x > bottomRight.x)
+        {
+            float temp = bottomRight.x;
+            bottomRight.x = topLeft.x;
+            topLeft.x = temp;
+        }
+
+        if (topLeft.y > bottomRight.y)
+        {
+            float temp = bottomRight.y;
+            bottomRight.y = topLeft.y;
+            topLeft.y = temp;
+        }
+
+        for (const auto &actor : m_actors)
+        {
+            auto transformedVertices = actor.second->GetVertices(true);
+
+            // Test all faces in this actor.
+            for (unsigned int j = 0; j < transformedVertices.size() / 3; j++)
+            {
+                const D3DXVECTOR3 v0 = transformedVertices[3 * j + 0].position;
+                const D3DXVECTOR3 v1 = transformedVertices[3 * j + 1].position;
+                const D3DXVECTOR3 v2 = transformedVertices[3 * j + 2].position;
+
+                D3DXVECTOR3 v0p;
+                Util::ProjectToScreenSpace(m_renderDevice.GetDevice(), v0, GetActiveView()->GetViewMatrix(), &v0p);
+
+                D3DXVECTOR3 v1p;
+                Util::ProjectToScreenSpace(m_renderDevice.GetDevice(), v1, GetActiveView()->GetViewMatrix(), &v1p);
+
+                D3DXVECTOR3 v2p;
+                Util::ProjectToScreenSpace(m_renderDevice.GetDevice(), v2, GetActiveView()->GetViewMatrix(), &v2p);
+
+                // At least one whole face should be in bounds.
+                if ((v0p.x >= topLeft.x && v0p.x <= bottomRight.x && v0p.y >= topLeft.y && v0p.y <= bottomRight.y && v0p.z > 0.0f && v0p.z < 1.0f) &&
+                    (v1p.x >= topLeft.x && v1p.x <= bottomRight.x && v1p.y >= topLeft.y && v1p.y <= bottomRight.y && v1p.z > 0.0f && v1p.z < 1.0f) &&
+                    (v2p.x >= topLeft.x && v2p.x <= bottomRight.x && v2p.y >= topLeft.y && v2p.y <= bottomRight.y && v2p.z > 0.0f && v2p.z < 1.0f))
+                {
+                    SelectActorById(actor.first, false);
+                    break;
+                }
+            }
         }
     }
 

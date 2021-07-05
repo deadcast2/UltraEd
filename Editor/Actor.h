@@ -46,7 +46,7 @@ namespace UltraEd
         D3DXVECTOR3 GetForward();
         D3DXVECTOR3 GetUp();
         void GetAxisAngle(D3DXVECTOR3 *axis, float *angle);
-        const std::vector<Vertex> &GetVertices() { return m_vertices; }
+        std::vector<Vertex> GetVertices(bool worldSpace = false);
         bool Pick(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir, float *dist);
         const std::string &GetScript() { return m_script; }
         void SetScript(const std::string &script) { Dirty([&] { m_script = script; }, &m_script); }

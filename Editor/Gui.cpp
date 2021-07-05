@@ -840,17 +840,9 @@ namespace UltraEd
     void Gui::SceneView()
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
         if (ImGui::Begin(ICON_FK_TH" Scene View", 0, ImGuiWindowFlags_NoScrollbar))
-        {
-            if (ImGui::IsWindowHovered() || m_scene->IsDragging())
-            {
-                const auto mousePos = ImGui::GetMousePos();
-                const auto windowPos = ImGui::GetWindowPos();
-                const D3DXVECTOR2 windowMousePos = D3DXVECTOR2(mousePos.x - windowPos.x, mousePos.y - windowPos.y - ImGui::GetFrameHeight());
-
-                m_scene->UpdateInput(windowMousePos);
-            }
-
+        {        
             const auto width = ImGui::GetWindowWidth();
             const auto height = ImGui::GetWindowHeight() - ImGui::GetFrameHeight();
 
@@ -861,6 +853,16 @@ namespace UltraEd
             if (m_sceneTexture != nullptr)
             {
                 ImGui::Image(m_sceneTexture, { width, height });
+            }
+
+            // Moved this input update logic to after scene render so additional UI elements could be rendered from the scene class.
+            if (ImGui::IsWindowHovered() || m_scene->IsDragging() || m_scene->IsSelecting())
+            {
+                const auto mousePos = ImGui::GetMousePos();
+                const auto windowPos = ImGui::GetWindowPos();
+                const D3DXVECTOR2 windowMousePos = D3DXVECTOR2(mousePos.x - windowPos.x, mousePos.y - windowPos.y - ImGui::GetFrameHeight());
+
+                m_scene->UpdateInput(windowMousePos);
             }
         }
 

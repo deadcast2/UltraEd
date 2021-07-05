@@ -34,6 +34,8 @@ namespace UltraEd
             const D3DXVECTOR3 &v1, const D3DXVECTOR3 &v2, float *dist);
         static void ScreenRaycast(LPDIRECT3DDEVICE9 device, const D3DXVECTOR2 &screenPoint, const D3DXMATRIX &view, 
             D3DXVECTOR3 *origin, D3DXVECTOR3 *dir);
+        static void ProjectToScreenSpace(LPDIRECT3DDEVICE9 device, const D3DXVECTOR3 &worldPoint, const D3DXMATRIX &view,
+            D3DXVECTOR3 *screenPointOut);
 
     private:
         Util() {};

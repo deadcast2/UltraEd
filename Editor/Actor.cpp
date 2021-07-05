@@ -229,20 +229,40 @@ namespace UltraEd
         D3DXQuaternionToAxisAngle(&quat, axis, angle);
     }
 
+    std::vector<Vertex> Actor::GetVertices(bool worldSpace) 
+    {
+        if (worldSpace)
+        {
+            std::vector<Vertex> transformedVertices(m_vertices);
+            auto matrix = GetMatrix();
+
+            for (unsigned int j = 0; j < m_vertices.size() / 3; j++)
+            {
+                D3DXVECTOR3 v0 = m_vertices[3 * j + 0].position;
+                D3DXVECTOR3 v1 = m_vertices[3 * j + 1].position;
+                D3DXVECTOR3 v2 = m_vertices[3 * j + 2].position;
+
+                transformedVertices[3 * j + 0].position = *D3DXVec3TransformCoord(&v0, &v0, &matrix);
+                transformedVertices[3 * j + 1].position = *D3DXVec3TransformCoord(&v1, &v1, &matrix);
+                transformedVertices[3 * j + 2].position = *D3DXVec3TransformCoord(&v2, &v2, &matrix);
+            }
+
+            return transformedVertices;
+        }
+
+        return m_vertices;
+    }
+
     bool Actor::Pick(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir, float *dist)
     {
-        // Test all faces in this actor.
-        for (unsigned int j = 0; j < m_vertices.size() / 3; j++)
-        {
-            D3DXVECTOR3 v0 = m_vertices[3 * j + 0].position;
-            D3DXVECTOR3 v1 = m_vertices[3 * j + 1].position;
-            D3DXVECTOR3 v2 = m_vertices[3 * j + 2].position;
+        auto transformedVertices = GetVertices(true);
 
-            // Transform the local vert positions based of the actor's
-            // local matrix so when the actor is moved around we can still click it.
-            D3DXVec3TransformCoord(&v0, &v0, &GetMatrix());
-            D3DXVec3TransformCoord(&v1, &v1, &GetMatrix());
-            D3DXVec3TransformCoord(&v2, &v2, &GetMatrix());
+        // Test all faces in this actor.
+        for (unsigned int j = 0; j < transformedVertices.size() / 3; j++)
+        {
+            D3DXVECTOR3 v0 = transformedVertices[3 * j + 0].position;
+            D3DXVECTOR3 v1 = transformedVertices[3 * j + 1].position;
+            D3DXVECTOR3 v2 = transformedVertices[3 * j + 2].position;
 
             // Check if the pick ray passes through this point.
             if (Util::IntersectTriangle(orig, dir, v0, v1, v2, dist))

@@ -46,6 +46,7 @@ namespace UltraEd
         void Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds);
         bool HasPath();
         bool IsDragging() { return m_isDragging; }
+        bool IsSelecting() { return m_isSelecting; }
      
     private:
         void Delete();
@@ -72,6 +73,7 @@ namespace UltraEd
         View *GetActiveView();
         bool ToggleMovementSpace();
         void SelectAll();
+        void SelectAllWithin(D3DXVECTOR2 topLeft, D3DXVECTOR2 bottomRight);
         void Load(const nlohmann::json &root);
         void SetDirty(bool value);
         void ResetViews();
@@ -102,6 +104,7 @@ namespace UltraEd
         RenderDevice m_renderDevice;
         std::filesystem::path m_path;
         bool m_isDragging;
+        bool m_isSelecting;
     };
 }
 

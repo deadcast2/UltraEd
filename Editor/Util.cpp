@@ -180,4 +180,20 @@ namespace UltraEd
         *origin = v1;
         D3DXVec3Normalize(dir, &(v2 - v1));
     }
+
+    void Util::ProjectToScreenSpace(LPDIRECT3DDEVICE9 device, const D3DXVECTOR3 &worldPoint, const D3DXMATRIX &view, 
+        D3DXVECTOR3 *screenPointOut)
+    {
+        D3DVIEWPORT9 viewport;
+        device->GetViewport(&viewport);
+
+        D3DXMATRIX matProj;
+        device->GetTransform(D3DTS_PROJECTION, &matProj);
+
+        D3DXMATRIX matWorld;
+        D3DXMatrixIdentity(&matWorld);
+
+        D3DXVECTOR3 v0sp;
+        D3DXVec3Project(screenPointOut, &worldPoint, &viewport, &matProj, &view, &matWorld);
+    }
 }
