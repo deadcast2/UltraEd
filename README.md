@@ -66,6 +66,8 @@ If you would like... you can donate to UltraEd's development! ^_^
 
 <img src="https://i.imgur.com/vzHSER7.png" width="32" /> bc1qxev0tlhhxuug6f4qhe0xh0u5u7su6hqdjsp30y
 
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R25G2EARP89AL)
+
 ### License
 
 UltraEd is MIT licensed and was previously GPL v3. The decision to change was due to no longer using Qt for the GUI. ImGui was chosen instead due to its immediate-mode style rendering and more flexible license.
