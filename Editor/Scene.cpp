@@ -316,7 +316,7 @@ namespace UltraEd
 
         // Since right mouse moves the camera and can open the context menu only open context menu when right click was very quick.
         Actor *selectedActor = NULL;
-        if (m_gui->IO().MouseReleased[ImGuiMouseButton_Right] && m_gui->IO().MouseDownDurationPrev[ImGuiMouseButton_Right] < 0.2f 
+        if (m_gui->IO().MouseReleased[ImGuiMouseButton_Right] && m_gui->IO().MouseDownDurationPrev[ImGuiMouseButton_Right] < 0.2f
             && Pick(mousePos, true, &selectedActor))
         {
             m_gui->OpenContextMenu(selectedActor);
@@ -435,7 +435,7 @@ namespace UltraEd
             if (m_isSelecting)
             {
                 SelectAllWithin(std::get<0>(selectStart), std::get<0>(selectStop));
-                
+
                 // Important this comes after since the select all routine will check to see if a select is being performed.
                 m_isSelecting = false;
             }
@@ -777,7 +777,12 @@ namespace UltraEd
         }
         else
         {
-            // Add to selection and move gizmo to its location.
+            // Select any children first so the parent is the last selected.
+            for (const auto &child : m_actors[id]->GetChildren())
+            {
+                SelectActorById(child.first, false);
+            }
+
             m_selectedActorIds.push_back(id);
             m_gizmo.Update(m_actors[id].get());
         }
