@@ -1,4 +1,6 @@
+#include <ImGui/imgui.h>
 #include <ImGui/imconfig.h>
+#include <ImGui/imgui_internal.h>
 #include <thread>
 #include "Debug.h"
 #include "Gui.h"
@@ -126,6 +128,7 @@ namespace UltraEd
             ConfirmSceneModal();
             SaveSceneModal();
             LoadSceneModal();
+            StatusBar();
 
             //ThemeEditor();
             //ImGui::ShowDemoWindow();
@@ -1513,6 +1516,22 @@ namespace UltraEd
         else
         {
             m_scene->SaveAs();
+        }
+    }
+
+    void Gui::StatusBar()
+    {
+        const ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
+
+        if (ImGui::BeginViewportSideBar("##StatusBar", ImGui::GetMainViewport(), ImGuiDir_Down, ImGui::GetFrameHeight(), window_flags))
+        {
+            if (ImGui::BeginMenuBar())
+            {
+                ImGui::Text(m_scene->GetStats().c_str());
+                ImGui::EndMenuBar();
+            }
+
+            ImGui::End();
         }
     }
 }
