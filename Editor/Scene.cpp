@@ -349,6 +349,11 @@ namespace UltraEd
 
                     for (const auto &selectedActorId : m_selectedActorIds)
                     {
+                        // Don't move any children when their parent is selected since the parent when moved will update its children correctly.
+                        auto parent = m_actors[selectedActorId]->GetParent();
+                        if (parent != nullptr && std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), parent->GetId()) != m_selectedActorIds.end())
+                            continue;
+
                         auto action = m_auditor.PotentialChangeActor(m_gizmo.GetModifierName(), selectedActorId, groupId);
 
                         if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(), m_actors[lastSelectedActorId].get()))
@@ -767,9 +772,20 @@ namespace UltraEd
             if (!m_gui->IO().KeyShift || IsSelecting())
                 return;
 
+            // Can't unselect actor when its parent is currently selected.
+            auto parent = m_actors[id]->GetParent();
+            if (parent != nullptr && std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), parent->GetId()) != m_selectedActorIds.end())
+                return;
+
             // Unselect actor when already selected and clicked on again.
             auto it = std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), id);
             m_selectedActorIds.erase(it);
+
+            // Once parent is unselected continue unselecting all children.
+            for (const auto &child : m_actors[id]->GetChildren())
+            {
+                SelectActorById(child.first, false);
+            }
 
             // Select previous selected actor if any available.
             if (!m_selectedActorIds.empty())
