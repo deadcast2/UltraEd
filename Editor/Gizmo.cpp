@@ -291,12 +291,7 @@ namespace UltraEd
                 if (shouldSnap && m_snapToGridToggled)
                 {
                     const float sign = modifier < 0 ? -1.0f : 1.0f;
-                    D3DXVECTOR3 newPos = currentActor->GetPosition();
-                    
-                    newPos.x = Util::Snap(newPos.x * (1 / m_snapSize)) / (1 / m_snapSize);
-                    newPos.y = Util::Snap(newPos.y * (1 / m_snapSize)) / (1 / m_snapSize);
-                    newPos.z = Util::Snap(newPos.z * (1 / m_snapSize)) / (1 / m_snapSize);
-                    changeDetected = currentActor->SetPosition(newPos + (targetDir * m_snapSize * sign));
+                    changeDetected = currentActor->Move(targetDir * m_snapSize * sign);
                 }
                 else if (!m_snapToGridToggled)
                 {
