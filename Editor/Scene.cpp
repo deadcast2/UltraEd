@@ -765,6 +765,8 @@ namespace UltraEd
         return it != m_selectedActorIds.end();
     }
 
+    // Not too thrilled with how complicated this method is currently. Tried to implement a nice feeling
+    // selection system that responds how you might expect.
     void Scene::SelectActorById(const boost::uuids::uuid &id, bool clearAll)
     {
         if (clearAll) UnselectAll();
@@ -799,6 +801,10 @@ namespace UltraEd
             // Select any children first so the parent is the last selected.
             for (const auto &child : m_actors[id]->GetChildren())
             {
+                // Don't potentially unselect the child when it's already selected when selecting its parent.
+                if (std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), child.first) != m_selectedActorIds.end())
+                    continue;
+
                 SelectActorById(child.first, false);
             }
 
