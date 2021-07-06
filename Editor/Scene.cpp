@@ -228,6 +228,7 @@ namespace UltraEd
 
         const bool gizmoSelected = m_gizmo.Select(orig, dir);
         float closestDist = FLT_MAX;
+        boost::uuids::uuid closestActorId = boost::uuids::nil_uuid();
 
         if (!ignoreGizmo && gizmoSelected && !m_selectedActorIds.empty())
             return false;
@@ -240,13 +241,15 @@ namespace UltraEd
             if (actor.second->Pick(orig, dir, &pickDist) && pickDist < closestDist)
             {
                 closestDist = pickDist;
+                closestActorId = actor.first;
 
-                SelectActorById(actor.first, !m_gui->IO().KeyShift);
-
-                if (selectedActor != NULL)
+                if (selectedActor != nullptr)
                     *selectedActor = actor.second.get();
             }
         }
+
+        if (!closestActorId.is_nil())
+            SelectActorById(closestActorId, !m_gui->IO().KeyShift);
 
         if (closestDist != FLT_MAX) return true;
 
