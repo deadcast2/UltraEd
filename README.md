@@ -60,6 +60,11 @@ void $collide(actor *other)
 
 The dollar signs are necessary to allow correct namespacing of all defined functions.
 
+### Dependencies
+
+The included Assimp library was compiled from source using version 5.0.1 and was built as a static library with the option BUILD_SHARED_LIBS set to false.
+<a href="https://github.com/assimp/assimp/releases/tag/v5.0.1">https://github.com/assimp/assimp/releases/tag/v5.0.1</a>
+
 ### Donations
 
 If you would like... you can donate to UltraEd's development! ^_^
