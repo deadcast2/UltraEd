@@ -22,7 +22,11 @@ vector vector_create()
     v->capacity = INITIAL_CAPACITY; 
     v->array = (value_type *)malloc(sizeof(value_type) * v->capacity); 
     
-    if (v->array == NULL) return NULL;
+    if (v->array == NULL)
+    {
+        vector_destroy(v);
+        return NULL;
+    }
     
     return v;
 }

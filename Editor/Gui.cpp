@@ -918,7 +918,7 @@ namespace UltraEd
         float rotation[3] { 0 };
         float scale[3] { 0 };
         auto actors = m_scene->GetActors(true);
-        Actor *targetActor = NULL;
+        Actor *targetActor = nullptr;
 
         if (actors.size() > 0)
         {
@@ -943,7 +943,7 @@ namespace UltraEd
         D3DXVECTOR3 tempScale = D3DXVECTOR3(scale);
         ImGui::InputFloat3("Scale", scale, "%g");
 
-        if (targetActor->GetType() == ActorType::Model)
+        if (targetActor != nullptr && targetActor->GetType() == ActorType::Model)
         {
             const auto model = reinterpret_cast<Model *>(targetActor);
             auto texture = m_noTexture;

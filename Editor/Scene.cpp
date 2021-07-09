@@ -114,14 +114,13 @@ namespace UltraEd
 
     void Scene::AddModel(const boost::uuids::uuid &assetId)
     {
-        std::shared_ptr<Model> model = NULL;
-        model = std::make_shared<Model>(assetId);
-        m_actors[model->GetId()] = model;
-        model->SetName(std::string("Actor ").append(std::to_string(m_actors.size())));
-        m_auditor.AddActor("Model", model->GetId());
+        auto model = std::make_shared<Model>(assetId);
 
-        if (model != NULL)
+        if (model != nullptr)
         {
+            m_actors[model->GetId()] = model;
+            model->SetName(std::string("Actor ").append(std::to_string(m_actors.size())));
+            m_auditor.AddActor("Model", model->GetId());
             SelectActorById(model->GetId());
         }
     }
