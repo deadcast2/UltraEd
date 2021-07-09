@@ -207,7 +207,6 @@ namespace UltraEd
         const std::map<std::filesystem::path, std::string> &resourceCache)
     {
         int actorCount = -1;
-        std::string totalActors = std::to_string(actors.size());
         
         std::string actorsArrayDef("vector _UER_Actors = NULL;");
         actorsArrayDef.append("\nactor *_UER_ActiveCamera = NULL;\n");

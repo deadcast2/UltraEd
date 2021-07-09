@@ -385,7 +385,6 @@ namespace UltraEd
         if (ImGui::Begin("Theme Editor", 0, ImGuiWindowFlags_HorizontalScrollbar))
         {
             ImGuiStyle *style = &ImGui::GetStyle();
-            ImVec4 *colors = style->Colors;
 
             ImGui::Text("Main");
             ImGui::SliderFloat2("WindowPadding", (float *)&style->WindowPadding, 0.0f, 20.0f, "%.0f");
