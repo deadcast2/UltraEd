@@ -642,6 +642,8 @@ namespace UltraEd
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
+            Actor *newActor = nullptr;
+
             switch (m_actors[selectedActorId]->GetType())
             {
                 case ActorType::Model:
@@ -649,20 +651,39 @@ namespace UltraEd
                     const auto selectedModel = dynamic_cast<Model *>(m_actors[selectedActorId].get());
                     auto model = std::make_shared<Model>(*selectedModel);
                     m_actors[model->GetId()] = model;
-                    m_auditor.AddActor("Model", model->GetId(), groupId);
+                    newActor = reinterpret_cast<Actor *>(model.get());
 
                     // Give duplicate a fresh copy of texture.
                     if (selectedModel->GetTexture()->IsLoaded())
                         model->SetTexture(m_renderDevice.GetDevice(), selectedModel->GetTexture()->GetId());
 
+                    m_auditor.AddActor("Model", model->GetId(), groupId);
                     break;
                 }
                 case ActorType::Camera:
                 {
-                    auto camera = std::make_shared<Camera>(*dynamic_cast<Camera *>(m_actors[selectedActorId].get()));
+                    const auto camera = std::make_shared<Camera>(*dynamic_cast<Camera *>(m_actors[selectedActorId].get()));
                     m_actors[camera->GetId()] = camera;
+                    newActor = reinterpret_cast<Actor *>(camera.get());
+
                     m_auditor.AddActor("Camera", camera->GetId(), groupId);
                     break;
+                }
+            }
+
+            if (newActor != nullptr)
+            {
+                // Create new collider for copy when present on source actor.
+                if (m_actors[selectedActorId]->HasCollider())
+                {
+                    if (m_actors[selectedActorId]->GetCollider()->GetType() == ColliderType::Box)
+                    {
+                        newActor->SetCollider(new BoxCollider(newActor->GetVertices()));
+                    }
+                    else
+                    {
+                        newActor->SetCollider(new SphereCollider(newActor->GetVertices()));
+                    }
                 }
             }
         }

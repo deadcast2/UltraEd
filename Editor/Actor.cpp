@@ -201,6 +201,14 @@ namespace UltraEd
         return scale;
     }
 
+    bool Actor::SetScale(const D3DXVECTOR3 &scale) 
+    {
+        if (m_type != ActorType::Model) 
+            return false;
+        
+        return Dirty([&] { m_scale = scale; }, &m_scale);
+    }
+
     D3DXVECTOR3 Actor::GetRight()
     {
         D3DXVECTOR3 right = D3DXVECTOR3(1, 0, 0);

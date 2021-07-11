@@ -29,7 +29,7 @@ namespace UltraEd
 
         m_vertices.clear();
 
-        // Horizontal
+        // Horizontal ring
         for (int i = 0; i < segments; i++)
         {
             Vertex v1;
@@ -41,7 +41,7 @@ namespace UltraEd
             m_vertices.push_back(v2);
         }
 
-        // Vertical
+        // Vertical ring
         for (int i = 0; i < segments; i++)
         {
             Vertex v1;
@@ -63,6 +63,10 @@ namespace UltraEd
         // Scale the calculated radius using the largest scale value of the actor.
         std::vector<float> scaleComps { fabs(scale.x), fabs(scale.y), fabs(scale.z) };
         m_radius = m_originalRadius * (*std::max_element(scaleComps.begin(), scaleComps.end()));
+
+        // Clear translation from matrix.
+        mat._41 = mat._42 = mat._43 = 0;
+        D3DXVec3TransformCoord(&m_center, &m_originalCenter, &mat);
 
         Build();
         Release();
