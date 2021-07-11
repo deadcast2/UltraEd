@@ -24,6 +24,7 @@ namespace UltraEd
 
     private:
         float m_radius;
+        float m_originalRadius;
     };
 }
 

@@ -1,10 +1,12 @@
 #include "SphereCollider.h"
 #include "FileIO.h"
+#include "Debug.h"
 
 namespace UltraEd
 {
     SphereCollider::SphereCollider() :
-        m_radius(1)
+        m_radius(1),
+        m_originalRadius(1)
     {
         m_type = ColliderType::Sphere;
     }
@@ -17,6 +19,7 @@ namespace UltraEd
         Build();
 
         m_originalCenter = m_center;
+        m_originalRadius = m_radius;
     }
 
     void SphereCollider::Build()
@@ -53,10 +56,13 @@ namespace UltraEd
 
     void SphereCollider::Update(D3DXMATRIX &mat)
     {
-        // Clear translation from matrix.
-        mat._41 = mat._42 = mat._43 = 0;
+        D3DXVECTOR3 scale, trans;
+        D3DXQUATERNION rot;
+        D3DXMatrixDecompose(&scale, &rot, &trans, &mat);
 
-        D3DXVec3TransformCoord(&m_center, &m_originalCenter, &mat);
+        // Scale the calculated radius using the largest scale value of the actor.
+        std::vector<float> scaleComps { fabs(scale.x), fabs(scale.y), fabs(scale.z) };
+        m_radius = m_originalRadius * (*std::max_element(scaleComps.begin(), scaleComps.end()));
 
         Build();
         Release();
@@ -75,6 +81,7 @@ namespace UltraEd
     {
         D3DXVECTOR3 dist = vertex.position - center;
         FLOAT dist2 = D3DXVec3Dot(&dist, &dist);
+
         if (dist2 > radius * radius)
         {
             FLOAT dn = sqrtf(dist2);
@@ -129,7 +136,8 @@ namespace UltraEd
     {
         auto collider = Collider::Save();
         collider.update({
-            { "radius", m_radius }
+            { "radius", m_radius },
+            { "originalRadius", m_originalRadius }
         });
         return collider;
     }
@@ -137,7 +145,10 @@ namespace UltraEd
     void SphereCollider::Load(const nlohmann::json &root)
     {
         Collider::Load(root);
+
         m_radius = root["radius"];
+        m_originalRadius = root["originalRadius"];
+
         Build();
     }
 }
