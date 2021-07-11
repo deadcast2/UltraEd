@@ -47,6 +47,7 @@ namespace UltraEd
         bool HasPath();
         bool IsDragging() { return m_isDragging; }
         bool IsSelecting() { return m_isSelecting; }
+        void SetModifier(GizmoModifierState state);
      
     private:
         void Delete();
@@ -84,6 +85,7 @@ namespace UltraEd
         void UpdateViewMatrix();
         void WrapCursor();
         bool IsActorSelected(const boost::uuids::uuid &id);
+        void RefreshGizmo();
 
     private:
         int m_version;

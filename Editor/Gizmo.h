@@ -18,11 +18,10 @@ namespace UltraEd
 
     class Gizmo
     {
-        friend class Gui;
-
     public:
         Gizmo();
         void SetModifier(GizmoModifierState state);
+        GizmoModifierState GetModifier() { return m_modifierState; }
         std::string GetModifierName();
         bool ToggleSpace();
         bool ToggleSnapping();
@@ -34,6 +33,8 @@ namespace UltraEd
         bool Select(D3DXVECTOR3 orig, D3DXVECTOR3 dir);
         void Release();
         void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack, View *view);
+        bool IsWorldSpace();
+        bool IsSnapToGrid() { return m_snapToGridToggled; }
 
     private:
         void SetPosition(D3DXVECTOR3 position);

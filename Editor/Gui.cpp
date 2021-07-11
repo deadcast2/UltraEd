@@ -712,7 +712,7 @@ namespace UltraEd
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Solid", 0, m_scene->m_fillMode == D3DFILL_SOLID))
+            if (ImGui::MenuItem("Solid", 0, m_scene->m_fillMode == D3DFILLMODE::D3DFILL_SOLID))
             {
                 m_scene->ToggleFillMode();
             }
@@ -725,29 +725,29 @@ namespace UltraEd
     {
         if (Project::IsLoaded() && ImGui::BeginMenu("Gizmo"))
         {
-            if (ImGui::MenuItem("Translate", "1", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Translate))
+            if (ImGui::MenuItem("Translate", "1", m_scene->m_gizmo.GetModifier() == GizmoModifierState::Translate))
             {
-                m_scene->m_gizmo.SetModifier(GizmoModifierState::Translate);
+                m_scene->SetModifier(GizmoModifierState::Translate);
             }
 
-            if (ImGui::MenuItem("Rotate", "2", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Rotate))
+            if (ImGui::MenuItem("Rotate", "2", m_scene->m_gizmo.GetModifier() == GizmoModifierState::Rotate))
             {
-                m_scene->m_gizmo.SetModifier(GizmoModifierState::Rotate);
+                m_scene->SetModifier(GizmoModifierState::Rotate);
             }
 
-            if (ImGui::MenuItem("Scale", "3", m_scene->m_gizmo.m_modifierState == GizmoModifierState::Scale))
+            if (ImGui::MenuItem("Scale", "3", m_scene->m_gizmo.GetModifier() == GizmoModifierState::Scale))
             {
-                m_scene->m_gizmo.SetModifier(GizmoModifierState::Scale);
+                m_scene->SetModifier(GizmoModifierState::Scale);
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("World Space", 0, m_scene->m_gizmo.m_worldSpaceToggled))
+            if (ImGui::MenuItem("World Space", 0, m_scene->m_gizmo.IsWorldSpace(), m_scene->m_gizmo.GetModifier() != GizmoModifierState::Scale))
             {
                 m_scene->ToggleMovementSpace();
             }
 
-            if (ImGui::MenuItem("Snap to Grid", 0, m_scene->m_gizmo.m_snapToGridToggled))
+            if (ImGui::MenuItem("Snap to Grid", 0, m_scene->m_gizmo.IsSnapToGrid()))
             {
                 m_scene->m_gizmo.ToggleSnapping();
             }
@@ -1006,7 +1006,7 @@ namespace UltraEd
                 ));
 
                 // Make sure the gizmo follows the target actor.
-                if (actors[i] == targetActor && !m_scene->m_gizmo.m_worldSpaceToggled)
+                if (actors[i] == targetActor && !m_scene->m_gizmo.IsWorldSpace())
                     m_scene->m_gizmo.Update(targetActor);
             }
 

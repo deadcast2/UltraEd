@@ -570,17 +570,13 @@ namespace UltraEd
                 vertCount += actor.second->GetVertices().size();
             }
         }
-        return std::string("Actors:").append(std::to_string(m_actors.size()))
-            .append(" | Tris:").append(std::to_string(vertCount / 3));
+        return std::string("Actors:").append(std::to_string(m_actors.size())).append(" | Tris:").append(std::to_string(vertCount / 3));
     }
 
     bool Scene::ToggleMovementSpace()
     {
         auto toggled = m_gizmo.ToggleSpace();
-        if (!m_selectedActorIds.empty())
-        {
-            m_gizmo.Update(m_actors[m_selectedActorIds.back()].get());
-        }
+        RefreshGizmo();
         return toggled;
     }
 
@@ -764,6 +760,14 @@ namespace UltraEd
         return it != m_selectedActorIds.end();
     }
 
+    void Scene::RefreshGizmo()
+    {
+        if (!m_selectedActorIds.empty())
+        {
+            m_gizmo.Update(m_actors[m_selectedActorIds.back()].get());
+        }
+    }
+
     // Not too thrilled with how complicated this method is currently. Tried to implement a nice feeling
     // selection system that responds how you might expect.
     void Scene::SelectActorById(const boost::uuids::uuid &id, bool clearAll)
@@ -917,6 +921,13 @@ namespace UltraEd
     bool Scene::HasPath()
     {
         return !m_path.empty();
+    }
+
+    void Scene::SetModifier(GizmoModifierState state)
+    {
+        m_gizmo.SetModifier(state);
+
+        RefreshGizmo();
     }
 
     nlohmann::json Scene::Save()

@@ -187,7 +187,7 @@ namespace UltraEd
             D3DXMATRIX mat;
             D3DXMatrixIdentity(&mat);
 
-            if (!m_worldSpaceToggled)
+            if (!IsWorldSpace())
             {
                 mat = currentActor->GetRotationMatrix();
             }
@@ -213,7 +213,7 @@ namespace UltraEd
         // Determine orientation for plane to produce depending on selected axis.
         if (m_axisState == GizmoAxisState::XAxis)
         {
-            const D3DXVECTOR3 right = m_worldSpaceToggled ? D3DXVECTOR3(1, 0, 0) : selectedActor->GetRight();
+            const D3DXVECTOR3 right = IsWorldSpace() ? D3DXVECTOR3(1, 0, 0) : selectedActor->GetRight();
             D3DXVECTOR3 up;
             D3DXVec3Cross(&up, &right, &look);
             D3DXVec3Cross(&look, &right, &up);
@@ -226,7 +226,7 @@ namespace UltraEd
         }
         else if (m_axisState == GizmoAxisState::YAxis)
         {
-            const D3DXVECTOR3 up = m_worldSpaceToggled ? D3DXVECTOR3(0, 1, 0) : selectedActor->GetUp();
+            const D3DXVECTOR3 up = IsWorldSpace() ? D3DXVECTOR3(0, 1, 0) : selectedActor->GetUp();
             D3DXVECTOR3 right;
             D3DXVec3Cross(&right, &up, &look);
             D3DXVec3Cross(&look, &up, &right);
@@ -239,7 +239,7 @@ namespace UltraEd
         }
         else if (m_axisState == GizmoAxisState::ZAxis)
         {
-            const D3DXVECTOR3 forward = m_worldSpaceToggled ? D3DXVECTOR3(0, 0, 1) : selectedActor->GetForward();
+            const D3DXVECTOR3 forward = IsWorldSpace() ? D3DXVECTOR3(0, 0, 1) : selectedActor->GetForward();
             D3DXVECTOR3 up;
             D3DXVec3Cross(&up, &forward, &look);
             D3DXVec3Cross(&look, &forward, &up);
@@ -279,7 +279,7 @@ namespace UltraEd
             const float epsilon = 0.1f;
             const bool shouldSnap = fabsf((moveDist > m_snapSize ? m_snapSize : moveDist) - m_snapSize) < epsilon;
 
-            // Clamp the dot product between -1, 1 to not cause a undefined result.
+            // Clamp the dot product between -1, 1 to not cause an undefined result.
             float dot = D3DXVec3Dot(&origTargetDir, &normMouseDir);
             dot = dot < -1.0f ? -1.0f : dot > 1.0f ? 1.0f : dot;
 
@@ -300,6 +300,11 @@ namespace UltraEd
             }
             else if (m_modifierState == GizmoModifierState::Scale)
             {
+                // Undo any transformations on the target direction since scale will behave oddly.
+                D3DXMATRIX inverse;
+                D3DXMatrixInverse(&inverse, NULL, &currentActor->GetRotationMatrix());
+                D3DXVec3TransformCoord(&targetDir, &targetDir, &inverse);
+
                 changeDetected = currentActor->Scale(targetDir * (moveDist * modifier));
             }
             else
@@ -342,5 +347,10 @@ namespace UltraEd
     float Gizmo::GetSnapSize()
     {
         return m_snapSize;
+    }
+
+    bool Gizmo::IsWorldSpace()
+    {
+        return m_modifierState != GizmoModifierState::Scale && m_worldSpaceToggled;
     }
 }
