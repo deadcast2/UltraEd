@@ -298,7 +298,7 @@ namespace UltraEd
                     changeDetected = currentActor->Move(targetDir * (moveDist * modifier));
                 }
             }
-            else if (m_modifierState == GizmoModifierState::Scale)
+            else if (m_modifierState == GizmoModifierState::Scale && currentActor->GetType() == ActorType::Model)
             {
                 // Undo any transformations on the target direction since scale will behave oddly.
                 D3DXMATRIX inverse;
@@ -307,7 +307,7 @@ namespace UltraEd
 
                 changeDetected = currentActor->Scale(targetDir * (moveDist * modifier));
             }
-            else
+            else if (m_modifierState == GizmoModifierState::Rotate)
             {
                 changeDetected = currentActor->Rotate(moveDist * modifier, targetDir);
             }
