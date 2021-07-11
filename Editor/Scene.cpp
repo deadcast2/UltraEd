@@ -332,9 +332,9 @@ namespace UltraEd
         if (ImGui::IsKeyPressed(VK_DELETE, false)) Delete();
         if (ImGui::IsKeyPressed('F', false)) FocusSelected();
         if (ImGui::IsKeyPressed('H', false)) ResetViews();
-        if (ImGui::IsKeyPressed(0x31, false)) m_gizmo.SetModifier(GizmoModifierState::Translate);
-        if (ImGui::IsKeyPressed(0x32, false)) m_gizmo.SetModifier(GizmoModifierState::Rotate);
-        if (ImGui::IsKeyPressed(0x33, false)) m_gizmo.SetModifier(GizmoModifierState::Scale);
+        if (ImGui::IsKeyPressed(0x31, false)) SetModifier(GizmoModifierState::Translate);
+        if (ImGui::IsKeyPressed(0x32, false)) SetModifier(GizmoModifierState::Rotate);
+        if (ImGui::IsKeyPressed(0x33, false)) SetModifier(GizmoModifierState::Scale);
 
         if (m_gui->IO().MouseDown[ImGuiMouseButton_Left])
         {
