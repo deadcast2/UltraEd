@@ -55,7 +55,7 @@ namespace UltraEd
         });
 
         if (FAILED(D3DXCreateTextureFromFileEx(m_renderDevice.GetDevice(), "Assets/no-texture.png",
-            ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth, 1, 0, D3DFMT_X8R8G8B8,
+            ImageButtonWidth, ImageButtonWidth, 1, 0, D3DFMT_X8R8G8B8,
             D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, 0, 0, &m_noTexture)))
         {
             Debug::Instance().Error("Could not load no texture asset.");
@@ -962,7 +962,7 @@ namespace UltraEd
                 }
             }
 
-            if (ImGui::ImageButton(texture, { ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth }))
+            if (ImGui::ImageButton(texture, { ImageButtonWidth, ImageButtonWidth }))
             {
                 m_addTextureModalOpen = true;
             }
@@ -1335,7 +1335,7 @@ namespace UltraEd
             int i = 0;
             auto textures = Project::Previews(AssetType::Texture);
             const int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() /
-                (ModelPreviewer::PreviewWidth + ImGui::GetStyle().FramePadding.x * 3)));
+                (ImageButtonWidth + ImGui::GetStyle().FramePadding.x * 3)));
 
             // Add "no texture" that when clicked removes the model's texture.
             textures[boost::uuids::nil_uuid()] = m_noTexture;
@@ -1345,7 +1345,7 @@ namespace UltraEd
                 if (texture.second == NULL) continue;
 
                 ImGui::PushID(i++);
-                if (ImGui::ImageButton(texture.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
+                if (ImGui::ImageButton(texture.second, ImVec2(ImageButtonWidth, ImageButtonWidth)))
                 {
                     if (texture.first.is_nil())
                     {
@@ -1383,14 +1383,14 @@ namespace UltraEd
             int i = 0;
             const auto models = Project::Previews(AssetType::Model);
             const int rowLimit = static_cast<int>(std::max(1.0f, ImGui::GetWindowContentRegionWidth() /
-                (ModelPreviewer::PreviewWidth + ImGui::GetStyle().FramePadding.x * 3)));
+                (ImageButtonWidth + ImGui::GetStyle().FramePadding.x * 3)));
 
             for (const auto &model : models)
             {
                 if (model.second == NULL) continue;
 
                 ImGui::PushID(i++);
-                if (ImGui::ImageButton(model.second, ImVec2(ModelPreviewer::PreviewWidth, ModelPreviewer::PreviewWidth)))
+                if (ImGui::ImageButton(model.second, ImVec2(ImageButtonWidth, ImageButtonWidth)))
                 {
                     m_scene->AddModel(model.first);
                     ImGui::CloseCurrentPopup();

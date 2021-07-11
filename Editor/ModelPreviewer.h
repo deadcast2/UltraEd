@@ -16,7 +16,7 @@ namespace UltraEd
         void Render(LPDIRECT3DDEVICE9 deviceTarget, const std::filesystem::path &path, LPDIRECT3DTEXTURE9 *texture);
 
     public:
-        static const int PreviewWidth = 64;
+        static const int PreviewWidth = 128;
 
     private:
         void CenterModel(Model &model);

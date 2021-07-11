@@ -32,6 +32,7 @@ namespace UltraEd
         void OpenContextMenu(Actor *selectedActor);
         void ConfirmScene(std::function<void()> block);
         void RefreshScene(const std::vector<boost::uuids::uuid> &changedAssetIds);
+        static const int ImageButtonWidth = 64;
     
     private:
         void PrepareFrame();
