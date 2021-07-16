@@ -58,6 +58,7 @@ namespace UltraEd
         void Unparent();
         void LinkChildren(Scene *scene, bool link, bool applyTransformations = true);
         const std::map<boost::uuids::uuid, Actor *> &GetChildren() { return m_children; }
+        void ClearChildren() { m_children.clear(); }
         nlohmann::json Save();
         void Load(const nlohmann::json &root);
 

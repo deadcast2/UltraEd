@@ -619,8 +619,7 @@ namespace UltraEd
     void Scene::Delete(Actor *actor)
     {
         // Remove any children actors first.
-        auto children = actor->GetChildren();
-        for (const auto &child : children)
+        for (const auto &child : actor->GetChildren())
         {
             Delete(child.second);
         }
@@ -639,11 +638,10 @@ namespace UltraEd
     void Scene::Duplicate()
     {
         const auto groupId = Util::NewUuid();
+        std::map<boost::uuids::uuid, Actor *> newActors;
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            Actor *newActor = nullptr;
-
             switch (m_actors[selectedActorId]->GetType())
             {
                 case ActorType::Model:
@@ -651,7 +649,7 @@ namespace UltraEd
                     const auto selectedModel = dynamic_cast<Model *>(m_actors[selectedActorId].get());
                     auto model = std::make_shared<Model>(*selectedModel);
                     m_actors[model->GetId()] = model;
-                    newActor = reinterpret_cast<Actor *>(model.get());
+                    newActors[selectedActorId] = model.get();
 
                     // Give duplicate a fresh copy of texture.
                     if (selectedModel->GetTexture()->IsLoaded())
@@ -664,27 +662,39 @@ namespace UltraEd
                 {
                     const auto camera = std::make_shared<Camera>(*dynamic_cast<Camera *>(m_actors[selectedActorId].get()));
                     m_actors[camera->GetId()] = camera;
-                    newActor = reinterpret_cast<Actor *>(camera.get());
+                    newActors[selectedActorId] = camera.get();
 
                     m_auditor.AddActor("Camera", camera->GetId(), groupId);
                     break;
                 }
+                default:
+                    continue;
             }
 
-            if (newActor != nullptr)
+            // Create new collider for copy when present on source actor.
+            if (m_actors[selectedActorId]->HasCollider())
             {
-                // Create new collider for copy when present on source actor.
-                if (m_actors[selectedActorId]->HasCollider())
-                {
-                    if (m_actors[selectedActorId]->GetCollider()->GetType() == ColliderType::Box)
-                    {
-                        newActor->SetCollider(new BoxCollider(newActor->GetVertices()));
-                    }
-                    else
-                    {
-                        newActor->SetCollider(new SphereCollider(newActor->GetVertices()));
-                    }
-                }
+                const auto newActor = newActors[selectedActorId];
+
+                if (m_actors[selectedActorId]->GetCollider()->GetType() == ColliderType::Box)
+                    newActor->SetCollider(new BoxCollider(newActor->GetVertices()));
+                else
+                    newActor->SetCollider(new SphereCollider(newActor->GetVertices()));
+            }
+        }
+
+        for (const auto &newActor : newActors)
+        {
+            // Iterate over a copy of the actor's children since the collection may change.
+            auto childrenCopy = std::map<boost::uuids::uuid, Actor *>(newActor.second->GetChildren());
+
+            // Must clear all links to children since this copied actor will have children referencing the copy source.
+            newActor.second->ClearChildren();
+
+            for (const auto &child : childrenCopy)
+            {
+                // Link all copied children of the source actor to the new duplicated actor.
+                newActors[child.first]->SetParent(newActor.second);
             }
         }
     }
