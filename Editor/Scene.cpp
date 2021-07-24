@@ -712,8 +712,8 @@ namespace UltraEd
     {
         if (!m_selectedActorIds.empty())
         {
-            m_auditor.ChangeActor("Script Change", m_selectedActorIds[0]);
-            m_actors[m_selectedActorIds[0]]->SetScript(script);
+            m_auditor.ChangeActor("Script Change", m_selectedActorIds.back());
+            m_actors[m_selectedActorIds.back()]->SetScript(script);
         }
     }
 
@@ -721,7 +721,7 @@ namespace UltraEd
     {
         if (!m_selectedActorIds.empty())
         {
-            return m_actors[m_selectedActorIds[0]]->GetScript();
+            return m_actors[m_selectedActorIds.back()]->GetScript();
         }
         return std::string("");
     }
