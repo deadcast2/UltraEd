@@ -703,7 +703,7 @@ namespace UltraEd
     {
         if (m_selectedActorIds.size() > 0)
         {
-            auto selectedActor = m_actors[m_selectedActorIds[0]];
+            auto selectedActor = m_actors[m_selectedActorIds.back()];
             GetActiveView()->SetPosition(selectedActor->GetPosition() + (GetActiveView()->GetForward() * -2.5f));
         }
     }
