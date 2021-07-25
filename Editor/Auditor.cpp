@@ -189,7 +189,7 @@ namespace UltraEd
                 auto actor = m_scene->GetActor(actorId);
                 auto state = SaveState(redoStateId, [=]() { return actor->Save(); });
 
-                m_scene->Delete(actor.get());             
+                m_scene->Delete(actor);             
                 return state;
             },
             [=](const json &oldState) {
@@ -217,7 +217,7 @@ namespace UltraEd
                 return state;
             },
             [=](const json &oldState) {
-                m_scene->Delete(m_scene->GetActor(actorId).get());
+                m_scene->Delete(m_scene->GetActor(actorId));
             },
             groupId
         });

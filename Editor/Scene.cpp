@@ -114,25 +114,28 @@ namespace UltraEd
 
     void Scene::AddModel(const boost::uuids::uuid &assetId)
     {
-        auto model = std::make_shared<Model>(assetId);
+        auto newModel = new Model(assetId);
 
-        if (model != nullptr)
+        if (newModel != nullptr)
         {
-            m_actors[model->GetId()] = model;
-            model->SetName(std::string("Actor ").append(std::to_string(m_actors.size())));
-            m_auditor.AddActor("Model", model->GetId());
-            SelectActorById(model->GetId());
+            m_actors[newModel->GetId()] = std::unique_ptr<Model>(newModel);
+            newModel->SetName(std::string("Actor ").append(std::to_string(m_actors.size())));
+            m_auditor.AddActor("Model", newModel->GetId());
+            SelectActorById(newModel->GetId());
         }
     }
 
     void Scene::AddCamera()
     {
-        auto newCamera = std::make_shared<Camera>();
-        m_actors[newCamera->GetId()] = newCamera;
-        newCamera->SetName(std::string("Camera ").append(std::to_string(m_actors.size())));
-        m_auditor.AddActor("Camera", newCamera->GetId());
+        auto newCamera = new Camera();
 
-        SelectActorById(newCamera->GetId());
+        if (newCamera != nullptr)
+        {
+            m_actors[newCamera->GetId()] = std::unique_ptr<Camera>(newCamera);
+            newCamera->SetName(std::string("Camera ").append(std::to_string(m_actors.size())));
+            m_auditor.AddActor("Camera", newCamera->GetId());
+            SelectActorById(newCamera->GetId());
+        }
     }
 
     void Scene::AddCollider(ColliderType type)
@@ -273,7 +276,8 @@ namespace UltraEd
         {
             for (const auto &actor : m_actors)
             {
-                const auto model = std::static_pointer_cast<Model>(actor.second);
+                const auto model = reinterpret_cast<Model *>(actor.second.get());
+
                 if (actor.second->GetType() == ActorType::Model && model != nullptr)
                 {
                     if (model->GetModelId() == changedAssetId)
@@ -666,10 +670,10 @@ namespace UltraEd
             {
                 case ActorType::Model:
                 {
-                    const auto selectedModel = dynamic_cast<Model *>(m_actors[selectedActorId].get());
-                    auto model = std::make_shared<Model>(*selectedModel);
-                    m_actors[model->GetId()] = model;
-                    newActors[selectedActorId] = model.get();
+                    const auto selectedModel = reinterpret_cast<Model *>(m_actors[selectedActorId].get());
+                    auto model = new Model(*selectedModel);
+                    m_actors[model->GetId()] = std::unique_ptr<Model>(model);
+                    newActors[selectedActorId] = model;
 
                     // Give duplicate a fresh copy of texture.
                     if (selectedModel->GetTexture()->IsLoaded())
@@ -680,9 +684,9 @@ namespace UltraEd
                 }
                 case ActorType::Camera:
                 {
-                    const auto camera = std::make_shared<Camera>(*dynamic_cast<Camera *>(m_actors[selectedActorId].get()));
-                    m_actors[camera->GetId()] = camera;
-                    newActors[selectedActorId] = camera.get();
+                    const auto camera = new Camera(*reinterpret_cast<Camera *>(m_actors[selectedActorId].get()));
+                    m_actors[camera->GetId()] = std::unique_ptr<Camera>(camera);
+                    newActors[selectedActorId] = camera;
 
                     m_auditor.AddActor("Camera", camera->GetId(), groupId);
                     break;
@@ -723,7 +727,7 @@ namespace UltraEd
     {
         if (m_selectedActorIds.size() > 0)
         {
-            auto selectedActor = m_actors[m_selectedActorIds.back()];
+            auto selectedActor = m_actors[m_selectedActorIds.back()].get();
             GetActiveView()->SetPosition(selectedActor->GetPosition() + (GetActiveView()->GetForward() * -2.5f));
         }
     }
@@ -784,7 +788,7 @@ namespace UltraEd
         {
             for (const auto &actorId : m_selectedActorIds)
             {
-                actors.push_back(GetActor(actorId).get());
+                actors.push_back(GetActor(actorId));
             }
         }
         else
@@ -797,12 +801,12 @@ namespace UltraEd
         return actors;
     }
 
-    std::shared_ptr<Actor> Scene::GetActor(const boost::uuids::uuid &id)
+    Actor *Scene::GetActor(const boost::uuids::uuid &id)
     {
         if (m_actors.find(id) != m_actors.end())
-            return m_actors[id];
+            return m_actors[id].get();
 
-        return NULL;
+        return nullptr;
     }
 
     bool Scene::IsActorSelected(const boost::uuids::uuid &id)
@@ -867,7 +871,7 @@ namespace UltraEd
             }
 
             m_selectedActorIds.push_back(id);
-            m_gizmo.Update(actor.get());
+            m_gizmo.Update(actor);
         }
     }
 
@@ -1057,16 +1061,16 @@ namespace UltraEd
         {
             case ActorType::Model:
             {
-                auto model = existingActor ? std::static_pointer_cast<Model>(existingActor) : std::make_shared<Model>();
+                auto model = existingActor ? reinterpret_cast<Model *>(existingActor) : new Model();
                 model->Load(actor, m_renderDevice.GetDevice());
-                if (!existingActor) m_actors[model->GetId()] = model;
+                if (!existingActor) m_actors[model->GetId()] = std::unique_ptr<Model>(model);
                 break;
             }
             case ActorType::Camera:
             {
-                auto camera = existingActor ? std::static_pointer_cast<Camera>(existingActor) : std::make_shared<Camera>();
+                auto camera = existingActor ? reinterpret_cast<Camera *>(existingActor) : new Camera();
                 camera->Load(actor);
-                if (!existingActor) m_actors[camera->GetId()] = camera;
+                if (!existingActor) m_actors[camera->GetId()] = std::unique_ptr<Camera>(camera);
                 break;
             }
         }

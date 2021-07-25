@@ -31,6 +31,7 @@ namespace UltraEd
         Scene(HWND hWnd, Gui *gui);
         ~Scene();
         std::vector<Actor *> GetActors(bool selectedOnly = false);
+        Actor *GetActor(const boost::uuids::uuid &id);
         COLORREF GetBackgroundColor();
         void UpdateInput(const D3DXVECTOR2 &mousePos);
         void Render(LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture);
@@ -38,7 +39,6 @@ namespace UltraEd
         nlohmann::json PartialSave();
         void PartialLoad(const nlohmann::json &root);
         void UnselectAll();
-        std::shared_ptr<Actor> GetActor(const boost::uuids::uuid &id);
         void RestoreActor(const nlohmann::json &item, bool markSceneDirty = false);
         void Delete(Actor *actor);
         void SelectActorById(const boost::uuids::uuid &id, bool clearAll = true);
@@ -94,7 +94,7 @@ namespace UltraEd
         D3DFILLMODE m_fillMode;
         Gizmo m_gizmo;
         std::array<View, 5> m_views;
-        std::map<boost::uuids::uuid, std::shared_ptr<Actor>> m_actors;
+        std::map<boost::uuids::uuid, std::unique_ptr<Actor>> m_actors;
         Grid m_grid;
         std::vector<boost::uuids::uuid> m_selectedActorIds;
         float m_mouseSmoothX, m_mouseSmoothY;
