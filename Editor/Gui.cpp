@@ -818,7 +818,7 @@ namespace UltraEd
                 const auto selectedActor = m_scene->GetActor(*(boost::uuids::uuid *)payload->Data);
                 if (selectedActor != nullptr)
                 {
-                    m_scene->m_auditor.ParentActor("Parent", actor->GetId(), Util::NewUuid());
+                    m_scene->m_auditor.ParentActor("Parent", selectedActor->GetId(), Util::NewUuid());
                     selectedActor->SetParent(actor);
                 }
             }
@@ -1184,7 +1184,7 @@ namespace UltraEd
             {
                 if (ImGui::MenuItem("Unparent"))
                 {
-                    m_scene->m_auditor.UnparentActor("Unparent", m_selectedActor->GetParent()->GetId(), Util::NewUuid());
+                    m_scene->m_auditor.ParentActor("Unparent", m_selectedActor->GetId(), Util::NewUuid());
                     m_selectedActor->Unparent();
                 }
             }
