@@ -768,7 +768,7 @@ namespace UltraEd
     {
         if (ImGui::Begin(ICON_FK_TH_LIST" Scene Graph", 0, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            for (const auto actor : m_scene->GetActors())
+            for (const auto &actor : m_scene->GetActors())
             {
                 if (actor->GetParent() != nullptr)
                     continue;
@@ -782,8 +782,7 @@ namespace UltraEd
 
     void Gui::RenderTreeNode(Actor *actor)
     {
-        if (actor == nullptr)
-            return;
+        if (actor == nullptr) return;
 
         ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth |
             ImGuiTreeNodeFlags_NoTreePushOnOpen;
@@ -831,9 +830,9 @@ namespace UltraEd
 
         ImGui::TreePush();
 
-        for (const auto child : actor->GetChildren())
+        for (const auto &child : actor->GetChildren())
         {
-            RenderTreeNode(child.second);
+            RenderTreeNode(child);
         }
 
         ImGui::TreePop();

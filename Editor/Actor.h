@@ -57,8 +57,10 @@ namespace UltraEd
         void SetParent(Actor *actor, bool applyTransformations = true);
         void Unparent();
         void LinkChildren(Scene *scene, bool link, bool applyTransformations = true);
-        const std::map<boost::uuids::uuid, Actor *> &GetChildren() { return m_children; }
+        std::vector<Actor *> GetChildren();
         void ClearChildren() { m_children.clear(); }
+        bool IsActive() { return m_isActive; }
+        void SetActive(bool isActive) { Dirty([&] { m_isActive = isActive; }, &m_isActive); }
         nlohmann::json Save();
         void Load(const nlohmann::json &root);
 
@@ -82,6 +84,7 @@ namespace UltraEd
         std::shared_ptr<Collider> m_collider;
         Actor *m_parent;
         std::map<boost::uuids::uuid, Actor *> m_children;
+        bool m_isActive;
     };
 }
 

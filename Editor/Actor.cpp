@@ -23,7 +23,8 @@ namespace UltraEd
         m_script(),
         m_collider(),
         m_parent(),
-        m_children()
+        m_children(),
+        m_isActive(true)
     {
         ResetId();
         m_script = std::string("void $start()\n{\n\n}\n\nvoid $update()\n{\n\n}\n\nvoid $input(NUContData gamepads[4])\n{\n\n}");
@@ -345,6 +346,21 @@ namespace UltraEd
                 actor->SetDirty(false);
             }
         }
+    }
+
+    std::vector<Actor *> Actor::GetChildren()
+    {
+        std::vector<Actor *> actors;
+
+        for (const auto &actor : m_children)
+        {
+            if (!actor.second->IsActive())
+                continue;
+
+            actors.push_back(actor.second);
+        }
+
+        return actors;
     }
 
     nlohmann::json Actor::Save()

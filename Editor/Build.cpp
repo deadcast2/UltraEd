@@ -314,7 +314,7 @@ namespace UltraEd
         {
             for (const auto &child : actor->GetChildren())
             {
-                actorInits.append("\n\tlinkChildToParent(_UER_Actors, ").append(std::to_string(reducedActorIds[child.first]))
+                actorInits.append("\n\tlinkChildToParent(_UER_Actors, ").append(std::to_string(reducedActorIds[child->GetId()]))
                     .append(", ").append(std::to_string(reducedActorIds[actor->GetId()])).append(");\n");
             }
         }
@@ -467,7 +467,7 @@ namespace UltraEd
 
     bool Build::Start(Scene *scene)
     {
-        auto actors = scene->GetActors();
+        const auto actors = scene->GetActors();
 
         // Share texture and model data to reduce ROM size. Resource use is tracked during
         // segment generation and the actor script generator uses that info. 

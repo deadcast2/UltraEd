@@ -9,7 +9,6 @@ namespace UltraEd
         m_scene(scene),
         m_savedStates(),
         m_potentials(),
-        m_groupActions(),
         m_maxUnits(100),
         m_locked(false)
     { }
@@ -25,18 +24,7 @@ namespace UltraEd
             // Don't adjust actor selections when nothing to undo.
             if (m_position > 0) m_scene->UnselectAll();
 
-            std::set<uuid> groupIds;
-            RunUndo(groupIds);
-
-            // Haven't fully determined yet if this should also run for undo?
-            for (const auto &groupId : groupIds)
-            {
-                // Execute any stored action that should run after this group has been undone.
-                if (m_groupActions.find(groupId) != m_groupActions.end())
-                {
-                    m_groupActions[groupId]();
-                }
-            }
+            RunUndo();
         });
     }
 
@@ -45,11 +33,12 @@ namespace UltraEd
         Lock([&]() {
             // Don't adjust actor selections when nothing to redo.
             if (m_position < m_undoUnits.size()) m_scene->UnselectAll();
+
             RunRedo();
         });
     }
 
-    void Auditor::RunUndo(std::set<uuid> &groupIds)
+    void Auditor::RunUndo()
     {
         if (m_position > 0)
         {
@@ -63,11 +52,7 @@ namespace UltraEd
                 && !m_undoUnits[nextUndoPos].groupId.is_nil()
                 && m_undoUnits[nextUndoPos].groupId == m_undoUnits[m_position].groupId)
             {
-                // Keep track of all the encountered groups for potential group actions that
-                // should be executed.
-                groupIds.insert(m_undoUnits[m_position].groupId);
-
-                RunUndo(groupIds);
+                RunUndo();
             }
         }
     }
@@ -181,19 +166,16 @@ namespace UltraEd
     {
         if (m_locked) return;
 
-        const auto redoStateId = Util::NewUuid();
+        auto actor = m_scene->GetActor(actorId);
 
         Add({
             std::string("Add ").append(name),
             [=]() {
-                auto actor = m_scene->GetActor(actorId);
-                auto state = SaveState(redoStateId, [=]() { return actor->Save(); });
-
                 m_scene->Delete(actor);             
-                return state;
+                return json();
             },
             [=](const json &oldState) {
-                m_scene->RestoreActor(oldState, true);
+                actor->SetActive(true);
                 m_scene->SelectActorById(actorId);
             },
             groupId
@@ -204,20 +186,17 @@ namespace UltraEd
     {
         if (m_locked) return;
 
-        auto state = SaveState(Util::NewUuid(), [=]() {
-            return m_scene->GetActor(actorId)->Save();
-        });
+        auto actor = m_scene->GetActor(actorId);
 
         Add({
             std::string("Delete ").append(name),
             [=]() {
-                m_scene->RestoreActor(state, true);
+                actor->SetActive(true);
                 m_scene->SelectActorById(actorId);
-
-                return state;
+                return json();
             },
             [=](const json &oldState) {
-                m_scene->Delete(m_scene->GetActor(actorId));
+                m_scene->Delete(actor);
             },
             groupId
         });
@@ -361,13 +340,5 @@ namespace UltraEd
                 m_scene->PartialLoad(oldState);
             }
         });
-    }
-
-    void Auditor::RunWithGroup(std::function<void()> block, const uuid &groupId)
-    {
-        if (block != nullptr && !groupId.is_nil())
-        {
-            m_groupActions[groupId] = block;
-        }
     }
 }

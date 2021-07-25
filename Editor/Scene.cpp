@@ -175,7 +175,7 @@ namespace UltraEd
         {
             m_auditor.ChangeActor("Delete Collider", selectedActorId, groupId);
 
-            m_actors[selectedActorId]->SetCollider(NULL);
+            m_actors[selectedActorId]->SetCollider(nullptr);
         }
     }
 
@@ -195,8 +195,7 @@ namespace UltraEd
 
             m_auditor.ChangeActor("Add Texture", selectedActorId, groupId);
 
-            if (!dynamic_cast<Model *>(m_actors[selectedActorId].get())
-                ->SetTexture(m_renderDevice.GetDevice(), assetId))
+            if (!dynamic_cast<Model *>(m_actors[selectedActorId].get())->SetTexture(m_renderDevice.GetDevice(), assetId))
             {
                 Debug::Instance().Warning("Texture could not be loaded.");
             }
@@ -236,17 +235,17 @@ namespace UltraEd
             return false;
 
         // Check all actors to see which poly might have been picked.
-        for (const auto &actor : m_actors)
+        for (const auto &actor : GetActors())
         {
             // Only choose the closest actors to the view.
             float pickDist = 0;
-            if (actor.second->Pick(orig, dir, &pickDist) && pickDist < closestDist)
+            if (actor->Pick(orig, dir, &pickDist) && pickDist < closestDist)
             {
                 closestDist = pickDist;
-                closestActorId = actor.first;
+                closestActorId = actor->GetId();
 
                 if (selectedActor != nullptr)
-                    *selectedActor = actor.second.get();
+                    *selectedActor = actor;
             }
         }
 
@@ -274,11 +273,11 @@ namespace UltraEd
     {
         for (const auto &changedAssetId : changedAssetIds)
         {
-            for (const auto &actor : m_actors)
+            for (const auto &actor : GetActors())
             {
-                const auto model = reinterpret_cast<Model *>(actor.second.get());
+                const auto model = reinterpret_cast<Model *>(actor);
 
-                if (actor.second->GetType() == ActorType::Model && model != nullptr)
+                if (actor->GetType() == ActorType::Model && model != nullptr)
                 {
                     if (model->GetModelId() == changedAssetId)
                         model->SetMesh(changedAssetId);
@@ -476,11 +475,11 @@ namespace UltraEd
             device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
             device->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
 
-            for (const auto &actor : m_actors)
+            for (const auto &actor : GetActors())
             {
                 // Highlight any selected actors.
-                device->SetRenderState(D3DRS_AMBIENT, IsActorSelected(actor.first) ? 0x0000ff00 : 0xffffffff);
-                actor.second->Render(device, stack);
+                device->SetRenderState(D3DRS_AMBIENT, IsActorSelected(actor->GetId()) ? 0x0000ff00 : 0xffffffff);
+                actor->Render(device, stack);
             }
 
             if (!m_selectedActorIds.empty())
@@ -505,9 +504,9 @@ namespace UltraEd
     {
         SetDirty(this->IsDirty());
 
-        for (const auto &actor : m_actors)
+        for (const auto &actor : GetActors())
         {
-            if (actor.second->IsDirty())
+            if (actor->IsDirty())
             {
                 SetDirty(true);
                 break;
@@ -567,14 +566,16 @@ namespace UltraEd
     std::string Scene::GetStats()
     {
         size_t vertCount = 0;
-        for (const auto &actor : m_actors)
+        const auto actors = GetActors();
+
+        for (const auto &actor : actors)
         {
-            if (actor.second->GetType() == ActorType::Model)
+            if (actor->GetType() == ActorType::Model)
             {
-                vertCount += actor.second->GetVertices().size();
+                vertCount += actor->GetVertices().size();
             }
         }
-        return std::string("Actors:").append(std::to_string(m_actors.size())).append(" | Tris:").append(std::to_string(vertCount / 3));
+        return std::string("Actors:").append(std::to_string(actors.size())).append(" | Tris:").append(std::to_string(vertCount / 3));
     }
 
     bool Scene::ToggleMovementSpace()
@@ -613,49 +614,28 @@ namespace UltraEd
         const auto selectedActorIds = m_selectedActorIds;
         const auto groupId = Util::NewUuid();
 
-        // Run actor linking after undoing to ensure proper linkage of actors.
-        m_auditor.RunWithGroup([=]() {
-            for (const auto &id : selectedActorIds)
-            {
-                const auto actor = GetActor(id);
-                if (actor != nullptr)
-                {
-                    actor->LinkChildren(this, true, false);
-                }
-            }
-        }, groupId);
-
-        // First track the deletion before really removing so no children links get lost.
         for (const auto &selectedActorId : selectedActorIds)
         {
             m_auditor.DeleteActor("Actor", selectedActorId, groupId);
-        }
-
-        // Now can safely remove the actors.
-        for (const auto &selectedActorId : selectedActorIds)
-        {
             Delete(m_actors[selectedActorId].get());
         }
     }
 
     void Scene::Delete(Actor *actor)
     {
-        // Remove any children actors first.
+        if (actor == nullptr) return;
+
+        actor->SetActive(false);
+
         for (const auto &child : actor->GetChildren())
         {
-            Delete(child.second);
+            Delete(child);
         }
-
-        // Unparent to unsure parent actors don't have a link to a non-existing child actor.
-        actor->Unparent();
-
-        actor->Release();
 
         // Unselect actor if selected.
         auto it = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor->GetId());
         if (it != m_selectedActorIds.end()) m_selectedActorIds.erase(it);
 
-        m_actors.erase(actor->GetId());
         SetDirty(true);
     }
 
@@ -710,7 +690,7 @@ namespace UltraEd
         for (const auto &newActor : newActors)
         {
             // Iterate over a copy of the actor's children since the collection may change.
-            auto childrenCopy = std::map<boost::uuids::uuid, Actor *>(newActor.second->GetChildren());
+            const auto childrenCopy = std::vector<Actor *>(newActor.second->GetChildren());
 
             // Must clear all links to children since this copied actor will have children referencing the copy source.
             newActor.second->ClearChildren();
@@ -718,7 +698,7 @@ namespace UltraEd
             for (const auto &child : childrenCopy)
             {
                 // Link all copied children of the source actor to the new duplicated actor.
-                newActors[child.first]->SetParent(newActor.second);
+                newActors[child->GetId()]->SetParent(newActor.second);
             }
         }
     }
@@ -784,20 +764,18 @@ namespace UltraEd
     std::vector<Actor *> Scene::GetActors(bool selectedOnly)
     {
         std::vector<Actor *> actors;
-        if (selectedOnly)
+
+        for (const auto &actor : m_actors)
         {
-            for (const auto &actorId : m_selectedActorIds)
-            {
-                actors.push_back(GetActor(actorId));
-            }
+            if (!actor.second->IsActive())
+                continue;
+
+            if (selectedOnly && std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor.first) == m_selectedActorIds.end())
+                continue;
+
+            actors.push_back(actor.second.get());
         }
-        else
-        {
-            for (const auto &actor : m_actors)
-            {
-                actors.push_back(actor.second.get());
-            }
-        }
+
         return actors;
     }
 
@@ -851,7 +829,7 @@ namespace UltraEd
             // Once parent is unselected continue unselecting all children.
             for (const auto &child : actor->GetChildren())
             {
-                SelectActorById(child.first, false);
+                SelectActorById(child->GetId(), false);
             }
 
             // Select previous selected actor if any available.
@@ -864,10 +842,10 @@ namespace UltraEd
             for (const auto &child : actor->GetChildren())
             {
                 // Don't potentially unselect the child when it's already selected when selecting its parent.
-                if (std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), child.first) != m_selectedActorIds.end())
+                if (std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), child->GetId()) != m_selectedActorIds.end())
                     continue;
 
-                SelectActorById(child.first, false);
+                SelectActorById(child->GetId(), false);
             }
 
             m_selectedActorIds.push_back(id);
@@ -877,9 +855,9 @@ namespace UltraEd
 
     void Scene::SelectAll()
     {
-        for (const auto &actor : m_actors)
+        for (const auto &actor : GetActors())
         {
-            SelectActorById(actor.first, false);
+            SelectActorById(actor->GetId(), false);
         }
     }
 
@@ -903,9 +881,9 @@ namespace UltraEd
             topLeft.y = temp;
         }
 
-        for (const auto &actor : m_actors)
+        for (const auto &actor : GetActors())
         {
-            auto transformedVertices = actor.second->GetVertices(true);
+            auto transformedVertices = actor->GetVertices(true);
 
             // Test all faces in this actor.
             for (unsigned int j = 0; j < transformedVertices.size() / 3; j++)
@@ -928,7 +906,7 @@ namespace UltraEd
                     (v1p.x >= topLeft.x && v1p.x <= bottomRight.x && v1p.y >= topLeft.y && v1p.y <= bottomRight.y && v1p.z > 0.0f && v1p.z < 1.0f) &&
                     (v2p.x >= topLeft.x && v2p.x <= bottomRight.x && v2p.y >= topLeft.y && v2p.y <= bottomRight.y && v2p.z > 0.0f && v2p.z < 1.0f))
                 {
-                    SelectActorById(actor.first, false);
+                    SelectActorById(actor->GetId(), false);
                     break;
                 }
             }
@@ -956,6 +934,7 @@ namespace UltraEd
         {
             newSceneName.append("*");
         }
+
         SetTitle(newSceneName, false);
     }
 
@@ -1003,7 +982,11 @@ namespace UltraEd
 
         for (const auto &actor : m_actors)
         {
-            scene["actors"].push_back(actor.second->Save());
+            // Call save to make sure every actor including deleted get marked as not dirty.
+            const auto savedState = actor.second->Save();
+            
+            if(actor.second->IsActive())
+                scene["actors"].push_back(savedState);
         }
 
         auto partial = PartialSave();
