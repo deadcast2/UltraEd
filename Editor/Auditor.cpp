@@ -9,6 +9,7 @@ namespace UltraEd
         m_scene(scene),
         m_savedStates(),
         m_potentials(),
+        m_groupActions(),
         m_maxUnits(100),
         m_locked(false)
     { }
@@ -23,7 +24,19 @@ namespace UltraEd
         Lock([&]() {
             // Don't adjust actor selections when nothing to undo.
             if (m_position > 0) m_scene->UnselectAll();
-            RunUndo();
+
+            std::set<uuid> groupIds;
+            RunUndo(groupIds);
+
+            // Haven't fully determined yet if this should also run for undo?
+            for (const auto &groupId : groupIds)
+            {
+                // Execute any stored action that should run after this group has been undone.
+                if (m_groupActions.find(groupId) != m_groupActions.end())
+                {
+                    m_groupActions[groupId]();
+                }
+            }
         });
     }
 
@@ -36,7 +49,7 @@ namespace UltraEd
         });
     }
 
-    void Auditor::RunUndo()
+    void Auditor::RunUndo(std::set<uuid> &groupIds)
     {
         if (m_position > 0)
         {
@@ -50,7 +63,11 @@ namespace UltraEd
                 && !m_undoUnits[nextUndoPos].groupId.is_nil()
                 && m_undoUnits[nextUndoPos].groupId == m_undoUnits[m_position].groupId)
             {
-                RunUndo();
+                // Keep track of all the encountered groups for potential group actions that
+                // should be executed.
+                groupIds.insert(m_undoUnits[m_position].groupId);
+
+                RunUndo(groupIds);
             }
         }
     }
@@ -344,5 +361,13 @@ namespace UltraEd
                 m_scene->PartialLoad(oldState);
             }
         });
+    }
+
+    void Auditor::RunWithGroup(std::function<void()> block, const uuid &groupId)
+    {
+        if (block != nullptr && !groupId.is_nil())
+        {
+            m_groupActions[groupId] = block;
+        }
     }
 }

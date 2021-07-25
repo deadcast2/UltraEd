@@ -606,12 +606,30 @@ namespace UltraEd
     void Scene::Delete()
     {
         // Copy selected ids since loop modifies the master selected actor id vector.
+        const auto selectedActorIds = m_selectedActorIds;
         const auto groupId = Util::NewUuid();
-        auto selectedActorIds = m_selectedActorIds;
 
+        // Run actor linking after undoing to ensure proper linkage of actors.
+        m_auditor.RunWithGroup([=]() {
+            for (const auto &id : selectedActorIds)
+            {
+                const auto actor = GetActor(id);
+                if (actor != nullptr)
+                {
+                    actor->LinkChildren(this, true, false);
+                }
+            }
+        }, groupId);
+
+        // First track the deletion before really removing so no children links get lost.
         for (const auto &selectedActorId : selectedActorIds)
         {
             m_auditor.DeleteActor("Actor", selectedActorId, groupId);
+        }
+
+        // Now can safely remove the actors.
+        for (const auto &selectedActorId : selectedActorIds)
+        {
             Delete(m_actors[selectedActorId].get());
         }
     }
@@ -624,8 +642,10 @@ namespace UltraEd
             Delete(child.second);
         }
 
-        actor->Release();
+        // Unparent to unsure parent actors don't have a link to a non-existing child actor.
         actor->Unparent();
+
+        actor->Release();
 
         // Unselect actor if selected.
         auto it = find(m_selectedActorIds.begin(), m_selectedActorIds.end(), actor->GetId());
@@ -803,6 +823,10 @@ namespace UltraEd
     // selection system that responds how you might expect.
     void Scene::SelectActorById(const boost::uuids::uuid &id, bool clearAll)
     {
+        const auto actor = GetActor(id);
+        
+        if (actor == nullptr) return;
+
         if (clearAll) UnselectAll();
 
         if (IsActorSelected(id))
@@ -812,7 +836,7 @@ namespace UltraEd
                 return;
 
             // Can't unselect actor when its parent is currently selected.
-            auto parent = m_actors[id]->GetParent();
+            auto parent = actor->GetParent();
             if (parent != nullptr && std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), parent->GetId()) != m_selectedActorIds.end())
                 return;
 
@@ -821,7 +845,7 @@ namespace UltraEd
             m_selectedActorIds.erase(it);
 
             // Once parent is unselected continue unselecting all children.
-            for (const auto &child : m_actors[id]->GetChildren())
+            for (const auto &child : actor->GetChildren())
             {
                 SelectActorById(child.first, false);
             }
@@ -833,7 +857,7 @@ namespace UltraEd
         else
         {
             // Select any children first so the parent is the last selected.
-            for (const auto &child : m_actors[id]->GetChildren())
+            for (const auto &child : actor->GetChildren())
             {
                 // Don't potentially unselect the child when it's already selected when selecting its parent.
                 if (std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), child.first) != m_selectedActorIds.end())
@@ -843,7 +867,7 @@ namespace UltraEd
             }
 
             m_selectedActorIds.push_back(id);
-            m_gizmo.Update(m_actors[id].get());
+            m_gizmo.Update(actor.get());
         }
     }
 

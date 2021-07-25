@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <functional>
 #include <map>
+#include <set>
 #include <tuple>
 #include <vector>
 #include "Actor.h"
@@ -40,12 +41,13 @@ namespace UltraEd
         void ParentActor(const std::string &name, const uuid &actorId, const uuid &groupId = boost::uuids::nil_uuid());
         void UnparentActor(const std::string &name, const uuid &actorId, const uuid &groupId = boost::uuids::nil_uuid());
         void ChangeScene(const std::string &name);
+        void RunWithGroup(std::function<void()> block, const uuid &groupId);
         std::array<std::string, 2> Titles();
         std::function<void()> PotentialChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId);
 
     private:
         void Add(UndoUnit unit);
-        void RunUndo();
+        void RunUndo(std::set<uuid> &groupIds);
         void RunRedo();
         void CleanUp();
         json SaveState(const uuid &id, std::function<json()> save);
@@ -57,6 +59,7 @@ namespace UltraEd
         Scene *m_scene;
         std::map<uuid, json> m_savedStates;
         std::map<std::string, std::tuple<bool, std::function<void()>>> m_potentials;
+        std::map<uuid, std::function<void()>> m_groupActions;
         const int m_maxUnits;
         bool m_locked;
     };
