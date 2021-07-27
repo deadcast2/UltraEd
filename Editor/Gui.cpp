@@ -816,10 +816,26 @@ namespace UltraEd
             if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ACTOR_NODE_ID"))
             {
                 const auto selectedActor = m_scene->GetActor(*(boost::uuids::uuid *)payload->Data);
+
                 if (selectedActor != nullptr)
                 {
-                    m_scene->m_auditor.ParentActor("Parent", selectedActor->GetId(), Util::NewUuid());
-                    selectedActor->SetParent(actor);
+                    auto traversedParent = actor->GetParent();
+
+                    // Travel up the parent tree to see if the selected actor may already be in the heirarchy.
+                    while (traversedParent != nullptr)
+                    {
+                        if (traversedParent == selectedActor)
+                            break;
+
+                        traversedParent = traversedParent->GetParent();
+                    }
+
+                    // Prohibit an actor trying to be a child of itself.
+                    if (traversedParent == nullptr)
+                    {
+                        m_scene->m_auditor.ParentActor("Parent", selectedActor->GetId(), Util::NewUuid());
+                        selectedActor->SetParent(actor);
+                    }
                 }
             }
 
