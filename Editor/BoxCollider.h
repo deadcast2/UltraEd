@@ -11,7 +11,7 @@ namespace UltraEd
         BoxCollider();
         BoxCollider(const std::vector<Vertex> &vertices);
         void Build();
-        const D3DXVECTOR3 &GetExtents() { return m_extents; }
+        const D3DXVECTOR3 &GetExtents() { return m_originalExtents; }
         void Update(D3DXMATRIX &mat);
         nlohmann::json Save();
         void Load(const nlohmann::json &root);
