@@ -46,7 +46,7 @@ actor *loadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureSt
 
     newModel->originalCenter.x = newModel->center.x = centerX;
     newModel->originalCenter.y = newModel->center.y = centerY;
-    newModel->originalCenter.z = newModel->center.z = centerZ;
+    newModel->originalCenter.z = newModel->center.z = -centerZ;
     newModel->radius = radius;
 
     newModel->originalExtents.x = newModel->extents.x = extentX;
@@ -264,11 +264,7 @@ Mtx CActor_GetMatrix(actor *actor)
 
     Mtx combined;
     guMtxCatL(&actor->transform.scale, &actor->transform.rotation, &combined);
-
-    // Need to rebuild translation matrix since the actor's stored one is scaled up.
-    Mtx translation;
-    guTranslate(&translation, actor->position.x, actor->position.y, invertScalar * actor->position.z);
-    guMtxCatL(&combined, &translation, &combined);
+    guMtxCatL(&combined, &actor->transform.translation, &combined);
 
     if (actor->parent == NULL)
     {
@@ -297,8 +293,8 @@ void CActor_UpdateAABB(actor *actor)
 
         for (int j = 0; j < 3; j++)
         {
-            center[i] += mat[i][j] * originalCenter[j];
-            extents[i] += fabs(mat[i][j]) * originalExtents[j];
+            center[i] += mat[j][i] * originalCenter[j];
+            extents[i] += fabs(mat[j][i]) * originalExtents[j];
         }
     }
 

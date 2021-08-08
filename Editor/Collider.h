@@ -25,7 +25,7 @@ namespace UltraEd
         void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
         virtual void Build() = 0;
         virtual void Update(D3DXMATRIX &mat) = 0;
-        D3DXVECTOR3 GetCenter() { return m_center; }
+        D3DXVECTOR3 GetCenter() { return m_originalCenter; }
         nlohmann::json Save();
         void Load(const nlohmann::json &root);
         ColliderType GetType() { return m_type; };

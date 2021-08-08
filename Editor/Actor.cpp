@@ -235,6 +235,7 @@ namespace UltraEd
     {
         D3DXQUATERNION quat;
         D3DXQuaternionRotationMatrix(&quat, &GetRotationMatrix(false));
+        D3DXQuaternionNormalize(&quat, &quat);
         D3DXQuaternionToAxisAngle(&quat, axis, angle);
     }
 

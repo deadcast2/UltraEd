@@ -1,0 +1,268 @@
+diff --git a/Editor/Actor.cpp b/Editor/Actor.cpp
+index d2b7b9c9..b5066e53 100644
+--- a/Editor/Actor.cpp
++++ b/Editor/Actor.cpp
+@@ -235,6 +235,7 @@ namespace UltraEd
+     {
+         D3DXQUATERNION quat;
+         D3DXQuaternionRotationMatrix(&quat, &GetRotationMatrix(false));
++        D3DXQuaternionNormalize(&quat, &quat);
+         D3DXQuaternionToAxisAngle(&quat, axis, angle);
+     }
+ 
+diff --git a/Editor/Collider.h b/Editor/Collider.h
+index 75ef5e40..b9aa03ec 100644
+--- a/Editor/Collider.h
++++ b/Editor/Collider.h
+@@ -25,7 +25,7 @@ namespace UltraEd
+         void Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
+         virtual void Build() = 0;
+         virtual void Update(D3DXMATRIX &mat) = 0;
+-        D3DXVECTOR3 GetCenter() { return m_center; }
++        D3DXVECTOR3 GetCenter() { return m_originalCenter; }
+         nlohmann::json Save();
+         void Load(const nlohmann::json &root);
+         ColliderType GetType() { return m_type; };
+diff --git a/Editor/imgui.ini b/Editor/imgui.ini
+index 3acb55af..fd22d932 100644
+--- a/Editor/imgui.ini
++++ b/Editor/imgui.ini
+@@ -16,7 +16,7 @@ DockId=0x00000005,0
+ 
+ [Window][ Scene View]
+ Pos=418,33
+-Size=1096,769
++Size=1096,632
+ Collapsed=0
+ DockId=0x00000001,0
+ 
+@@ -27,8 +27,8 @@ Collapsed=0
+ DockId=0x00000006,0
+ 
+ [Window][Console]
+-Pos=418,804
+-Size=1096,292
++Pos=418,667
++Size=1096,429
+ Collapsed=0
+ DockId=0x00000002,0
+ 
+@@ -49,17 +49,18 @@ Size=480,365
+ Collapsed=0
+ 
+ [Window][ Script Editor]
+-Pos=60,60
++Pos=208,28
+ Size=895,607
+ Collapsed=0
+ 
+ [Window][Load Project##filebrowser]
+-Pos=450,218
++Pos=441,194
+ Size=700,450
+ Collapsed=0
+ 
+ [Window][Load Scene##filebrowser]
+-Pos=454,288
++ViewportPos=2113,744
++ViewportId=0x790DB068
+ Size=700,450
+ Collapsed=0
+ 
+@@ -69,6 +70,6 @@ DockSpace     ID=0x3432FEC3 Window=0x9A404470 Pos=1163,582 Size=1514,1063 Split=
+     DockNode  ID=0x00000005 Parent=0x00000003 SizeRef=501,360 Selected=0x8B9E1209
+     DockNode  ID=0x00000006 Parent=0x00000003 SizeRef=501,346 Selected=0x9E220DB7
+   DockNode    ID=0x00000004 Parent=0x3432FEC3 SizeRef=729,708 Split=Y Selected=0xB6BBF3B7
+-    DockNode  ID=0x00000001 Parent=0x00000004 SizeRef=505,769 CentralNode=1 Selected=0xB6BBF3B7
+-    DockNode  ID=0x00000002 Parent=0x00000004 SizeRef=505,292 Selected=0xF9BEF62A
++    DockNode  ID=0x00000001 Parent=0x00000004 SizeRef=1235,770 CentralNode=1 Selected=0xB6BBF3B7
++    DockNode  ID=0x00000002 Parent=0x00000004 SizeRef=1235,429 Selected=0xF9BEF62A
+ 
+diff --git a/Engine/actor.c b/Engine/actor.c
+index 77943129..e9bfb298 100644
+--- a/Engine/actor.c
++++ b/Engine/actor.c
+@@ -46,7 +46,7 @@ actor *loadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureSt
+ 
+     newModel->originalCenter.x = newModel->center.x = centerX;
+     newModel->originalCenter.y = newModel->center.y = centerY;
+-    newModel->originalCenter.z = newModel->center.z = centerZ;
++    newModel->originalCenter.z = newModel->center.z = -centerZ;
+     newModel->radius = radius;
+ 
+     newModel->originalExtents.x = newModel->extents.x = extentX;
+@@ -60,6 +60,9 @@ actor *loadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureSt
+     newModel->mesh.vertices = (Vtx *)malloc(vertexCount * sizeof(Vtx));
+     newModel->mesh.vertexCount = vertexCount;
+ 
++    newModel->colliderMesh.vertices = (Vtx *)malloc(8 * sizeof(Vtx));
++    newModel->colliderMesh.vertexCount = 8;
++
+     // Gather all of the X, Y, and Z vertex info.
+     for (int i = 0; i < vertexCount; i++)
+     {
+@@ -184,6 +187,34 @@ void modelDraw(actor *model, Gfx **displayList)
+     }
+ 
+     gSPPopMatrix((*displayList)++, G_MTX_MODELVIEW);
++
++    CActor_BuildColliderMesh(model);
++
++    gSPMatrix((*displayList)++, OS_K0_TO_PHYSICAL(&model->transform.translation),
++        G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
++    
++    if (model->colliderMesh.vertices != NULL)
++    {
++        gSPVertex((*displayList)++, &model->colliderMesh.vertices[0], 8, 0);
++        gDPPipeSync((*displayList)++);
++
++        gSPLine3D((*displayList)++, 0, 1, 0);
++        gSPLine3D((*displayList)++, 2, 3, 0);
++        gSPLine3D((*displayList)++, 4, 5, 0);
++        gSPLine3D((*displayList)++, 6, 7, 0);
++
++        gSPLine3D((*displayList)++, 0, 2, 0);
++        gSPLine3D((*displayList)++, 1, 3, 0);
++        gSPLine3D((*displayList)++, 4, 6, 0);
++        gSPLine3D((*displayList)++, 5, 7, 0);
++
++        gSPLine3D((*displayList)++, 0, 4, 0);
++        gSPLine3D((*displayList)++, 2, 6, 0);
++        gSPLine3D((*displayList)++, 1, 5, 0);
++        gSPLine3D((*displayList)++, 3, 7, 0);
++    }
++
++    gSPPopMatrix((*displayList)++, G_MTX_MODELVIEW);
+ }
+ 
+ actor *createCamera(int id, double positionX, double positionY, double positionZ,
+@@ -264,11 +295,7 @@ Mtx CActor_GetMatrix(actor *actor)
+ 
+     Mtx combined;
+     guMtxCatL(&actor->transform.scale, &actor->transform.rotation, &combined);
+-
+-    // Need to rebuild translation matrix since the actor's stored one is scaled up.
+-    Mtx translation;
+-    guTranslate(&translation, actor->position.x, actor->position.y, invertScalar * actor->position.z);
+-    guMtxCatL(&combined, &translation, &combined);
++    guMtxCatL(&combined, &actor->transform.translation, &combined);
+ 
+     if (actor->parent == NULL)
+     {
+@@ -297,11 +324,81 @@ void CActor_UpdateAABB(actor *actor)
+ 
+         for (int j = 0; j < 3; j++)
+         {
+-            center[i] += mat[i][j] * originalCenter[j];
+-            extents[i] += fabs(mat[i][j]) * originalExtents[j];
++            center[i] += mat[j][i] * originalCenter[j];
++            extents[i] += fabs(mat[j][i]) * originalExtents[j];
+         }
+     }
+ 
+     actor->center = (vector3) { center[0], center[1], center[2] };
+     actor->extents = (vector3) { extents[0], extents[1], extents[2] };
+ }
++
++void CActor_BuildColliderMesh(actor *actor)
++{
++    if (actor->collider == Box && actor->colliderMesh.vertices != NULL)
++    {
++        actor->colliderMesh.vertices[0].v.ob[0] = (actor->center.x - actor->extents.x) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[0].v.ob[1] = (actor->center.y - actor->extents.y) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[0].v.ob[2] = (actor->center.z - actor->extents.z) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[0].v.cn[0] = 0;
++        actor->colliderMesh.vertices[0].v.cn[1] = 255;
++        actor->colliderMesh.vertices[0].v.cn[2] = 0;
++        actor->colliderMesh.vertices[0].v.cn[3] = 255;
++
++        actor->colliderMesh.vertices[1].v.ob[0] = (actor->center.x - actor->extents.x) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[1].v.ob[1] = (actor->center.y - actor->extents.y) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[1].v.ob[2] = (actor->center.z + actor->extents.z) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[1].v.cn[0] = 0;
++        actor->colliderMesh.vertices[1].v.cn[1] = 255;
++        actor->colliderMesh.vertices[1].v.cn[2] = 0;
++        actor->colliderMesh.vertices[1].v.cn[3] = 255;
++
++        actor->colliderMesh.vertices[2].v.ob[0] = (actor->center.x + actor->extents.x) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[2].v.ob[1] = (actor->center.y - actor->extents.y) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[2].v.ob[2] = (actor->center.z - actor->extents.z) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[2].v.cn[0] = 0;
++        actor->colliderMesh.vertices[2].v.cn[1] = 255;
++        actor->colliderMesh.vertices[2].v.cn[2] = 0;
++        actor->colliderMesh.vertices[2].v.cn[3] = 255;
++
++        actor->colliderMesh.vertices[3].v.ob[0] = (actor->center.x + actor->extents.x) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[3].v.ob[1] = (actor->center.y - actor->extents.y) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[3].v.ob[2] = (actor->center.z + actor->extents.z) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[3].v.cn[0] = 0;
++        actor->colliderMesh.vertices[3].v.cn[1] = 255;
++        actor->colliderMesh.vertices[3].v.cn[2] = 0;
++        actor->colliderMesh.vertices[3].v.cn[3] = 255;
++
++        actor->colliderMesh.vertices[4].v.ob[0] = (actor->center.x - actor->extents.x) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[4].v.ob[1] = (actor->center.y + actor->extents.y) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[4].v.ob[2] = (actor->center.z - actor->extents.z) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[4].v.cn[0] = 0;
++        actor->colliderMesh.vertices[4].v.cn[1] = 255;
++        actor->colliderMesh.vertices[4].v.cn[2] = 0;
++        actor->colliderMesh.vertices[4].v.cn[3] = 255;
++
++        actor->colliderMesh.vertices[5].v.ob[0] = (actor->center.x - actor->extents.x) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[5].v.ob[1] = (actor->center.y + actor->extents.y) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[5].v.ob[2] = (actor->center.z + actor->extents.z) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[5].v.cn[0] = 0;
++        actor->colliderMesh.vertices[5].v.cn[1] = 255;
++        actor->colliderMesh.vertices[5].v.cn[2] = 0;
++        actor->colliderMesh.vertices[5].v.cn[3] = 255;
++
++        actor->colliderMesh.vertices[6].v.ob[0] = (actor->center.x + actor->extents.x) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[6].v.ob[1] = (actor->center.y + actor->extents.y) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[6].v.ob[2] = (actor->center.z - actor->extents.z) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[6].v.cn[0] = 0;
++        actor->colliderMesh.vertices[6].v.cn[1] = 255;
++        actor->colliderMesh.vertices[6].v.cn[2] = 0;
++        actor->colliderMesh.vertices[6].v.cn[3] = 255;
++
++        actor->colliderMesh.vertices[7].v.ob[0] = (actor->center.x + actor->extents.x) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[7].v.ob[1] = (actor->center.y + actor->extents.y) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[7].v.ob[2] = (actor->center.z + actor->extents.z) * SCALE_FACTOR;
++        actor->colliderMesh.vertices[7].v.cn[0] = 0;
++        actor->colliderMesh.vertices[7].v.cn[1] = 255;
++        actor->colliderMesh.vertices[7].v.cn[2] = 0;
++        actor->colliderMesh.vertices[7].v.cn[3] = 255;
++    }
++}
+diff --git a/Engine/actor.h b/Engine/actor.h
+index 64396fd5..27f55399 100644
+--- a/Engine/actor.h
++++ b/Engine/actor.h
+@@ -36,6 +36,7 @@ typedef struct actor
+     enum actorType type;
+     enum colliderType collider;
+     mesh mesh;
++    mesh colliderMesh;
+     unsigned short *texture;
+     int textureWidth;
+     int textureHeight;
+@@ -82,4 +83,6 @@ Mtx CActor_GetMatrix(actor *actor);
+ 
+ void CActor_UpdateAABB(actor *actor);
+ 
++void CActor_BuildColliderMesh(actor *actor);
++
+ #endif
+diff --git a/Engine/main.c b/Engine/main.c
+index baa45431..a0a18c39 100644
+--- a/Engine/main.c
++++ b/Engine/main.c
+@@ -111,8 +111,7 @@ void create_display_list()
+     _UER_Draw(&glistp);
+     gDPFullSync(glistp++);
+     gSPEndDisplayList(glistp++);
+-    nuGfxTaskStart(gfx_glist, (s32)(glistp - gfx_glist) * sizeof(Gfx),
+-        NU_GFX_UCODE_F3DEX, NU_SC_SWAPBUFFER);
++    nuGfxTaskStart(gfx_glist, (s32)(glistp - gfx_glist) * sizeof(Gfx), NU_GFX_UCODE_L3DEX2, NU_SC_SWAPBUFFER);
+ }
+ 
+ void check_inputs()
