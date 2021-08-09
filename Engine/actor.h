@@ -41,6 +41,7 @@ typedef struct actor
     int textureHeight;
     double rotationAngle;
     double radius;
+    double originalRadius;
     int visible;
     vector3 position;
     vector3 rotationAxis;
@@ -81,5 +82,7 @@ vector3 CActor_GetPosition(actor *actor);
 Mtx CActor_GetMatrix(actor *actor);
 
 void CActor_UpdateAABB(actor *actor);
+
+void CActor_UpdateSphere(actor *actor);
 
 #endif

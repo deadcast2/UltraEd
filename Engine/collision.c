@@ -17,6 +17,9 @@ int check_collision(actor *a, actor *b)
 
 int sphere_sphere_collision(actor *a, actor *b)
 {
+    CActor_UpdateSphere(a);
+    CActor_UpdateSphere(b);
+
     const float radiusSum = a->radius + b->radius;
     vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
     vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);
@@ -43,6 +46,7 @@ int box_box_collision(actor *a, actor *b)
 int box_sphere_collision(actor *a, actor *b)
 {
     CActor_UpdateAABB(a);
+    CActor_UpdateSphere(b);
 
     vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
     vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);

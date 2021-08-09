@@ -47,7 +47,7 @@ actor *loadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureSt
     newModel->originalCenter.x = newModel->center.x = centerX;
     newModel->originalCenter.y = newModel->center.y = centerY;
     newModel->originalCenter.z = newModel->center.z = -centerZ;
-    newModel->radius = radius;
+    newModel->originalRadius = newModel->radius = radius;
 
     newModel->originalExtents.x = newModel->extents.x = extentX;
     newModel->originalExtents.y = newModel->extents.y = extentY;
@@ -260,11 +260,14 @@ Mtx CActor_GetMatrix(actor *actor)
         return mat;
     }
 
-    const int invertScalar = actor->type == Camera ? -1 : 1;
-
     Mtx combined;
     guMtxCatL(&actor->transform.scale, &actor->transform.rotation, &combined);
-    guMtxCatL(&combined, &actor->transform.translation, &combined);
+
+    // Need to rebuild translation matrix since the actor's stored one is scaled up.
+    Mtx translation;
+    const int invertScalar = actor->type == Camera ? -1 : 1;
+    guTranslate(&translation, actor->position.x, actor->position.y, invertScalar * actor->position.z);
+    guMtxCatL(&combined, &translation, &combined);
 
     if (actor->parent == NULL)
     {
@@ -300,4 +303,21 @@ void CActor_UpdateAABB(actor *actor)
 
     actor->center = (vector3) { center[0], center[1], center[2] };
     actor->extents = (vector3) { extents[0], extents[1], extents[2] };
+}
+
+void CActor_UpdateSphere(actor *actor)
+{
+    actor->center = vec3_mul_mat(actor->originalCenter, actor->transform.rotation);
+
+    // Scale the calculated radius using the largest scale value of the actor.
+    float scaleComps[3] = { fabs(actor->scale.x), fabs(actor->scale.y), fabs(actor->scale.z) };
+    float largestScale = 0;
+
+    for (int i = 0; i < 3; i++)
+    {
+        if (scaleComps[i] > largestScale)
+            largestScale = scaleComps[i];
+    }
+
+    actor->radius = largestScale * actor->originalRadius;
 }

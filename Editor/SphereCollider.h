@@ -11,7 +11,7 @@ namespace UltraEd
         SphereCollider();
         SphereCollider(const std::vector<Vertex> &vertices);
         void Build();
-        FLOAT GetRadius() { return m_radius; }
+        FLOAT GetRadius() { return m_originalRadius; }
         void Update(D3DXMATRIX &mat);
         nlohmann::json Save();
         void Load(const nlohmann::json &root);
