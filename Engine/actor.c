@@ -201,8 +201,8 @@ actor *createCamera(int id, double positionX, double positionY, double positionZ
 
     camera->originalCenter.x = camera->center.x = centerX;
     camera->originalCenter.y = camera->center.y = centerY;
-    camera->originalCenter.z = camera->center.z = centerZ;
-    camera->radius = radius;
+    camera->originalCenter.z = camera->center.z = -centerZ;
+    camera->originalRadius = camera->radius = radius;
 
     camera->originalExtents.x = camera->extents.x = extentX;
     camera->originalExtents.y = camera->extents.y = extentY;
@@ -246,7 +246,11 @@ vector3 CActor_GetPosition(actor *actor)
         return (vector3) { 0, 0, 0 };
 
     if (actor->parent == NULL)
-        return actor->position;
+    {
+        const int invertScalar = actor->type == Camera ? -1 : 1;
+
+        return (vector3) { actor->position.x, actor->position.y, invertScalar * actor->position.z };
+    }
 
     return vec3_mul_mat(actor->position, CActor_GetMatrix(actor->parent));
 }
@@ -266,6 +270,7 @@ Mtx CActor_GetMatrix(actor *actor)
     // Need to rebuild translation matrix since the actor's stored one is scaled up.
     Mtx translation;
     const int invertScalar = actor->type == Camera ? -1 : 1;
+
     guTranslate(&translation, actor->position.x, actor->position.y, invertScalar * actor->position.z);
     guMtxCatL(&combined, &translation, &combined);
 
