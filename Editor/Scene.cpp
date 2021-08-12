@@ -341,36 +341,9 @@ namespace UltraEd
 
         if (m_gui->IO().MouseDown[ImGuiMouseButton_Left])
         {
-            if (!m_selectedActorIds.empty())
-            {
-                D3DXVECTOR3 rayOrigin, rayDir;
-                Util::ScreenRaycast(m_renderDevice.GetDevice(), mousePos, view->GetViewMatrix(), &rayOrigin, &rayDir);
+            DragGizmo(mousePos, groupId);
 
-                // Once dragging has begun continue even when the mouse isn't touching the gizmo directly. Makes for a
-                // much nicer, natural feel.
-                if (!IsSelecting() && (m_isDragging || (m_isDragging = m_gizmo.Select(rayOrigin, rayDir))))
-                {
-                    const auto lastSelectedActorId = m_selectedActorIds.back();
-
-                    for (const auto &selectedActorId : m_selectedActorIds)
-                    {
-                        // Don't move any children when their parent is selected since the parent when moved will update its children correctly.
-                        auto parent = m_actors[selectedActorId]->GetParent();
-                        if (parent != nullptr && std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), parent->GetId()) != m_selectedActorIds.end())
-                            continue;
-
-                        auto action = m_auditor.PotentialChangeActor(m_gizmo.GetModifierName(), selectedActorId, groupId);
-
-                        if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(), m_actors[lastSelectedActorId].get()))
-                        {
-                            // Register that the actor was actually modified.
-                            action();
-                        }
-                    }
-                }
-            }
-
-            DragToSelect(selectStart, selectStop, mousePos);
+            DragToSelect(mousePos, selectStart, selectStop);
         }
         else if ((m_isDragging = m_gui->IO().MouseDown[ImGuiMouseButton_Right]) && m_activeViewType == ViewType::Perspective)
         {
@@ -426,7 +399,39 @@ namespace UltraEd
         }
     }
 
-    void Scene::DragToSelect(std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop, const D3DXVECTOR2 &mousePos)
+    void Scene::DragGizmo(const D3DXVECTOR2 &mousePos, boost::uuids::uuid &groupId)
+    {
+        if (!m_selectedActorIds.empty())
+        {
+            D3DXVECTOR3 rayOrigin, rayDir;
+            Util::ScreenRaycast(m_renderDevice.GetDevice(), mousePos, GetActiveView()->GetViewMatrix(), &rayOrigin, &rayDir);
+
+            // Once dragging has begun continue even when the mouse isn't touching the gizmo directly. Makes for a
+            // much nicer, natural feel.
+            if (!IsSelecting() && (m_isDragging || (m_isDragging = m_gizmo.Select(rayOrigin, rayDir))))
+            {
+                const auto lastSelectedActorId = m_selectedActorIds.back();
+
+                for (const auto &selectedActorId : m_selectedActorIds)
+                {
+                    // Don't move any children when their parent is selected since the parent when moved will update its children correctly.
+                    auto parent = m_actors[selectedActorId]->GetParent();
+                    if (parent != nullptr && std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), parent->GetId()) != m_selectedActorIds.end())
+                        continue;
+
+                    auto action = m_auditor.PotentialChangeActor(m_gizmo.GetModifierName(), selectedActorId, groupId);
+
+                    if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(), m_actors[lastSelectedActorId].get()))
+                    {
+                        // Register that the actor was actually modified.
+                        action();
+                    }
+                }
+            }
+        }
+    }
+
+    void Scene::DragToSelect(const D3DXVECTOR2 &mousePos, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop)
     {
         if (IsDragging()) return;
 

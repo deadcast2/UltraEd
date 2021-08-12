@@ -86,7 +86,8 @@ namespace UltraEd
         void WrapCursor();
         bool IsActorSelected(const boost::uuids::uuid &id);
         void RefreshGizmo();
-        void DragToSelect(std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop, const D3DXVECTOR2 &mousePos);
+        void DragGizmo(const D3DXVECTOR2 &mousePos, boost::uuids::uuid &groupId);
+        void DragToSelect(const D3DXVECTOR2 &mousePos, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop);
 
     private:
         int m_version;
