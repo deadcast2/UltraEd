@@ -370,33 +370,7 @@ namespace UltraEd
                 }
             }
 
-            if (!IsDragging())
-            {
-                if (!IsSelecting())
-                {
-                    // Just starting a new drag-to-select so remember where the user started.
-                    m_isSelecting = true;
-
-                    // Storing two different locations: the mouse position relative to the scene view render and the mouse relative to the app window.
-                    selectStart = std::make_tuple(mousePos, ImGui::GetMousePos());
-                }
-
-                const ImVec2 diff { ImGui::GetMousePos().x - std::get<1>(selectStart).x, ImGui::GetMousePos().y - std::get<1>(selectStart).y };
-
-                // Calculate the current stopping point of the drag and clamp to the scene view.
-                selectStop = std::make_tuple(mousePos, ImVec2(
-                    std::clamp<float>(std::get<1>(selectStart).x + diff.x, ImGui::GetWindowPos().x + 1, ImGui::GetWindowPos().x + ImGui::GetWindowWidth()),
-                    std::clamp<float>(std::get<1>(selectStart).y + diff.y, ImGui::GetWindowPos().y + ImGui::GetFrameHeightWithSpacing() - 4, ImGui::GetWindowPos().y + ImGui::GetWindowHeight())
-                ));
-
-                ImDrawList *drawList = ImGui::GetWindowDrawList();
-                const ImU32 whiteBorder = ImColor(ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-                const ImU32 whiteFill = ImColor(ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
-
-                // Draw a nice edged rectangle to show the created dragged region.
-                drawList->AddRect(std::get<1>(selectStart), std::get<1>(selectStop), whiteBorder);
-                drawList->AddRectFilled(std::get<1>(selectStart), std::get<1>(selectStop), whiteFill);
-            }
+            DragToSelect(selectStart, selectStop, mousePos);
         }
         else if ((m_isDragging = m_gui->IO().MouseDown[ImGuiMouseButton_Right]) && m_activeViewType == ViewType::Perspective)
         {
@@ -450,6 +424,36 @@ namespace UltraEd
                 m_isSelecting = false;
             }
         }
+    }
+
+    void Scene::DragToSelect(std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop, const D3DXVECTOR2 &mousePos)
+    {
+        if (IsDragging()) return;
+
+        if (!IsSelecting())
+        {
+            // Just starting a new drag-to-select so remember where the user started.
+            m_isSelecting = true;
+
+            // Storing two different locations: the mouse position relative to the scene view render and the mouse relative to the app window.
+            selectStart = std::make_tuple(mousePos, ImGui::GetMousePos());
+        }
+
+        const ImVec2 diff { ImGui::GetMousePos().x - std::get<1>(selectStart).x, ImGui::GetMousePos().y - std::get<1>(selectStart).y };
+
+        // Calculate the current stopping point of the drag and clamp to the scene view.
+        selectStop = std::make_tuple(mousePos, ImVec2(
+            std::clamp<float>(std::get<1>(selectStart).x + diff.x, ImGui::GetWindowPos().x + 1, ImGui::GetWindowPos().x + ImGui::GetWindowWidth()),
+            std::clamp<float>(std::get<1>(selectStart).y + diff.y, ImGui::GetWindowPos().y + ImGui::GetFrameHeightWithSpacing() - 4, ImGui::GetWindowPos().y + ImGui::GetWindowHeight())
+        ));
+
+        ImDrawList *drawList = ImGui::GetWindowDrawList();
+        const ImU32 whiteBorder = ImColor(ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+        const ImU32 whiteFill = ImColor(ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
+
+        // Draw a nice edged rectangle to show the created dragged region.
+        drawList->AddRect(std::get<1>(selectStart), std::get<1>(selectStop), whiteBorder);
+        drawList->AddRectFilled(std::get<1>(selectStart), std::get<1>(selectStop), whiteFill);
     }
 
     void Scene::Render(LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture)
@@ -575,6 +579,7 @@ namespace UltraEd
                 vertCount += actor->GetVertices().size();
             }
         }
+
         return std::string("Actors:").append(std::to_string(actors.size())).append(" | Tris:").append(std::to_string(vertCount / 3));
     }
 
