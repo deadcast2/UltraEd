@@ -86,6 +86,11 @@ namespace UltraEd
         void WrapCursor();
         bool IsActorSelected(const boost::uuids::uuid &id);
         void RefreshGizmo();
+        void PrepareNextInput(boost::uuids::uuid &groupId, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop);
+        void OrthographicZoom();
+        void OrthographicMovement(const float &smoothingModifier);
+        void PerspectiveMovement(const float &smoothingModifier);
+        void ContextMenu(const D3DXVECTOR2 &mousePos);
         void DragGizmo(const D3DXVECTOR2 &mousePos, boost::uuids::uuid &groupId);
         void DragToSelect(const D3DXVECTOR2 &mousePos, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop);
         void RenderGizmo(ID3DXMatrixStack *stack);

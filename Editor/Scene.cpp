@@ -311,21 +311,11 @@ namespace UltraEd
 
     void Scene::UpdateInput(const D3DXVECTOR2 &mousePos)
     {
-        View *view = GetActiveView();
         static auto groupId = Util::NewUuid();
         static std::tuple<D3DXVECTOR2, ImVec2> selectStart, selectStop;
-
-        const float deltaTime = m_gui->IO().DeltaTime;
         const float smoothingModifier = 20.0f;
-        const float mouseSpeedModifier = 0.55f;
 
-        // Since right mouse moves the camera and can open the context menu only open context menu when right click was very quick.
-        Actor *selectedActor = NULL;
-        if (m_gui->IO().MouseReleased[ImGuiMouseButton_Right] && m_gui->IO().MouseDownDurationPrev[ImGuiMouseButton_Right] < 0.2f
-            && Pick(mousePos, true, &selectedActor))
-        {
-            m_gui->OpenContextMenu(selectedActor);
-        }
+        ContextMenu(mousePos);
 
         if (m_gui->IO().MouseClicked[ImGuiMouseButton_Left]) Pick(mousePos);
         if (m_gui->IO().KeyCtrl && ImGui::IsKeyPressed('A', false)) SelectAll();
@@ -347,55 +337,95 @@ namespace UltraEd
         }
         else if ((m_isDragging = m_gui->IO().MouseDown[ImGuiMouseButton_Right]) && m_activeViewType == ViewType::Perspective)
         {
-            if (ImGui::IsKeyDown('W')) view->Walk(5.0f * deltaTime);
-            if (ImGui::IsKeyDown('S')) view->Walk(-5.0f * deltaTime);
-            if (ImGui::IsKeyDown('A')) view->Strafe(-5.0f * deltaTime);
-            if (ImGui::IsKeyDown('D')) view->Strafe(5.0f * deltaTime);
-
-            m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, m_gui->IO().MouseDelta.x);
-            m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
-
-            view->Yaw(m_mouseSmoothX * mouseSpeedModifier * deltaTime);
-            view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
+            PerspectiveMovement(smoothingModifier);
 
             WrapCursor();
         }
         else if (m_isDragging = m_gui->IO().MouseDown[ImGuiMouseButton_Middle])
         {
-            m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, -m_gui->IO().MouseDelta.x);
-            m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
-
-            view->Strafe(m_mouseSmoothX * deltaTime);
-            view->Fly(m_mouseSmoothY * deltaTime);
+            OrthographicMovement(smoothingModifier);
 
             WrapCursor();
         }
         else if (m_gui->IO().MouseWheel != 0)
         {
-            view->SingleStep(m_gui->IO().MouseWheel * 150);
-
-            if (view->GetType() != ViewType::Perspective)
-            {
-                UpdateViewMatrix();
-            }
+            OrthographicZoom();
         }
         else
         {
-            // Reset smoothing values for new mouse view movement.
-            m_mouseSmoothX = m_mouseSmoothY = 0;
-            m_isDragging = false;
-            groupId = Util::NewUuid();
+            PrepareNextInput(groupId, selectStart, selectStop);
+        }
+    }
 
-            m_gizmo.Reset();
+    void Scene::PrepareNextInput(boost::uuids::uuid &groupId, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop)
+    {
+        m_mouseSmoothX = m_mouseSmoothY = 0;
+        m_isDragging = false;
+        groupId = Util::NewUuid();
 
-            // Just finished a drag so run the select routine to pick any grabbed actors.
-            if (m_isSelecting)
-            {
-                SelectAllWithin(std::get<0>(selectStart), std::get<0>(selectStop));
+        m_gizmo.Reset();
 
-                // Important this comes after since the select all routine will check to see if a select is being performed.
-                m_isSelecting = false;
-            }
+        // Just finished a drag so run the select routine to pick any grabbed actors.
+        if (m_isSelecting)
+        {
+            SelectAllWithin(std::get<0>(selectStart), std::get<0>(selectStop));
+
+            // Important this comes after since the select all routine will check to see if a select is being performed.
+            m_isSelecting = false;
+        }
+    }
+
+    void Scene::OrthographicZoom()
+    {
+        View *view = GetActiveView();
+
+        view->SingleStep(m_gui->IO().MouseWheel * 150);
+
+        if (view->GetType() != ViewType::Perspective)
+        {
+            UpdateViewMatrix();
+        }
+    }
+
+    void Scene::OrthographicMovement(const float &smoothingModifier)
+    {
+        View *view = GetActiveView();
+        const float deltaTime = m_gui->IO().DeltaTime;
+
+        m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, -m_gui->IO().MouseDelta.x);
+        m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
+
+        view->Strafe(m_mouseSmoothX * deltaTime);
+        view->Fly(m_mouseSmoothY * deltaTime);
+    }
+
+    void Scene::PerspectiveMovement(const float &smoothingModifier)
+    {
+        View *view = GetActiveView();
+        const float deltaTime = m_gui->IO().DeltaTime;
+        const float mouseSpeedModifier = 0.55f;
+
+        if (ImGui::IsKeyDown('W')) view->Walk(5.0f * deltaTime);
+        if (ImGui::IsKeyDown('S')) view->Walk(-5.0f * deltaTime);
+        if (ImGui::IsKeyDown('A')) view->Strafe(-5.0f * deltaTime);
+        if (ImGui::IsKeyDown('D')) view->Strafe(5.0f * deltaTime);
+
+        m_mouseSmoothX = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothX, m_gui->IO().MouseDelta.x);
+        m_mouseSmoothY = Util::Lerp(deltaTime * smoothingModifier, m_mouseSmoothY, m_gui->IO().MouseDelta.y);
+
+        view->Yaw(m_mouseSmoothX * mouseSpeedModifier * deltaTime);
+        view->Pitch(m_mouseSmoothY * mouseSpeedModifier * deltaTime);
+    }
+
+    void Scene::ContextMenu(const D3DXVECTOR2 &mousePos)
+    {
+        // Since right mouse moves the camera and can open the context menu only open context menu when right click was very quick.
+        Actor *selectedActor = nullptr;
+
+        if (m_gui->IO().MouseReleased[ImGuiMouseButton_Right] && m_gui->IO().MouseDownDurationPrev[ImGuiMouseButton_Right] < 0.2f
+            && Pick(mousePos, true, &selectedActor))
+        {
+            m_gui->OpenContextMenu(selectedActor);
         }
     }
 
