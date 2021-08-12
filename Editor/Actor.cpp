@@ -377,9 +377,9 @@ namespace UltraEd
             { "euler_angles", m_eulerAngles },
         };
 
-        for (const auto &pair : m_children)
+        for (const auto &child : GetChildren())
         {
-            actor["children"].push_back(pair.first);
+            actor["children"].push_back(child->GetId());
         }
 
         if (m_collider)
