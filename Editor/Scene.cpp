@@ -401,31 +401,30 @@ namespace UltraEd
 
     void Scene::DragGizmo(const D3DXVECTOR2 &mousePos, boost::uuids::uuid &groupId)
     {
-        if (!m_selectedActorIds.empty())
+        if (m_selectedActorIds.empty()) return;
+
+        D3DXVECTOR3 rayOrigin, rayDir;
+        Util::ScreenRaycast(m_renderDevice.GetDevice(), mousePos, GetActiveView()->GetViewMatrix(), &rayOrigin, &rayDir);
+
+        // Once dragging has begun continue even when the mouse isn't touching the gizmo directly. Makes for a
+        // much nicer, natural feel.
+        if (!IsSelecting() && (m_isDragging || (m_isDragging = m_gizmo.Select(rayOrigin, rayDir))))
         {
-            D3DXVECTOR3 rayOrigin, rayDir;
-            Util::ScreenRaycast(m_renderDevice.GetDevice(), mousePos, GetActiveView()->GetViewMatrix(), &rayOrigin, &rayDir);
+            const auto lastSelectedActorId = m_selectedActorIds.back();
 
-            // Once dragging has begun continue even when the mouse isn't touching the gizmo directly. Makes for a
-            // much nicer, natural feel.
-            if (!IsSelecting() && (m_isDragging || (m_isDragging = m_gizmo.Select(rayOrigin, rayDir))))
+            for (const auto &selectedActorId : m_selectedActorIds)
             {
-                const auto lastSelectedActorId = m_selectedActorIds.back();
+                // Don't move any children when their parent is selected since the parent when moved will update its children correctly.
+                auto parent = m_actors[selectedActorId]->GetParent();
+                if (parent != nullptr && std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), parent->GetId()) != m_selectedActorIds.end())
+                    continue;
 
-                for (const auto &selectedActorId : m_selectedActorIds)
+                auto action = m_auditor.PotentialChangeActor(m_gizmo.GetModifierName(), selectedActorId, groupId);
+
+                if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(), m_actors[lastSelectedActorId].get()))
                 {
-                    // Don't move any children when their parent is selected since the parent when moved will update its children correctly.
-                    auto parent = m_actors[selectedActorId]->GetParent();
-                    if (parent != nullptr && std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), parent->GetId()) != m_selectedActorIds.end())
-                        continue;
-
-                    auto action = m_auditor.PotentialChangeActor(m_gizmo.GetModifierName(), selectedActorId, groupId);
-
-                    if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(), m_actors[lastSelectedActorId].get()))
-                    {
-                        // Register that the actor was actually modified.
-                        action();
-                    }
+                    // Register that the actor was actually modified.
+                    action();
                 }
             }
         }
@@ -469,7 +468,7 @@ namespace UltraEd
         if (!SUCCEEDED(D3DXCreateMatrixStack(0, &stack))) return;
         stack->LoadMatrix(&GetActiveView()->GetViewMatrix());
 
-        auto device = m_renderDevice.GetDevice();
+        const auto device = m_renderDevice.GetDevice();
         device->SetTransform(D3DTS_WORLD, stack->GetTop());
         device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
             D3DCOLOR_XRGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]), 1.0f, 0);
@@ -478,26 +477,9 @@ namespace UltraEd
         {
             m_grid.Render(device);
 
-            // Render all actors with selected fill mode.
-            device->SetMaterial(&m_defaultMaterial);
-            device->SetRenderState(D3DRS_ZENABLE, TRUE);
-            device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
-            device->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
+            RenderActors(stack);
 
-            for (const auto &actor : GetActors())
-            {
-                // Highlight any selected actors.
-                device->SetRenderState(D3DRS_AMBIENT, IsActorSelected(actor->GetId()) ? 0x0000ff00 : 0xffffffff);
-                actor->Render(device, stack);
-            }
-
-            if (!m_selectedActorIds.empty())
-            {
-                // Draw the gizmo on "top" of all objects in scene.
-                device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-                device->SetRenderState(D3DRS_ZENABLE, FALSE);
-                m_gizmo.Render(device, stack, GetActiveView());
-            }
+            RenderGizmo(stack);
 
             device->EndScene();
 
@@ -507,6 +489,36 @@ namespace UltraEd
         }
 
         stack->Release();
+    }
+
+    void Scene::RenderActors(ID3DXMatrixStack *stack)
+    {
+        const auto device = m_renderDevice.GetDevice();
+
+        device->SetMaterial(&m_defaultMaterial);
+        device->SetRenderState(D3DRS_ZENABLE, TRUE);
+        device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
+        device->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
+
+        for (const auto &actor : GetActors())
+        {
+            // Highlight any selected actors.
+            device->SetRenderState(D3DRS_AMBIENT, IsActorSelected(actor->GetId()) ? 0x0000ff00 : 0xffffffff);
+            actor->Render(device, stack);
+        }
+    }
+
+    void Scene::RenderGizmo(ID3DXMatrixStack *stack)
+    {
+        const auto device = m_renderDevice.GetDevice();
+
+        if (!m_selectedActorIds.empty())
+        {
+            // Draw the gizmo on "top" of all objects in scene.
+            device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+            device->SetRenderState(D3DRS_ZENABLE, FALSE);
+            m_gizmo.Render(device, stack, GetActiveView());
+        }
     }
 
     void Scene::CheckChanges()
@@ -816,7 +828,7 @@ namespace UltraEd
     void Scene::SelectActorById(const boost::uuids::uuid &id, bool clearAll)
     {
         const auto actor = GetActor(id);
-        
+
         if (actor == nullptr) return;
 
         if (clearAll) UnselectAll();
@@ -994,8 +1006,8 @@ namespace UltraEd
         {
             // Call save to make sure every actor including deleted get marked as not dirty.
             const auto savedState = actor.second->Save();
-            
-            if(actor.second->IsActive())
+
+            if (actor.second->IsActive())
                 scene["actors"].push_back(savedState);
         }
 

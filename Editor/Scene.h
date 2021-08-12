@@ -88,6 +88,8 @@ namespace UltraEd
         void RefreshGizmo();
         void DragGizmo(const D3DXVECTOR2 &mousePos, boost::uuids::uuid &groupId);
         void DragToSelect(const D3DXVECTOR2 &mousePos, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop);
+        void RenderGizmo(ID3DXMatrixStack *stack);
+        void RenderActors(ID3DXMatrixStack *stack);
 
     private:
         int m_version;
