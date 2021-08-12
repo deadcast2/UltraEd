@@ -739,6 +739,11 @@ namespace UltraEd
             }
         }
 
+        LinkNewActors(newActors);
+    }
+
+    void Scene::LinkNewActors(std::map<boost::uuids::uuid, Actor *> &newActors)
+    {
         for (const auto &newActor : newActors)
         {
             // Iterate over a copy of the actor's children since the collection may change.

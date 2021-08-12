@@ -52,6 +52,7 @@ namespace UltraEd
     private:
         void Delete();
         void Duplicate();
+        void LinkNewActors(std::map<boost::uuids::uuid, Actor *> &newActors);
         void FocusSelected();
         void SetScript(std::string script);
         std::string GetScript();
