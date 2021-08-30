@@ -52,7 +52,9 @@ namespace UltraEd
     private:
         void Delete();
         void Duplicate();
-        void LinkNewActors(std::map<boost::uuids::uuid, Actor *> &newActors);
+        Actor *CopyActor(const boost::uuids::uuid &selectedActorId, const boost::uuids::uuid &groupId);
+        void CopyCollider(const boost::uuids::uuid &selectedActorId, UltraEd::Actor *newActor);
+        void LinkCopiedActors(std::map<boost::uuids::uuid, Actor *> &newActors);
         void FocusSelected();
         void SetScript(std::string script);
         std::string GetScript();

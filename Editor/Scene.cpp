@@ -698,51 +698,59 @@ namespace UltraEd
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
-            switch (m_actors[selectedActorId]->GetType())
+            auto newActor = CopyActor(selectedActorId, groupId);
+            if (newActor == nullptr) continue;
+
+            newActors[selectedActorId] = newActor;
+
+            CopyCollider(selectedActorId, newActor);
+        }
+
+        LinkCopiedActors(newActors);
+    }
+
+    Actor *Scene::CopyActor(const boost::uuids::uuid &selectedActorId, const boost::uuids::uuid &groupId)
+    {
+        switch (m_actors[selectedActorId]->GetType())
+        {
+            case ActorType::Model:
             {
-                case ActorType::Model:
-                {
-                    const auto selectedModel = reinterpret_cast<Model *>(m_actors[selectedActorId].get());
-                    auto model = new Model(*selectedModel);
-                    m_actors[model->GetId()] = std::unique_ptr<Model>(model);
-                    newActors[selectedActorId] = model;
+                const auto selectedModel = reinterpret_cast<Model *>(m_actors[selectedActorId].get());
+                auto model = new Model(*selectedModel);
+                m_actors[model->GetId()] = std::unique_ptr<Model>(model);
 
-                    // Give duplicate a fresh copy of texture.
-                    if (selectedModel->GetTexture()->IsLoaded())
-                        model->SetTexture(m_renderDevice.GetDevice(), selectedModel->GetTexture()->GetId());
+                // Give duplicate a fresh copy of texture.
+                if (selectedModel->GetTexture()->IsLoaded())
+                    model->SetTexture(m_renderDevice.GetDevice(), selectedModel->GetTexture()->GetId());
 
-                    m_auditor.AddActor("Model", model->GetId(), groupId);
-                    break;
-                }
-                case ActorType::Camera:
-                {
-                    const auto camera = new Camera(*reinterpret_cast<Camera *>(m_actors[selectedActorId].get()));
-                    m_actors[camera->GetId()] = std::unique_ptr<Camera>(camera);
-                    newActors[selectedActorId] = camera;
-
-                    m_auditor.AddActor("Camera", camera->GetId(), groupId);
-                    break;
-                }
-                default:
-                    continue;
+                m_auditor.AddActor("Model", model->GetId(), groupId);
+                return model;
             }
-
-            // Create new collider for copy when present on source actor.
-            if (m_actors[selectedActorId]->HasCollider())
+            case ActorType::Camera:
             {
-                const auto newActor = newActors[selectedActorId];
+                const auto camera = new Camera(*reinterpret_cast<Camera *>(m_actors[selectedActorId].get()));
+                m_actors[camera->GetId()] = std::unique_ptr<Camera>(camera);
 
-                if (m_actors[selectedActorId]->GetCollider()->GetType() == ColliderType::Box)
-                    newActor->SetCollider(new BoxCollider(newActor->GetVertices()));
-                else
-                    newActor->SetCollider(new SphereCollider(newActor->GetVertices()));
+                m_auditor.AddActor("Camera", camera->GetId(), groupId);
+                return camera;
             }
         }
 
-        LinkNewActors(newActors);
+        return nullptr;
     }
 
-    void Scene::LinkNewActors(std::map<boost::uuids::uuid, Actor *> &newActors)
+    void Scene::CopyCollider(const boost::uuids::uuid &selectedActorId, UltraEd::Actor *newActor)
+    {
+        if (m_actors[selectedActorId]->HasCollider())
+        {
+            if (m_actors[selectedActorId]->GetCollider()->GetType() == ColliderType::Box)
+                newActor->SetCollider(new BoxCollider(newActor->GetVertices()));
+            else
+                newActor->SetCollider(new SphereCollider(newActor->GetVertices()));
+        }
+    }
+
+    void Scene::LinkCopiedActors(std::map<boost::uuids::uuid, Actor *> &newActors)
     {
         for (const auto &newActor : newActors)
         {
