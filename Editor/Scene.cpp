@@ -754,6 +754,13 @@ namespace UltraEd
     {
         for (const auto &newActor : newActors)
         {
+            // The copied actor will have a reference to the source's parent, if any, but the parent needs to be notified
+            // so the parent and child get linked correctly.
+            if (newActor.second->GetParent() != nullptr)
+            {
+                newActor.second->SetParent(newActor.second->GetParent());
+            }
+
             // Iterate over a copy of the actor's children since the collection may change.
             const auto childrenCopy = std::vector<Actor *>(newActor.second->GetChildren());
 
