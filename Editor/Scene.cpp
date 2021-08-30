@@ -756,7 +756,7 @@ namespace UltraEd
         {
             // The copied actor will have a reference to the source's parent, if any, but the parent needs to be notified
             // so the parent and child get linked correctly.
-            if (newActor.second->GetParent() != nullptr)
+            if (newActor.second->HasParent())
             {
                 newActor.second->SetParent(newActor.second->GetParent());
             }

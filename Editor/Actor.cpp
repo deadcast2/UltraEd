@@ -101,7 +101,7 @@ namespace UltraEd
 
         D3DXMATRIX mat = scale * m_worldRot * m_localRot * translation;
 
-        if (GetParent() != nullptr)
+        if (HasParent())
         {
             return mat * GetParent()->GetMatrix();
         }
@@ -111,7 +111,7 @@ namespace UltraEd
 
     const D3DXMATRIX Actor::GetRotationMatrix(bool worldSpace)
     {
-        if (worldSpace && GetParent() != nullptr)
+        if (worldSpace && HasParent())
         {
             return m_worldRot * GetParent()->GetRotationMatrix();
         }
@@ -161,7 +161,7 @@ namespace UltraEd
 
     const D3DXVECTOR3 Actor::GetPosition(bool worldSpace)
     {
-        if (worldSpace && GetParent() != nullptr)
+        if (worldSpace && HasParent())
         {
             D3DXVECTOR3 newPosition;
             D3DXVec3TransformCoord(&newPosition, &m_position, &GetParent()->GetMatrix());
@@ -176,7 +176,7 @@ namespace UltraEd
         D3DXMATRIX translation;
         D3DXMatrixTranslation(&translation, m_position.x, m_position.y, m_position.z);
 
-        if (worldSpace && GetParent() != nullptr)
+        if (worldSpace && HasParent())
         {
             return translation * GetParent()->GetPositionMatrix();
         }
@@ -194,7 +194,7 @@ namespace UltraEd
         D3DXMATRIX scale;
         D3DXMatrixScaling(&scale, m_scale.x, m_scale.y, m_scale.z);
 
-        if (worldSpace && GetParent() != nullptr)
+        if (worldSpace && HasParent())
         {
             return scale * GetParent()->GetScaleMatrix();
         }

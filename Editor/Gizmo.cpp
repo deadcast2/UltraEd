@@ -254,7 +254,7 @@ namespace UltraEd
         const D3DXVECTOR3 origTargetDir = targetDir;
 
         // Adjust the target direction to compensate for any parent rotations.
-        if (currentActor->GetParent() != nullptr)
+        if (currentActor->HasParent())
         {
             D3DXMATRIX inverse;
             D3DXMatrixInverse(&inverse, NULL, &(currentActor->GetParent()->GetScaleMatrix() * currentActor->GetParent()->GetRotationMatrix()));

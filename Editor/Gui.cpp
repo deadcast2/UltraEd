@@ -770,8 +770,7 @@ namespace UltraEd
         {
             for (const auto &actor : m_scene->GetActors())
             {
-                if (actor->GetParent() != nullptr)
-                    continue;
+                if (actor->HasParent()) continue;
 
                 RenderTreeNode(actor);
             }
@@ -1196,7 +1195,7 @@ namespace UltraEd
                 m_scene->Duplicate();
             }
 
-            if (m_selectedActor != nullptr && m_selectedActor->GetParent() != nullptr)
+            if (m_selectedActor != nullptr && m_selectedActor->HasParent())
             {
                 if (ImGui::MenuItem("Unparent"))
                 {
