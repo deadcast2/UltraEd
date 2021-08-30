@@ -112,7 +112,7 @@ namespace UltraEd
         run.detach();
     }
 
-    void Scene::AddModel(const boost::uuids::uuid &assetId)
+    void Scene::AddModel(const uuid &assetId)
     {
         auto newModel = new Model(assetId);
 
@@ -179,7 +179,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::AddTexture(const boost::uuids::uuid &assetId)
+    void Scene::AddTexture(const uuid &assetId)
     {
         if (m_selectedActorIds.empty())
         {
@@ -229,7 +229,7 @@ namespace UltraEd
 
         const bool gizmoSelected = m_gizmo.Select(orig, dir);
         float closestDist = FLT_MAX;
-        boost::uuids::uuid closestActorId = boost::uuids::nil_uuid();
+        uuid closestActorId = boost::uuids::nil_uuid();
 
         if (!ignoreGizmo && gizmoSelected && !m_selectedActorIds.empty())
             return false;
@@ -269,7 +269,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds)
+    void Scene::Refresh(const std::vector<uuid> &changedAssetIds)
     {
         for (const auto &changedAssetId : changedAssetIds)
         {
@@ -357,7 +357,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::PrepareNextInput(boost::uuids::uuid &groupId, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop)
+    void Scene::PrepareNextInput(uuid &groupId, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop)
     {
         m_mouseSmoothX = m_mouseSmoothY = 0;
         m_isDragging = false;
@@ -429,7 +429,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::DragGizmo(const D3DXVECTOR2 &mousePos, boost::uuids::uuid &groupId)
+    void Scene::DragGizmo(const D3DXVECTOR2 &mousePos, uuid &groupId)
     {
         if (m_selectedActorIds.empty()) return;
 
@@ -694,7 +694,7 @@ namespace UltraEd
     void Scene::Duplicate()
     {
         const auto groupId = Util::NewUuid();
-        std::map<boost::uuids::uuid, Actor *> newActors;
+        std::map<uuid, Actor *> newActors;
 
         for (const auto &selectedActorId : m_selectedActorIds)
         {
@@ -709,7 +709,7 @@ namespace UltraEd
         LinkCopiedActors(newActors);
     }
 
-    Actor *Scene::CopyActor(const boost::uuids::uuid &selectedActorId, const boost::uuids::uuid &groupId)
+    Actor *Scene::CopyActor(const uuid &selectedActorId, const uuid &groupId)
     {
         switch (m_actors[selectedActorId]->GetType())
         {
@@ -739,7 +739,7 @@ namespace UltraEd
         return nullptr;
     }
 
-    void Scene::CopyCollider(const boost::uuids::uuid &selectedActorId, UltraEd::Actor *newActor)
+    void Scene::CopyCollider(const uuid &selectedActorId, UltraEd::Actor *newActor)
     {
         if (m_actors[selectedActorId]->HasCollider())
         {
@@ -750,7 +750,7 @@ namespace UltraEd
         }
     }
 
-    void Scene::LinkCopiedActors(std::map<boost::uuids::uuid, Actor *> &newActors)
+    void Scene::LinkCopiedActors(std::map<uuid, Actor *> &newActors)
     {
         for (const auto &newActor : newActors)
         {
@@ -844,7 +844,7 @@ namespace UltraEd
         return actors;
     }
 
-    Actor *Scene::GetActor(const boost::uuids::uuid &id)
+    Actor *Scene::GetActor(const uuid &id)
     {
         if (m_actors.find(id) != m_actors.end())
             return m_actors[id].get();
@@ -852,7 +852,7 @@ namespace UltraEd
         return nullptr;
     }
 
-    bool Scene::IsActorSelected(const boost::uuids::uuid &id)
+    bool Scene::IsActorSelected(const uuid &id)
     {
         auto it = std::find(m_selectedActorIds.begin(), m_selectedActorIds.end(), id);
         return it != m_selectedActorIds.end();
@@ -868,7 +868,7 @@ namespace UltraEd
 
     // Not too thrilled with how complicated this method is currently. Tried to implement a nice feeling
     // selection system that responds how you might expect.
-    void Scene::SelectActorById(const boost::uuids::uuid &id, bool clearAll)
+    void Scene::SelectActorById(const uuid &id, bool clearAll)
     {
         const auto actor = GetActor(id);
 

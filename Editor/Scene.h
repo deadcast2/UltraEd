@@ -16,6 +16,8 @@
 #include "Auditor.h"
 #include "RenderDevice.h"
 
+using uuid = uuid;
+
 namespace UltraEd
 {
     enum class BuildFlag
@@ -31,7 +33,7 @@ namespace UltraEd
         Scene(HWND hWnd, Gui *gui);
         ~Scene();
         std::vector<Actor *> GetActors(bool selectedOnly = false);
-        Actor *GetActor(const boost::uuids::uuid &id);
+        Actor *GetActor(const uuid &id);
         COLORREF GetBackgroundColor();
         void UpdateInput(const D3DXVECTOR2 &mousePos);
         void Render(LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture);
@@ -41,9 +43,9 @@ namespace UltraEd
         void UnselectAll();
         void RestoreActor(const nlohmann::json &item, bool markSceneDirty = false);
         void Delete(Actor *actor);
-        void SelectActorById(const boost::uuids::uuid &id, bool clearAll = true);
+        void SelectActorById(const uuid &id, bool clearAll = true);
         void Resize(UINT width, UINT height);
-        void Refresh(const std::vector<boost::uuids::uuid> &changedAssetIds);
+        void Refresh(const std::vector<uuid> &changedAssetIds);
         bool HasPath();
         bool IsDragging() { return m_isDragging; }
         bool IsSelecting() { return m_isSelecting; }
@@ -52,9 +54,9 @@ namespace UltraEd
     private:
         void Delete();
         void Duplicate();
-        Actor *CopyActor(const boost::uuids::uuid &selectedActorId, const boost::uuids::uuid &groupId);
-        void CopyCollider(const boost::uuids::uuid &selectedActorId, UltraEd::Actor *newActor);
-        void LinkCopiedActors(std::map<boost::uuids::uuid, Actor *> &newActors);
+        Actor *CopyActor(const uuid &selectedActorId, const uuid &groupId);
+        void CopyCollider(const uuid &selectedActorId, UltraEd::Actor *newActor);
+        void LinkCopiedActors(std::map<uuid, Actor *> &newActors);
         void FocusSelected();
         void SetScript(std::string script);
         std::string GetScript();
@@ -65,9 +67,9 @@ namespace UltraEd
         bool SaveAs(const std::filesystem::path &path);
         void Load(const std::filesystem::path &path);
         void AddCamera();
-        void AddTexture(const boost::uuids::uuid &assetId);
+        void AddTexture(const uuid &assetId);
         void DeleteTexture();
-        void AddModel(const boost::uuids::uuid &assetId);
+        void AddModel(const uuid &assetId);
         void AddCollider(ColliderType type);
         void DeleteCollider();
         void BuildROM(BuildFlag flag);
@@ -87,14 +89,14 @@ namespace UltraEd
         void SetTitle(std::string title, bool store = true);
         void UpdateViewMatrix();
         void WrapCursor();
-        bool IsActorSelected(const boost::uuids::uuid &id);
+        bool IsActorSelected(const uuid &id);
         void RefreshGizmo();
-        void PrepareNextInput(boost::uuids::uuid &groupId, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop);
+        void PrepareNextInput(uuid &groupId, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop);
         void OrthographicZoom();
         void OrthographicMovement(const float &smoothingModifier);
         void PerspectiveMovement(const float &smoothingModifier);
         void ContextMenu(const D3DXVECTOR2 &mousePos);
-        void DragGizmo(const D3DXVECTOR2 &mousePos, boost::uuids::uuid &groupId);
+        void DragGizmo(const D3DXVECTOR2 &mousePos, uuid &groupId);
         void DragToSelect(const D3DXVECTOR2 &mousePos, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop);
         void RenderGizmo(ID3DXMatrixStack *stack);
         void RenderActors(ID3DXMatrixStack *stack);
@@ -106,9 +108,9 @@ namespace UltraEd
         D3DFILLMODE m_fillMode;
         Gizmo m_gizmo;
         std::array<View, 5> m_views;
-        std::map<boost::uuids::uuid, std::unique_ptr<Actor>> m_actors;
+        std::map<uuid, std::unique_ptr<Actor>> m_actors;
         Grid m_grid;
-        std::vector<boost::uuids::uuid> m_selectedActorIds;
+        std::vector<uuid> m_selectedActorIds;
         float m_mouseSmoothX, m_mouseSmoothY;
         ViewType m_activeViewType;
         std::string m_sceneName;
