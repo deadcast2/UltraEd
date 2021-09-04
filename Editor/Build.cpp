@@ -411,23 +411,22 @@ namespace UltraEd
             auto result = Util::ReplaceString(script, "$", newResName);
 
             _itoa(actorCount, countBuffer, 10);
-            actorRef.append(countBuffer).append(")->");
-            result = Util::ReplaceString(result, "self->", actorRef);
+            actorRef.append(countBuffer).append(")");
             scripts.append(result).append("\n\n");
 
             if (scripts.find(std::string(newResName).append("start(")) != std::string::npos)
             {
-                scriptStartStart.append("\n\t").append(newResName).append("start();\n");
+                scriptStartStart.append("\n\t").append(newResName).append("start(").append(actorRef).append(");\n");
             }
 
             if (scripts.find(std::string(newResName).append("update(")) != std::string::npos)
             {
-                scriptUpdateStart.append("\n\t").append(newResName).append("update();\n");
+                scriptUpdateStart.append("\n\t").append(newResName).append("update(").append(actorRef).append(");\n");;
             }
 
             if (scripts.find(std::string(newResName).append("input(")) != std::string::npos)
             {
-                inputStart.append("\n\t").append(newResName).append("input(gamepads);\n");
+                inputStart.append("\n\t").append(newResName).append("input(").append(actorRef).append(", gamepads);\n");
             }
         }
 

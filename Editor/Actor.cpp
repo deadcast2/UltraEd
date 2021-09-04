@@ -27,7 +27,7 @@ namespace UltraEd
         m_isActive(true)
     {
         ResetId();
-        m_script = std::string("void $start()\n{\n\n}\n\nvoid $update()\n{\n\n}\n\nvoid $input(NUContData gamepads[4])\n{\n\n}");
+        m_script = std::string("void $start(actor *self)\n{\n\n}\n\nvoid $update(actor *self)\n{\n\n}\n\nvoid $input(actor *self, NUContData gamepads[4])\n{\n\n}");
         m_script.append("\n\nvoid $collide(actor *other)\n{\n\n}");
         SetDirty(true);
 
