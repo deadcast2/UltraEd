@@ -9,24 +9,24 @@ enum actorType { Model, Camera };
 
 enum colliderType { None, Sphere, Box };
 
-typedef struct transform 
+typedef struct _Transform 
 {
     Mtx projection;
     Mtx scale;
     Mtx rotation;
     Mtx translation;
-} transform;
+} Transform;
 
 typedef struct vector3
 {
     double x, y, z;
 } vector3;
 
-typedef struct mesh
+typedef struct _Mesh
 {
     int vertexCount;
     Vtx *vertices;
-} mesh;
+} Mesh;
 
 typedef struct _vector *vector;
 
@@ -35,7 +35,7 @@ typedef struct _Actor
     int id;
     enum actorType type;
     enum colliderType collider;
-    mesh mesh;
+    Mesh mesh;
     unsigned short *texture;
     int textureWidth;
     int textureHeight;
@@ -50,7 +50,7 @@ typedef struct _Actor
     vector3 originalCenter;
     vector3 extents;
     vector3 originalExtents;
-    transform transform;
+    Transform transform;
     struct _Actor *parent;
     vector children;
     void (*start)();

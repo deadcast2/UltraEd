@@ -23,7 +23,7 @@
 char SystemHeap[1024 * 512];
 Gfx *GfxListPointer;
 Gfx GfxList[GFX_GLIST_LEN];
-transform World;
+Transform World;
 NUContData ControllerData[4];
 
 static Vp ViewPort =
