@@ -237,9 +237,9 @@ namespace UltraEd
                 modelName.append("_M");
 
                 if (!texturePath.empty())
-                    actorInits.append("loadTexturedModel(").append(std::to_string(actorCount)).append(", _");
+                    actorInits.append("CActor_LoadTexturedModel(").append(std::to_string(actorCount)).append(", _");
                 else
-                    actorInits.append("loadModel(").append(std::to_string(actorCount)).append(", _");
+                    actorInits.append("CActor_LoadModel(").append(std::to_string(actorCount)).append(", _");
 
                 actorInits.append(modelName).append("SegmentRomStart, _").append(modelName).append("SegmentRomEnd");
 
@@ -289,7 +289,7 @@ namespace UltraEd
             }
             else if (actor->GetType() == ActorType::Camera)
             {
-                actorInits.append("createCamera(").append(std::to_string(actorCount)).append(", ");
+                actorInits.append("CActor_CreateCamera(").append(std::to_string(actorCount)).append(", ");
                 char vectorBuffer[256];
                 D3DXVECTOR3 position = actor->GetPosition(false);
                 D3DXVECTOR3 axis;
@@ -309,7 +309,7 @@ namespace UltraEd
         {
             for (const auto &child : actor->GetChildren())
             {
-                actorInits.append("\n\tlinkChildToParent(_UER_Actors, ").append(std::to_string(reducedActorIds[child->GetId()]))
+                actorInits.append("\n\tCActor_LinkChildToParent(_UER_Actors, ").append(std::to_string(reducedActorIds[child->GetId()]))
                     .append(", ").append(std::to_string(reducedActorIds[actor->GetId()])).append(");\n");
             }
         }

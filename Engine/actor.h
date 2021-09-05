@@ -59,12 +59,12 @@ typedef struct actor
     void (*collide)();
 } actor;
 
-actor *loadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
+actor *CActor_LoadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider);
 
-actor *loadTexturedModel(int id, void *dataStart, void *dataEnd,
+actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd,
     void *textureStart, void *textureEnd, int textureWidth, int textureHeight,
     double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
@@ -72,14 +72,14 @@ actor *loadTexturedModel(int id, void *dataStart, void *dataEnd,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider);
 
-actor *createCamera(int id, double positionX, double positionY, double positionZ,
+actor *CActor_CreateCamera(int id, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, 
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider);
 
-void linkChildToParent(vector actors, int childId, int parentId);
+void CActor_LinkChildToParent(vector actors, int childId, int parentId);
 
-void modelDraw(actor *model, Gfx **displayList);
+void CActor_Draw(actor *model, Gfx **displayList);
 
 vector3 CActor_GetPosition(actor *actor);
 

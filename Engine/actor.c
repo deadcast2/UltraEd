@@ -7,17 +7,17 @@
 #include "utilities.h"
 #include "vector.h"
 
-actor *loadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
+actor *CActor_LoadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider)
 {
-    return loadTexturedModel(id, dataStart, dataEnd,
+    return CActor_LoadTexturedModel(id, dataStart, dataEnd,
         NULL, NULL, 0, 0, positionX, positionY, positionZ, rotX, rotY, rotZ, angle, scaleX, scaleY, scaleZ,
         centerX, centerY, centerZ, radius, extentX, extentY, extentZ, collider);
 }
 
-actor *loadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureStart, void *textureEnd,
+actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureStart, void *textureEnd,
     int textureWidth, int textureHeight, double positionX, double positionY, double positionZ, double rotX,
     double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
@@ -113,7 +113,7 @@ actor *loadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureSt
     return newModel;
 }
 
-void modelDraw(actor *model, Gfx **displayList)
+void CActor_Draw(actor *model, Gfx **displayList)
 {
     if (!model->visible) return;
 
@@ -183,14 +183,14 @@ void modelDraw(actor *model, Gfx **displayList)
     {
         for (int i = 0; i < vector_size(model->children); i++)
         {
-            modelDraw(vector_get(model->children, i), displayList);
+            CActor_Draw(vector_get(model->children, i), displayList);
         }
     }
 
     gSPPopMatrix((*displayList)++, G_MTX_MODELVIEW);
 }
 
-actor *createCamera(int id, double positionX, double positionY, double positionZ,
+actor *CActor_CreateCamera(int id, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider)
@@ -231,7 +231,7 @@ actor *createCamera(int id, double positionX, double positionY, double positionZ
     return camera;
 }
 
-void linkChildToParent(vector actors, int childId, int parentId)
+void CActor_LinkChildToParent(vector actors, int childId, int parentId)
 {
     actor *parent = vector_get(actors, parentId);
     actor *child = vector_get(actors, childId);

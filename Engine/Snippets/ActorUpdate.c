@@ -4,7 +4,7 @@ void _UER_ActorUpdate(Gfx **display_list, NUContData gamepads[4])
 	{
 		actor *curr = vector_get(_UER_Actors, i);
 
-		if (curr->parent == NULL) modelDraw(curr, display_list);
+		if (curr->parent == NULL) CActor_Draw(curr, display_list);
 
 		if (curr->update != NULL) curr->update(curr);
 
