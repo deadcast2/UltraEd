@@ -23,11 +23,6 @@ namespace UltraEd
             "\n\tinclude \"$(ROOT)\\usr\\lib\\PR\\rspboot.o\""
             "\n\tinclude \"$(ROOT)\\usr\\lib\\PR\\aspMain.o\""
             "\n\tinclude \"$(ROOT)\\usr\\lib\\PR\\gspF3DEX2.fifo.o\""
-            "\n\tinclude \"$(ROOT)\\usr\\lib\\PR\\gspL3DEX2.fifo.o\""
-            "\n\tinclude \"$(ROOT)\\usr\\lib\\PR\\gspF3DEX2.Rej.fifo.o\""
-            "\n\tinclude \"$(ROOT)\\usr\\lib\\PR\\gspF3DEX2.NoN.fifo.o\""
-            "\n\tinclude \"$(ROOT)\\usr\\lib\\PR\\gspF3DLX2.Rej.fifo.o\""
-            "\n\tinclude \"$(ROOT)\\usr\\lib\\PR\\gspS2DEX2.fifo.o\""
             "\nendseg\n";
         const char *specIncludeStart = "\nbeginwave"
             "\n\tname \"main\""
