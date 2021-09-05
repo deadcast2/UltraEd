@@ -1,4 +1,6 @@
 #include <regex>
+#include <fstream>
+#include <sstream>
 #include "Build.h"
 #include "Util.h"
 #include "BoxCollider.h"
@@ -330,23 +332,33 @@ namespace UltraEd
         fwrite(actorInits.c_str(), 1, actorInits.size(), file.get());
         fwrite("}", 1, 1, file.get());
 
-        const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list, NUContData gamepads[4]) {";
-        std::string drawLoop("\n\tfor (int i = 0; i < vector_size(_UER_Actors); i++) {\n\t\tactor *curr = vector_get(_UER_Actors, i);\n\t\tif (curr->parent == NULL) modelDraw(curr, display_list);\n\t\tif (curr->update != NULL) curr->update(curr);\n\t\tif (curr->input != NULL) curr->input(curr, gamepads);\n\t}\n");
+        std::ifstream snippet(GetPathFor("Engine\\Snippets\\ActorUpdate.c"), std::ios::in);
+        if (snippet)
+        {
+            std::ostringstream buffer;
+            buffer << snippet.rdbuf();
+            fwrite(buffer.str().c_str(), 1, buffer.str().size(), file.get());
+            snippet.close();
+        }
 
-        fwrite(drawStart, 1, strlen(drawStart), file.get());
-        fwrite(drawLoop.c_str(), 1, drawLoop.size(), file.get());
-        fwrite("}", 1, 1, file.get());
         return true;
     }
 
     bool Build::WriteCollisionFile(const std::vector<Actor *> &actors)
     {
-        std::string collideSetStart("void _UER_Collide() { for (int i = 0; i < vector_size(_UER_Actors); i++) { actor *outerActor = vector_get(_UER_Actors, i); if (outerActor->collider == None) continue; for (int j = i + 1; j < vector_size(_UER_Actors); j++){actor *innerActor = vector_get(_UER_Actors, j);if (innerActor->collider == None) continue;if (check_collision(outerActor, innerActor)){ if (outerActor->collide != NULL) outerActor->collide(innerActor);if (innerActor->collide != NULL) innerActor->collide(outerActor);}} }");   
         std::string collisionPath = GetPathFor("Engine\\collisions.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(collisionPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
-        fwrite(collideSetStart.c_str(), 1, collideSetStart.size(), file.get());
-        fwrite("}", 1, 1, file.get());
+
+        std::ifstream snippet(GetPathFor("Engine\\Snippets\\ActorCollision.c"), std::ios::in);
+        if (snippet)
+        {
+            std::ostringstream buffer;
+            buffer << snippet.rdbuf();
+            fwrite(buffer.str().c_str(), 1, buffer.str().size(), file.get());
+            snippet.close();
+        }
+
         return true;
     }
 
