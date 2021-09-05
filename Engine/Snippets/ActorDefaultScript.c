@@ -1,19 +1,19 @@
-void $start(Actor *self)
+void $Start(Actor *self)
 {
     // Called once upon start up.
 }
 
-void $update(Actor *self)
+void $Update(Actor *self)
 {
     // Called every frame.
 }
 
-void $input(Actor *self, NUContData gamepads[4])
+void $Input(Actor *self, NUContData gamepads[4])
 {
     // Called upon any player input.
 }
 
-void $collide(Actor *other)
+void $Collide(Actor *other)
 {
     // Called upon collision with another actor.
 }

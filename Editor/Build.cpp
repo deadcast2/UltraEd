@@ -365,25 +365,25 @@ namespace UltraEd
 
             scriptStartStart.append("\n\t");
 
-            if (scripts.find(std::string(newResName).append("start(")) != std::string::npos)
+            if (scripts.find(std::string(newResName).append("Start(")) != std::string::npos)
             {
-                scriptStartStart.append(actorRef).append("->start = ").append(newResName).append("start").append(";\n\t");
+                scriptStartStart.append(actorRef).append("->start = ").append(newResName).append("Start").append(";\n\t");
                 scriptStartStart.append(actorRef).append("->start(").append(actorRef).append(");\n\t");
             }
 
-            if (scripts.find(std::string(newResName).append("update(")) != std::string::npos)
+            if (scripts.find(std::string(newResName).append("Update(")) != std::string::npos)
             {
-                scriptStartStart.append(actorRef).append("->update = ").append(newResName).append("update").append(";\n\t");
+                scriptStartStart.append(actorRef).append("->update = ").append(newResName).append("Update").append(";\n\t");
             }
 
-            if (scripts.find(std::string(newResName).append("input(")) != std::string::npos)
+            if (scripts.find(std::string(newResName).append("Input(")) != std::string::npos)
             {
-                scriptStartStart.append(actorRef).append("->input = ").append(newResName).append("input").append(";\n\t");
+                scriptStartStart.append(actorRef).append("->input = ").append(newResName).append("Input").append(";\n\t");
             }
 
-            if (scripts.find(std::string(newResName).append("collide(")) != std::string::npos)
+            if (scripts.find(std::string(newResName).append("Collide(")) != std::string::npos)
             {
-                scriptStartStart.append(actorRef).append("->collide = ").append(newResName).append("collide").append(";\n");
+                scriptStartStart.append(actorRef).append("->collide = ").append(newResName).append("Collide").append(";\n");
             }
         }
 
