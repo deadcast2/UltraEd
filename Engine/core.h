@@ -9,7 +9,9 @@
 actor *FindActorByName(const char *name)
 {
     nlist *np = lookup(name);
+
     if (np == NULL) return NULL;
+
     return vector_get(_UER_Actors, np->gameObjectIndex);
 }
 
@@ -26,11 +28,17 @@ actor *Instantiate(actor *other)
     if (other == NULL) return NULL;
 
     actor *clonedActor = (actor *)malloc(sizeof(actor));
+
     if (clonedActor)
     {
         memcpy(clonedActor, other, sizeof(*clonedActor));
 
         vector_add(_UER_Actors, clonedActor);
+
+        if (clonedActor->start != NULL)
+        {
+            clonedActor->start(clonedActor);
+        }
 
         return clonedActor;
     }
