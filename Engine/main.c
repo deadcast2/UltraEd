@@ -108,17 +108,13 @@ void create_display_list()
     rcp_init();
     clear_frame_buffer();
     setup_world_matrix(&glistp);
-    _UER_Draw(&glistp);
+
+    nuContDataGetEx(contdata, 0);
+    _UER_Draw(&glistp, contdata);
+
     gDPFullSync(glistp++);
     gSPEndDisplayList(glistp++);
-    nuGfxTaskStart(gfx_glist, (s32)(glistp - gfx_glist) * sizeof(Gfx),
-        NU_GFX_UCODE_F3DEX, NU_SC_SWAPBUFFER);
-}
-
-void check_inputs()
-{
-    nuContDataGetEx(contdata, 0);
-    _UER_Input(contdata);
+    nuGfxTaskStart(gfx_glist, (s32)(glistp - gfx_glist) * sizeof(Gfx), NU_GFX_UCODE_F3DEX, NU_SC_SWAPBUFFER);
 }
 
 void update_camera()
@@ -137,9 +133,7 @@ void gfx_callback(int pendingGfx)
     if (pendingGfx < 1)
     {
         create_display_list();
-        check_inputs();
         update_camera();
-        _UER_Update();
         _UER_Collide();
     }
 }
@@ -167,8 +161,7 @@ void mainproc()
     nuContInit();
 
     osViSetMode(&osViModeTable[_UER_VIDEO_MODE]);
-    osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON | OS_VI_GAMMA_OFF 
-        | OS_VI_GAMMA_DITHER_OFF | OS_VI_DIVOT_ON);
+    osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON | OS_VI_GAMMA_OFF | OS_VI_GAMMA_DITHER_OFF | OS_VI_DIVOT_ON);
     nuGfxDisplayOff();
 
     if (init_heap_memory() > -1)

@@ -330,8 +330,8 @@ namespace UltraEd
         fwrite(actorInits.c_str(), 1, actorInits.size(), file.get());
         fwrite("}", 1, 1, file.get());
 
-        const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list) {";
-        std::string drawLoop("\n\tfor (int i = 0; i < vector_size(_UER_Actors); i++) {\n\t\tactor *curr = vector_get(_UER_Actors, i);\n\t\tif (curr->parent == NULL) {\n\t\t\tmodelDraw(curr, display_list);\n\t\t}\n\t}\n");
+        const char *drawStart = "\n\nvoid _UER_Draw(Gfx **display_list, NUContData gamepads[4]) {";
+        std::string drawLoop("\n\tfor (int i = 0; i < vector_size(_UER_Actors); i++) {\n\t\tactor *curr = vector_get(_UER_Actors, i);\n\t\tif (curr->parent == NULL) modelDraw(curr, display_list);\n\t\tif (curr->update != NULL) curr->update(curr);\n\t\tif (curr->input != NULL) curr->input(curr, gamepads);\n\t}\n");
 
         fwrite(drawStart, 1, strlen(drawStart), file.get());
         fwrite(drawLoop.c_str(), 1, drawLoop.size(), file.get());
@@ -394,9 +394,6 @@ namespace UltraEd
     bool Build::WriteScriptsFile(const std::vector<Actor *> &actors)
     {
         std::string scriptStartStart("void _UER_Start() {");
-        std::string scriptUpdateStart("\n\nvoid _UER_Update() {");
-        std::string inputStart("\n\nvoid _UER_Input(NUContData gamepads[4]) {");
-
         std::string scripts;
         char countBuffer[10];
         int actorCount = -1;
@@ -412,21 +409,24 @@ namespace UltraEd
 
             _itoa(actorCount, countBuffer, 10);
             actorRef.append(countBuffer).append(")");
-            scripts.append(result).append("\n\n");
+            scripts.append(result).append("\n");
+
+            scriptStartStart.append("\n\t");
 
             if (scripts.find(std::string(newResName).append("start(")) != std::string::npos)
             {
-                scriptStartStart.append("\n\t").append(newResName).append("start(").append(actorRef).append(");\n");
+                scriptStartStart.append(actorRef).append("->start = ").append(newResName).append("start").append(";\n\t");
+                scriptStartStart.append(actorRef).append("->start(").append(actorRef).append(");\n\t");
             }
 
             if (scripts.find(std::string(newResName).append("update(")) != std::string::npos)
             {
-                scriptUpdateStart.append("\n\t").append(newResName).append("update(").append(actorRef).append(");\n");;
+                scriptStartStart.append(actorRef).append("->update = ").append(newResName).append("update").append(";\n\t");
             }
 
             if (scripts.find(std::string(newResName).append("input(")) != std::string::npos)
             {
-                inputStart.append("\n\t").append(newResName).append("input(").append(actorRef).append(", gamepads);\n");
+                scriptStartStart.append(actorRef).append("->input = ").append(newResName).append("input").append(";\n");
             }
         }
 
@@ -435,10 +435,6 @@ namespace UltraEd
         if (file == NULL) return false;
         fwrite(scripts.c_str(), 1, scripts.size(), file.get());
         fwrite(scriptStartStart.c_str(), 1, scriptStartStart.size(), file.get());
-        fwrite("}", 1, 1, file.get());
-        fwrite(scriptUpdateStart.c_str(), 1, scriptUpdateStart.size(), file.get());
-        fwrite("}", 1, 1, file.get());
-        fwrite(inputStart.c_str(), 1, inputStart.size(), file.get());
         fwrite("}", 1, 1, file.get());
         return true;
     }

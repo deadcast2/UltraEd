@@ -53,6 +53,10 @@ typedef struct actor
     transform transform;
     struct actor *parent;
     vector children;
+    void (*start)();
+    void (*update)();
+    void (*input)();
+    void (*collide)();
 } actor;
 
 actor *loadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
