@@ -237,9 +237,9 @@ namespace UltraEd
                 modelName.append("_M");
 
                 if (!texturePath.empty())
-                    actorInits.append("CActor_LoadTexturedModel(").append(std::to_string(actorCount)).append(", _");
+                    actorInits.append("CActor_LoadTexturedModel(").append(std::to_string(actorCount)).append(", \"").append(model->GetName()).append("\", _");
                 else
-                    actorInits.append("CActor_LoadModel(").append(std::to_string(actorCount)).append(", _");
+                    actorInits.append("CActor_LoadModel(").append(std::to_string(actorCount)).append(", \"").append(model->GetName()).append("\", _");
 
                 actorInits.append(modelName).append("SegmentRomStart, _").append(modelName).append("SegmentRomEnd");
 
@@ -289,7 +289,7 @@ namespace UltraEd
             }
             else if (actor->GetType() == ActorType::Camera)
             {
-                actorInits.append("CActor_CreateCamera(").append(std::to_string(actorCount)).append(", ");
+                actorInits.append("CActor_CreateCamera(").append(std::to_string(actorCount)).append(", \"").append(actor->GetName()).append("\", ");
                 char vectorBuffer[256];
                 D3DXVECTOR3 position = actor->GetPosition(false);
                 D3DXVECTOR3 axis;
@@ -396,27 +396,6 @@ namespace UltraEd
         return true;
     }
 
-    bool Build::WriteMappingsFile(const std::vector<Actor *> &actors)
-    {
-        std::string mappingsStart("void _UER_Mappings() {");
-        int loopCount = 0;
-        char countBuffer[10];
-
-        for (const auto &actor : actors)
-        {
-            _itoa(loopCount++, countBuffer, 10);
-            mappingsStart.append("\n\tinsert(\"").append(actor->GetName()).append("\", ")
-                .append(countBuffer).append(");\n");
-        }
-
-        std::string mappingsPath = Util::GetPathFor("Engine\\mappings.h");
-        std::unique_ptr<FILE, decltype(fclose) *> file(fopen(mappingsPath.c_str(), "w"), fclose);
-        if (file == NULL) return false;
-        fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file.get());
-        fwrite("}", 1, 1, file.get());
-        return true;
-    }
-
     bool Build::Start(Scene *scene)
     {
         const auto actors = scene->GetActors();
@@ -431,7 +410,6 @@ namespace UltraEd
         WriteDefinitionsFile();
         WriteCollisionFile(actors);
         WriteScriptsFile(actors);
-        WriteMappingsFile(actors);
         WriteSceneFile(scene);
 
         return Compile();

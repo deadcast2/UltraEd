@@ -1,7 +1,6 @@
 #include <nusys.h>
 #include <math.h>
 #include "utilities.h"
-#include "hashtable.h"
 #include "actor.h"
 #include "collision.h"
 #include "scene.h"
@@ -11,7 +10,6 @@
 #include "definitions.h"
 #include "segments.h"
 #include "actors.h"
-#include "mappings.h"
 #include "core.h"
 #include "scripts.h"
 #include "collisions.h"
@@ -170,7 +168,6 @@ void mainproc()
     if (InitHeapMemory() > -1)
     {
         _UER_Load();
-        _UER_Mappings();
         _UER_Start();
 
         SetDefaultCamera();

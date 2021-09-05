@@ -7,17 +7,17 @@
 #include "utilities.h"
 #include "vector.h"
 
-Actor *CActor_LoadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
+Actor *CActor_LoadModel(int id, const char *name, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType collider)
 {
-    return CActor_LoadTexturedModel(id, dataStart, dataEnd,
+    return CActor_LoadTexturedModel(id, name, dataStart, dataEnd,
         NULL, NULL, 0, 0, positionX, positionY, positionZ, rotX, rotY, rotZ, angle, scaleX, scaleY, scaleZ,
         centerX, centerY, centerZ, radius, extentX, extentY, extentZ, collider);
 }
 
-Actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureStart, void *textureEnd,
+Actor *CActor_LoadTexturedModel(int id, const char *name, void *dataStart, void *dataEnd, void *textureStart, void *textureEnd,
     int textureWidth, int textureHeight, double positionX, double positionY, double positionZ, double rotX,
     double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
@@ -35,6 +35,7 @@ Actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd, void *te
 
     newModel = (Actor *)malloc(sizeof(Actor));
     newModel->id = id;
+    newModel->name = name;
     newModel->visible = 1;
     newModel->type = Model;
     newModel->collider = collider;
@@ -190,13 +191,14 @@ void CActor_Draw(Actor *model, Gfx **displayList)
     gSPPopMatrix((*displayList)++, G_MTX_MODELVIEW);
 }
 
-Actor *CActor_CreateCamera(int id, double positionX, double positionY, double positionZ,
+Actor *CActor_CreateCamera(int id, const char *name, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType collider)
 {
     Actor *camera = (Actor *)malloc(sizeof(Actor));
     camera->id = id;
+    camera->name = name;
     camera->visible = 1;
     camera->type = Camera;
     camera->collider = collider;

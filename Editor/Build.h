@@ -24,7 +24,6 @@ namespace UltraEd
         static bool WriteActorsFile(const std::vector<Actor*> &actors, const std::map<std::filesystem::path, std::string> &resourceCache);
         static bool WriteCollisionFile(const std::vector<Actor*> &actors);
         static bool WriteScriptsFile(const std::vector<Actor*> &actors);
-        static bool WriteMappingsFile(const std::vector<Actor*> &actors);
         static bool Compile();
     };
 }
