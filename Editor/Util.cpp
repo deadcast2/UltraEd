@@ -1,5 +1,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <fstream>
+#include <sstream>
 #include "Util.h"
 #include "shlwapi.h"
 
@@ -55,6 +57,23 @@ namespace UltraEd
             return path.append("\\..\\..\\..\\").append(name);
         }
         return std::string();
+    }
+
+    std::string Util::GetSnippet(const std::string &fileName)
+    {
+        std::string snippet;
+        std::ifstream file(GetPathFor(std::string("Engine\\Snippets\\").append(fileName)), std::ios::in);
+        
+        if (file)
+        {
+            std::ostringstream buffer;
+            buffer << file.rdbuf();
+            snippet = buffer.str();
+
+            file.close();
+        }
+
+        return snippet;
     }
 
     void Util::ToFloat3(const D3DXVECTOR3 &vec, float *position)

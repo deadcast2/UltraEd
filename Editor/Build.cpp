@@ -1,6 +1,4 @@
 #include <regex>
-#include <fstream>
-#include <sstream>
 #include "Build.h"
 #include "Util.h"
 #include "BoxCollider.h"
@@ -332,14 +330,8 @@ namespace UltraEd
         fwrite(actorInits.c_str(), 1, actorInits.size(), file.get());
         fwrite("}", 1, 1, file.get());
 
-        std::ifstream snippet(Util::GetPathFor("Engine\\Snippets\\ActorUpdate.c"), std::ios::in);
-        if (snippet)
-        {
-            std::ostringstream buffer;
-            buffer << snippet.rdbuf();
-            fwrite(buffer.str().c_str(), 1, buffer.str().size(), file.get());
-            snippet.close();
-        }
+        auto snippet = Util::GetSnippet("ActorUpdate.c");
+        fwrite(snippet.c_str(), 1, snippet.size(), file.get());
 
         return true;
     }
@@ -350,14 +342,8 @@ namespace UltraEd
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(collisionPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
 
-        std::ifstream snippet(Util::GetPathFor("Engine\\Snippets\\ActorCollision.c"), std::ios::in);
-        if (snippet)
-        {
-            std::ostringstream buffer;
-            buffer << snippet.rdbuf();
-            fwrite(buffer.str().c_str(), 1, buffer.str().size(), file.get());
-            snippet.close();
-        }
+        auto snippet = Util::GetSnippet("ActorCollision.c");
+        fwrite(snippet.c_str(), 1, snippet.size(), file.get());
 
         return true;
     }

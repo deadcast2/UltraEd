@@ -1,5 +1,3 @@
-#include <fstream>
-#include <sstream>
 #include "Actor.h"
 #include "Converters.h"
 #include "FileIO.h"
@@ -39,14 +37,7 @@ namespace UltraEd
         m_material.Diffuse.b = 1;
         m_material.Diffuse.a = 1;
 
-        std::ifstream snippet(Util::GetPathFor("Engine\\Snippets\\ActorDefaultScript.c"), std::ios::in);
-        if (snippet)
-        {
-            std::ostringstream buffer;
-            buffer << snippet.rdbuf();
-            m_script = buffer.str();
-            snippet.close();
-        }
+        m_script = Util::GetSnippet("ActorDefaultScript.c");
     }
 
     void Actor::Release()

@@ -24,6 +24,7 @@ namespace UltraEd
         static std::string ReplaceString(const std::string &str, const std::string &from, const std::string &to);
         static std::vector<std::string> SplitString(const std::string &str, const std::string &delimiter);
         static std::string GetPathFor(const std::string &name);
+        static std::string GetSnippet(const std::string &fileName);
         static void ToFloat3(const D3DXVECTOR3 &vec, float *position);
         static std::string ToLower(const std::string &str);
         static D3DXVECTOR3 ToEuler(const D3DXMATRIX &rotation);
