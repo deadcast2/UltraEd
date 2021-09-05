@@ -17,10 +17,10 @@ typedef struct _Transform
     Mtx translation;
 } Transform;
 
-typedef struct vector3
+typedef struct _Vector3
 {
     double x, y, z;
-} vector3;
+} Vector3;
 
 typedef struct _Mesh
 {
@@ -43,13 +43,13 @@ typedef struct _Actor
     double radius;
     double originalRadius;
     int visible;
-    vector3 position;
-    vector3 rotationAxis;
-    vector3 scale;
-    vector3 center;
-    vector3 originalCenter;
-    vector3 extents;
-    vector3 originalExtents;
+    Vector3 position;
+    Vector3 rotationAxis;
+    Vector3 scale;
+    Vector3 center;
+    Vector3 originalCenter;
+    Vector3 extents;
+    Vector3 originalExtents;
     Transform transform;
     struct _Actor *parent;
     vector children;
@@ -81,7 +81,7 @@ void CActor_LinkChildToParent(vector actors, int childId, int parentId);
 
 void CActor_Draw(Actor *model, Gfx **displayList);
 
-vector3 CActor_GetPosition(Actor *Actor);
+Vector3 CActor_GetPosition(Actor *Actor);
 
 Mtx CActor_GetMatrix(Actor *Actor);
 

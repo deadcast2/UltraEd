@@ -21,9 +21,9 @@ int sphere_sphere_collision(Actor *a, Actor *b)
     CActor_UpdateSphere(b);
 
     const float radiusSum = a->radius + b->radius;
-    vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
-    vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);
-    vector3 dist = vec3_sub(aPos, bPos);
+    Vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
+    Vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);
+    Vector3 dist = vec3_sub(aPos, bPos);
 
     return vec3_dot(dist, dist) <= radiusSum * radiusSum;
 }
@@ -33,8 +33,8 @@ int box_box_collision(Actor *a, Actor *b)
     CActor_UpdateAABB(a);
     CActor_UpdateAABB(b);
 
-    vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
-    vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);
+    Vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
+    Vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);
 
     if (fabs(aPos.x - bPos.x) > (a->extents.x + b->extents.x)) return 0;
     if (fabs(aPos.y - bPos.y) > (a->extents.y + b->extents.y)) return 0;
@@ -48,8 +48,8 @@ int box_sphere_collision(Actor *a, Actor *b)
     CActor_UpdateAABB(a);
     CActor_UpdateSphere(b);
 
-    vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
-    vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);
+    Vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
+    Vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);
 
     float aMin[3] = { aPos.x - a->extents.x, aPos.y - a->extents.y, aPos.z - a->extents.z };
     float aMax[3] = { aPos.x + a->extents.x, aPos.y + a->extents.y, aPos.z + a->extents.z };

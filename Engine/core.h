@@ -4,7 +4,7 @@
 #include "actor.h"
 #include "hashtable.h"
 
-#define VECTOR3(X, Y, Z) (vector3) { X, Y, Z }
+#define VECTOR3(X, Y, Z) (Vector3) { X, Y, Z }
 
 Actor *FindActorByName(const char *name)
 {

@@ -26,25 +26,25 @@ unsigned short *image_24_to_16(const unsigned char *data, int size_x, int size_y
     return temp;
 }
 
-float vec3_dot(vector3 a, vector3 b)
+float vec3_dot(Vector3 a, Vector3 b)
 {
     return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
-float vec3_len(vector3 a, vector3 b)
+float vec3_len(Vector3 a, Vector3 b)
 {
     return sqrtf(vec3_dot(a, b));
 }
 
-vector3 vec3_norm(vector3 vector)
+Vector3 vec3_norm(Vector3 vector)
 {
     const float len = vec3_len(vector, vector);
-    return (vector3) {
+    return (Vector3) {
         vector.x / len, vector.y / len, vector.z / len
     };
 }
 
-vector3 vec3_add(vector3 a, vector3 b)
+Vector3 vec3_add(Vector3 a, Vector3 b)
 {
     a.x += b.x;
     a.y += b.y;
@@ -52,7 +52,7 @@ vector3 vec3_add(vector3 a, vector3 b)
     return a;
 }
 
-vector3 vec3_sub(vector3 a, vector3 b)
+Vector3 vec3_sub(Vector3 a, Vector3 b)
 {
     a.x -= b.x;
     a.y -= b.y;
@@ -60,7 +60,7 @@ vector3 vec3_sub(vector3 a, vector3 b)
     return a;
 }
 
-vector3 vec3_mul(vector3 vector, float scalar)
+Vector3 vec3_mul(Vector3 vector, float scalar)
 {
     vector.x *= scalar;
     vector.y *= scalar;
@@ -68,11 +68,11 @@ vector3 vec3_mul(vector3 vector, float scalar)
     return vector;
 }
 
-vector3 vec3_mul_mat(vector3 vector, Mtx mat)
+Vector3 vec3_mul_mat(Vector3 vector, Mtx mat)
 {
     float x, y, z;
     guMtxXFML(&mat, vector.x, vector.y, vector.z, &x, &y, &z);
-    return (vector3) {
+    return (Vector3) {
         x, y, z
     };
 }

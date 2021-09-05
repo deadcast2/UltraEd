@@ -248,16 +248,16 @@ void CActor_LinkChildToParent(vector actors, int childId, int parentId)
     }
 }
 
-vector3 CActor_GetPosition(Actor *Actor)
+Vector3 CActor_GetPosition(Actor *Actor)
 {
     if (Actor == NULL)
-        return (vector3) { 0, 0, 0 };
+        return (Vector3) { 0, 0, 0 };
 
     if (Actor->parent == NULL)
     {
         const int invertScalar = Actor->type == Camera ? -1 : 1;
 
-        return (vector3) { Actor->position.x, Actor->position.y, invertScalar * Actor->position.z };
+        return (Vector3) { Actor->position.x, Actor->position.y, invertScalar * Actor->position.z };
     }
 
     return vec3_mul_mat(Actor->position, CActor_GetMatrix(Actor->parent));
@@ -314,8 +314,8 @@ void CActor_UpdateAABB(Actor *Actor)
         }
     }
 
-    Actor->center = (vector3) { center[0], center[1], center[2] };
-    Actor->extents = (vector3) { extents[0], extents[1], extents[2] };
+    Actor->center = (Vector3) { center[0], center[1], center[2] };
+    Actor->extents = (Vector3) { extents[0], extents[1], extents[2] };
 }
 
 void CActor_UpdateSphere(Actor *Actor)
