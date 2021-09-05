@@ -30,7 +30,7 @@ typedef struct mesh
 
 typedef struct _vector *vector;
 
-typedef struct actor 
+typedef struct _Actor 
 {
     int id;
     enum actorType type;
@@ -51,20 +51,20 @@ typedef struct actor
     vector3 extents;
     vector3 originalExtents;
     transform transform;
-    struct actor *parent;
+    struct _Actor *parent;
     vector children;
     void (*start)();
     void (*update)();
     void (*input)();
     void (*collide)();
-} actor;
+} Actor;
 
-actor *CActor_LoadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
+Actor *CActor_LoadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider);
 
-actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd,
+Actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd,
     void *textureStart, void *textureEnd, int textureWidth, int textureHeight,
     double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
@@ -72,21 +72,21 @@ actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider);
 
-actor *CActor_CreateCamera(int id, double positionX, double positionY, double positionZ,
+Actor *CActor_CreateCamera(int id, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, 
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider);
 
 void CActor_LinkChildToParent(vector actors, int childId, int parentId);
 
-void CActor_Draw(actor *model, Gfx **displayList);
+void CActor_Draw(Actor *model, Gfx **displayList);
 
-vector3 CActor_GetPosition(actor *actor);
+vector3 CActor_GetPosition(Actor *Actor);
 
-Mtx CActor_GetMatrix(actor *actor);
+Mtx CActor_GetMatrix(Actor *Actor);
 
-void CActor_UpdateAABB(actor *actor);
+void CActor_UpdateAABB(Actor *Actor);
 
-void CActor_UpdateSphere(actor *actor);
+void CActor_UpdateSphere(Actor *Actor);
 
 #endif

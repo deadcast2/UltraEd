@@ -7,7 +7,7 @@
 #include "utilities.h"
 #include "vector.h"
 
-actor *CActor_LoadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
+Actor *CActor_LoadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider)
@@ -17,7 +17,7 @@ actor *CActor_LoadModel(int id, void *dataStart, void *dataEnd, double positionX
         centerX, centerY, centerZ, radius, extentX, extentY, extentZ, collider);
 }
 
-actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureStart, void *textureEnd,
+Actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureStart, void *textureEnd,
     int textureWidth, int textureHeight, double positionX, double positionY, double positionZ, double rotX,
     double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
@@ -27,13 +27,13 @@ actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd, void *te
     unsigned char textureBuffer[200000];
     int dataSize = dataEnd - dataStart;
     int textureSize = textureEnd - textureStart;
-    actor *newModel;
+    Actor *newModel;
 
     // Transfer from ROM the model mesh data and texture.
     rom_2_ram(dataStart, dataBuffer, dataSize);
     rom_2_ram(textureStart, textureBuffer, textureSize);
 
-    newModel = (actor *)malloc(sizeof(actor));
+    newModel = (Actor *)malloc(sizeof(Actor));
     newModel->id = id;
     newModel->visible = 1;
     newModel->type = Model;
@@ -113,7 +113,7 @@ actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd, void *te
     return newModel;
 }
 
-void CActor_Draw(actor *model, Gfx **displayList)
+void CActor_Draw(Actor *model, Gfx **displayList)
 {
     if (!model->visible) return;
 
@@ -190,12 +190,12 @@ void CActor_Draw(actor *model, Gfx **displayList)
     gSPPopMatrix((*displayList)++, G_MTX_MODELVIEW);
 }
 
-actor *CActor_CreateCamera(int id, double positionX, double positionY, double positionZ,
+Actor *CActor_CreateCamera(int id, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum colliderType collider)
 {
-    actor *camera = (actor *)malloc(sizeof(actor));
+    Actor *camera = (Actor *)malloc(sizeof(Actor));
     camera->id = id;
     camera->visible = 1;
     camera->type = Camera;
@@ -233,8 +233,8 @@ actor *CActor_CreateCamera(int id, double positionX, double positionY, double po
 
 void CActor_LinkChildToParent(vector actors, int childId, int parentId)
 {
-    actor *parent = vector_get(actors, parentId);
-    actor *child = vector_get(actors, childId);
+    Actor *parent = vector_get(actors, parentId);
+    Actor *child = vector_get(actors, childId);
 
     if (parent && child)
     {
@@ -248,24 +248,24 @@ void CActor_LinkChildToParent(vector actors, int childId, int parentId)
     }
 }
 
-vector3 CActor_GetPosition(actor *actor)
+vector3 CActor_GetPosition(Actor *Actor)
 {
-    if (actor == NULL)
+    if (Actor == NULL)
         return (vector3) { 0, 0, 0 };
 
-    if (actor->parent == NULL)
+    if (Actor->parent == NULL)
     {
-        const int invertScalar = actor->type == Camera ? -1 : 1;
+        const int invertScalar = Actor->type == Camera ? -1 : 1;
 
-        return (vector3) { actor->position.x, actor->position.y, invertScalar * actor->position.z };
+        return (vector3) { Actor->position.x, Actor->position.y, invertScalar * Actor->position.z };
     }
 
-    return vec3_mul_mat(actor->position, CActor_GetMatrix(actor->parent));
+    return vec3_mul_mat(Actor->position, CActor_GetMatrix(Actor->parent));
 }
 
-Mtx CActor_GetMatrix(actor *actor)
+Mtx CActor_GetMatrix(Actor *Actor)
 {
-    if (actor == NULL)
+    if (Actor == NULL)
     {
         Mtx mat;
         guMtxIdent(&mat);
@@ -273,33 +273,33 @@ Mtx CActor_GetMatrix(actor *actor)
     }
 
     Mtx combined;
-    guMtxCatL(&actor->transform.scale, &actor->transform.rotation, &combined);
+    guMtxCatL(&Actor->transform.scale, &Actor->transform.rotation, &combined);
 
     // Need to rebuild translation matrix since the actor's stored one is scaled up.
     Mtx translation;
-    const int invertScalar = actor->type == Camera ? -1 : 1;
+    const int invertScalar = Actor->type == Camera ? -1 : 1;
 
-    guTranslate(&translation, actor->position.x, actor->position.y, invertScalar * actor->position.z);
+    guTranslate(&translation, Actor->position.x, Actor->position.y, invertScalar * Actor->position.z);
     guMtxCatL(&combined, &translation, &combined);
 
-    if (actor->parent == NULL)
+    if (Actor->parent == NULL)
     {
         return combined;
     }
 
-    return mat_mul_mat(combined, CActor_GetMatrix(actor->parent));
+    return mat_mul_mat(combined, CActor_GetMatrix(Actor->parent));
 }
 
-void CActor_UpdateAABB(actor *actor)
+void CActor_UpdateAABB(Actor *Actor)
 {
-    float center[3] = { actor->center.x, actor->center.y, actor->center.z };
-    const float originalCenter[3] = { actor->originalCenter.x, actor->originalCenter.y, actor->originalCenter.z };
+    float center[3] = { Actor->center.x, Actor->center.y, Actor->center.z };
+    const float originalCenter[3] = { Actor->originalCenter.x, Actor->originalCenter.y, Actor->originalCenter.z };
 
-    float extents[3] = { actor->extents.x, actor->extents.y, actor->extents.z };
-    const float originalExtents[3] = { actor->originalExtents.x, actor->originalExtents.y, actor->originalExtents.z };
+    float extents[3] = { Actor->extents.x, Actor->extents.y, Actor->extents.z };
+    const float originalExtents[3] = { Actor->originalExtents.x, Actor->originalExtents.y, Actor->originalExtents.z };
 
     float mat[4][4];
-    Mtx fixedMat = CActor_GetMatrix(actor);
+    Mtx fixedMat = CActor_GetMatrix(Actor);
     guMtxL2F(mat, &fixedMat);
 
     for (int i = 0; i < 3; i++)
@@ -314,16 +314,16 @@ void CActor_UpdateAABB(actor *actor)
         }
     }
 
-    actor->center = (vector3) { center[0], center[1], center[2] };
-    actor->extents = (vector3) { extents[0], extents[1], extents[2] };
+    Actor->center = (vector3) { center[0], center[1], center[2] };
+    Actor->extents = (vector3) { extents[0], extents[1], extents[2] };
 }
 
-void CActor_UpdateSphere(actor *actor)
+void CActor_UpdateSphere(Actor *Actor)
 {
-    actor->center = vec3_mul_mat(actor->originalCenter, actor->transform.rotation);
+    Actor->center = vec3_mul_mat(Actor->originalCenter, Actor->transform.rotation);
 
     // Scale the calculated radius using the largest scale value of the actor.
-    float scaleComps[3] = { fabs(actor->scale.x), fabs(actor->scale.y), fabs(actor->scale.z) };
+    float scaleComps[3] = { fabs(Actor->scale.x), fabs(Actor->scale.y), fabs(Actor->scale.z) };
     float largestScale = 0;
 
     for (int i = 0; i < 3; i++)
@@ -332,5 +332,5 @@ void CActor_UpdateSphere(actor *actor)
             largestScale = scaleComps[i];
     }
 
-    actor->radius = largestScale * actor->originalRadius;
+    Actor->radius = largestScale * Actor->originalRadius;
 }

@@ -204,7 +204,7 @@ namespace UltraEd
         int actorCount = -1;
         
         std::string actorsArrayDef("vector _UER_Actors = NULL;");
-        actorsArrayDef.append("\nactor *_UER_ActiveCamera = NULL;\n");
+        actorsArrayDef.append("\nActor *_UER_ActiveCamera = NULL;\n");
 
         std::string actorInits("\n\t_UER_Actors = vector_create();\n");
 

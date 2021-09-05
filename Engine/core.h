@@ -6,7 +6,7 @@
 
 #define VECTOR3(X, Y, Z) (vector3) { X, Y, Z }
 
-actor *FindActorByName(const char *name)
+Actor *FindActorByName(const char *name)
 {
     nlist *np = lookup(name);
 
@@ -15,7 +15,7 @@ actor *FindActorByName(const char *name)
     return vector_get(_UER_Actors, np->gameObjectIndex);
 }
 
-void SetActiveCamera(actor *camera)
+void SetActiveCamera(Actor *camera)
 {
     if (camera != NULL && camera->type == Camera)
     {
@@ -23,11 +23,11 @@ void SetActiveCamera(actor *camera)
     }
 }
 
-actor *Instantiate(actor *other)
+Actor *Instantiate(Actor *other)
 {
     if (other == NULL) return NULL;
 
-    actor *clonedActor = (actor *)malloc(sizeof(actor));
+    Actor *clonedActor = (Actor *)malloc(sizeof(Actor));
 
     if (clonedActor)
     {

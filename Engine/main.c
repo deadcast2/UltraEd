@@ -120,7 +120,7 @@ void Render()
 
 void UpdateCamera()
 {
-    actor *camera = _UER_ActiveCamera;
+    Actor *camera = _UER_ActiveCamera;
 
     if (camera != NULL)
     {

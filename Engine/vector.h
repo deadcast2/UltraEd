@@ -7,9 +7,9 @@ https://d-michail.github.io/assets/teaching/data-structures/013_VectorImplementa
 #ifndef _VECTOR_H
 #define _VECTOR_H
 
-typedef struct actor actor;
+typedef struct _Actor Actor;
 typedef struct _vector *vector;
-typedef actor *value_type;
+typedef Actor *value_type;
 
 vector vector_create();
 void vector_destroy(vector);

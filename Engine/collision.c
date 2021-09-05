@@ -1,7 +1,7 @@
 #include "utilities.h"
 #include "collision.h"
 
-int check_collision(actor *a, actor *b)
+int check_collision(Actor *a, Actor *b)
 {
     if (a->collider == Sphere && b->collider == Sphere)
         return sphere_sphere_collision(a, b);
@@ -15,7 +15,7 @@ int check_collision(actor *a, actor *b)
     return 0;
 }
 
-int sphere_sphere_collision(actor *a, actor *b)
+int sphere_sphere_collision(Actor *a, Actor *b)
 {
     CActor_UpdateSphere(a);
     CActor_UpdateSphere(b);
@@ -28,7 +28,7 @@ int sphere_sphere_collision(actor *a, actor *b)
     return vec3_dot(dist, dist) <= radiusSum * radiusSum;
 }
 
-int box_box_collision(actor *a, actor *b)
+int box_box_collision(Actor *a, Actor *b)
 {
     CActor_UpdateAABB(a);
     CActor_UpdateAABB(b);
@@ -43,7 +43,7 @@ int box_box_collision(actor *a, actor *b)
     return 1;
 }
 
-int box_sphere_collision(actor *a, actor *b)
+int box_sphere_collision(Actor *a, Actor *b)
 {
     CActor_UpdateAABB(a);
     CActor_UpdateSphere(b);
