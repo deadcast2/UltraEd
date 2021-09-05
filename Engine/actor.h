@@ -5,9 +5,9 @@
 
 #define SCALE_FACTOR 30
 
-enum actorType { Model, Camera };
+enum ActorType { Model, Camera };
 
-enum colliderType { None, Sphere, Box };
+enum ColliderType { None, Sphere, Box };
 
 typedef struct _Transform 
 {
@@ -33,8 +33,8 @@ typedef struct _vector *vector;
 typedef struct _Actor 
 {
     int id;
-    enum actorType type;
-    enum colliderType collider;
+    enum ActorType type;
+    enum ColliderType collider;
     Mesh mesh;
     unsigned short *texture;
     int textureWidth;
@@ -62,7 +62,7 @@ typedef struct _Actor
 Actor *CActor_LoadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius,
-    double extentX, double extentY, double extentZ, enum colliderType collider);
+    double extentX, double extentY, double extentZ, enum ColliderType collider);
 
 Actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd,
     void *textureStart, void *textureEnd, int textureWidth, int textureHeight,
@@ -70,12 +70,12 @@ Actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd,
     double rotX, double rotY, double rotZ, double angle,
     double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius,
-    double extentX, double extentY, double extentZ, enum colliderType collider);
+    double extentX, double extentY, double extentZ, enum ColliderType collider);
 
 Actor *CActor_CreateCamera(int id, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, 
     double centerX, double centerY, double centerZ, double radius,
-    double extentX, double extentY, double extentZ, enum colliderType collider);
+    double extentX, double extentY, double extentZ, enum ColliderType collider);
 
 void CActor_LinkChildToParent(vector actors, int childId, int parentId);
 

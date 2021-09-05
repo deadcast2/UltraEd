@@ -10,7 +10,7 @@
 Actor *CActor_LoadModel(int id, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
-    double extentX, double extentY, double extentZ, enum colliderType collider)
+    double extentX, double extentY, double extentZ, enum ColliderType collider)
 {
     return CActor_LoadTexturedModel(id, dataStart, dataEnd,
         NULL, NULL, 0, 0, positionX, positionY, positionZ, rotX, rotY, rotZ, angle, scaleX, scaleY, scaleZ,
@@ -21,7 +21,7 @@ Actor *CActor_LoadTexturedModel(int id, void *dataStart, void *dataEnd, void *te
     int textureWidth, int textureHeight, double positionX, double positionY, double positionZ, double rotX,
     double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
-    double extentX, double extentY, double extentZ, enum colliderType collider)
+    double extentX, double extentY, double extentZ, enum ColliderType collider)
 {
     unsigned char dataBuffer[200000];
     unsigned char textureBuffer[200000];
@@ -193,7 +193,7 @@ void CActor_Draw(Actor *model, Gfx **displayList)
 Actor *CActor_CreateCamera(int id, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
     double centerX, double centerY, double centerZ, double radius,
-    double extentX, double extentY, double extentZ, enum colliderType collider)
+    double extentX, double extentY, double extentZ, enum ColliderType collider)
 {
     Actor *camera = (Actor *)malloc(sizeof(Actor));
     camera->id = id;
