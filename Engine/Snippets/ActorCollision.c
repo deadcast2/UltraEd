@@ -1,4 +1,4 @@
-void _UER_Collide() 
+void _UER_ActorCollision() 
 { 
     for (int i = 0; i < vector_size(_UER_Actors); i++) 
     { 

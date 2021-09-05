@@ -1,4 +1,4 @@
-void _UER_Draw(Gfx **display_list, NUContData gamepads[4]) 
+void _UER_ActorUpdate(Gfx **display_list, NUContData gamepads[4]) 
 {
 	for (int i = 0; i < vector_size(_UER_Actors); i++)
 	{

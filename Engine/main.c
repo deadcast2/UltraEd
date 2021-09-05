@@ -20,28 +20,28 @@
 #define SCREEN_HT 240
 #define GFX_GLIST_LEN 2048
 
-char mem_heep[1024 * 512];
-Gfx *glistp;
-Gfx gfx_glist[GFX_GLIST_LEN];
-transform world;
-NUContData contdata[4];
+char SystemHeap[1024 * 512];
+Gfx *GfxListPointer;
+Gfx GfxList[GFX_GLIST_LEN];
+transform World;
+NUContData ControllerData[4];
 
-static Vp view_port =
+static Vp ViewPort =
 {
   SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
   SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
 };
 
-Gfx rsp_state[] =
+Gfx RspState[] =
 {
-  gsSPViewport(&view_port),
+  gsSPViewport(&ViewPort),
   gsSPClearGeometryMode(0xFFFFFFFF),
   gsSPSetGeometryMode(G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH | G_CULL_BACK),
   gsSPTexture(0, 0, 0, 0, G_OFF),
   gsSPEndDisplayList()
 };
 
-Gfx rdp_state[] =
+Gfx RdpState[] =
 {
   gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
   gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
@@ -50,106 +50,109 @@ Gfx rdp_state[] =
   gsSPEndDisplayList()
 };
 
-void rcp_init()
+void RcpInit()
 {
-    gSPSegment(glistp++, 0, 0x0);
-    gSPDisplayList(glistp++, OS_K0_TO_PHYSICAL(rsp_state));
-    gSPDisplayList(glistp++, OS_K0_TO_PHYSICAL(rdp_state));
+    gSPSegment(GfxListPointer++, 0, 0x0);
+    gSPDisplayList(GfxListPointer++, OS_K0_TO_PHYSICAL(RspState));
+    gSPDisplayList(GfxListPointer++, OS_K0_TO_PHYSICAL(RdpState));
 }
 
-void clear_frame_buffer()
+void ClearFrameBuffer()
 {
     unsigned int backgroundColor = GPACK_RGBA5551(_UER_SceneBackgroundColor[0],
         _UER_SceneBackgroundColor[1], _UER_SceneBackgroundColor[2], 1);
 
-    gDPSetDepthImage(glistp++, OS_K0_TO_PHYSICAL(nuGfxZBuffer));
-    gDPSetCycleType(glistp++, G_CYC_FILL);
-    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD,
+    gDPSetDepthImage(GfxListPointer++, OS_K0_TO_PHYSICAL(nuGfxZBuffer));
+    gDPSetCycleType(GfxListPointer++, G_CYC_FILL);
+    gDPSetColorImage(GfxListPointer++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD,
         OS_K0_TO_PHYSICAL(nuGfxZBuffer));
-    gDPSetFillColor(glistp++, (GPACK_ZDZ(G_MAXFBZ, 0) << 16 |
+    gDPSetFillColor(GfxListPointer++, (GPACK_ZDZ(G_MAXFBZ, 0) << 16 |
         GPACK_ZDZ(G_MAXFBZ, 0)));
-    gDPFillRectangle(glistp++, 0, 0, SCREEN_WD - 1, SCREEN_HT - 1);
-    gDPPipeSync(glistp++);
+    gDPFillRectangle(GfxListPointer++, 0, 0, SCREEN_WD - 1, SCREEN_HT - 1);
+    gDPPipeSync(GfxListPointer++);
 
-    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD,
+    gDPSetColorImage(GfxListPointer++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD,
         osVirtualToPhysical(nuGfxCfb_ptr));
-    gDPSetFillColor(glistp++, (backgroundColor << 16 | backgroundColor));
-    gDPFillRectangle(glistp++, 0, 0, SCREEN_WD - 1, SCREEN_HT - 1);
-    gDPPipeSync(glistp++);
+    gDPSetFillColor(GfxListPointer++, (backgroundColor << 16 | backgroundColor));
+    gDPFillRectangle(GfxListPointer++, 0, 0, SCREEN_WD - 1, SCREEN_HT - 1);
+    gDPPipeSync(GfxListPointer++);
 }
 
-void setup_world_matrix(Gfx **display_list)
+void SetupWorldMatrix(Gfx **display_list)
 {
     u16 persp_normal;
 
-    guPerspective(&world.projection,
+    guPerspective(&World.projection,
         &persp_normal,
         80.0F, SCREEN_WD / SCREEN_HT,
         0.1F, 1000.0F, 1.0F);
 
     gSPPerspNormalize((*display_list)++, persp_normal);
 
-    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.projection),
+    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&World.projection),
         G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
 
-    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.scale),
+    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&World.scale),
         G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
 
-    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.rotation),
+    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&World.rotation),
         G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
 
-    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&world.translation),
+    gSPMatrix((*display_list)++, OS_K0_TO_PHYSICAL(&World.translation),
         G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
 }
 
-void create_display_list()
+void Render()
 {
-    glistp = gfx_glist;
-    rcp_init();
-    clear_frame_buffer();
-    setup_world_matrix(&glistp);
+    GfxListPointer = GfxList;
 
-    nuContDataGetEx(contdata, 0);
-    _UER_Draw(&glistp, contdata);
+    RcpInit();
+    ClearFrameBuffer();
+    SetupWorldMatrix(&GfxListPointer);
 
-    gDPFullSync(glistp++);
-    gSPEndDisplayList(glistp++);
-    nuGfxTaskStart(gfx_glist, (s32)(glistp - gfx_glist) * sizeof(Gfx), NU_GFX_UCODE_F3DEX, NU_SC_SWAPBUFFER);
+    nuContDataGetEx(ControllerData, 0);
+    _UER_ActorUpdate(&GfxListPointer, ControllerData);
+
+    gDPFullSync(GfxListPointer++);
+    gSPEndDisplayList(GfxListPointer++);
+    nuGfxTaskStart(GfxList, (s32)(GfxListPointer - GfxList) * sizeof(Gfx), NU_GFX_UCODE_F3DEX, NU_SC_SWAPBUFFER);
 }
 
-void update_camera()
+void UpdateCamera()
 {
     actor *camera = _UER_ActiveCamera;
+
     if (camera != NULL)
     {
-        guTranslate(&world.translation, -camera->position.x * SCALE_FACTOR, -camera->position.y * SCALE_FACTOR, camera->position.z * SCALE_FACTOR);
-        guRotate(&world.rotation, camera->rotationAngle, camera->rotationAxis.x, camera->rotationAxis.y, camera->rotationAxis.z);
-        guScale(&world.scale, 1, 1, 1);
+        guTranslate(&World.translation, -camera->position.x * SCALE_FACTOR, -camera->position.y * SCALE_FACTOR, camera->position.z * SCALE_FACTOR);
+        guRotate(&World.rotation, camera->rotationAngle, camera->rotationAxis.x, camera->rotationAxis.y, camera->rotationAxis.z);
+        guScale(&World.scale, 1, 1, 1);
     }
 }
 
-void gfx_callback(int pendingGfx)
+void GfxCallback(int pendingGfx)
 {
     if (pendingGfx < 1)
     {
-        create_display_list();
-        update_camera();
-        _UER_Collide();
+        Render();
+        UpdateCamera();
+        _UER_ActorCollision();
     }
 }
 
-int init_heap_memory()
+int InitHeapMemory()
 {
-    return InitHeap(mem_heep, sizeof(mem_heep));
+    return InitHeap(SystemHeap, sizeof(SystemHeap));
 }
 
-void set_default_camera()
+void SetDefaultCamera()
 {
     for (int i = 0; i < vector_size(_UER_Actors); i++)
     {
         if (vector_get(_UER_Actors, i)->type == Camera)
         {
             _UER_ActiveCamera = vector_get(_UER_Actors, i);
+
             break;
         }
     }
@@ -164,15 +167,16 @@ void mainproc()
     osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON | OS_VI_GAMMA_OFF | OS_VI_GAMMA_DITHER_OFF | OS_VI_DIVOT_ON);
     nuGfxDisplayOff();
 
-    if (init_heap_memory() > -1)
+    if (InitHeapMemory() > -1)
     {
         _UER_Load();
-        set_default_camera();
         _UER_Mappings();
         _UER_Start();
+
+        SetDefaultCamera();
     }
 
-    nuGfxFuncSet((NUGfxFunc)gfx_callback);
+    nuGfxFuncSet((NUGfxFunc)GfxCallback);
     nuGfxDisplayOn();
 
     while (1) { }
