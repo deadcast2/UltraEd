@@ -323,7 +323,7 @@ namespace UltraEd
         const char *actorInitStart = "\nvoid _UER_Load() {";
         fwrite(actorInitStart, 1, strlen(actorInitStart), file.get());
         fwrite(actorInits.c_str(), 1, actorInits.size(), file.get());
-        fwrite("}", 1, 1, file.get());
+        fwrite("}\n\n", 1, 3, file.get());
 
         auto snippet = Util::GetSnippet("ActorUpdate.c");
         fwrite(snippet.c_str(), 1, snippet.size(), file.get());
