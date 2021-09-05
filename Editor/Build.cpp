@@ -341,52 +341,11 @@ namespace UltraEd
 
     bool Build::WriteCollisionFile(const std::vector<Actor *> &actors)
     {
-        std::string collideSetStart("void _UER_Collide() {");
-        std::string collisions;
-        int collisionCount = 0;
-        char countBuffer[10];
-
-        for (const auto &actor : actors)
-        {
-            int subLoop = collisionCount++;
-
-            if (!actor->GetCollider()) continue;
-
-            for (auto subActor = next(actors.begin(), collisionCount); subActor != actors.end(); ++subActor)
-            {
-                subLoop++;
-
-                if (!(*subActor)->GetCollider()) continue;
-
-                std::string actorScript = actor->GetScript();
-                std::string subActorScript = (*subActor)->GetScript();
-
-                // Both actors must define a collide method.
-                if (actorScript.find("collide(") == std::string::npos || subActorScript.find("collide(") == std::string::npos)
-                    continue;
-
-                _itoa(collisionCount - 1, countBuffer, 10);
-                collisions.append("\n\tif(check_collision(vector_get(_UER_Actors, ").append(countBuffer);
-                _itoa(subLoop, countBuffer, 10);
-                collisions.append("), vector_get(_UER_Actors, ").append(countBuffer).append(")))\n\t{\n");
-
-                collisions.append("\t\t").append(Util::NewResourceName(subLoop)).append("collide(");
-                _itoa(collisionCount - 1, countBuffer, 10);
-                collisions.append("vector_get(_UER_Actors, ").append(countBuffer).append("));\n");
-
-                collisions.append("\t\t").append(Util::NewResourceName(collisionCount - 1)).append("collide(");
-                _itoa(subLoop, countBuffer, 10);
-                collisions.append("vector_get(_UER_Actors, ").append(countBuffer).append("));\n");
-
-                collisions.append("\t}\n");
-            }
-        }
-
+        std::string collideSetStart("void _UER_Collide() { for (int i = 0; i < vector_size(_UER_Actors); i++) { actor *outerActor = vector_get(_UER_Actors, i); if (outerActor->collider == None) continue; for (int j = i + 1; j < vector_size(_UER_Actors); j++){actor *innerActor = vector_get(_UER_Actors, j);if (innerActor->collider == None) continue;if (check_collision(outerActor, innerActor)){ if (outerActor->collide != NULL) outerActor->collide(innerActor);if (innerActor->collide != NULL) innerActor->collide(outerActor);}} }");   
         std::string collisionPath = GetPathFor("Engine\\collisions.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(collisionPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(collideSetStart.c_str(), 1, collideSetStart.size(), file.get());
-        fwrite(collisions.c_str(), 1, collisions.size(), file.get());
         fwrite("}", 1, 1, file.get());
         return true;
     }
@@ -426,7 +385,12 @@ namespace UltraEd
 
             if (scripts.find(std::string(newResName).append("input(")) != std::string::npos)
             {
-                scriptStartStart.append(actorRef).append("->input = ").append(newResName).append("input").append(";\n");
+                scriptStartStart.append(actorRef).append("->input = ").append(newResName).append("input").append(";\n\t");
+            }
+
+            if (scripts.find(std::string(newResName).append("collide(")) != std::string::npos)
+            {
+                scriptStartStart.append(actorRef).append("->collide = ").append(newResName).append("collide").append(";\n");
             }
         }
 

@@ -40,6 +40,10 @@ actor *loadTexturedModel(int id, void *dataStart, void *dataEnd, void *textureSt
     newModel->collider = collider;
     newModel->parent = NULL;
     newModel->children = NULL;
+    newModel->start = NULL;
+    newModel->update = NULL;
+    newModel->input = NULL;
+    newModel->collide = NULL;
     newModel->texture = NULL;
     newModel->textureWidth = textureWidth;
     newModel->textureHeight = textureHeight;
@@ -198,6 +202,10 @@ actor *createCamera(int id, double positionX, double positionY, double positionZ
     camera->collider = collider;
     camera->parent = NULL;
     camera->children = NULL;
+    camera->start = NULL;
+    camera->update = NULL;
+    camera->input = NULL;
+    camera->collide = NULL;
 
     camera->originalCenter.x = camera->center.x = centerX;
     camera->originalCenter.y = camera->center.y = centerY;
