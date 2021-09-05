@@ -1,3 +1,5 @@
+#include <fstream>
+#include <sstream>
 #include "Actor.h"
 #include "Converters.h"
 #include "FileIO.h"
@@ -27,8 +29,6 @@ namespace UltraEd
         m_isActive(true)
     {
         ResetId();
-        m_script = std::string("void $start(actor *self)\n{\n\n}\n\nvoid $update(actor *self)\n{\n\n}\n\nvoid $input(actor *self, NUContData gamepads[4])\n{\n\n}");
-        m_script.append("\n\nvoid $collide(actor *other)\n{\n\n}");
         SetDirty(true);
 
         D3DXMatrixIdentity(&m_localRot);
@@ -38,6 +38,15 @@ namespace UltraEd
         m_material.Diffuse.g = 1;
         m_material.Diffuse.b = 1;
         m_material.Diffuse.a = 1;
+
+        std::ifstream snippet(Util::GetPathFor("Engine\\Snippets\\ActorDefaultScript.c"), std::ios::in);
+        if (snippet)
+        {
+            std::ostringstream buffer;
+            buffer << snippet.rdbuf();
+            m_script = buffer.str();
+            snippet.close();
+        }
     }
 
     void Actor::Release()

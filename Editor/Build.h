@@ -26,7 +26,6 @@ namespace UltraEd
         static bool WriteScriptsFile(const std::vector<Actor*> &actors);
         static bool WriteMappingsFile(const std::vector<Actor*> &actors);
         static bool Compile();
-        static std::string GetPathFor(const std::string &name);
     };
 }
 

@@ -6,8 +6,8 @@
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 #include "Settings.h"
-#include "shlwapi.h"
 #include "Debug.h"
+#include "shlwapi.h"
 
 namespace UltraEd
 {
@@ -104,7 +104,7 @@ namespace UltraEd
             }
         }
 
-        std::string specPath = GetPathFor("Engine\\spec");
+        std::string specPath = Util::GetPathFor("Engine\\spec");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(specPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
 
@@ -128,7 +128,7 @@ namespace UltraEd
         std::string mode = Settings::GetVideoMode() == VideoMode::NTSC ? "OS_VI_NTSC_LAN1" : "OS_VI_PAL_LAN1";
         sprintf(buffer, "#define _UER_VIDEO_MODE %s\n", mode.c_str());
 
-        std::string path = GetPathFor("Engine\\definitions.h");
+        std::string path = Util::GetPathFor("Engine\\definitions.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(buffer, 1, strlen(buffer), file.get());
@@ -184,7 +184,7 @@ namespace UltraEd
             }
         }
 
-        std::string segmentsPath = GetPathFor("Engine\\segments.h");
+        std::string segmentsPath = Util::GetPathFor("Engine\\segments.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(segmentsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(romSegments.c_str(), 1, romSegments.size(), file.get());
@@ -198,7 +198,7 @@ namespace UltraEd
         sprintf(buffer, "int _UER_SceneBackgroundColor[3] = { %i, %i, %i };\n", GetRValue(bgColor),
             GetGValue(bgColor), GetBValue(bgColor));
 
-        std::string scenePath = GetPathFor("Engine\\scene.h");
+        std::string scenePath = Util::GetPathFor("Engine\\scene.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(scenePath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(buffer, 1, strlen(buffer), file.get());
@@ -321,7 +321,7 @@ namespace UltraEd
             }
         }
 
-        std::string actorInitsPath = GetPathFor("Engine\\actors.h");
+        std::string actorInitsPath = Util::GetPathFor("Engine\\actors.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(actorInitsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
 
@@ -332,7 +332,7 @@ namespace UltraEd
         fwrite(actorInits.c_str(), 1, actorInits.size(), file.get());
         fwrite("}", 1, 1, file.get());
 
-        std::ifstream snippet(GetPathFor("Engine\\Snippets\\ActorUpdate.c"), std::ios::in);
+        std::ifstream snippet(Util::GetPathFor("Engine\\Snippets\\ActorUpdate.c"), std::ios::in);
         if (snippet)
         {
             std::ostringstream buffer;
@@ -346,11 +346,11 @@ namespace UltraEd
 
     bool Build::WriteCollisionFile(const std::vector<Actor *> &actors)
     {
-        std::string collisionPath = GetPathFor("Engine\\collisions.h");
+        std::string collisionPath = Util::GetPathFor("Engine\\collisions.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(collisionPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
 
-        std::ifstream snippet(GetPathFor("Engine\\Snippets\\ActorCollision.c"), std::ios::in);
+        std::ifstream snippet(Util::GetPathFor("Engine\\Snippets\\ActorCollision.c"), std::ios::in);
         if (snippet)
         {
             std::ostringstream buffer;
@@ -406,7 +406,7 @@ namespace UltraEd
             }
         }
 
-        std::string scriptsPath = GetPathFor("Engine\\scripts.h");
+        std::string scriptsPath = Util::GetPathFor("Engine\\scripts.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(scriptsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(scripts.c_str(), 1, scripts.size(), file.get());
@@ -428,7 +428,7 @@ namespace UltraEd
                 .append(countBuffer).append(");\n");
         }
 
-        std::string mappingsPath = GetPathFor("Engine\\mappings.h");
+        std::string mappingsPath = Util::GetPathFor("Engine\\mappings.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(mappingsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(mappingsStart.c_str(), 1, mappingsStart.size(), file.get());
@@ -471,7 +471,7 @@ namespace UltraEd
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
-            std::string currDir = GetPathFor("Player");
+            std::string currDir = Util::GetPathFor("Player");
 
             // Start the build with no window.
             CreateProcess(NULL, const_cast<LPSTR>("cmd /c cen64.exe pifdata.bin ..\\Engine\\main.n64"), NULL, NULL, FALSE,
@@ -520,7 +520,7 @@ namespace UltraEd
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
-            std::string currDir = GetPathFor("Player\\USB");
+            std::string currDir = Util::GetPathFor("Player\\USB");
 
             // Start the USB loader with no window.
             std::string command = Settings::GetBuildCart() == BuildCart::_64drive ?
@@ -593,7 +593,7 @@ namespace UltraEd
             ZeroMemory(&pi, sizeof(pi));
 
             // Format the path to execute the ROM build.
-            std::string currDir = GetPathFor("Engine");
+            std::string currDir = Util::GetPathFor("Engine");
 
             // Start the build with no window.
             CreateProcess(NULL, const_cast<LPSTR>("cmd /c build.bat"), NULL, NULL, TRUE, CREATE_NO_WINDOW,
@@ -626,16 +626,5 @@ namespace UltraEd
         }
 
         return false;
-    }
-
-    std::string Build::GetPathFor(const std::string &name)
-    {
-        char buffer[MAX_PATH];
-        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
-        {
-            std::string path(buffer);
-            return path.append("\\..\\..\\..\\").append(name);
-        }
-        return std::string();
     }
 }

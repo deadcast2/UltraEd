@@ -1,6 +1,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include "Util.h"
+#include "shlwapi.h"
 
 namespace UltraEd
 {
@@ -43,6 +44,17 @@ namespace UltraEd
         std::vector<std::string> tokens;
         boost::algorithm::split(tokens, str, boost::algorithm::is_any_of(delimiter));
         return tokens;
+    }
+
+    std::string Util::GetPathFor(const std::string &name)
+    {
+        char buffer[MAX_PATH];
+        if (GetModuleFileName(NULL, buffer, MAX_PATH) > 0 && PathRemoveFileSpec(buffer) > 0)
+        {
+            std::string path(buffer);
+            return path.append("\\..\\..\\..\\").append(name);
+        }
+        return std::string();
     }
 
     void Util::ToFloat3(const D3DXVECTOR3 &vec, float *position)
