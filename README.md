@@ -25,34 +25,37 @@ UltraEd is now project based so a new project must be created before creating a 
 
 The feature set is currently very small but it will expand over time. Here is the current set of methods available:
 
-1. **actor \*FindActorByName(const char \*name)**
+1. **Actor \*FindActorByName(const char \*name)**
 Pass the name of an actor and the first matching one will be returned.
 
-2. **void SetActiveCamera(actor \*camera)**
+2. **void SetActiveCamera(Actor \*camera)**
 Pass a camera actor to become the new focused camera.
 
-3. **actor \*Instantiate(actor \*other)**
-Allows "copying" of an actor. There's no remove method yet and I'm currently trying to find an effcient dynamic array algorithm for the actors.
+3. **Actor \*Clone(Actor \*actor)**
+Allows "copying" of an actor.
+
+4. **void Destroy(Actor \*actor)**
+Marks the actors to be removed along with any children at the end of the current frame.
 
 Each actor includes a default script that contains empty function implementations. Here's the template:
 
 ```
-void $start()
+void $Start(Actor *self)
 {
     // Called upon startup
 }
 
-void $update()
+void $Update(Actor *self)
 {
     // Called once every frame
 }
 
-void $input(NUContData gamepads[4])
+void $Input(Actor *self, NUContData gamepads[4])
 {
     // Called when any input from the controller is detected
 }
 
-void $collide(actor *other)
+void $Collide(Actor *other)
 {
     // Called when a collision is detected only if both actors have a collider added.
 }

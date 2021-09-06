@@ -28,15 +28,15 @@ void SetActiveCamera(Actor *camera)
     }
 }
 
-Actor *Clone(Actor *other)
+Actor *Clone(Actor *actor)
 {
-    if (other == NULL) return NULL;
+    if (actor == NULL) return NULL;
 
     Actor *clonedActor = (Actor *)malloc(sizeof(Actor));
 
     if (clonedActor)
     {
-        memcpy(clonedActor, other, sizeof(*clonedActor));
+        memcpy(clonedActor, actor, sizeof(*clonedActor));
 
         // Get the largest ID to use as base for next ID.
         int maxId = 0;
@@ -60,11 +60,11 @@ Actor *Clone(Actor *other)
             clonedActor->start(clonedActor);
 
         // Clone and link any present children.
-        if (other->children != NULL)
+        if (actor->children != NULL)
         {
-            for (int i = 0; i < vector_size(other->children); i++)
+            for (int i = 0; i < vector_size(actor->children); i++)
             {
-                Actor *child = vector_get(other->children, i);
+                Actor *child = vector_get(actor->children, i);
                 Actor *clonedChild = Clone(child);
 
                 if (clonedChild != NULL)
