@@ -67,32 +67,17 @@ void Destroy(Actor *actor)
 {
     if (actor == NULL) return;
 
-    for (int i = 0; i < vector_size(_UER_Actors); i++)
+    if (actor->children != NULL)
     {
-        Actor *curr = vector_get(_UER_Actors, i);
-
-        if (curr->id == actor->id)
+        for (int i = 0; i < vector_size(actor->children); i++)
         {
-            vector_remove_at(_UER_Actors, i);
+            Actor *child = vector_get(actor->children, i);
 
-            if (curr->parent != NULL)
-            {
-                for (int j = 0; j < vector_size(curr->parent->children); j++)
-                {
-                    Actor *child = vector_get(curr->parent->children, j);
-
-                    if (child->id == curr->id)
-                    {
-                        vector_remove_at(curr->parent->children, j);
-                    }
-                }
-            }
-
-            free(actor);
-
-            break;
+            vector_add(_UER_ActorsPendingRemoval, child);
         }
     }
+
+    vector_add(_UER_ActorsPendingRemoval, actor);
 }
 
 #endif

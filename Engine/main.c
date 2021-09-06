@@ -1,5 +1,6 @@
 #include <nusys.h>
 #include <math.h>
+#include <malloc.h>
 #include "utilities.h"
 #include "actor.h"
 #include "collision.h"
