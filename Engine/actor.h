@@ -78,7 +78,7 @@ Actor *CActor_CreateCamera(int id, const char *name, double positionX, double po
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType collider);
 
-void CActor_LinkChildToParent(vector actors, int childId, int parentId);
+void CActor_LinkChildToParent(vector actors, Actor *child, Actor *parent);
 
 void CActor_Draw(Actor *model, Gfx **displayList);
 

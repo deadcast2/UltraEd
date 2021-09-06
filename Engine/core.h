@@ -28,7 +28,7 @@ void SetActiveCamera(Actor *camera)
     }
 }
 
-Actor *Instantiate(Actor *other)
+Actor *Clone(Actor *other)
 {
     if (other == NULL) return NULL;
 
@@ -38,8 +38,8 @@ Actor *Instantiate(Actor *other)
     {
         memcpy(clonedActor, other, sizeof(*clonedActor));
 
+        // Get the largest ID to use as base for next ID.
         int maxId = 0;
-
         for (int i = 0; i < vector_size(_UER_Actors); i++)
         {
             Actor *curr = vector_get(_UER_Actors, i);
@@ -48,13 +48,30 @@ Actor *Instantiate(Actor *other)
                 maxId = curr->id;
         }
 
+        // Assign a unique ID.
         clonedActor->id = ++maxId;
+
+        // Will clone and re-link any available child actors.
+        clonedActor->children = NULL;
 
         vector_add(_UER_Actors, clonedActor);
 
         if (clonedActor->start != NULL)
-        {
             clonedActor->start(clonedActor);
+
+        // Clone and link any present children.
+        if (other->children != NULL)
+        {
+            for (int i = 0; i < vector_size(other->children); i++)
+            {
+                Actor *child = vector_get(other->children, i);
+                Actor *clonedChild = Clone(child);
+
+                if (clonedChild != NULL)
+                {
+                    CActor_LinkChildToParent(_UER_Actors, clonedChild, clonedActor);
+                }
+            }
         }
 
         return clonedActor;
@@ -73,7 +90,7 @@ void Destroy(Actor *actor)
         {
             Actor *child = vector_get(actor->children, i);
 
-            vector_add(_UER_ActorsPendingRemoval, child);
+            Destroy(child);
         }
     }
 

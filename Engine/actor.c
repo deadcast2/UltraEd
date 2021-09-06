@@ -233,11 +233,8 @@ Actor *CActor_CreateCamera(int id, const char *name, double positionX, double po
     return camera;
 }
 
-void CActor_LinkChildToParent(vector actors, int childId, int parentId)
+void CActor_LinkChildToParent(vector actors, Actor *child, Actor *parent)
 {
-    Actor *parent = vector_get(actors, parentId);
-    Actor *child = vector_get(actors, childId);
-
     if (parent && child)
     {
         if (parent->children == NULL)
@@ -246,6 +243,7 @@ void CActor_LinkChildToParent(vector actors, int childId, int parentId)
         }
 
         vector_add(parent->children, child);
+
         child->parent = parent;
     }
 }

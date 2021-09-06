@@ -11,6 +11,7 @@ void _UER_ActorUpdate(Gfx **display_list, NUContData gamepads[4])
         if (actor->input != NULL) actor->input(actor, gamepads);
     }
 
+    // Handle removal of actors marked as destroyed.
     for (int i = 0; i < vector_size(_UER_ActorsPendingRemoval); i++)
     {
         Actor *actorToRemove = vector_get(_UER_ActorsPendingRemoval, i);
@@ -24,6 +25,7 @@ void _UER_ActorUpdate(Gfx **display_list, NUContData gamepads[4])
 
             vector_remove_at(_UER_Actors, j);
 
+            // Remove link from parent if any.
             if (actor->parent != NULL)
             {
                 for (int k = 0; k < vector_size(actor->parent->children); k++)
@@ -40,8 +42,12 @@ void _UER_ActorUpdate(Gfx **display_list, NUContData gamepads[4])
             break;
         }
 
-        vector_remove_at(_UER_ActorsPendingRemoval, i);
-
         free(actorToRemove);
+    }
+
+    // Clear out vector of actors needing to be removed.
+    while (!vector_is_empty(_UER_ActorsPendingRemoval))
+    {
+        vector_remove_at(_UER_ActorsPendingRemoval, vector_size(_UER_ActorsPendingRemoval) - 1);
     }
 }

@@ -309,8 +309,9 @@ namespace UltraEd
         {
             for (const auto &child : actor->GetChildren())
             {
-                actorInits.append("\n\tCActor_LinkChildToParent(_UER_Actors, ").append(std::to_string(reducedActorIds[child->GetId()]))
-                    .append(", ").append(std::to_string(reducedActorIds[actor->GetId()])).append(");\n");
+                actorInits.append("\n\tCActor_LinkChildToParent(_UER_Actors, ")
+                    .append("vector_get(_UER_Actors, ").append(std::to_string(reducedActorIds[child->GetId()])).append(")")
+                    .append(", vector_get(_UER_Actors, ").append(std::to_string(reducedActorIds[actor->GetId()])).append("));\n");
             }
         }
 
