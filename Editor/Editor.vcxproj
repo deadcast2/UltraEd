@@ -178,11 +178,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>Vendor\Assimp\lib;Vendor\DXSDK\Lib\x64;$(LibraryPath)</LibraryPath>
-    <IncludePath>Vendor\boost;Vendor\Assimp\include;Vendor;Vendor\DXSDK\include;$(IncludePath)</IncludePath>
+    <IncludePath>Vendor;Vendor\Assimp\include;Vendor\DXSDK\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>Vendor\boost;Vendor\Assimp\include;Vendor;Vendor\DXSDK\include;$(IncludePath)</IncludePath>
+    <IncludePath>Vendor;Vendor\Assimp\include;Vendor\DXSDK\include;$(IncludePath)</IncludePath>
     <LibraryPath>Vendor\Assimp\lib;Vendor\DXSDK\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
