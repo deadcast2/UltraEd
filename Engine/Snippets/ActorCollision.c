@@ -14,9 +14,9 @@ void _UER_ActorCollision()
             
             if (check_collision(outerActor, innerActor))
             { 
-                if (outerActor->collide != NULL) outerActor->collide(innerActor);
+                if (outerActor->collide != NULL) outerActor->collide(outerActor, innerActor);
                 
-                if (innerActor->collide != NULL) innerActor->collide(outerActor);
+                if (innerActor->collide != NULL) innerActor->collide(innerActor, outerActor);
             }
         } 
     }

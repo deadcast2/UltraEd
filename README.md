@@ -55,7 +55,7 @@ void $Input(Actor *self, NUContData gamepads[4])
     // Called when any input from the controller is detected
 }
 
-void $Collide(Actor *other)
+void $Collide(Actor *self, Actor *other)
 {
     // Called when a collision is detected only if both actors have a collider added.
 }
