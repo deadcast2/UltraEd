@@ -206,7 +206,7 @@ namespace UltraEd
         std::string actorsArrayDef("vector _UER_Actors = NULL;\nvector _UER_ActorsPendingRemoval = NULL;");
         actorsArrayDef.append("\nActor *_UER_ActiveCamera = NULL;\n");
 
-        std::string actorInits("\n\t_UER_Actors = vector_create();\_UER_ActorsPendingRemoval = vector_create();\n");
+        std::string actorInits("\n\t_UER_Actors = vector_create();\n\t_UER_ActorsPendingRemoval = vector_create();\n");
 
         std::map<boost::uuids::uuid, int> reducedActorIds;
         
