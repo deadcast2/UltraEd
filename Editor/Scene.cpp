@@ -925,6 +925,16 @@ namespace UltraEd
         }
     }
 
+    Actor *Scene::GetSelectedActor()
+    {
+        if (!m_selectedActorIds.empty())
+        {
+            return m_actors[m_selectedActorIds.back()].get();
+        }
+
+        return nullptr;
+    }
+
     void Scene::SelectAll()
     {
         for (const auto &actor : GetActors())

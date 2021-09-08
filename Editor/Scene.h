@@ -44,6 +44,7 @@ namespace UltraEd
         void RestoreActor(const nlohmann::json &item, bool markSceneDirty = false);
         void Delete(Actor *actor);
         void SelectActorById(const uuid &id, bool clearAll = true);
+        Actor *GetSelectedActor();
         void Resize(UINT width, UINT height);
         void Refresh(const std::vector<uuid> &changedAssetIds);
         bool HasPath();

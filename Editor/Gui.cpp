@@ -930,13 +930,10 @@ namespace UltraEd
         float position[3] { 0 };
         float rotation[3] { 0 };
         float scale[3] { 0 };
-        auto actors = m_scene->GetActors(true);
-        Actor *targetActor = nullptr;
+        Actor *targetActor = m_scene->GetSelectedActor();
 
-        if (actors.size() > 0)
+        if (targetActor)
         {
-            // Show the properties of the last selected actor.
-            targetActor = actors[actors.size() - 1];
             sprintf(name, targetActor->GetName().c_str());
             Util::ToFloat3(targetActor->GetPosition(false), position);
             Util::ToFloat3(targetActor->GetEulerAngles(), rotation);
@@ -956,33 +953,47 @@ namespace UltraEd
         D3DXVECTOR3 tempScale = D3DXVECTOR3(scale);
         ImGui::InputFloat3("Scale", scale, "%g");
 
-        if (targetActor != nullptr && targetActor->GetType() == ActorType::Model)
+        if (targetActor != nullptr)
         {
-            const auto model = reinterpret_cast<Model *>(targetActor);
-            auto texture = m_noTexture;
-
-            if (model->GetTexture()->IsLoaded())
+            if (targetActor->GetType() == ActorType::Model)
             {
-                std::string reason;
-                if (!model->GetTexture()->IsValid(reason))
+                const auto model = reinterpret_cast<Model *>(targetActor);
+                auto texture = m_noTexture;
+
+                if (model->GetTexture()->IsLoaded())
                 {
-                    ImGui::TextColored({ 1, 0, 0, 1 }, reason.c_str());
+                    std::string reason;
+                    if (!model->GetTexture()->IsValid(reason))
+                    {
+                        ImGui::TextColored({ 1, 0, 0, 1 }, reason.c_str());
+                    }
+
+                    auto previews = Project::Previews(AssetType::Texture);
+                    if (previews.find(model->GetTexture()->GetId()) != previews.cend())
+                    {
+                        texture = previews[model->GetTexture()->GetId()];
+                    }
                 }
 
-                auto previews = Project::Previews(AssetType::Texture);
-                if (previews.find(model->GetTexture()->GetId()) != previews.cend())
+                if (ImGui::ImageButton(texture, { ImageButtonWidth, ImageButtonWidth }))
                 {
-                    texture = previews[model->GetTexture()->GetId()];
+                    m_addTextureModalOpen = true;
                 }
             }
-
-            if (ImGui::ImageButton(texture, { ImageButtonWidth, ImageButtonWidth }))
+            else if (targetActor->GetType() == ActorType::Camera)
             {
-                m_addTextureModalOpen = true;
+                const auto camera = reinterpret_cast<Camera *>(targetActor);
+                int fov = camera->GetFOV();
+
+                if (ImGui::InputInt("Field of View", &fov))
+                {
+                    camera->SetFOV(fov);
+                }
             }
         }
 
         const auto groupId = Util::NewUuid();
+        auto actors = m_scene->GetActors(true);
 
         // Only apply changes to selected actors when one if it's properties has changed
         // to make all actors mutate as expected.
