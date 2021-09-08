@@ -59,6 +59,9 @@ Actor *Clone(Actor *actor)
         if (clonedActor->start != NULL)
             clonedActor->start(clonedActor);
 
+        if (clonedActor->parent != NULL)
+            CActor_LinkChildToParent(_UER_Actors, clonedActor, clonedActor->parent);
+
         // Clone and link any present children.
         if (actor->children != NULL)
         {
