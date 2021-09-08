@@ -440,8 +440,6 @@ namespace UltraEd
         // much nicer, natural feel.
         if (!IsSelecting() && (m_isDragging || (m_isDragging = m_gizmo.Select(rayOrigin, rayDir))))
         {
-            const auto lastSelectedActorId = m_selectedActorIds.back();
-
             for (const auto &selectedActorId : m_selectedActorIds)
             {
                 // Don't move any children when their parent is selected since the parent when moved will update its children correctly.
@@ -451,7 +449,7 @@ namespace UltraEd
 
                 auto action = m_auditor.PotentialChangeActor(m_gizmo.GetModifierName(), selectedActorId, groupId);
 
-                if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(), m_actors[lastSelectedActorId].get()))
+                if (m_gizmo.Update(GetActiveView(), rayOrigin, rayDir, m_actors[selectedActorId].get(), GetSelectedActor()))
                 {
                     // Register that the actor was actually modified.
                     action();
@@ -777,10 +775,9 @@ namespace UltraEd
 
     void Scene::FocusSelected()
     {
-        if (m_selectedActorIds.size() > 0)
+        if (!m_selectedActorIds.empty())
         {
-            auto selectedActor = m_actors[m_selectedActorIds.back()].get();
-            GetActiveView()->SetPosition(selectedActor->GetPosition() + (GetActiveView()->GetForward() * -2.5f));
+            GetActiveView()->SetPosition(GetSelectedActor()->GetPosition() + (GetActiveView()->GetForward() * -2.5f));
         }
     }
 
@@ -788,8 +785,8 @@ namespace UltraEd
     {
         if (!m_selectedActorIds.empty())
         {
-            m_auditor.ChangeActor("Script Change", m_selectedActorIds.back());
-            m_actors[m_selectedActorIds.back()]->SetScript(script);
+            m_auditor.ChangeActor("Script Change", GetSelectedActor()->GetId());
+            GetSelectedActor()->SetScript(script);
         }
     }
 
@@ -797,8 +794,9 @@ namespace UltraEd
     {
         if (!m_selectedActorIds.empty())
         {
-            return m_actors[m_selectedActorIds.back()]->GetScript();
+            return GetSelectedActor()->GetScript();
         }
+
         return std::string("");
     }
 
@@ -869,7 +867,7 @@ namespace UltraEd
     {
         if (!m_selectedActorIds.empty())
         {
-            m_gizmo.Update(m_actors[m_selectedActorIds.back()].get());
+            m_gizmo.Update(GetSelectedActor());
         }
     }
 
@@ -906,7 +904,7 @@ namespace UltraEd
 
             // Select previous selected actor if any available.
             if (!m_selectedActorIds.empty())
-                m_gizmo.Update(m_actors[m_selectedActorIds.back()].get());
+                m_gizmo.Update(GetSelectedActor());
         }
         else
         {
