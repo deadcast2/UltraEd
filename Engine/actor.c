@@ -194,12 +194,13 @@ void CActor_Draw(Actor *model, Gfx **displayList)
 Actor *CActor_CreateCamera(int id, const char *name, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
     double centerX, double centerY, double centerZ, double radius,
-    double extentX, double extentY, double extentZ, enum ColliderType collider)
+    double extentX, double extentY, double extentZ, int fov, enum ColliderType collider)
 {
     Actor *camera = (Actor *)malloc(sizeof(Actor));
     camera->id = id;
     camera->name = name;
     camera->visible = 1;
+    camera->fov = fov;
     camera->type = Camera;
     camera->collider = collider;
     camera->parent = NULL;

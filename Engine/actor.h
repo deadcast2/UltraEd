@@ -44,6 +44,7 @@ typedef struct _Actor
     double radius;
     double originalRadius;
     int visible;
+    int fov;
     Vector3 position;
     Vector3 rotationAxis;
     Vector3 scale;
@@ -76,7 +77,7 @@ Actor *CActor_LoadTexturedModel(int id, const char *name, void *dataStart, void 
 Actor *CActor_CreateCamera(int id, const char *name, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, 
     double centerX, double centerY, double centerZ, double radius,
-    double extentX, double extentY, double extentZ, enum ColliderType collider);
+    double extentX, double extentY, double extentZ, int fov, enum ColliderType collider);
 
 void CActor_LinkChildToParent(vector actors, Actor *child, Actor *parent);
 

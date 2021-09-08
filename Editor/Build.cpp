@@ -290,17 +290,24 @@ namespace UltraEd
             else if (actor->GetType() == ActorType::Camera)
             {
                 actorInits.append("CActor_CreateCamera(").append(std::to_string(actorCount)).append(", \"").append(actor->GetName()).append("\", ");
+
                 char vectorBuffer[256];
                 D3DXVECTOR3 position = actor->GetPosition(false);
                 D3DXVECTOR3 axis;
+
                 float angle;
                 actor->GetAxisAngle(&axis, &angle);
-                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %s",
+
+                const auto camera = reinterpret_cast<Camera *>(actor);
+                int fov = camera->GetFOV();
+
+                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %i, %s",
                     position.x, position.y, position.z,
                     axis.x, axis.y, axis.z, angle * (180.0 / D3DX_PI),
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius,
                     colliderExtents.x, colliderExtents.y, colliderExtents.z,
-                    actor->HasCollider() ? actor->GetCollider()->GetName() : "None");
+                    fov, actor->HasCollider() ? actor->GetCollider()->GetName() : "None");
+
                 actorInits.append(vectorBuffer).append("));\n");
             }
         }

@@ -81,9 +81,12 @@ void SetupWorldMatrix(Gfx **display_list)
 {
     u16 persp_normal;
 
+    Actor *camera = _UER_ActiveCamera;
+    int fov = camera == NULL ? 80 : camera->fov;
+
     guPerspective(&World.projection,
         &persp_normal,
-        80.0F, SCREEN_WD / SCREEN_HT,
+        fov, SCREEN_WD / SCREEN_HT,
         0.1F, 1000.0F, 1.0F);
 
     gSPPerspNormalize((*display_list)++, persp_normal);
