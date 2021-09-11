@@ -7,17 +7,17 @@
 #include "utilities.h"
 #include "vector.h"
 
-Actor *CActor_LoadModel(int id, const char *name, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
+Actor *CActor_CreateModel(int id, const char *name, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType collider)
 {
-    return CActor_LoadTexturedModel(id, name, dataStart, dataEnd,
+    return CActor_CreateTexturedModel(id, name, dataStart, dataEnd,
         NULL, NULL, 0, 0, positionX, positionY, positionZ, rotX, rotY, rotZ, angle, scaleX, scaleY, scaleZ,
         centerX, centerY, centerZ, radius, extentX, extentY, extentZ, collider);
 }
 
-Actor *CActor_LoadTexturedModel(int id, const char *name, void *dataStart, void *dataEnd, void *textureStart, void *textureEnd,
+Actor *CActor_CreateTexturedModel(int id, const char *name, void *dataStart, void *dataEnd, void *textureStart, void *textureEnd,
     int textureWidth, int textureHeight, double positionX, double positionY, double positionZ, double rotX,
     double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
@@ -38,26 +38,8 @@ Actor *CActor_LoadTexturedModel(int id, const char *name, void *dataStart, void 
     model->textureHeight = textureHeight;
 
     Actor *actor = (Actor *)model;
-    actor->id = id;
-    actor->name = name;
-    actor->visible = 1;
-    actor->type = TModel;
-    actor->collider = collider;
-    actor->parent = NULL;
-    actor->children = NULL;
-    actor->start = NULL;
-    actor->update = NULL;
-    actor->input = NULL;
-    actor->collide = NULL;
-    
-    actor->originalCenter.x = actor->center.x = centerX;
-    actor->originalCenter.y = actor->center.y = centerY;
-    actor->originalCenter.z = actor->center.z = -centerZ;
-    actor->originalRadius = actor->radius = radius;
-
-    actor->originalExtents.x = actor->extents.x = extentX;
-    actor->originalExtents.y = actor->extents.y = extentY;
-    actor->originalExtents.z = actor->extents.z = extentZ;
+    CActor_Init(actor, id, name, TModel, positionX, positionY, positionZ, rotX, rotY, rotZ,
+        angle, scaleX, scaleY, scaleZ, centerX, centerY, centerZ, radius, extentX, extentY, extentZ, collider);
 
     // Read how many vertices for this mesh.
     int vertexCount = 0;
@@ -84,20 +66,6 @@ Actor *CActor_LoadTexturedModel(int id, const char *name, void *dataStart, void 
         model->mesh.vertices[i].v.cn[2] = b * 255;
         model->mesh.vertices[i].v.cn[3] = a * 255;
     }
-
-    // Entire axis can't be zero or it won't render.
-    if (rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
-
-    actor->position.x = positionX;
-    actor->position.y = positionY;
-    actor->position.z = -positionZ;
-    actor->scale.x = scaleX;
-    actor->scale.y = scaleY;
-    actor->scale.z = scaleZ;
-    actor->rotationAxis.x = rotX;
-    actor->rotationAxis.y = rotY;
-    actor->rotationAxis.z = -rotZ;
-    actor->rotationAngle = -angle;
 
     // Load in the png texture data.
     upng_t *png = upng_new_from_bytes(textureBuffer, textureSize);
@@ -127,11 +95,22 @@ Actor *CActor_CreateCamera(int id, const char *name, double positionX, double po
     camera->fov = fov;
 
     Actor *actor = (Actor *)camera;
+    CActor_Init(actor, id, name, TCamera, positionX, positionY, positionZ, rotX, rotY, rotZ,
+        angle, 1.0, 1.0, 1.0, centerX, centerY, centerZ, radius, extentX, extentY, extentZ, collider);
+
+    return actor;
+}
+
+void CActor_Init(Actor *actor, int id, const char *name, enum ActorType actorType, double positionX, double positionY, 
+    double positionZ, double rotX, double rotY, double rotZ, double angle, double scaleX, 
+    double scaleY, double scaleZ, double centerX, double centerY, double centerZ, double radius, 
+    double extentX, double extentY, double extentZ, enum ColliderType colliderType)
+{
     actor->id = id;
     actor->name = name;
     actor->visible = 1;
-    actor->type = TCamera;
-    actor->collider = collider;
+    actor->type = actorType;
+    actor->collider = colliderType;
     actor->parent = NULL;
     actor->children = NULL;
     actor->start = NULL;
@@ -148,19 +127,21 @@ Actor *CActor_CreateCamera(int id, const char *name, double positionX, double po
     actor->originalExtents.y = actor->extents.y = extentY;
     actor->originalExtents.z = actor->extents.z = extentZ;
 
+    // Entire axis can't be zero or it won't render.
     if (rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
+
+    const int invertScalar = (actorType == TModel ? -1 : 1);
+
     actor->position.x = positionX;
     actor->position.y = positionY;
-    actor->position.z = positionZ;
-    actor->scale.x = 1.0f;
-    actor->scale.y = 1.0f;
-    actor->scale.z = 1.0f;
+    actor->position.z = invertScalar * positionZ;
+    actor->scale.x = scaleX;
+    actor->scale.y = scaleY;
+    actor->scale.z = scaleZ;
     actor->rotationAxis.x = rotX;
     actor->rotationAxis.y = rotY;
-    actor->rotationAxis.z = rotZ;
-    actor->rotationAngle = angle;
-
-    return actor;
+    actor->rotationAxis.z = invertScalar * rotZ;
+    actor->rotationAngle = invertScalar * angle;
 }
 
 void CActor_Draw(Actor *actor, Gfx **displayList)

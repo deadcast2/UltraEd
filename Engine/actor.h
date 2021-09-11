@@ -36,7 +36,6 @@ typedef struct _Actor
     const char *name;
     enum ActorType type;
     enum ColliderType collider;
-    
     double rotationAngle;
     double radius;
     double originalRadius;
@@ -72,12 +71,17 @@ typedef struct _Model
     int textureHeight;
 } Model;
 
-Actor *CActor_LoadModel(int id, const char *name, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
+void CActor_Init(Actor *actor, int id, const char *name, enum ActorType actorType, double positionX, double positionY,
+    double positionZ, double rotX, double rotY, double rotZ, double angle, double scaleX,
+    double scaleY, double scaleZ, double centerX, double centerY, double centerZ, double radius,
+    double extentX, double extentY, double extentZ, enum ColliderType colliderType);
+
+Actor *CActor_CreateModel(int id, const char *name, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType collider);
 
-Actor *CActor_LoadTexturedModel(int id, const char *name, void *dataStart, void *dataEnd,
+Actor *CActor_CreateTexturedModel(int id, const char *name, void *dataStart, void *dataEnd,
     void *textureStart, void *textureEnd, int textureWidth, int textureHeight,
     double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,

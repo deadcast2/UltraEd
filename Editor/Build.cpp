@@ -237,9 +237,9 @@ namespace UltraEd
                 modelName.append("_M");
 
                 if (!texturePath.empty())
-                    actorInits.append("CActor_LoadTexturedModel(").append(std::to_string(actorCount)).append(", \"").append(model->GetName()).append("\", _");
+                    actorInits.append("CActor_CreateTexturedModel(").append(std::to_string(actorCount)).append(", \"").append(model->GetName()).append("\", _");
                 else
-                    actorInits.append("CActor_LoadModel(").append(std::to_string(actorCount)).append(", \"").append(model->GetName()).append("\", _");
+                    actorInits.append("CActor_CreateModel(").append(std::to_string(actorCount)).append(", \"").append(model->GetName()).append("\", _");
 
                 actorInits.append(modelName).append("SegmentRomStart, _").append(modelName).append("SegmentRomEnd");
 
