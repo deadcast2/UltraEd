@@ -268,7 +268,7 @@ namespace UltraEd
                     scale.x, scale.y, scale.z,
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius,
                     colliderExtents.x, colliderExtents.y, colliderExtents.z,
-                    actor->HasCollider() ? actor->GetCollider()->GetName() : "None");
+                    actor->HasCollider() ? actor->GetCollider()->GetName() : "TNone");
                 actorInits.append(vectorBuffer).append("));\n");
 
                 // Write out mesh data.
@@ -306,7 +306,7 @@ namespace UltraEd
                     axis.x, axis.y, axis.z, angle * (180.0 / D3DX_PI),
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius,
                     colliderExtents.x, colliderExtents.y, colliderExtents.z,
-                    fov, actor->HasCollider() ? actor->GetCollider()->GetName() : "None");
+                    fov, actor->HasCollider() ? actor->GetCollider()->GetName() : "TNone");
 
                 actorInits.append(vectorBuffer).append("));\n");
             }

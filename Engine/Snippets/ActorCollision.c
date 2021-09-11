@@ -4,13 +4,13 @@ void _UER_ActorCollision()
     { 
         Actor *outerActor = vector_get(_UER_Actors, i); 
         
-        if (outerActor->collider == None) continue; 
+        if (outerActor->collider == TNone) continue; 
         
         for (int j = i + 1; j < vector_size(_UER_Actors); j++)
         {
             Actor *innerActor = vector_get(_UER_Actors, j);
             
-            if (innerActor->collider == None) continue;
+            if (innerActor->collider == TNone) continue;
             
             if (check_collision(outerActor, innerActor))
             { 

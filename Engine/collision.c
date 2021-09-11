@@ -3,13 +3,13 @@
 
 int check_collision(Actor *a, Actor *b)
 {
-    if (a->collider == Sphere && b->collider == Sphere)
+    if (a->collider == TSphere && b->collider == TSphere)
         return sphere_sphere_collision(a, b);
-    else if (a->collider == Box && b->collider == Sphere)
+    else if (a->collider == TBox && b->collider == TSphere)
         return box_sphere_collision(a, b);
-    else if (a->collider == Sphere && b->collider == Box)
+    else if (a->collider == TSphere && b->collider == TBox)
         return box_sphere_collision(b, a);
-    else if (a->collider == Box && b->collider == Box)
+    else if (a->collider == TBox && b->collider == TBox)
         return box_box_collision(a, b);
     
     return 0;

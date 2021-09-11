@@ -14,7 +14,7 @@ namespace UltraEd
         Box, Sphere
     };
 
-    static const char* ColliderTypeNames[] { "Box", "Sphere" };
+    static const char* ColliderTypeNames[] { "TBox", "TSphere" };
 
     class Collider : public Savable
     {

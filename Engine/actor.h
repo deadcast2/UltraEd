@@ -7,7 +7,7 @@
 
 enum ActorType { TModel, TCamera };
 
-enum ColliderType { None, Sphere, Box };
+enum ColliderType { TNone, TSphere, TBox };
 
 typedef struct _Transform 
 {
