@@ -27,43 +27,44 @@ Actor *CActor_LoadTexturedModel(int id, const char *name, void *dataStart, void 
     unsigned char textureBuffer[200000];
     int dataSize = dataEnd - dataStart;
     int textureSize = textureEnd - textureStart;
-    Actor *newModel;
 
     // Transfer from ROM the model mesh data and texture.
     rom_2_ram(dataStart, dataBuffer, dataSize);
     rom_2_ram(textureStart, textureBuffer, textureSize);
 
-    newModel = (Actor *)malloc(sizeof(Actor));
-    newModel->id = id;
-    newModel->name = name;
-    newModel->visible = 1;
-    newModel->type = Model;
-    newModel->collider = collider;
-    newModel->parent = NULL;
-    newModel->children = NULL;
-    newModel->start = NULL;
-    newModel->update = NULL;
-    newModel->input = NULL;
-    newModel->collide = NULL;
-    newModel->texture = NULL;
-    newModel->textureWidth = textureWidth;
-    newModel->textureHeight = textureHeight;
+    Model *model = (Model *)malloc(sizeof(Model));
+    model->texture = NULL;
+    model->textureWidth = textureWidth;
+    model->textureHeight = textureHeight;
 
-    newModel->originalCenter.x = newModel->center.x = centerX;
-    newModel->originalCenter.y = newModel->center.y = centerY;
-    newModel->originalCenter.z = newModel->center.z = -centerZ;
-    newModel->originalRadius = newModel->radius = radius;
+    Actor *actor = (Actor *)model;
+    actor->id = id;
+    actor->name = name;
+    actor->visible = 1;
+    actor->type = TModel;
+    actor->collider = collider;
+    actor->parent = NULL;
+    actor->children = NULL;
+    actor->start = NULL;
+    actor->update = NULL;
+    actor->input = NULL;
+    actor->collide = NULL;
+    
+    actor->originalCenter.x = actor->center.x = centerX;
+    actor->originalCenter.y = actor->center.y = centerY;
+    actor->originalCenter.z = actor->center.z = -centerZ;
+    actor->originalRadius = actor->radius = radius;
 
-    newModel->originalExtents.x = newModel->extents.x = extentX;
-    newModel->originalExtents.y = newModel->extents.y = extentY;
-    newModel->originalExtents.z = newModel->extents.z = extentZ;
+    actor->originalExtents.x = actor->extents.x = extentX;
+    actor->originalExtents.y = actor->extents.y = extentY;
+    actor->originalExtents.z = actor->extents.z = extentZ;
 
     // Read how many vertices for this mesh.
     int vertexCount = 0;
     char *line = (char *)strtok(dataBuffer, "\n");
     sscanf(line, "%i", &vertexCount);
-    newModel->mesh.vertices = (Vtx *)malloc(vertexCount * sizeof(Vtx));
-    newModel->mesh.vertexCount = vertexCount;
+    model->mesh.vertices = (Vtx *)malloc(vertexCount * sizeof(Vtx));
+    model->mesh.vertexCount = vertexCount;
 
     // Gather all of the X, Y, and Z vertex info.
     for (int i = 0; i < vertexCount; i++)
@@ -72,73 +73,123 @@ Actor *CActor_LoadTexturedModel(int id, const char *name, void *dataStart, void 
         line = (char *)strtok(NULL, "\n");
         sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf %lf", &x, &y, &z, &r, &g, &b, &a, &s, &t);
 
-        newModel->mesh.vertices[i].v.ob[0] = x * SCALE_FACTOR;
-        newModel->mesh.vertices[i].v.ob[1] = y * SCALE_FACTOR;
-        newModel->mesh.vertices[i].v.ob[2] = -z * SCALE_FACTOR;
-        newModel->mesh.vertices[i].v.flag = 0;
-        newModel->mesh.vertices[i].v.tc[0] = (int)(s * textureWidth) << 5;
-        newModel->mesh.vertices[i].v.tc[1] = (int)(t * textureHeight) << 5;
-        newModel->mesh.vertices[i].v.cn[0] = r * 255;
-        newModel->mesh.vertices[i].v.cn[1] = g * 255;
-        newModel->mesh.vertices[i].v.cn[2] = b * 255;
-        newModel->mesh.vertices[i].v.cn[3] = a * 255;
+        model->mesh.vertices[i].v.ob[0] = x * SCALE_FACTOR;
+        model->mesh.vertices[i].v.ob[1] = y * SCALE_FACTOR;
+        model->mesh.vertices[i].v.ob[2] = -z * SCALE_FACTOR;
+        model->mesh.vertices[i].v.flag = 0;
+        model->mesh.vertices[i].v.tc[0] = (int)(s * textureWidth) << 5;
+        model->mesh.vertices[i].v.tc[1] = (int)(t * textureHeight) << 5;
+        model->mesh.vertices[i].v.cn[0] = r * 255;
+        model->mesh.vertices[i].v.cn[1] = g * 255;
+        model->mesh.vertices[i].v.cn[2] = b * 255;
+        model->mesh.vertices[i].v.cn[3] = a * 255;
     }
 
     // Entire axis can't be zero or it won't render.
     if (rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
 
-    newModel->position.x = positionX;
-    newModel->position.y = positionY;
-    newModel->position.z = -positionZ;
-    newModel->scale.x = scaleX;
-    newModel->scale.y = scaleY;
-    newModel->scale.z = scaleZ;
-    newModel->rotationAxis.x = rotX;
-    newModel->rotationAxis.y = rotY;
-    newModel->rotationAxis.z = -rotZ;
-    newModel->rotationAngle = -angle;
+    actor->position.x = positionX;
+    actor->position.y = positionY;
+    actor->position.z = -positionZ;
+    actor->scale.x = scaleX;
+    actor->scale.y = scaleY;
+    actor->scale.z = scaleZ;
+    actor->rotationAxis.x = rotX;
+    actor->rotationAxis.y = rotY;
+    actor->rotationAxis.z = -rotZ;
+    actor->rotationAngle = -angle;
 
     // Load in the png texture data.
     upng_t *png = upng_new_from_bytes(textureBuffer, textureSize);
+    
     if (png != NULL)
     {
         upng_decode(png);
+        
         if (upng_get_error(png) == UPNG_EOK)
         {
             // Convert texture data from 24bpp to 16bpp in RGB5551 format.
-            newModel->texture = image_24_to_16(upng_get_buffer(png), textureWidth, textureHeight);
+            model->texture = image_24_to_16(upng_get_buffer(png), textureWidth, textureHeight);
         }
+
         upng_free(png);
     }
 
-    return newModel;
+    return actor;
 }
 
-void CActor_Draw(Actor *model, Gfx **displayList)
+Actor *CActor_CreateCamera(int id, const char *name, double positionX, double positionY, double positionZ,
+    double rotX, double rotY, double rotZ, double angle,
+    double centerX, double centerY, double centerZ, double radius,
+    double extentX, double extentY, double extentZ, int fov, enum ColliderType collider)
 {
-    if (!model->visible) return;
+    Camera *camera = (Camera *)malloc(sizeof(Camera));
+    camera->fov = fov;
 
-    const int invertScalar = model->type == Camera ? -1 : 1;
+    Actor *actor = (Actor *)camera;
+    actor->id = id;
+    actor->name = name;
+    actor->visible = 1;
+    actor->type = TCamera;
+    actor->collider = collider;
+    actor->parent = NULL;
+    actor->children = NULL;
+    actor->start = NULL;
+    actor->update = NULL;
+    actor->input = NULL;
+    actor->collide = NULL;
 
-    guTranslate(&model->transform.translation, model->position.x * SCALE_FACTOR, model->position.y * SCALE_FACTOR, invertScalar * model->position.z * SCALE_FACTOR);
+    actor->originalCenter.x = actor->center.x = centerX;
+    actor->originalCenter.y = actor->center.y = centerY;
+    actor->originalCenter.z = actor->center.z = -centerZ;
+    actor->originalRadius = actor->radius = radius;
 
-    guRotate(&model->transform.rotation, model->rotationAngle, invertScalar * model->rotationAxis.x, invertScalar * model->rotationAxis.y, model->rotationAxis.z);
+    actor->originalExtents.x = actor->extents.x = extentX;
+    actor->originalExtents.y = actor->extents.y = extentY;
+    actor->originalExtents.z = actor->extents.z = extentZ;
 
-    guScale(&model->transform.scale, model->scale.x, model->scale.y, model->scale.z);
+    if (rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
+    actor->position.x = positionX;
+    actor->position.y = positionY;
+    actor->position.z = positionZ;
+    actor->scale.x = 1.0f;
+    actor->scale.y = 1.0f;
+    actor->scale.z = 1.0f;
+    actor->rotationAxis.x = rotX;
+    actor->rotationAxis.y = rotY;
+    actor->rotationAxis.z = rotZ;
+    actor->rotationAngle = angle;
 
-    gSPMatrix((*displayList)++, OS_K0_TO_PHYSICAL(&model->transform.translation),
+    return actor;
+}
+
+void CActor_Draw(Actor *actor, Gfx **displayList)
+{
+    if (!actor->visible) return;
+
+    const int invertScalar = actor->type == TCamera ? -1 : 1;
+
+    guTranslate(&actor->transform.translation, actor->position.x * SCALE_FACTOR, actor->position.y * SCALE_FACTOR, invertScalar * actor->position.z * SCALE_FACTOR);
+
+    guRotate(&actor->transform.rotation, actor->rotationAngle, invertScalar * actor->rotationAxis.x, invertScalar * actor->rotationAxis.y, actor->rotationAxis.z);
+
+    guScale(&actor->transform.scale, actor->scale.x, actor->scale.y, actor->scale.z);
+
+    gSPMatrix((*displayList)++, OS_K0_TO_PHYSICAL(&actor->transform.translation),
         G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
-    gSPMatrix((*displayList)++, OS_K0_TO_PHYSICAL(&model->transform.rotation),
+    gSPMatrix((*displayList)++, OS_K0_TO_PHYSICAL(&actor->transform.rotation),
         G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
 
-    gSPMatrix((*displayList)++, OS_K0_TO_PHYSICAL(&model->transform.scale),
+    gSPMatrix((*displayList)++, OS_K0_TO_PHYSICAL(&actor->transform.scale),
         G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
 
     gDPPipeSync((*displayList)++);
 
-    if (model->type == Model)
+    if (actor->type == TModel)
     {
+        Model *model = (Model *)actor;
+
         gDPSetCycleType((*displayList)++, G_CYC_1CYCLE);
         gDPSetRenderMode((*displayList)++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
         gSPClearGeometryMode((*displayList)++, 0xFFFFFFFF);
@@ -180,58 +231,15 @@ void CActor_Draw(Actor *model, Gfx **displayList)
         }
     }
 
-    if (model->children != NULL)
+    if (actor->children != NULL)
     {
-        for (int i = 0; i < vector_size(model->children); i++)
+        for (int i = 0; i < vector_size(actor->children); i++)
         {
-            CActor_Draw(vector_get(model->children, i), displayList);
+            CActor_Draw(vector_get(actor->children, i), displayList);
         }
     }
 
     gSPPopMatrix((*displayList)++, G_MTX_MODELVIEW);
-}
-
-Actor *CActor_CreateCamera(int id, const char *name, double positionX, double positionY, double positionZ,
-    double rotX, double rotY, double rotZ, double angle,
-    double centerX, double centerY, double centerZ, double radius,
-    double extentX, double extentY, double extentZ, int fov, enum ColliderType collider)
-{
-    Actor *camera = (Actor *)malloc(sizeof(Actor));
-    camera->id = id;
-    camera->name = name;
-    camera->visible = 1;
-    camera->fov = fov;
-    camera->type = Camera;
-    camera->collider = collider;
-    camera->parent = NULL;
-    camera->children = NULL;
-    camera->start = NULL;
-    camera->update = NULL;
-    camera->input = NULL;
-    camera->collide = NULL;
-
-    camera->originalCenter.x = camera->center.x = centerX;
-    camera->originalCenter.y = camera->center.y = centerY;
-    camera->originalCenter.z = camera->center.z = -centerZ;
-    camera->originalRadius = camera->radius = radius;
-
-    camera->originalExtents.x = camera->extents.x = extentX;
-    camera->originalExtents.y = camera->extents.y = extentY;
-    camera->originalExtents.z = camera->extents.z = extentZ;
-
-    if (rotX == 0.0 && rotY == 0.0 && rotZ == 0.0) rotZ = 1;
-    camera->position.x = positionX;
-    camera->position.y = positionY;
-    camera->position.z = positionZ;
-    camera->scale.x = 1.0f;
-    camera->scale.y = 1.0f;
-    camera->scale.z = 1.0f;
-    camera->rotationAxis.x = rotX;
-    camera->rotationAxis.y = rotY;
-    camera->rotationAxis.z = rotZ;
-    camera->rotationAngle = angle;
-
-    return camera;
 }
 
 void CActor_LinkChildToParent(vector actors, Actor *child, Actor *parent)
@@ -256,7 +264,7 @@ Vector3 CActor_GetPosition(Actor *Actor)
 
     if (Actor->parent == NULL)
     {
-        const int invertScalar = Actor->type == Camera ? -1 : 1;
+        const int invertScalar = Actor->type == TCamera ? -1 : 1;
 
         return (Vector3) { Actor->position.x, Actor->position.y, invertScalar * Actor->position.z };
     }
@@ -278,7 +286,7 @@ Mtx CActor_GetMatrix(Actor *Actor)
 
     // Need to rebuild translation matrix since the actor's stored one is scaled up.
     Mtx translation;
-    const int invertScalar = Actor->type == Camera ? -1 : 1;
+    const int invertScalar = Actor->type == TCamera ? -1 : 1;
 
     guTranslate(&translation, Actor->position.x, Actor->position.y, invertScalar * Actor->position.z);
     guMtxCatL(&combined, &translation, &combined);

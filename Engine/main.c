@@ -81,7 +81,7 @@ void SetupWorldMatrix(Gfx **display_list)
 {
     u16 persp_normal;
 
-    Actor *camera = _UER_ActiveCamera;
+    Camera *camera = (Camera *)_UER_ActiveCamera;
     int fov = camera == NULL ? 80 : camera->fov;
 
     guPerspective(&World.projection,
@@ -151,7 +151,7 @@ void SetDefaultCamera()
 {
     for (int i = 0; i < vector_size(_UER_Actors); i++)
     {
-        if (vector_get(_UER_Actors, i)->type == Camera)
+        if (vector_get(_UER_Actors, i)->type == TCamera)
         {
             _UER_ActiveCamera = vector_get(_UER_Actors, i);
 

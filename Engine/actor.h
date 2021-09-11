@@ -5,7 +5,7 @@
 
 #define SCALE_FACTOR 30
 
-enum ActorType { Model, Camera };
+enum ActorType { TModel, TCamera };
 
 enum ColliderType { None, Sphere, Box };
 
@@ -36,15 +36,11 @@ typedef struct _Actor
     const char *name;
     enum ActorType type;
     enum ColliderType collider;
-    Mesh mesh;
-    unsigned short *texture;
-    int textureWidth;
-    int textureHeight;
+    
     double rotationAngle;
     double radius;
     double originalRadius;
     int visible;
-    int fov;
     Vector3 position;
     Vector3 rotationAxis;
     Vector3 scale;
@@ -60,6 +56,21 @@ typedef struct _Actor
     void (*input)();
     void (*collide)();
 } Actor;
+
+typedef struct _Camera
+{
+    Actor actor;
+    int fov;
+} Camera;
+
+typedef struct _Model
+{
+    Actor actor;
+    Mesh mesh;
+    unsigned short *texture;
+    int textureWidth;
+    int textureHeight;
+} Model;
 
 Actor *CActor_LoadModel(int id, const char *name, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 

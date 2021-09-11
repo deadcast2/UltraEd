@@ -22,7 +22,7 @@ Actor *FindActorByName(const char *name)
 
 void SetActiveCamera(Actor *camera)
 {
-    if (camera != NULL && camera->type == Camera)
+    if (camera != NULL && camera->type == TCamera)
     {
         _UER_ActiveCamera = camera;
     }
