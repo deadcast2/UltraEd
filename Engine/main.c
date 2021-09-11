@@ -82,7 +82,7 @@ void SetupWorldMatrix(Gfx **display_list)
     u16 persp_normal;
 
     Camera *camera = (Camera *)_UER_ActiveCamera;
-    int fov = camera == NULL ? 80 : camera->fov;
+    float fov = camera == NULL ? 80.0 : camera->fov;
 
     guPerspective(&World.projection,
         &persp_normal,

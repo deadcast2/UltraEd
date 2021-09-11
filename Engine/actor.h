@@ -60,7 +60,7 @@ typedef struct _Actor
 typedef struct _Camera
 {
     Actor actor;
-    int fov;
+    double fov;
 } Camera;
 
 typedef struct _Model
@@ -88,7 +88,7 @@ Actor *CActor_LoadTexturedModel(int id, const char *name, void *dataStart, void 
 Actor *CActor_CreateCamera(int id, const char *name, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, 
     double centerX, double centerY, double centerZ, double radius,
-    double extentX, double extentY, double extentZ, int fov, enum ColliderType collider);
+    double extentX, double extentY, double extentZ, double fov, enum ColliderType collider);
 
 void CActor_LinkChildToParent(vector actors, Actor *child, Actor *parent);
 

@@ -299,9 +299,9 @@ namespace UltraEd
                 actor->GetAxisAngle(&axis, &angle);
 
                 const auto camera = reinterpret_cast<Camera *>(actor);
-                int fov = camera->GetFOV();
+                float fov = camera->GetFOV();
 
-                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %i, %s",
+                sprintf(vectorBuffer, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %s",
                     position.x, position.y, position.z,
                     axis.x, axis.y, axis.z, angle * (180.0 / D3DX_PI),
                     colliderCenter.x, colliderCenter.y, colliderCenter.z, colliderRadius,

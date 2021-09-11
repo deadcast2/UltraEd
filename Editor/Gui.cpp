@@ -983,9 +983,9 @@ namespace UltraEd
             else if (targetActor->GetType() == ActorType::Camera)
             {
                 const auto camera = reinterpret_cast<Camera *>(targetActor);
-                int fov = camera->GetFOV();
+                float fov = camera->GetFOV();
 
-                if (ImGui::InputInt("Field of View", &fov))
+                if (ImGui::InputFloat("Field of View", &fov))
                 {
                     camera->SetFOV(fov);
                 }
