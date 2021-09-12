@@ -2,6 +2,7 @@
 #define _UTILITIES_H_
 
 #include <nusys.h>
+#include <malloc.h>
 #include "actor.h"
 #include "n64sdk\ultra\GCC\MIPSE\INCLUDE\MATH.H"
 
@@ -10,6 +11,8 @@
 void rom_2_ram(void *from_addr, void *to_addr, s32 seq_size);
 
 unsigned short *image_24_to_16(const unsigned char *data, int size_x, int size_y);
+
+float vec3_dist(Vector3 a, Vector3 b);
 
 float vec3_dot(Vector3 a, Vector3 b);
 

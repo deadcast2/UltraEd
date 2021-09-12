@@ -117,6 +117,8 @@ void CActor_Init(Actor *actor, int id, const char *name, enum ActorType actorTyp
     actor->update = NULL;
     actor->input = NULL;
     actor->collide = NULL;
+    actor->notify = NULL;
+    actor->dynamic = NULL;
 
     actor->originalCenter.x = actor->center.x = centerX;
     actor->originalCenter.y = actor->center.y = centerY;

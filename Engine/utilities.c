@@ -1,7 +1,5 @@
 #include "utilities.h"
 
-#include <malloc.h>
-
 void rom_2_ram(void *from_addr, void *to_addr, s32 seq_size)
 {
     // If size is odd-numbered, cannot send over PI, so make it even.
@@ -24,6 +22,11 @@ unsigned short *image_24_to_16(const unsigned char *data, int size_x, int size_y
     }
 
     return temp;
+}
+
+float vec3_dist(Vector3 a, Vector3 b)
+{
+    return sqrtf((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y) + (b.z - a.z) * (b.z - a.z));
 }
 
 float vec3_dot(Vector3 a, Vector3 b)

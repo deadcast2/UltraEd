@@ -30,7 +30,7 @@ typedef struct _Mesh
 
 typedef struct _vector *vector;
 
-typedef struct _Actor 
+struct _Actor
 {
     int id;
     const char *name;
@@ -54,7 +54,11 @@ typedef struct _Actor
     void (*update)();
     void (*input)();
     void (*collide)();
-} Actor;
+    void (*notify)();
+    void *dynamic;
+} __attribute__((aligned(16)));
+
+typedef struct _Actor Actor;
 
 typedef struct _Camera
 {
