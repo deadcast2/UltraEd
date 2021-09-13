@@ -23,10 +23,10 @@ Actor *CActor_CreateTexturedModel(int id, const char *name, void *dataStart, voi
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType collider)
 {
-    unsigned char dataBuffer[200000];
-    unsigned char textureBuffer[200000];
-    int dataSize = dataEnd - dataStart;
-    int textureSize = textureEnd - textureStart;
+    const int dataSize = dataEnd - dataStart;
+    const int textureSize = textureEnd - textureStart;
+    unsigned char dataBuffer[dataSize * 2];
+    unsigned char textureBuffer[textureSize];
 
     // Transfer from ROM the model mesh data and texture.
     rom_2_ram(dataStart, dataBuffer, dataSize);
