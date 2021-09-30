@@ -282,6 +282,23 @@ Mtx CActor_GetMatrix(Actor *Actor)
     return mat_mul_mat(combined, CActor_GetMatrix(Actor->parent));
 }
 
+Mtx CActor_GetRotationMatrix(Actor *Actor)
+{
+    if (Actor == NULL)
+    {
+        Mtx mat;
+        guMtxIdent(&mat);
+        return mat;
+    }
+
+    if (Actor->parent == NULL)
+    {
+        return Actor->transform.rotation;
+    }
+
+    return mat_mul_mat(Actor->transform.rotation, CActor_GetRotationMatrix(Actor->parent));
+}
+
 void CActor_UpdateAABB(Actor *Actor)
 {
     float center[3] = { Actor->center.x, Actor->center.y, Actor->center.z };

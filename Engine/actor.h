@@ -106,6 +106,8 @@ Vector3 CActor_GetPosition(Actor *Actor);
 
 Mtx CActor_GetMatrix(Actor *Actor);
 
+Mtx CActor_GetRotationMatrix(Actor *Actor);
+
 void CActor_UpdateAABB(Actor *Actor);
 
 void CActor_UpdateSphere(Actor *Actor);
