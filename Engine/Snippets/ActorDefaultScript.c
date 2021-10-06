@@ -17,3 +17,8 @@ void $Collide(Actor *self, Actor *other)
 {
     // Called upon collision with another actor.
 }
+
+void $Destroy(Actor *self)
+{
+    // Called when actor is being destroyed.
+}

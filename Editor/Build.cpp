@@ -393,6 +393,11 @@ namespace UltraEd
             {
                 scriptStartStart.append(actorRef).append("->collide = ").append(newResName).append("Collide").append(";\n");
             }
+
+            if (scripts.find(std::string(newResName).append("Destroy(")) != std::string::npos)
+            {
+                scriptStartStart.append(actorRef).append("->destroy = ").append(newResName).append("Destroy").append(";\n");
+            }
         }
 
         std::string scriptsPath = Util::GetPathFor("Engine\\scripts.h");

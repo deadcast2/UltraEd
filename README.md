@@ -56,6 +56,11 @@ void $Collide(Actor *self, Actor *other)
 {
     // Called when a collision is detected only if both actors have a collider added.
 }
+
+void $Destroy(Actor *self)
+{
+    // Called when actor is being destroyed.
+}
 ```
 
 The dollar signs are necessary to allow correct namespacing of all defined functions.

@@ -54,6 +54,7 @@ struct _Actor
     void (*update)();
     void (*input)();
     void (*collide)();
+    void (*destroy)();
     void (*notify)();
     void *dynamic;
 } __attribute__((aligned(16)));

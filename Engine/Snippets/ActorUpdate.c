@@ -4,11 +4,14 @@ void _UER_ActorUpdate(Gfx **display_list, NUContData gamepads[4])
     {
         Actor *actor = vector_get(_UER_Actors, i);
 
-        if (actor->parent == NULL) CActor_Draw(actor, display_list);
+        if (actor->parent == NULL) 
+            CActor_Draw(actor, display_list);
 
-        if (actor->update != NULL) actor->update(actor);
+        if (actor->update != NULL) 
+            actor->update(actor);
 
-        if (actor->input != NULL) actor->input(actor, gamepads);
+        if (actor->input != NULL) 
+            actor->input(actor, gamepads);
     }
 
     // Handle removal of actors marked as destroyed.
@@ -41,6 +44,12 @@ void _UER_ActorUpdate(Gfx **display_list, NUContData gamepads[4])
 
             break;
         }
+
+        if (actorToRemove->destroy != NULL) 
+            actorToRemove->destroy(actorToRemove);
+
+        if (actorToRemove->dynamic != NULL)
+            free(actorToRemove->dynamic);
 
         free(actorToRemove);
     }
