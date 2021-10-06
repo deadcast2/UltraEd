@@ -53,7 +53,12 @@ namespace UltraEd
         void SceneGraph();
         void SceneView();
         void Properties();
-        void ActorProperties();
+        void SetActorName(Actor *targetActor, const boost::uuids::uuid &groupId);
+        void SetActorPosition(Actor *targetActor, const boost::uuids::uuid &groupId);
+        void SetActorRotation(Actor *targetActor, const boost::uuids::uuid &groupId);
+        void SetActorScale(Actor *targetActor, const boost::uuids::uuid &groupId);
+        void ShowModelProperties(Actor *targetActor);
+        void ShowCameraProperties(Actor *targetActor);
         void OptionsModal();
         void SceneSettingsModal();
         void ContextMenu();
