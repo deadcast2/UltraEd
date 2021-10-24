@@ -953,6 +953,8 @@ namespace UltraEd
         {
             for (const auto &actor : m_scene->GetActors(true))
             {
+                if (targetActor->IsParentOf(actor)) continue;
+
                 m_scene->m_auditor.ChangeActor("Name Set", actor->GetId(), groupId);
 
                 actor->SetName(std::string(name));

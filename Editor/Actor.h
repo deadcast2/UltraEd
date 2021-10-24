@@ -55,8 +55,9 @@ namespace UltraEd
         bool HasCollider() { return GetCollider() != NULL; }
         Actor *GetParent() { return m_parent; }
         void SetParent(Actor *actor, bool applyTransformations = true);
-        bool HasParent() { return GetParent() != nullptr; }
         void Unparent();
+        bool IsParentOf(Actor *actor);
+        bool HasParent() { return GetParent() != nullptr; }
         void LinkChildren(Scene *scene, bool link, bool applyTransformations = true);
         std::vector<Actor *> GetChildren();
         void ClearChildren() { m_children.clear(); }

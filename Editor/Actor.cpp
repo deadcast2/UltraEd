@@ -327,6 +327,22 @@ namespace UltraEd
         Dirty([&] { m_parent = nullptr; }, &m_parent);
     }
 
+    bool Actor::IsParentOf(Actor *actor)
+    {
+        if (actor == nullptr) return false;
+
+        auto parent = actor->GetParent();
+        
+        while (parent != nullptr)
+        {
+            if (parent == this) return true;
+
+            parent = parent->GetParent();
+        }
+
+        return false;
+    }
+
     void Actor::LinkChildren(Scene *scene, bool link, bool applyTransformations)
     {
         if (scene == nullptr) return;
