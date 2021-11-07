@@ -258,7 +258,7 @@ namespace UltraEd
         colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
         colors[ImGuiCol_PlotHistogram] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
         colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
-        colors[ImGuiCol_TextSelectedBg] = ImVec4(0.69f, 0.69f, 0.69f, 0.16f);
+        colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
         colors[ImGuiCol_DragDropTarget] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
         colors[ImGuiCol_NavHighlight] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
         colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
@@ -317,7 +317,7 @@ namespace UltraEd
         colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
         colors[ImGuiCol_PlotHistogram] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
         colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.22f, 0.60f, 0.00f, 1.00f);
-        colors[ImGuiCol_TextSelectedBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.16f);
+        colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
         colors[ImGuiCol_DragDropTarget] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
         colors[ImGuiCol_NavHighlight] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
         colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.21f, 0.60f, 0.00f, 1.00f);
