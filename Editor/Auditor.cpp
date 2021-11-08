@@ -115,6 +115,7 @@ namespace UltraEd
         {
             m_savedStates[id] = save();
         }
+
         return m_savedStates[id];
     }
 
@@ -202,14 +203,11 @@ namespace UltraEd
         });
     }
 
-    void Auditor::ChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId)
+    void Auditor::ChangeActor(const std::string &name, const uuid &actorId, json state, const uuid &groupId)
     {
         if (m_locked) return;
 
         const auto redoStateId = Util::NewUuid();
-        auto state = SaveState(Util::NewUuid(), [=]() { 
-            return m_scene->GetActor(actorId)->Save();
-        });
 
         Add({
             name,
@@ -229,6 +227,40 @@ namespace UltraEd
             },
             groupId
         });
+    }
+
+    void Auditor::ChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId)
+    {
+        auto state = SaveState(Util::NewUuid(), [=]() {
+            return m_scene->GetActor(actorId)->Save();
+        });
+
+        ChangeActor(name, actorId, state, groupId);
+    } 
+
+    std::function<void()> Auditor::PotentialChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId)
+    {
+        if (m_locked) return []() {};
+
+        std::string uniqueId = Util::UuidToString(actorId).append(Util::UuidToString(groupId));
+
+        if (m_potentials.find(uniqueId) != m_potentials.end())
+        {
+            return std::get<1>(m_potentials[uniqueId]);
+        }
+
+        // Save the state ahead of time in case an update actually happens so the first change isn't missed.
+        auto state = SaveState(Util::NewUuid(), [=]() {
+            return m_scene->GetActor(actorId)->Save();
+        });
+
+        return std::get<1>(m_potentials[uniqueId]) = [=]() {
+            if (std::get<0>(m_potentials[uniqueId])) return;
+
+            std::get<0>(m_potentials[uniqueId]) = true;
+
+            ChangeActor(name, actorId, state, groupId);
+        };
     }
 
     void Auditor::ParentActor(const std::string &name, const uuid &actorId, const uuid &groupId)
@@ -251,24 +283,6 @@ namespace UltraEd
             },
             groupId
         });
-    }
-
-    std::function<void()> Auditor::PotentialChangeActor(const std::string &name, const uuid &actorId, const uuid &groupId)
-    {
-        if (m_locked) return []() {};
-
-        std::string uniqueId = Util::UuidToString(actorId).append(Util::UuidToString(groupId));
-
-        if (m_potentials.find(uniqueId) != m_potentials.end())
-        {
-            return std::get<1>(m_potentials[uniqueId]);
-        }
-
-        return std::get<1>(m_potentials[uniqueId]) = [=]() {
-            if (std::get<0>(m_potentials[uniqueId])) return;
-            std::get<0>(m_potentials[uniqueId]) = true;
-            ChangeActor(name, actorId, groupId);
-        };
     }
 
     void Auditor::ChangeScene(const std::string &name)
