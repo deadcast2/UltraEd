@@ -699,6 +699,8 @@ namespace UltraEd
             auto newActor = CopyActor(selectedActorId, groupId);
             if (newActor == nullptr) continue;
 
+            newActor->SetName(UniqueName(newActor));
+
             newActors[selectedActorId] = newActor;
 
             CopyCollider(selectedActorId, newActor);
@@ -709,11 +711,16 @@ namespace UltraEd
 
     Actor *Scene::CopyActor(const uuid &selectedActorId, const uuid &groupId)
     {
-        switch (m_actors[selectedActorId]->GetType())
+        const auto selectedActor = GetActor(selectedActorId);
+
+        if (selectedActor == nullptr)
+            return nullptr;
+
+        switch (selectedActor->GetType())
         {
             case ActorType::Model:
             {
-                const auto selectedModel = reinterpret_cast<Model *>(m_actors[selectedActorId].get());
+                const auto selectedModel = reinterpret_cast<Model *>(selectedActor);
                 auto model = new Model(*selectedModel);
                 m_actors[model->GetId()] = std::unique_ptr<Model>(model);
 
@@ -726,7 +733,7 @@ namespace UltraEd
             }
             case ActorType::Camera:
             {
-                const auto camera = new Camera(*reinterpret_cast<Camera *>(m_actors[selectedActorId].get()));
+                const auto camera = new Camera(*reinterpret_cast<Camera *>(selectedActor));
                 m_actors[camera->GetId()] = std::unique_ptr<Camera>(camera);
 
                 m_auditor.AddActor("Camera", camera->GetId(), groupId);
@@ -1046,6 +1053,17 @@ namespace UltraEd
         m_gizmo.SetModifier(state);
 
         RefreshGizmo();
+    }
+
+    std::string Scene::UniqueName(Actor* actor)
+    {
+        if (actor == nullptr)
+            return std::string("");
+
+        // Will append a small portion of a unique uuid's chars and replace an existing partial uuid postfix.
+        auto replaced = std::regex_replace(actor->GetName(), std::regex("-[abcdefABCDEF0123456789]{5}$"), "");
+
+        return std::string(replaced).append("-").append(boost::uuids::to_string(Util::NewUuid()).substr(0, 5));
     }
 
     nlohmann::json Scene::Save()

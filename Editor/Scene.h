@@ -101,6 +101,7 @@ namespace UltraEd
         void DragToSelect(const D3DXVECTOR2 &mousePos, std::tuple<D3DXVECTOR2, ImVec2> &selectStart, std::tuple<D3DXVECTOR2, ImVec2> &selectStop);
         void RenderGizmo(ID3DXMatrixStack *stack);
         void RenderActors(ID3DXMatrixStack *stack);
+        std::string UniqueName(Actor* actor);
 
     private:
         int m_version;
