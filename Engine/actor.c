@@ -7,29 +7,30 @@
 #include "utilities.h"
 #include "vector.h"
 
-Actor *CActor_CreateModel(int id, const char *name, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
+Actor *CActor_CreateModel(int id, const char *name, void *modelStart, void *modelEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType collider)
 {
-    return CActor_CreateTexturedModel(id, name, dataStart, dataEnd,
+    return CActor_CreateTexturedModel(id, name, modelStart, modelEnd,
         NULL, NULL, 0, 0, positionX, positionY, positionZ, rotX, rotY, rotZ, angle, scaleX, scaleY, scaleZ,
         centerX, centerY, centerZ, radius, extentX, extentY, extentZ, collider);
 }
 
-Actor *CActor_CreateTexturedModel(int id, const char *name, void *dataStart, void *dataEnd, void *textureStart, void *textureEnd,
+Actor *CActor_CreateTexturedModel(int id, const char *name, void *modelStart, void *modelEnd, void *textureStart, void *textureEnd,
     int textureWidth, int textureHeight, double positionX, double positionY, double positionZ, double rotX,
     double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType collider)
 {
-    const int dataSize = dataEnd - dataStart;
+    const int modelSize = modelEnd - modelStart;
     const int textureSize = textureEnd - textureStart;
-    unsigned char dataBuffer[dataSize * 2];
-    unsigned char textureBuffer[textureSize];
+
+    void *modelBuffer = malloc(modelSize);
+    void *textureBuffer = malloc(textureSize);
 
     // Transfer from ROM the model mesh data and texture.
-    rom_2_ram(dataStart, dataBuffer, dataSize);
+    rom_2_ram(modelStart, modelBuffer, modelSize);
     rom_2_ram(textureStart, textureBuffer, textureSize);
 
     Model *model = (Model *)malloc(sizeof(Model));
@@ -43,7 +44,7 @@ Actor *CActor_CreateTexturedModel(int id, const char *name, void *dataStart, voi
 
     // Read how many vertices for this mesh.
     int vertexCount = 0;
-    char *line = (char *)strtok(dataBuffer, "\n");
+    char *line = (char *)strtok(modelBuffer, "\n");
     sscanf(line, "%i", &vertexCount);
     model->mesh.vertices = (Vtx *)malloc(vertexCount * sizeof(Vtx));
     model->mesh.vertexCount = vertexCount;
@@ -67,13 +68,15 @@ Actor *CActor_CreateTexturedModel(int id, const char *name, void *dataStart, voi
         model->mesh.vertices[i].v.cn[3] = a * 255;
     }
 
+    free(modelBuffer);
+
     // Load in the png texture data.
     upng_t *png = upng_new_from_bytes(textureBuffer, textureSize);
-    
+
     if (png != NULL)
     {
         upng_decode(png);
-        
+
         if (upng_get_error(png) == UPNG_EOK)
         {
             // Convert texture data from 24bpp to 16bpp in RGB5551 format.
@@ -101,9 +104,9 @@ Actor *CActor_CreateCamera(int id, const char *name, double positionX, double po
     return actor;
 }
 
-void CActor_Init(Actor *actor, int id, const char *name, enum ActorType actorType, double positionX, double positionY, 
-    double positionZ, double rotX, double rotY, double rotZ, double angle, double scaleX, 
-    double scaleY, double scaleZ, double centerX, double centerY, double centerZ, double radius, 
+void CActor_Init(Actor *actor, int id, const char *name, enum ActorType actorType, double positionX, double positionY,
+    double positionZ, double rotX, double rotY, double rotZ, double angle, double scaleX,
+    double scaleY, double scaleZ, double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType colliderType)
 {
     actor->id = id;

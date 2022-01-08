@@ -81,12 +81,12 @@ void CActor_Init(Actor *actor, int id, const char *name, enum ActorType actorTyp
     double scaleY, double scaleZ, double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType colliderType);
 
-Actor *CActor_CreateModel(int id, const char *name, void *dataStart, void *dataEnd, double positionX, double positionY, double positionZ,
+Actor *CActor_CreateModel(int id, const char *name, void *modelStart, void *modelEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ, 
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, enum ColliderType collider);
 
-Actor *CActor_CreateTexturedModel(int id, const char *name, void *dataStart, void *dataEnd,
+Actor *CActor_CreateTexturedModel(int id, const char *name, void *modelStart, void *modelEnd,
     void *textureStart, void *textureEnd, int textureWidth, int textureHeight,
     double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle,
