@@ -8,7 +8,7 @@
 
 ### Setup
 
-Due to the project using Git LFS the zipped version from GitHub won't contain all necessary files. Clone the project using Git and then run `git lfs pull` to hydrate all of the pointer files. After that make sure that the Windows 10 SDK is installed and then open the editor solution file in Visual Studio 2019. Set the solution to build as a x64 application and then all should build fine. Make sure to also install OpenAL so you can test your rom out in the cen64 emulator included. I've included it in Editor/Vendor. Also if you so happen to have the excellent 64drive you can test on that too.
+Due to the project using Git LFS the zipped version from GitHub won't contain all necessary files. Clone the project using Git and then run `git lfs pull` to hydrate all of the pointer files. After that make sure that the Windows 10 SDK is installed and then open the editor solution file in Visual Studio 2022. Set the solution to build as a x64 application and then all should build fine. Make sure to also install OpenAL so you can test your rom out in the cen64 emulator included. I've included it in Editor/Vendor. Also if you so happen to have the excellent 64drive you can test on that too.
 
 ### Notes
 
