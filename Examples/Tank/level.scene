@@ -57,8 +57,8 @@
     "z": 0.0
    },
    "rotation": {
-    "w": 0.7071104645729065,
-    "x": 0.7071028351783752,
+    "w": 0.7071107625961304,
+    "x": 0.7071025371551514,
     "y": 0.0,
     "z": 0.0
    },
@@ -103,14 +103,14 @@
   {
    "collider": {
     "center": {
-     "x": 0.4517149031162262,
+     "x": 0.4517163932323456,
      "y": 2.5606696605682373,
-     "z": 0.16709735989570618
+     "z": 0.16709616780281067
     },
     "extents": {
-     "x": 2.5260214805603027,
-     "y": 2.8887603282928467,
-     "z": 2.5265684127807617
+     "x": 2.52602481842041,
+     "y": 2.8887600898742676,
+     "z": 2.5265703201293945
     },
     "originalCenter": {
      "x": 0.813468873500824,
@@ -149,7 +149,7 @@
     "z": 1.0
    },
    "script": "void $Start(Actor *self)\n{\n    // Called once upon start up.\n}\n\nvoid $Update(Actor *self)\n{\n    // Called every frame.\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n    // Called upon any player input.\n}\n\nvoid $Collide(Actor *self, Actor *other)\n{\n    // Called upon collision with another actor.\n    Destroy(self);\n}\n",
-   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "texture_id": "8155ef1f-aa79-4452-b109-8cf704d6fe68",
    "type": 0
   },
   {
@@ -230,7 +230,7 @@
     "z": 1.0
    },
    "script": "void $Start(Actor *self)\n{\n    // Called once upon start up.\n}\n\nvoid $Update(Actor *self)\n{\n    // Called every frame.\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n    // Called upon any player input.\n}\n\nvoid $Collide(Actor *self, Actor *other)\n{\n    // Called upon collision with another actor.\n    Destroy(self);\n}\n",
-   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "texture_id": "8155ef1f-aa79-4452-b109-8cf704d6fe68",
    "type": 0
   },
   {
@@ -440,13 +440,13 @@
    "collider": {
     "center": {
      "x": 0.813468873500824,
-     "y": 0.7461519837379456,
-     "z": 2.3601949214935303
+     "y": 0.7461555004119873,
+     "z": 2.360193967819214
     },
     "extents": {
      "x": 1.8076467514038086,
-     "y": 1.5902498960494995,
-     "z": 2.3751332759857178
+     "y": 1.590246558189392,
+     "z": 2.375131368637085
     },
     "originalCenter": {
      "x": 0.813468873500824,
@@ -474,8 +474,8 @@
     "z": 8.26987361907959
    },
    "rotation": {
-    "w": 0.7000387907028198,
-    "x": 0.7141047120094299,
+    "w": 0.7000389099121094,
+    "x": 0.7141045928001404,
     "y": 0.0,
     "z": 0.0
    },
@@ -485,7 +485,7 @@
     "z": 1.0
    },
    "script": "void $Start(Actor *self)\n{\n    // Called once upon start up.\n}\n\nvoid $Update(Actor *self)\n{\n    // Called every frame.\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n    // Called upon any player input.\n}\n\nvoid $Collide(Actor *self, Actor *other)\n{\n    // Called upon collision with another actor.\n    Destroy(self);\n}\n",
-   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "texture_id": "8155ef1f-aa79-4452-b109-8cf704d6fe68",
    "type": 0
   },
   {
@@ -506,8 +506,8 @@
     "z": 2.9829154014587402
    },
    "rotation": {
-    "w": 0.7071070075035095,
-    "x": 0.7071064710617065,
+    "w": 0.7071071267127991,
+    "x": 0.707106351852417,
     "y": 0.0,
     "z": 0.0
    },
@@ -560,24 +560,24 @@
  "views": [
   {
    "forward": {
-    "x": -0.5003799200057983,
-    "y": -0.2614487111568451,
-    "z": 0.8253874182701111
+    "x": -0.1457429975271225,
+    "y": -0.31895968317985535,
+    "z": 0.9364953637123108
    },
    "position": {
-    "x": 4.172730445861816,
-    "y": 1.826663851737976,
-    "z": -1.7051331996917725
+    "x": 4.6881422996521,
+    "y": 2.4301533699035645,
+    "z": 0.10907256603240967
    },
    "right": {
-    "x": 0.8551303148269653,
-    "y": 6.14672990195686e-06,
-    "z": 0.5184131264686584
+    "x": 0.9881055951118469,
+    "y": 4.59328293800354e-06,
+    "z": 0.15377645194530487
    },
    "up": {
-    "x": -0.13554349541664124,
-    "y": 0.9652172923088074,
-    "z": 0.22356963157653809
+    "x": -0.04905279725790024,
+    "y": 0.9477682709693909,
+    "z": 0.3151652216911316
    }
   },
   {
