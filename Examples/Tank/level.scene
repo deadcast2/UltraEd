@@ -1,0 +1,672 @@
+{
+ "active_view": 0,
+ "actors": [
+  {
+   "children": [
+    "dda72d2d-fb90-46af-9719-d8fc6577059f"
+   ],
+   "euler_angles": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "fov": 75.0,
+   "id": "2c8ad269-eb99-433a-8d7c-5bb0432dcf0a",
+   "name": "Main Camera",
+   "position": {
+    "x": 1.9813668727874756,
+    "y": 1.6955472230911255,
+    "z": -2.82631254196167
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "void $Update(Actor *self)\n{\n\tif(self->rotationAxis.y < 0)\n\t{\n\t\tself->rotationAngle = -self->rotationAngle; \n\t}\n\t\t\n\tself->rotationAxis.x = 0;\t\n\tself->rotationAxis.y = 1;\n\tself->rotationAxis.z = 0;\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\tconst float rotation = self->rotationAngle * (3.14/180);\n\tconst Vector3 forward = VECTOR3(sinf(rotation), 0.0f, cosf(rotation));\n\t\n\tself->position.x += forward.x * (gamepads[0].stick_y > 1 ? 0.05f : (gamepads[0].stick_y < -1 ? -0.05f : 0));\n\tself->position.z += forward.z * (gamepads[0].stick_y > 1 ? 0.05f : (gamepads[0].stick_y < -1 ? -0.05f : 0));\n\tself->rotationAngle += gamepads[0].stick_x > 1 ? 1.5f : (gamepads[0].stick_x < -1 ? -1.5f : 0);\n}\n",
+   "type": 1
+  },
+  {
+   "collider": {
+    "center": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "originalRadius": 0.9210052490234375,
+    "radius": 0.07368038594722748,
+    "type": 1
+   },
+   "euler_angles": {
+    "x": 89.96043395996094,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "325e8005-ea8f-4639-9431-e34aabb0e9b7",
+   "model_id": "bdc04f94-21ef-4639-acdf-63b5610c5777",
+   "name": "Bullet",
+   "position": {
+    "x": 0.0,
+    "y": -0.5498756766319275,
+    "z": 0.0
+   },
+   "rotation": {
+    "w": 0.7071104645729065,
+    "x": 0.7071028351783752,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 0.07999996095895767,
+    "y": 0.07999996095895767,
+    "z": 0.07999996095895767
+   },
+   "script": "typedef struct $_Bullet\n{\n\tVector3 dir;\n\tVector3 initPos;\n} $Bullet;\n\nvoid $Notify(Actor *self, const char *message, void *data)\n{\n\tif(message == \"Fire\" && data != NULL)\n\t{\n\t\tVector3 *dir = (Vector3*)data;\n\t\tif(dir != NULL && self->dynamic != NULL)\n\t\t{\n\t\t\t(($Bullet *)self->dynamic)->dir = *dir;\n\t\t\t(($Bullet *)self->dynamic)->initPos = self->position;\n\t\t}\n\t}\n}\n\nvoid $Start(Actor *self)\n{\n\tself->dynamic = ($Bullet *)malloc(sizeof($Bullet));\n\tself->notify = $Notify;\n}\n\nvoid $Update(Actor *self)\n{\n\t$Bullet *bullet = ($Bullet *)self->dynamic;\n\tif(bullet != NULL)\n\t{\n\t\tself->position = vec3_add(self->position, bullet->dir);\n\t\t\n\t\tif(vec3_dist(self->position, bullet->initPos) > 20)\n\t\t\tDestroy(self);\n\t}\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "euler_angles": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "399486f2-e604-4201-ac3a-bd2c9de51c33",
+   "model_id": "bdc04f94-21ef-4639-acdf-63b5610c5777",
+   "name": "Turret",
+   "position": {
+    "x": 0.0,
+    "y": 4.518640253081685e-06,
+    "z": -0.8330787420272827
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 0.4000000059604645,
+    "y": 0.4000000059604645,
+    "z": 0.4000000059604645
+   },
+   "script": "void $Fire(Actor *self)\n{\n\tModel *bullet = (Model *)FindActorByName(\"Bullet\");\n\t\n\tif(bullet != NULL)\n\t{\n\t\tActor *clonedBullet = (Actor *)Clone(bullet);\n\t\t\n\t\tif(clonedBullet != NULL && clonedBullet->notify != NULL)\n\t\t{\n\t\t\tclonedBullet->position = CActor_GetPosition(self);\n\t\t\t\n\t\t\tVector3 *direction = malloc(sizeof(Vector3));\n\t\t\t\n\t\t\tif(direction != NULL)\n\t\t\t{\n\t\t\t\tVector3 forward = VECTOR3(0, 1, 0);\n\t\t\t\tforward = vec3_mul_mat(forward, CActor_GetRotationMatrix(self));\n\t\n\t\t\t\t*direction = VECTOR3(forward.x, forward.y, forward.z);\n\t\t\t\tclonedBullet->notify(clonedBullet, \"Fire\", direction);\t\n\t\t\t\tfree(direction);\n\t\t\t}\n\t\t}\n\t}\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\tif(gamepads[0].button & L_CBUTTONS)\n\t{\n\t\tself->rotationAngle -= 1.0f;\n\t}\n\t\n\tif(gamepads[0].button & R_CBUTTONS)\n\t{\n\t\tself->rotationAngle += 1.0f;\n\t}\n\t\n\tif((gamepads[0].trigger & A_BUTTON))\n\t{\n\t\t$Fire(self);\n\t}\n}\n",
+   "texture_id": "175af6b9-1640-48ff-9b7a-729700c730da",
+   "type": 0
+  },
+  {
+   "collider": {
+    "center": {
+     "x": 0.4517149031162262,
+     "y": 2.5606696605682373,
+     "z": 0.16709735989570618
+    },
+    "extents": {
+     "x": 2.5260214805603027,
+     "y": 2.8887603282928467,
+     "z": 2.5265684127807617
+    },
+    "originalCenter": {
+     "x": 0.813468873500824,
+     "y": 2.3448855876922607,
+     "z": -0.792954683303833
+    },
+    "originalExtents": {
+     "x": 1.8076467514038086,
+     "y": 2.3448855876922607,
+     "z": 1.543910026550293
+    },
+    "type": 0
+   },
+   "euler_angles": {
+    "x": -15.290056228637695,
+    "y": -70.24717712402344,
+    "z": 0.0
+   },
+   "id": "51a80f7b-6b34-409b-a981-4c5cf0db0d53",
+   "model_id": "99e324f4-fc99-4db2-b0d3-9fcd2248011d",
+   "name": "Actor 14",
+   "position": {
+    "x": 7.389712333679199,
+    "y": 0.0025125741958618164,
+    "z": 7.619334697723389
+   },
+   "rotation": {
+    "w": 0.8106430768966675,
+    "x": 0.011581802740693092,
+    "y": -0.5702275037765503,
+    "z": 0.13253013789653778
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "void $Start(Actor *self)\n{\n    // Called once upon start up.\n}\n\nvoid $Update(Actor *self)\n{\n    // Called every frame.\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n    // Called upon any player input.\n}\n\nvoid $Collide(Actor *self, Actor *other)\n{\n    // Called upon collision with another actor.\n    Destroy(self);\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "euler_angles": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "611fb341-3bd1-48fc-84ec-d433be87d881",
+   "model_id": "0c00b2e8-fbb0-43c0-9f73-8c9dd6457b1c",
+   "name": "Actor 1",
+   "position": {
+    "x": 2.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "void $Start(Actor *self)\n{\n\n}\n\nvoid $Update(Actor *self)\n{\n\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\n}\n\nvoid $Collide(Actor *other)\n{\n\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "collider": {
+    "center": {
+     "x": 0.813468873500824,
+     "y": 2.3448855876922607,
+     "z": -0.792954683303833
+    },
+    "extents": {
+     "x": 1.8076467514038086,
+     "y": 2.3448855876922607,
+     "z": 1.543910026550293
+    },
+    "originalCenter": {
+     "x": 0.813468873500824,
+     "y": 2.3448855876922607,
+     "z": -0.792954683303833
+    },
+    "originalExtents": {
+     "x": 1.8076467514038086,
+     "y": 2.3448855876922607,
+     "z": 1.543910026550293
+    },
+    "type": 0
+   },
+   "euler_angles": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "7040291a-62e0-429f-8265-b5c1b0b76ca9",
+   "model_id": "99e324f4-fc99-4db2-b0d3-9fcd2248011d",
+   "name": "Actor 14",
+   "position": {
+    "x": -5.525524139404297,
+    "y": 0.0,
+    "z": 8.26987361907959
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "void $Start(Actor *self)\n{\n    // Called once upon start up.\n}\n\nvoid $Update(Actor *self)\n{\n    // Called every frame.\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n    // Called upon any player input.\n}\n\nvoid $Collide(Actor *self, Actor *other)\n{\n    // Called upon collision with another actor.\n    Destroy(self);\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "euler_angles": {
+    "x": -7.816530755988538e-11,
+    "y": 3.751945976127047e-10,
+    "z": 8.467911094545144e-11
+   },
+   "id": "7e8fd87a-f4f9-4242-8c86-2bf7599db9a5",
+   "model_id": "0c00b2e8-fbb0-43c0-9f73-8c9dd6457b1c",
+   "name": "Actor 1",
+   "position": {
+    "x": 3.9999985694885254,
+    "y": -2.397185028257809e-07,
+    "z": 2.0000011920928955
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 4.6486550719926356e-10,
+    "y": -7.450787542495618e-09,
+    "z": 1.705302701349512e-13
+   },
+   "scale": {
+    "x": 0.9999999403953552,
+    "y": 0.9999999403953552,
+    "z": 0.9999999403953552
+   },
+   "script": "void $Start(Actor *self)\n{\n\n}\n\nvoid $Update(Actor *self)\n{\n\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\n}\n\nvoid $Collide(Actor *other)\n{\n\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "euler_angles": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "83f4d394-73c3-4b3f-8239-6a387f78bb10",
+   "model_id": "0c00b2e8-fbb0-43c0-9f73-8c9dd6457b1c",
+   "name": "Actor 1",
+   "position": {
+    "x": 2.0,
+    "y": 0.0,
+    "z": 4.0
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "void $Start(Actor *self)\n{\n\n}\n\nvoid $Update(Actor *self)\n{\n\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\n}\n\nvoid $Collide(Actor *other)\n{\n\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "euler_angles": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "87b21464-fc08-4c10-bd88-5cc12534fabf",
+   "model_id": "0c00b2e8-fbb0-43c0-9f73-8c9dd6457b1c",
+   "name": "Actor 1",
+   "position": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 4.0
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "euler_angles": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "8aab1fa5-a100-4aa5-b8a1-e58426118127",
+   "model_id": "0c00b2e8-fbb0-43c0-9f73-8c9dd6457b1c",
+   "name": "Actor 1",
+   "position": {
+    "x": 4.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "void $Start(Actor *self)\n{\n\n}\n\nvoid $Update(Actor *self)\n{\n\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\n}\n\nvoid $Collide(Actor *other)\n{\n\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "euler_angles": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "949b2a95-ac7a-4e2c-abb2-0e15a6eea2b8",
+   "model_id": "0c00b2e8-fbb0-43c0-9f73-8c9dd6457b1c",
+   "name": "Actor 1",
+   "position": {
+    "x": 4.0,
+    "y": 0.0,
+    "z": 4.0
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "void $Start(Actor *self)\n{\n\n}\n\nvoid $Update(Actor *self)\n{\n\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\n}\n\nvoid $Collide(Actor *other)\n{\n\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "euler_angles": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "994e98a4-1e84-4ec3-aa06-f9a750c05db6",
+   "model_id": "0c00b2e8-fbb0-43c0-9f73-8c9dd6457b1c",
+   "name": "Actor 1",
+   "position": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 2.0
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "void $Start(Actor *self)\n{\n\n}\n\nvoid $Update(Actor *self)\n{\n\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\n}\n\nvoid $Collide(Actor *other)\n{\n\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "euler_angles": {
+    "x": -0.0,
+    "y": 180.0,
+    "z": 0.0
+   },
+   "id": "a5cdc7f5-e8d7-47c8-8d06-7e07f19245e7",
+   "model_id": "0c00b2e8-fbb0-43c0-9f73-8c9dd6457b1c",
+   "name": "Actor 1",
+   "position": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "rotation": {
+    "w": -4.371138828673793e-08,
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 0.9999999403953552,
+    "y": 0.9999999403953552,
+    "z": 0.9999999403953552
+   },
+   "script": "void $Start(Actor *self)\n{\n\n}\n\nvoid $Update(Actor *self)\n{\n\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\n}\n\nvoid $Collide(Actor *other)\n{\n\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "collider": {
+    "center": {
+     "x": 0.813468873500824,
+     "y": 0.7461519837379456,
+     "z": 2.3601949214935303
+    },
+    "extents": {
+     "x": 1.8076467514038086,
+     "y": 1.5902498960494995,
+     "z": 2.3751332759857178
+    },
+    "originalCenter": {
+     "x": 0.813468873500824,
+     "y": 2.3448855876922607,
+     "z": -0.792954683303833
+    },
+    "originalExtents": {
+     "x": 1.8076467514038086,
+     "y": 2.3448855876922607,
+     "z": 1.543910026550293
+    },
+    "type": 0
+   },
+   "euler_angles": {
+    "x": 91.13983917236328,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "c82310c3-04c7-410e-b943-4e89fd0d461d",
+   "model_id": "99e324f4-fc99-4db2-b0d3-9fcd2248011d",
+   "name": "Actor 14",
+   "position": {
+    "x": 1.1614924669265747,
+    "y": 1.543316125869751,
+    "z": 8.26987361907959
+   },
+   "rotation": {
+    "w": 0.7000387907028198,
+    "x": 0.7141047120094299,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "void $Start(Actor *self)\n{\n    // Called once upon start up.\n}\n\nvoid $Update(Actor *self)\n{\n    // Called every frame.\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n    // Called upon any player input.\n}\n\nvoid $Collide(Actor *self, Actor *other)\n{\n    // Called upon collision with another actor.\n    Destroy(self);\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  },
+  {
+   "children": [
+    "399486f2-e604-4201-ac3a-bd2c9de51c33"
+   ],
+   "euler_angles": {
+    "x": 90.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "dda72d2d-fb90-46af-9719-d8fc6577059f",
+   "model_id": "bdc04f94-21ef-4639-acdf-63b5610c5777",
+   "name": "Tank",
+   "position": {
+    "x": 0.0,
+    "y": -1.6932002305984497,
+    "z": 2.9829154014587402
+   },
+   "rotation": {
+    "w": 0.7071070075035095,
+    "x": 0.7071064710617065,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "",
+   "texture_id": "175af6b9-1640-48ff-9b7a-729700c730da",
+   "type": 0
+  },
+  {
+   "euler_angles": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "id": "f32b6274-cf93-41a2-9769-b41458820413",
+   "model_id": "0c00b2e8-fbb0-43c0-9f73-8c9dd6457b1c",
+   "name": "Actor 18",
+   "position": {
+    "x": 2.0,
+    "y": 0.0,
+    "z": 2.0
+   },
+   "rotation": {
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "scale": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+   },
+   "script": "void $Start(Actor *self)\n{\n\n}\n\nvoid $Update(Actor *self)\n{\n\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\n}\n\nvoid $Collide(Actor *other)\n{\n\n}\n",
+   "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
+   "type": 0
+  }
+ ],
+ "background_color": [
+  197,
+  227,
+  255
+ ],
+ "gizmo_snap_size": 0.5,
+ "version": 1,
+ "views": [
+  {
+   "forward": {
+    "x": -0.5003799200057983,
+    "y": -0.2614487111568451,
+    "z": 0.8253874182701111
+   },
+   "position": {
+    "x": 4.172730445861816,
+    "y": 1.826663851737976,
+    "z": -1.7051331996917725
+   },
+   "right": {
+    "x": 0.8551303148269653,
+    "y": 6.14672990195686e-06,
+    "z": 0.5184131264686584
+   },
+   "up": {
+    "x": -0.13554349541664124,
+    "y": 0.9652172923088074,
+    "z": 0.22356963157653809
+   }
+  },
+  {
+   "forward": {
+    "x": 0.0,
+    "y": -0.9999999403953552,
+    "z": -4.371138473402425e-08
+   },
+   "position": {
+    "x": 1.2512085437774658,
+    "y": 12.0,
+    "z": 6.061989784240723
+   },
+   "right": {
+    "x": 0.9999999403953552,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "up": {
+    "x": 0.0,
+    "y": -4.371138473402425e-08,
+    "z": 1.0
+   }
+  },
+  {
+   "forward": {
+    "x": 0.9999999403953552,
+    "y": 0.0,
+    "z": -4.371138473402425e-08
+   },
+   "position": {
+    "x": -4.499999046325684,
+    "y": 0.3329470455646515,
+    "z": 2.9285759925842285
+   },
+   "right": {
+    "x": -4.371138473402425e-08,
+    "y": 0.0,
+    "z": -0.9999999403953552
+   },
+   "up": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   }
+  },
+  {
+   "forward": {
+    "x": -8.74227694680485e-08,
+    "y": 0.0,
+    "z": -0.9999999403953552
+   },
+   "position": {
+    "x": 4.196293048153166e-06,
+    "y": 0.0,
+    "z": 47.999996185302734
+   },
+   "right": {
+    "x": -0.9999999403953552,
+    "y": 0.0,
+    "z": 8.74227694680485e-08
+   },
+   "up": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   }
+  },
+  {
+   "forward": {
+    "x": -8.74227694680485e-08,
+    "y": 0.0,
+    "z": -0.9999999403953552
+   },
+   "position": {
+    "x": 4.5896968003944494e-07,
+    "y": 0.0,
+    "z": 5.249999046325684
+   },
+   "right": {
+    "x": -0.9999999403953552,
+    "y": 0.0,
+    "z": 8.74227694680485e-08
+   },
+   "up": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   }
+  }
+ ]
+}
