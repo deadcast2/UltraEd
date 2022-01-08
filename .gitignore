@@ -18,3 +18,4 @@ Engine/n64sdk
 *.n64
 *.user
 applog.txt
+/Examples/Tank/Library
