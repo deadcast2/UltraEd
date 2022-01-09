@@ -446,7 +446,7 @@ namespace UltraEd
             std::string currDir = Util::GetPathFor("Player");
 
             // Start the build with no window.
-            CreateProcess(NULL, const_cast<LPSTR>("cmd /c cen64.exe pifdata.bin ..\\Engine\\main.n64"), NULL, NULL, FALSE,
+            CreateProcess(NULL, const_cast<LPSTR>("cmd /c cen64.exe -multithread pifdata.bin ..\\Engine\\main.n64"), NULL, NULL, FALSE,
                 CREATE_NO_WINDOW, NULL, currDir.c_str(), &si, &pi);
 
             WaitForSingleObject(pi.hProcess, INFINITE);
