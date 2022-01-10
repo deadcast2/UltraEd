@@ -1183,11 +1183,18 @@ namespace UltraEd
             {
                 if (m_textEditors.find(m_selectedActor) == m_textEditors.end())
                 {
-                    m_textEditors[m_selectedActor] = std::make_shared<TextEditor>();
+                    std::string name = ICON_FK_CODE" ";
+                    name.append(m_selectedActor->GetName()).append("##").append(boost::uuids::to_string(m_selectedActor->GetId()));
 
-                    m_textEditors[m_selectedActor]->SetLanguageDefinition(TextEditor::LanguageDefinition::C());
+                    std::get<0>(m_textEditors[m_selectedActor]) = name;
+                    std::get<1>(m_textEditors[m_selectedActor]) = std::make_shared<TextEditor>();
 
-                    m_textEditors[m_selectedActor]->SetText(m_selectedActor->GetScript());
+                    std::get<1>(m_textEditors[m_selectedActor])->SetLanguageDefinition(TextEditor::LanguageDefinition::C());
+                    std::get<1>(m_textEditors[m_selectedActor])->SetText(m_selectedActor->GetScript());
+                }
+                else 
+                {
+                    ImGui::SetWindowFocus(std::get<0>(m_textEditors[m_selectedActor]).c_str());
                 }
             }
 
@@ -1261,13 +1268,11 @@ namespace UltraEd
 
     void Gui::ScriptEditor()
     {
-        for (const auto &editor : std::map<Actor *, std::shared_ptr<TextEditor>>(m_textEditors))
+        for (const auto &editor : std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>>(m_textEditors))
         {
             bool isOpen = true;
-            std::string name = ICON_FK_CODE" ";
-            name.append(editor.first->GetName()).append("##").append(boost::uuids::to_string(editor.first->GetId()));
 
-            ImGui::Begin(name.c_str(), &isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+            ImGui::Begin(std::get<0>(editor.second).c_str(), &isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
 
             if (ImGui::BeginMenuBar())
             {
@@ -1275,7 +1280,7 @@ namespace UltraEd
                 {
                     if (ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Changes"))
                     {
-                        editor.first->SetScript(editor.second->GetText());
+                        editor.first->SetScript(std::get<1>(editor.second)->GetText());
                     }
 
                     if (ImGui::MenuItem("Close"))
@@ -1289,10 +1294,10 @@ namespace UltraEd
                 ImGui::EndMenuBar();
             }
 
-            editor.second->Render("Edit Script");
+            std::get<1>(editor.second)->Render("Edit Script");
 
             ImGui::End();
-            ImGui::DockBuilderDockWindow(name.c_str(), 1);
+            ImGui::DockBuilderDockWindow(std::get<0>(editor.second).c_str(), 1);
 
             if (!isOpen)
             {
