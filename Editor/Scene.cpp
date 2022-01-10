@@ -788,25 +788,6 @@ namespace UltraEd
         }
     }
 
-    void Scene::SetScript(std::string script)
-    {
-        if (!m_selectedActorIds.empty())
-        {
-            m_auditor.ChangeActor("Script Change", GetSelectedActor()->GetId());
-            GetSelectedActor()->SetScript(script);
-        }
-    }
-
-    std::string Scene::GetScript()
-    {
-        if (!m_selectedActorIds.empty())
-        {
-            return GetSelectedActor()->GetScript();
-        }
-
-        return std::string("");
-    }
-
     void Scene::SetBackgroundColor(COLORREF color)
     {
         if (GetBackgroundColor() != color)

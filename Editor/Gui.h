@@ -81,7 +81,7 @@ namespace UltraEd
         LPDIRECT3DTEXTURE9 m_sceneTexture;
         LPDIRECT3DTEXTURE9 m_noTexture;
         Actor *m_selectedActor;
-        TextEditor m_textEditor;
+        std::map<Actor *, std::shared_ptr<TextEditor>> m_textEditors;
         ImGui::FileBrowser m_fileBrowser;
         ImGui::FileBrowser m_folderBrowser;
         std::string m_consoleText;
@@ -89,7 +89,6 @@ namespace UltraEd
         bool m_openContextMenu;
         std::tuple<bool, std::function<void()>> m_saveSceneModalOpen;
         std::tuple<bool, std::function<void()>> m_openConfirmSceneModal;
-        bool m_textEditorOpen;
         bool m_optionsModalOpen;
         bool m_sceneSettingsModalOpen;
         bool m_newProjectModalOpen;

@@ -59,8 +59,6 @@ namespace UltraEd
         void CopyCollider(const uuid &selectedActorId, UltraEd::Actor *newActor);
         void LinkCopiedActors(std::map<uuid, Actor *> &newActors);
         void FocusSelected();
-        void SetScript(std::string script);
-        std::string GetScript();
         void SetBackgroundColor(COLORREF color);
         void SetGizmoSnapSize(float size);
         void New();

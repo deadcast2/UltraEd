@@ -18,13 +18,12 @@ namespace UltraEd
         m_sceneTexture(),
         m_noTexture(),
         m_selectedActor(),
-        m_textEditor(),
+        m_textEditors(),
         m_fileBrowser(ImGuiFileBrowserFlags_EnterNewFilename),
         m_folderBrowser(ImGuiFileBrowserFlags_SelectDirectory),
         m_consoleText(),
         m_moveConsoleToBottom(),
         m_openContextMenu(),
-        m_textEditorOpen(),
         m_optionsModalOpen(),
         m_sceneSettingsModalOpen(),
         m_newProjectModalOpen(),
@@ -46,8 +45,6 @@ namespace UltraEd
 
         ImGui_ImplWin32_Init(hWnd);
         ImGui_ImplDX9_Init(m_renderDevice.GetDevice());
-
-        m_textEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::C());
 
         Debug::Instance().Connect([&](std::string text) {
             m_consoleText.append(text);
@@ -1184,8 +1181,14 @@ namespace UltraEd
         {
             if (ImGui::MenuItem("Edit Script"))
             {
-                m_textEditorOpen = true;
-                m_textEditor.SetText(m_scene->GetScript());
+                if (m_textEditors.find(m_selectedActor) == m_textEditors.end())
+                {
+                    m_textEditors[m_selectedActor] = std::make_shared<TextEditor>();
+
+                    m_textEditors[m_selectedActor]->SetLanguageDefinition(TextEditor::LanguageDefinition::C());
+
+                    m_textEditors[m_selectedActor]->SetText(m_selectedActor->GetScript());
+                }
             }
 
             if (m_selectedActor != nullptr && m_selectedActor->GetType() == ActorType::Model && ImGui::BeginMenu("Texture"))
@@ -1258,34 +1261,44 @@ namespace UltraEd
 
     void Gui::ScriptEditor()
     {
-        if (!m_textEditorOpen)
-            return;
-
-        ImGui::Begin(ICON_FK_CODE" Script Editor", &m_textEditorOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
-
-        if (ImGui::BeginMenuBar())
+        for (const auto &editor : std::map<Actor *, std::shared_ptr<TextEditor>>(m_textEditors))
         {
-            if (ImGui::BeginMenu("File"))
+            bool isOpen = true;
+            std::string name = ICON_FK_CODE" ";
+            name.append(editor.first->GetName()).append("##").append(boost::uuids::to_string(editor.first->GetId()));
+
+            ImGui::Begin(name.c_str(), &isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+
+            if (ImGui::BeginMenuBar())
             {
-                if (ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Changes"))
+                if (ImGui::BeginMenu("File"))
                 {
-                    m_scene->SetScript(m_textEditor.GetText());
+                    if (ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Changes"))
+                    {
+                        editor.first->SetScript(editor.second->GetText());
+                    }
+
+                    if (ImGui::MenuItem("Close"))
+                    {
+                        isOpen = false;
+                    }
+
+                    ImGui::EndMenu();
                 }
 
-                if (ImGui::MenuItem("Close"))
-                {
-                    m_textEditorOpen = false;
-                }
-
-                ImGui::EndMenu();
+                ImGui::EndMenuBar();
             }
 
-            ImGui::EndMenuBar();
+            editor.second->Render("Edit Script");
+
+            ImGui::End();
+            ImGui::DockBuilderDockWindow(name.c_str(), 1);
+
+            if (!isOpen)
+            {
+                m_textEditors.erase(editor.first);
+            }
         }
-
-        m_textEditor.Render("Edit Script");
-
-        ImGui::End();
     }
 
     void Gui::NewProjectModal()
