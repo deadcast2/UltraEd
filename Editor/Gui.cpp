@@ -1271,8 +1271,14 @@ namespace UltraEd
         for (const auto &editor : std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>>(m_textEditors))
         {
             bool isOpen = true;
+            ImGuiWindowFlags flags = ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar;
 
-            ImGui::Begin(std::get<0>(editor.second).c_str(), &isOpen, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+            if (std::get<1>(editor.second)->GetText() != editor.first->GetScript())
+            {
+                flags |= ImGuiWindowFlags_UnsavedDocument;
+            }
+
+            ImGui::Begin(std::get<0>(editor.second).c_str(), &isOpen, flags);
 
             if (ImGui::BeginMenuBar())
             {
@@ -1298,6 +1304,11 @@ namespace UltraEd
 
             ImGui::End();
             ImGui::DockBuilderDockWindow(std::get<0>(editor.second).c_str(), 1);
+
+            if (IO().KeyCtrl && ImGui::IsKeyPressed('S', false))
+            {
+                editor.first->SetScript(std::get<1>(editor.second)->GetText());
+            }
 
             if (!isOpen)
             {
