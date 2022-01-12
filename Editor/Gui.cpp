@@ -1191,6 +1191,8 @@ namespace UltraEd
 
                     std::get<1>(m_textEditors[m_selectedActor])->SetLanguageDefinition(TextEditor::LanguageDefinition::C());
                     std::get<1>(m_textEditors[m_selectedActor])->SetText(m_selectedActor->GetScript());
+
+                    ImGui::DockBuilderDockWindow(name.c_str(), 1);
                 }
                 else 
                 {
@@ -1278,42 +1280,42 @@ namespace UltraEd
                 flags |= ImGuiWindowFlags_UnsavedDocument;
             }
 
-            ImGui::Begin(std::get<0>(editor.second).c_str(), &isOpen, flags);
-
-            if (ImGui::BeginMenuBar())
+            if (ImGui::Begin(std::get<0>(editor.second).c_str(), &isOpen, flags))
             {
-                if (ImGui::BeginMenu("File"))
+                if (ImGui::BeginMenuBar())
                 {
-                    if (ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Changes"))
+                    if (ImGui::BeginMenu("File"))
                     {
-                        editor.first->SetScript(std::get<1>(editor.second)->GetText());
+                        if (ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Changes"))
+                        {
+                            editor.first->SetScript(std::get<1>(editor.second)->GetText());
+                        }
+
+                        if (ImGui::MenuItem("Close"))
+                        {
+                            isOpen = false;
+                        }
+
+                        ImGui::EndMenu();
                     }
 
-                    if (ImGui::MenuItem("Close"))
-                    {
-                        isOpen = false;
-                    }
-
-                    ImGui::EndMenu();
+                    ImGui::EndMenuBar();
                 }
 
-                ImGui::EndMenuBar();
-            }
+                std::get<1>(editor.second)->Render("Edit Script");
 
-            std::get<1>(editor.second)->Render("Edit Script");
+                if (IO().KeyCtrl && ImGui::IsKeyPressed('S', false))
+                {
+                    editor.first->SetScript(std::get<1>(editor.second)->GetText());
+                }
+
+                if (!isOpen)
+                {
+                    m_textEditors.erase(editor.first);
+                }
+            }
 
             ImGui::End();
-            ImGui::DockBuilderDockWindow(std::get<0>(editor.second).c_str(), 1);
-
-            if (IO().KeyCtrl && ImGui::IsKeyPressed('S', false))
-            {
-                editor.first->SetScript(std::get<1>(editor.second)->GetText());
-            }
-
-            if (!isOpen)
-            {
-                m_textEditors.erase(editor.first);
-            }
         }
     }
 
