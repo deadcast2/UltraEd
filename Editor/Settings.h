@@ -21,6 +21,8 @@ namespace UltraEd
         static VideoMode GetVideoMode();
         static void SetColorTheme(ColorTheme theme);
         static ColorTheme GetColorTheme();
+        static void SetSaveUponBuild(bool save);
+        static bool GetSaveUponBuild();
     };
 }
 

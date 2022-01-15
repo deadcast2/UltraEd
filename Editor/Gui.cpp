@@ -1083,6 +1083,7 @@ namespace UltraEd
         static int videoMode;
         static int buildCart;
         static int colorTheme;
+        static bool saveUponBuild;
 
         if (m_optionsModalOpen)
         {
@@ -1091,6 +1092,7 @@ namespace UltraEd
             videoMode = static_cast<int>(Settings::GetVideoMode());
             buildCart = static_cast<int>(Settings::GetBuildCart());
             colorTheme = static_cast<int>(Settings::GetColorTheme());
+            saveUponBuild = static_cast<bool>(Settings::GetSaveUponBuild());
 
             m_optionsModalOpen = false;
         }
@@ -1100,14 +1102,16 @@ namespace UltraEd
             ImGui::Combo("Color Theme", &colorTheme, "Dark\0Light\0\0");
             ImGui::Combo("Video Mode", &videoMode, "NTSC\0PAL\0\0");
             ImGui::Combo("Build Cart", &buildCart, "64drive\0EverDrive-64 X7\0\0");
+            ImGui::Checkbox("Save upon build?", &saveUponBuild);
 
             if (ImGui::Button("Save"))
             {
                 Settings::SetColorTheme(static_cast<ColorTheme>(colorTheme));
-                LoadColorTheme();
-
                 Settings::SetVideoMode(static_cast<VideoMode>(videoMode));
                 Settings::SetBuildCart(static_cast<BuildCart>(buildCart));
+                Settings::SetSaveUponBuild(saveUponBuild);
+                
+                LoadColorTheme();
 
                 ImGui::CloseCurrentPopup();
             }
@@ -1609,9 +1613,9 @@ namespace UltraEd
 
     void Gui::StatusBar()
     {
-        const ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
+        const ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
 
-        if (ImGui::BeginViewportSideBar("##StatusBar", ImGui::GetMainViewport(), ImGuiDir_Down, ImGui::GetFrameHeight(), window_flags))
+        if (ImGui::BeginViewportSideBar("##StatusBar", ImGui::GetMainViewport(), ImGuiDir_Down, ImGui::GetFrameHeight(), flags))
         {
             if (ImGui::BeginMenuBar())
             {
