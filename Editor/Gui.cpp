@@ -865,7 +865,7 @@ namespace UltraEd
             }
 
             // Moved this input update logic to after scene render so additional UI elements could be rendered from the scene class.
-            if (ImGui::IsWindowHovered() || m_scene->IsDragging() || m_scene->IsSelecting())
+            if (ImGui::IsWindowDocked() && (ImGui::IsWindowHovered() || m_scene->IsDragging() || m_scene->IsSelecting()))
             {
                 const auto mousePos = ImGui::GetMousePos();
                 const auto windowPos = ImGui::GetWindowPos();
