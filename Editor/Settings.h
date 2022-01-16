@@ -3,15 +3,12 @@
 
 #include <windows.h>
 #include <string>
+#include "Flags.h"
 
 #define REG_DATA_LENGTH SIZE_MAX
 
 namespace UltraEd
 {
-    enum class BuildCart { _64drive, EverDrive };
-    enum class VideoMode { NTSC, PAL };
-    enum class ColorTheme { Dark, Light };
-
     class Settings
     {
     public:

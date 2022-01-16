@@ -6,6 +6,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <nlohmann/json.hpp>
+#include "Flags.h"
 #include "Gui.h"
 #include "View.h"
 #include "Common.h"
@@ -20,11 +21,6 @@ using uuid = uuid;
 
 namespace UltraEd
 {
-    enum class BuildFlag
-    {
-        Build, Run, Load
-    };
-
     class Scene : public Savable
     {
         friend Gui;

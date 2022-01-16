@@ -66,6 +66,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="FileIO.h" />
+    <ClInclude Include="Flags.h" />
     <ClInclude Include="Gizmo.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Gui.h" />

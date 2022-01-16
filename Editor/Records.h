@@ -5,16 +5,12 @@
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
+#include "Flags.h"
 
 using json = nlohmann::json;
 
 namespace UltraEd
 {
-    enum class AssetType
-    {
-        Unknown, Model, Texture
-    };
-
     class AssetRecord
     {
     public:

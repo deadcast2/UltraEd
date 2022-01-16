@@ -6,16 +6,6 @@
 
 namespace UltraEd
 {
-    enum class GizmoAxisState
-    {
-        XAxis, YAxis, ZAxis
-    };
-
-    enum class GizmoModifierState
-    {
-        Translate, Scale, Rotate
-    };
-
     class Gizmo
     {
     public:

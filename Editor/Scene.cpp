@@ -95,11 +95,11 @@ namespace UltraEd
         std::thread run([this, flag]() {
             if (Build::Start(this))
             {
-                if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Run))
+                if (flag & BuildFlag::Run)
                 {
                     Build::Run();
                 }
-                else if (static_cast<int>(flag) & static_cast<int>(BuildFlag::Load))
+                else if (flag & BuildFlag::Load)
                 {
                     Build::Load();
                 }

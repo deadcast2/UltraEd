@@ -510,20 +510,7 @@ namespace UltraEd
 
                 ImGui::Separator();
 
-                if (ImGui::MenuItem("Build ROM"))
-                {
-                    m_scene->BuildROM(BuildFlag::Build);
-                }
-
-                if (ImGui::MenuItem("Build ROM & Load"))
-                {
-                    m_scene->BuildROM(BuildFlag::Load);
-                }
-
-                if (ImGui::MenuItem("Build ROM & Run"))
-                {
-                    m_scene->BuildROM(BuildFlag::Run);
-                }
+                HandleROMBuilding();
             }
 
             ImGui::Separator();
@@ -560,6 +547,36 @@ namespace UltraEd
             }
 
             ImGui::EndMenu();
+        }
+    }
+
+    void Gui::HandleROMBuilding()
+    {
+        BuildFlag selectedBuildOption{ BuildFlag::Unknown };
+
+        if (ImGui::MenuItem("Build ROM"))
+        {
+            selectedBuildOption = BuildFlag::Build;
+        }
+
+        if (ImGui::MenuItem("Build ROM & Load"))
+        {
+            selectedBuildOption = BuildFlag::Load;
+        }
+
+        if (ImGui::MenuItem("Build ROM & Run"))
+        {
+            selectedBuildOption = BuildFlag::Run;
+        }
+
+        if (selectedBuildOption != BuildFlag::Unknown)
+        {
+            if (Settings::GetSaveUponBuild())
+            {
+                SaveScriptEditor();
+            }
+
+            m_scene->BuildROM(selectedBuildOption);
         }
     }
 
@@ -1288,7 +1305,7 @@ namespace UltraEd
                     {
                         if (ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Changes"))
                         {
-                            editor.first->SetScript(std::get<1>(editor.second)->GetText());
+                            SaveScriptEditor(editor.first);
                         }
 
                         if (ImGui::MenuItem("Close"))
@@ -1306,7 +1323,7 @@ namespace UltraEd
 
                 if (IO().KeyCtrl && ImGui::IsKeyPressed('S', false))
                 {
-                    editor.first->SetScript(std::get<1>(editor.second)->GetText());
+                    SaveScriptEditor(editor.first);
                 }
 
                 if (!isOpen)
@@ -1316,6 +1333,24 @@ namespace UltraEd
             }
 
             ImGui::End();
+        }
+    }
+
+    void Gui::SaveScriptEditor(Actor *actor)
+    {
+        if (actor != nullptr)
+        {
+            if (m_textEditors.find(actor) != m_textEditors.end())
+            {
+                actor->SetScript(std::get<1>(m_textEditors[actor])->GetText());
+            }
+        }
+        else 
+        {
+            for (const auto &editor : m_textEditors)
+            {
+                SaveScriptEditor(editor.first);
+            }
         }
     }
 

@@ -9,11 +9,6 @@
 
 namespace UltraEd
 {
-    enum class ColliderType
-    {
-        Box, Sphere
-    };
-
     static const char* ColliderTypeNames[] { "TBox", "TSphere" };
 
     class Collider : public Savable

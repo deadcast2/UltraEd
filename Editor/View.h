@@ -2,12 +2,11 @@
 #define _VIEW_H_
 
 #include <d3dx9.h>
+#include "Flags.h"
 #include "Savable.h"
 
 namespace UltraEd
 {
-    enum class ViewType { Perspective, Top, Left, Right, Front };
-
     class View : public Savable
     {
     public:

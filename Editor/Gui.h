@@ -44,6 +44,7 @@ namespace UltraEd
         void LoadColorTheme();
         void ReleaseSceneTexture();
         void FileMenu();
+        void HandleROMBuilding();
         void EditMenu();
         void ActorMenu();
         void ViewMenu();
@@ -63,6 +64,7 @@ namespace UltraEd
         void SceneSettingsModal();
         void ContextMenu();
         void ScriptEditor();
+        void SaveScriptEditor(Actor *actor = nullptr);
         void NewProjectModal();
         void LoadProjectModal();
         void AddTextureModal();

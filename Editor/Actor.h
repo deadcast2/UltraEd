@@ -9,11 +9,6 @@
 
 namespace UltraEd
 {
-    enum class ActorType
-    {
-        Model, Camera
-    };
-
     class Scene;
 
     class Actor : public Savable
