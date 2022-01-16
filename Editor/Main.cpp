@@ -11,7 +11,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 std::unique_ptr<Gui> gui;
 
-int main(int, char **)
+int main(int argCount, char **args)
 {
     SetProcessDPIAware();
 
@@ -36,6 +36,12 @@ int main(int, char **)
 
     MSG msg {};
     gui = std::make_unique<Gui>(hWnd);
+
+    // Load project from command line.
+    if (argCount > 1)
+    {
+        gui->LoadProject(args[1]);
+    }
 
     while (msg.message != WM_QUIT)
     {

@@ -188,6 +188,16 @@ namespace UltraEd
         m_scene->Refresh(changedAssetIds);
     }
 
+    void Gui::LoadProject(const std::filesystem::path &path)
+    {
+        try {
+            Project::Load(m_renderDevice.GetDevice(), path);
+        }
+        catch (std::exception ex) {
+            Debug::Instance().Error(ex.what());
+        }
+    }
+
     void Gui::LoadFonts()
     {
         const float fontSize = 14.0f * Util::GetDPIScale();
@@ -1432,7 +1442,8 @@ namespace UltraEd
             {
                 try
                 {
-                    Project::Load(m_renderDevice.GetDevice(), m_folderBrowser.GetSelected());
+                    LoadProject(m_folderBrowser.GetSelected());
+
                     m_scene->New();
                 }
                 catch (const std::exception &e)
