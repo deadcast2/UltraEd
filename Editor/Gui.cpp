@@ -18,7 +18,8 @@ namespace UltraEd
         m_sceneTexture(),
         m_noTexture(),
         m_selectedActor(),
-        m_textEditors(),
+        m_scriptEditors(),
+        m_scriptEditorDockTargetID(),
         m_fileBrowser(ImGuiFileBrowserFlags_EnterNewFilename),
         m_folderBrowser(ImGuiFileBrowserFlags_SelectDirectory),
         m_consoleText(),
@@ -902,6 +903,9 @@ namespace UltraEd
             }
         }
 
+        // Open script editors up in the scene view since it will generally be the largest.
+        m_scriptEditorDockTargetID = ImGui::GetCurrentWindow()->DockId;
+
         ImGui::End();
         ImGui::PopStyleVar();
     }
@@ -1208,22 +1212,23 @@ namespace UltraEd
         {
             if (ImGui::MenuItem("Edit Script"))
             {
-                if (m_textEditors.find(m_selectedActor) == m_textEditors.end())
+                if (m_scriptEditors.find(m_selectedActor) == m_scriptEditors.end())
                 {
                     std::string name = ICON_FK_CODE" ";
                     name.append(m_selectedActor->GetName()).append("##").append(boost::uuids::to_string(m_selectedActor->GetId()));
 
-                    std::get<0>(m_textEditors[m_selectedActor]) = name;
-                    std::get<1>(m_textEditors[m_selectedActor]) = std::make_shared<TextEditor>();
+                    std::get<0>(m_scriptEditors[m_selectedActor]) = name;
+                    std::get<1>(m_scriptEditors[m_selectedActor]) = std::make_shared<TextEditor>();
 
-                    std::get<1>(m_textEditors[m_selectedActor])->SetLanguageDefinition(TextEditor::LanguageDefinition::C());
-                    std::get<1>(m_textEditors[m_selectedActor])->SetText(m_selectedActor->GetScript());
+                    std::get<1>(m_scriptEditors[m_selectedActor])->SetLanguageDefinition(TextEditor::LanguageDefinition::C());
+                    std::get<1>(m_scriptEditors[m_selectedActor])->SetText(m_selectedActor->GetScript());
 
-                    ImGui::DockBuilderDockWindow(name.c_str(), 1);
+                    ImGui::DockBuilderDockWindow(name.c_str(), m_scriptEditorDockTargetID);
                 }
                 else 
                 {
-                    ImGui::SetWindowFocus(std::get<0>(m_textEditors[m_selectedActor]).c_str());
+                    // Bring focus to an already opened script editor.
+                    ImGui::SetWindowFocus(std::get<0>(m_scriptEditors[m_selectedActor]).c_str());
                 }
             }
 
@@ -1297,7 +1302,7 @@ namespace UltraEd
 
     void Gui::ScriptEditor()
     {
-        for (const auto &editor : std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>>(m_textEditors))
+        for (const auto &editor : std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>>(m_scriptEditors))
         {
             bool isOpen = true;
             ImGuiWindowFlags flags = ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar;
@@ -1338,7 +1343,7 @@ namespace UltraEd
 
                 if (!isOpen)
                 {
-                    m_textEditors.erase(editor.first);
+                    m_scriptEditors.erase(editor.first);
                 }
             }
 
@@ -1350,14 +1355,14 @@ namespace UltraEd
     {
         if (actor != nullptr)
         {
-            if (m_textEditors.find(actor) != m_textEditors.end())
+            if (m_scriptEditors.find(actor) != m_scriptEditors.end())
             {
-                actor->SetScript(std::get<1>(m_textEditors[actor])->GetText());
+                actor->SetScript(std::get<1>(m_scriptEditors[actor])->GetText());
             }
         }
         else 
         {
-            for (const auto &editor : m_textEditors)
+            for (const auto &editor : m_scriptEditors)
             {
                 SaveScriptEditor(editor.first);
             }

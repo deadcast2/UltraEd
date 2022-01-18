@@ -84,7 +84,8 @@ namespace UltraEd
         LPDIRECT3DTEXTURE9 m_sceneTexture;
         LPDIRECT3DTEXTURE9 m_noTexture;
         Actor *m_selectedActor;
-        std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>> m_textEditors;
+        std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>> m_scriptEditors;
+        ImGuiID m_scriptEditorDockTargetID;
         ImGui::FileBrowser m_fileBrowser;
         ImGui::FileBrowser m_folderBrowser;
         std::string m_consoleText;
