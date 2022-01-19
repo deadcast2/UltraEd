@@ -9,6 +9,9 @@
 #include "Settings.h"
 #include "View.h"
 
+// Ignore scoped enum warnings.
+#pragma warning (disable: 26812)
+
 namespace UltraEd
 {
     Gui::Gui(HWND hWnd) :
@@ -565,17 +568,17 @@ namespace UltraEd
     {
         BuildFlag selectedBuildOption{ BuildFlag::Unknown };
 
-        if (ImGui::MenuItem("Build ROM"))
+        if (ImGui::MenuItem("Build ROM", "F5"))
         {
             selectedBuildOption = BuildFlag::Build;
         }
 
-        if (ImGui::MenuItem("Build ROM & Load"))
+        if (ImGui::MenuItem("Build ROM & Load", "F6"))
         {
             selectedBuildOption = BuildFlag::Load;
         }
 
-        if (ImGui::MenuItem("Build ROM & Run"))
+        if (ImGui::MenuItem("Build ROM & Run", "F7"))
         {
             selectedBuildOption = BuildFlag::Run;
         }
@@ -779,9 +782,22 @@ namespace UltraEd
 
     void Gui::KeyListener()
     {
-        if (Project::IsLoaded() && IO().KeyCtrl && ImGui::IsKeyPressed('S', false))
+        if (Project::IsLoaded())
         {
-            SaveScene(!m_scene->HasPath());
+            if (IO().KeyCtrl && ImGui::IsKeyPressed('S', false))
+                SaveScene(!m_scene->HasPath());
+        
+            // F5
+            if (ImGui::IsKeyPressed(0x74, false))
+                m_scene->BuildROM(BuildFlag::Build);
+
+            // F6
+            if (ImGui::IsKeyPressed(0x75, false))
+                m_scene->BuildROM(BuildFlag::Load);
+
+            // F7
+            if (ImGui::IsKeyPressed(0x76, false))
+                m_scene->BuildROM(BuildFlag::Run);
         }
     }
 
