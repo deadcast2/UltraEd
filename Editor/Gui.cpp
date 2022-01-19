@@ -878,6 +878,8 @@ namespace UltraEd
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
+        m_scene->CheckChanges();
+
         if (ImGui::Begin(ICON_FK_TH" Scene View", 0, ImGuiWindowFlags_NoScrollbar))
         {
             const auto width = ImGui::GetWindowWidth();
@@ -1336,11 +1338,6 @@ namespace UltraEd
 
                 std::get<1>(editor.second)->Render("Edit Script");
 
-                if (IO().KeyCtrl && ImGui::IsKeyPressed('S', false))
-                {
-                    SaveScriptEditor(editor.first);
-                }
-
                 if (!isOpen)
                 {
                     m_scriptEditors.erase(editor.first);
@@ -1658,6 +1655,8 @@ namespace UltraEd
         }
         else
         {
+            SaveScriptEditor();
+            
             m_scene->SaveAs();
         }
     }

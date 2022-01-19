@@ -490,8 +490,6 @@ namespace UltraEd
 
     void Scene::Render(LPDIRECT3DDEVICE9 target, LPDIRECT3DTEXTURE9 *texture)
     {
-        CheckChanges();
-
         ID3DXMatrixStack *stack;
         if (!SUCCEEDED(D3DXCreateMatrixStack(0, &stack))) return;
         stack->LoadMatrix(&GetActiveView()->GetViewMatrix());
