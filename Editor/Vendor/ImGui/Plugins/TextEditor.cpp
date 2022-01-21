@@ -1872,20 +1872,21 @@ void TextEditor::Backspace()
 			auto& line = mLines[mState.mCursorPosition.mLine];
 			auto cindex = GetCharacterIndex(pos) - 1;
 			auto cend = cindex + 1;
+
 			while (cindex > 0 && IsUTFSequence(line[cindex].mChar))
 				--cindex;
 
-			//if (cindex > 0 && UTF8CharLength(line[cindex].mChar) > 1)
-			//	--cindex;
-
 			u.mRemovedStart = u.mRemovedEnd = GetActualCursorCoordinates();
-			--u.mRemovedStart.mColumn;
-			--mState.mCursorPosition.mColumn;
 
 			while (cindex < line.size() && cend-- > cindex)
 			{
-				u.mRemoved += line[cindex].mChar;
+				const auto removedChar = line[cindex].mChar;
+
+				u.mRemoved += removedChar;
 				line.erase(line.begin() + cindex);
+
+				u.mRemovedStart.mColumn -= (removedChar == '\t') ? mTabSize : 1;
+				mState.mCursorPosition.mColumn -= (removedChar == '\t') ? mTabSize : 1;
 			}
 		}
 
