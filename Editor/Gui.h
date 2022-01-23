@@ -14,6 +14,7 @@
 #include "Actor.h"
 #include "Project.h"
 #include "RenderDevice.h"
+#include "Confirmation.h"
 #include "font-fk.h"
 #include "font-roboto.h"
 
@@ -92,7 +93,7 @@ namespace UltraEd
         bool m_moveConsoleToBottom;
         bool m_openContextMenu;
         std::tuple<bool, std::function<void()>> m_saveSceneModalOpen;
-        std::tuple<bool, std::function<void()>, std::function<void()>, bool> m_openConfirmModal;
+        Confirmation m_openConfirmModal;
         bool m_optionsModalOpen;
         bool m_sceneSettingsModalOpen;
         bool m_newProjectModalOpen;

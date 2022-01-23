@@ -184,21 +184,26 @@ namespace UltraEd
 
     void Gui::ConfirmScene(std::function<void()> onComplete)
     {
-        m_openConfirmModal = std::make_tuple(true, [&]() {
-            if (m_scene->HasPath())
-            {
-                // Has already been saved so just save and run callback.
-                m_scene->SaveAs();
-                std::get<2>(m_openConfirmModal)();
-            }
-            else
-            {
-                // Open save scene modal and forward defined callback.
-                m_saveSceneModalOpen = std::make_tuple(true, std::get<2>(m_openConfirmModal));
-                m_fileBrowser.SetTitle("Save Scene As...");
-                m_fileBrowser.Open();
-            }
-        }, onComplete, !m_scene->IsDirty());
+        m_openConfirmModal = {
+            true, 
+            m_scene->IsDirty(),
+            [&]() {
+                if (m_scene->HasPath())
+                {
+                    // Has already been saved so just save and run callback.
+                    m_scene->SaveAs();
+                    m_openConfirmModal.No();
+                }
+                else
+                {
+                    // Open save scene modal and forward defined callback.
+                    m_saveSceneModalOpen = std::make_tuple(true, m_openConfirmModal.No);
+                    m_fileBrowser.SetTitle("Save Scene As...");
+                    m_fileBrowser.Open();
+                }
+            }, 
+            onComplete
+        };
     }
 
     void Gui::RefreshScene(const std::vector<boost::uuids::uuid> &changedAssetIds)
@@ -1371,12 +1376,17 @@ namespace UltraEd
 
                 if (!isOpen)
                 {
-                    m_openConfirmModal = std::make_tuple(true, [=]() {
-                        SaveScriptEditor(editor.first);
-                        std::get<2>(m_openConfirmModal)();
-                    }, [=]() {
-                        m_scriptEditors.erase(editor.first);
-                    }, !isDirty);
+                    m_openConfirmModal = {
+                        true,
+                        isDirty,
+                        [=]() {
+                            SaveScriptEditor(editor.first);
+                            m_openConfirmModal.No();
+                        },
+                        [=]() {
+                            m_scriptEditors.erase(editor.first);
+                        }
+                    };
                 }
             }
 
@@ -1632,10 +1642,11 @@ namespace UltraEd
 
     void Gui::ConfirmModal()
     {
-        if (std::get<0>(m_openConfirmModal))
+        if (m_openConfirmModal.IsOpen)
         {
             ImGui::OpenPopup("Are you sure?");
-            std::get<0>(m_openConfirmModal) = false;
+
+            m_openConfirmModal.IsOpen = false;
         }
 
         if (ImGui::BeginPopupModal("Are you sure?", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
@@ -1644,16 +1655,16 @@ namespace UltraEd
 
             if (ImGui::Button("Yes"))
             {
-                std::get<1>(m_openConfirmModal)();
+                m_openConfirmModal.Yes();
 
                 ImGui::CloseCurrentPopup();
             }
 
             ImGui::SameLine();
 
-            if (ImGui::Button("No") || std::get<3>(m_openConfirmModal))
+            if (ImGui::Button("No") || !m_openConfirmModal.IsDirty)
             {
-                std::get<2>(m_openConfirmModal)();
+                m_openConfirmModal.No();
 
                 ImGui::CloseCurrentPopup();
             }
