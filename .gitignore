@@ -1,12 +1,6 @@
 .vs/
 x64/
-Engine/scene.h
-Engine/segments.h
-Engine/definitions.h
-Engine/actors.h
-Engine/collisions.h
-Engine/scripts.h
-Engine/mappings.h
+Engine/*_auto.h
 Engine/spec
 Engine/n64sdk
 *.plg

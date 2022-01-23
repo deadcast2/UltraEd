@@ -7,6 +7,11 @@
 
 #define VECTOR3(X, Y, Z) (Vector3) { X, Y, Z }
 
+// Forward declare variables that will be dynamically generated later.
+Vector _UER_Actors;
+Vector _UER_ActorsPendingRemoval;
+Actor *_UER_ActiveCamera;
+
 Actor *FindActorByName(const char *name)
 {
     for (int i = 0; i < CVector_Size(_UER_Actors); i++)

@@ -121,7 +121,7 @@ namespace UltraEd
         std::string mode = Settings::GetVideoMode() == VideoMode::NTSC ? "OS_VI_NTSC_LAN1" : "OS_VI_PAL_LAN1";
         sprintf(buffer, "#define _UER_VIDEO_MODE %s\n", mode.c_str());
 
-        std::string path = Util::GetPathFor("Engine\\definitions.h");
+        std::string path = Util::GetPathFor("Engine\\definitions_auto.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(path.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(buffer, 1, strlen(buffer), file.get());
@@ -177,7 +177,7 @@ namespace UltraEd
             }
         }
 
-        std::string segmentsPath = Util::GetPathFor("Engine\\segments.h");
+        std::string segmentsPath = Util::GetPathFor("Engine\\segments_auto.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(segmentsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(romSegments.c_str(), 1, romSegments.size(), file.get());
@@ -191,7 +191,7 @@ namespace UltraEd
         sprintf(buffer, "int _UER_SceneBackgroundColor[3] = { %i, %i, %i };\n", GetRValue(bgColor),
             GetGValue(bgColor), GetBValue(bgColor));
 
-        std::string scenePath = Util::GetPathFor("Engine\\scene.h");
+        std::string scenePath = Util::GetPathFor("Engine\\scene_auto.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(scenePath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(buffer, 1, strlen(buffer), file.get());
@@ -322,7 +322,7 @@ namespace UltraEd
             }
         }
 
-        std::string actorInitsPath = Util::GetPathFor("Engine\\actors.h");
+        std::string actorInitsPath = Util::GetPathFor("Engine\\actors_auto.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(actorInitsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
 
@@ -341,7 +341,7 @@ namespace UltraEd
 
     bool Build::WriteCollisionFile(const std::vector<Actor *> &actors)
     {
-        std::string collisionPath = Util::GetPathFor("Engine\\collisions.h");
+        std::string collisionPath = Util::GetPathFor("Engine\\collisions_auto.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(collisionPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
 
@@ -400,7 +400,7 @@ namespace UltraEd
             }
         }
 
-        std::string scriptsPath = Util::GetPathFor("Engine\\scripts.h");
+        std::string scriptsPath = Util::GetPathFor("Engine\\scripts_auto.h");
         std::unique_ptr<FILE, decltype(fclose) *> file(fopen(scriptsPath.c_str(), "w"), fclose);
         if (file == NULL) return false;
         fwrite(scripts.c_str(), 1, scripts.size(), file.get());

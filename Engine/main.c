@@ -7,14 +7,14 @@
 #include "scene.h"
 #include "vector.h"
 #include "math.h"
-
-// Generated includes.
-#include "definitions.h"
-#include "segments.h"
-#include "actors.h"
 #include "core.h"
-#include "scripts.h"
-#include "collisions.h"
+
+// Auto generated includes.
+#include "definitions_auto.h"
+#include "segments_auto.h"
+#include "actors_auto.h"
+#include "scripts_auto.h"
+#include "collisions_auto.h"
 
 #define SCREEN_WD 320
 #define SCREEN_HT 240
