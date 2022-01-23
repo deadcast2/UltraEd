@@ -266,7 +266,7 @@
     <ClInclude Include="Flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Confirmation.h">
+    <ClInclude Include="ModalProperties.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

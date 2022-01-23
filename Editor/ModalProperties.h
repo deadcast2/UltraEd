@@ -5,7 +5,7 @@
 
 namespace UltraEd 
 {
-    struct Confirmation
+    struct ModalProperties
     {
         bool IsOpen;
         bool IsDirty;

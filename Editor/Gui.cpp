@@ -35,7 +35,7 @@ namespace UltraEd
         m_addTextureModalOpen(),
         m_addModelModalOpen(),
         m_loadSceneModalOpen(),
-        m_saveSceneModalOpen(),
+        m_saveSceneModal(),
         m_openConfirmModal()
     {
         IMGUI_CHECKVERSION();
@@ -197,7 +197,7 @@ namespace UltraEd
                 else
                 {
                     // Open save scene modal and forward defined callback.
-                    m_saveSceneModalOpen = std::make_tuple(true, m_openConfirmModal.No);
+                    m_saveSceneModal = { true, false, []() {}, m_openConfirmModal.No };
                     m_fileBrowser.SetTitle("Save Scene As...");
                     m_fileBrowser.Open();
                 }
@@ -1617,7 +1617,7 @@ namespace UltraEd
 
     void Gui::SaveSceneModal()
     {
-        if (std::get<0>(m_saveSceneModalOpen))
+        if (m_saveSceneModal.IsOpen)
         {
             m_fileBrowser.Display();
 
@@ -1626,7 +1626,8 @@ namespace UltraEd
                 try
                 {
                     m_scene->SaveAs(m_fileBrowser.GetSelected());
-                    std::get<1>(m_saveSceneModalOpen)();
+
+                    m_saveSceneModal.No();
                 }
                 catch (const std::exception &e)
                 {
@@ -1636,7 +1637,7 @@ namespace UltraEd
                 m_fileBrowser.Close();
             }
 
-            std::get<0>(m_saveSceneModalOpen) = m_fileBrowser.IsOpened();
+            m_saveSceneModal.IsOpen = m_fileBrowser.IsOpened();
         }
     }
 
@@ -1684,7 +1685,7 @@ namespace UltraEd
     {
         if (openModal)
         {
-            m_saveSceneModalOpen = std::make_tuple(true, []() {});
+            m_saveSceneModal = { true, false, []() {}, []() {} };
             m_fileBrowser.SetTitle("Save Scene As...");
             m_fileBrowser.Open();
             m_fileBrowser.SetPwd(Project::RootPath());
