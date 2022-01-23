@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include "upng.h"
 #include "actor.h"
-#include "utilities.h"
+#include "util.h"
 #include "vector.h"
+#include "math.h"
 
 Actor *CActor_CreateModel(int id, const char *name, void *modelStart, void *modelEnd, double positionX, double positionY, double positionZ,
     double rotX, double rotY, double rotZ, double angle, double scaleX, double scaleY, double scaleZ,
@@ -30,8 +31,8 @@ Actor *CActor_CreateTexturedModel(int id, const char *name, void *modelStart, vo
     void *textureBuffer = malloc(textureSize);
 
     // Transfer from ROM the model mesh data and texture.
-    rom_2_ram(modelStart, modelBuffer, modelSize);
-    rom_2_ram(textureStart, textureBuffer, textureSize);
+    CUtil_Rom2Ram(modelStart, modelBuffer, modelSize);
+    CUtil_Rom2Ram(textureStart, textureBuffer, textureSize);
 
     Model *model = (Model *)malloc(sizeof(Model));
     model->texture = NULL;
@@ -80,7 +81,7 @@ Actor *CActor_CreateTexturedModel(int id, const char *name, void *modelStart, vo
         if (upng_get_error(png) == UPNG_EOK)
         {
             // Convert texture data from 24bpp to 16bpp in RGB5551 format.
-            model->texture = image_24_to_16(upng_get_buffer(png), textureWidth, textureHeight);
+            model->texture = CUtil_Image24To16(upng_get_buffer(png), textureWidth, textureHeight);
         }
 
         upng_free(png);
@@ -256,7 +257,7 @@ Vector3 CActor_GetPosition(Actor *Actor)
         return (Vector3) { Actor->position.x, Actor->position.y, invertScalar * Actor->position.z };
     }
 
-    return vec3_mul_mat(Actor->position, CActor_GetMatrix(Actor->parent));
+    return CMath_Vec3MulMat(Actor->position, CActor_GetMatrix(Actor->parent));
 }
 
 Mtx CActor_GetMatrix(Actor *Actor)
@@ -283,7 +284,7 @@ Mtx CActor_GetMatrix(Actor *Actor)
         return combined;
     }
 
-    return mat_mul_mat(combined, CActor_GetMatrix(Actor->parent));
+    return CMath_MatMulMat(combined, CActor_GetMatrix(Actor->parent));
 }
 
 Mtx CActor_GetRotationMatrix(Actor *Actor)
@@ -300,7 +301,7 @@ Mtx CActor_GetRotationMatrix(Actor *Actor)
         return Actor->transform.rotation;
     }
 
-    return mat_mul_mat(Actor->transform.rotation, CActor_GetRotationMatrix(Actor->parent));
+    return CMath_MatMulMat(Actor->transform.rotation, CActor_GetRotationMatrix(Actor->parent));
 }
 
 void CActor_UpdateAABB(Actor *Actor)
@@ -333,7 +334,7 @@ void CActor_UpdateAABB(Actor *Actor)
 
 void CActor_UpdateSphere(Actor *Actor)
 {
-    Actor->center = vec3_mul_mat(Actor->originalCenter, Actor->transform.rotation);
+    Actor->center = CMath_Vec3MulMat(Actor->originalCenter, Actor->transform.rotation);
 
     // Scale the calculated radius using the largest scale value of the actor.
     float scaleComps[3] = { fabs(Actor->scale.x), fabs(Actor->scale.y), fabs(Actor->scale.z) };

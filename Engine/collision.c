@@ -1,4 +1,4 @@
-#include "utilities.h"
+#include "math.h"
 #include "collision.h"
 
 int CCollision_Test(Actor *a, Actor *b)
@@ -21,11 +21,11 @@ int CCollision_SphereSphereTest(Actor *a, Actor *b)
     CActor_UpdateSphere(b);
 
     const float radiusSum = a->radius + b->radius;
-    Vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
-    Vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);
-    Vector3 dist = vec3_sub(aPos, bPos);
+    Vector3 aPos = CMath_Vec3Add(CActor_GetPosition(a), a->center);
+    Vector3 bPos = CMath_Vec3Add(CActor_GetPosition(b), b->center);
+    Vector3 dist = CMath_Vec3Sub(aPos, bPos);
 
-    return vec3_dot(dist, dist) <= radiusSum * radiusSum;
+    return CMath_Vec3Dot(dist, dist) <= radiusSum * radiusSum;
 }
 
 int CCollision_BoxBoxTest(Actor *a, Actor *b)
@@ -33,8 +33,8 @@ int CCollision_BoxBoxTest(Actor *a, Actor *b)
     CActor_UpdateAABB(a);
     CActor_UpdateAABB(b);
 
-    Vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
-    Vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);
+    Vector3 aPos = CMath_Vec3Add(CActor_GetPosition(a), a->center);
+    Vector3 bPos = CMath_Vec3Add(CActor_GetPosition(b), b->center);
 
     if (fabs(aPos.x - bPos.x) > (a->extents.x + b->extents.x)) return 0;
     if (fabs(aPos.y - bPos.y) > (a->extents.y + b->extents.y)) return 0;
@@ -48,8 +48,8 @@ int CCollision_BoxSphereTest(Actor *a, Actor *b)
     CActor_UpdateAABB(a);
     CActor_UpdateSphere(b);
 
-    Vector3 aPos = vec3_add(CActor_GetPosition(a), a->center);
-    Vector3 bPos = vec3_add(CActor_GetPosition(b), b->center);
+    Vector3 aPos = CMath_Vec3Add(CActor_GetPosition(a), a->center);
+    Vector3 bPos = CMath_Vec3Add(CActor_GetPosition(b), b->center);
 
     float aMin[3] = { aPos.x - a->extents.x, aPos.y - a->extents.y, aPos.z - a->extents.z };
     float aMax[3] = { aPos.x + a->extents.x, aPos.y + a->extents.y, aPos.z + a->extents.z };

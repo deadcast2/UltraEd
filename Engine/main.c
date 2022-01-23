@@ -1,11 +1,12 @@
 #include <nusys.h>
 #include <math.h>
 #include <malloc.h>
-#include "utilities.h"
+#include "util.h"
 #include "actor.h"
 #include "collision.h"
 #include "scene.h"
 #include "vector.h"
+#include "math.h"
 
 // Generated includes.
 #include "definitions.h"

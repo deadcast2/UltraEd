@@ -57,8 +57,8 @@
     "z": 0.0
    },
    "rotation": {
-    "w": 0.7071107625961304,
-    "x": 0.7071025371551514,
+    "w": 0.7071110010147095,
+    "x": 0.7071022987365723,
     "y": 0.0,
     "z": 0.0
    },
@@ -67,7 +67,7 @@
     "y": 0.07999996095895767,
     "z": 0.07999996095895767
    },
-   "script": "typedef struct $_Bullet\n{\n\tVector3 dir;\n\tVector3 initPos;\n} $Bullet;\n\nvoid $Notify(Actor *self, const char *message, void *data)\n{\n\tif(message == \"Fire\" && data != NULL)\n\t{\n\t\tVector3 *dir = (Vector3*)data;\n\t\tif(dir != NULL && self->dynamic != NULL)\n\t\t{\n\t\t\t(($Bullet *)self->dynamic)->dir = *dir;\n\t\t\t(($Bullet *)self->dynamic)->initPos = self->position;\n\t\t}\n\t}\n}\n\nvoid $Start(Actor *self)\n{\n\tself->dynamic = ($Bullet *)malloc(sizeof($Bullet));\n\tself->notify = $Notify;\n}\n\nvoid $Update(Actor *self)\n{\n\t$Bullet *bullet = ($Bullet *)self->dynamic;\n\tif(bullet != NULL)\n\t{\n\t\tself->position = vec3_add(self->position, bullet->dir);\n\t\t\n\t\tif(vec3_dist(self->position, bullet->initPos) > 20)\n\t\t\tDestroy(self);\n\t}\n}\n",
+   "script": "typedef struct $_Bullet\n{\n\tVector3 dir;\n\tVector3 initPos;\n} $Bullet;\n\nvoid $Notify(Actor *self, const char *message, void *data)\n{\n\tif(message == \"Fire\" && data != NULL)\n\t{\n\t\tVector3 *dir = (Vector3*)data;\n\t\tif(dir != NULL && self->dynamic != NULL)\n\t\t{\n\t\t\t(($Bullet *)self->dynamic)->dir = *dir;\n\t\t\t(($Bullet *)self->dynamic)->initPos = self->position;\n\t\t}\n\t}\n}\n\nvoid $Start(Actor *self)\n{\n\tself->dynamic = ($Bullet *)malloc(sizeof($Bullet));\n\tself->notify = $Notify;\n}\n\nvoid $Update(Actor *self)\n{\n\t$Bullet *bullet = ($Bullet *)self->dynamic;\n\tif(bullet != NULL)\n\t{\n\t\tself->position = CMath_Vec3Add(self->position, bullet->dir);\n\t\t\n\t\tif(CMath_Vec3Dist(self->position, bullet->initPos) > 20)\n\t\t\tDestroy(self);\n\t}\n}\n",
    "texture_id": "fc55a85b-f451-479a-9a03-8dde6ba0b3ed",
    "type": 0
   },
@@ -96,7 +96,7 @@
     "y": 0.4000000059604645,
     "z": 0.4000000059604645
    },
-   "script": "void $Fire(Actor *self)\n{\n\tModel *bullet = (Model *)FindActorByName(\"Bullet\");\n\t\n\tif(bullet != NULL)\n\t{\n\t\tActor *clonedBullet = (Actor *)Clone(bullet);\n\t\t\n\t\tif(clonedBullet != NULL && clonedBullet->notify != NULL)\n\t\t{\n\t\t\tclonedBullet->position = CActor_GetPosition(self);\n\t\t\t\n\t\t\tVector3 *direction = malloc(sizeof(Vector3));\n\t\t\t\n\t\t\tif(direction != NULL)\n\t\t\t{\n\t\t\t\tVector3 forward = VECTOR3(0, 1, 0);\n\t\t\t\tforward = vec3_mul_mat(forward, CActor_GetRotationMatrix(self));\n\t\n\t\t\t\t*direction = VECTOR3(forward.x, forward.y, forward.z);\n\t\t\t\tclonedBullet->notify(clonedBullet, \"Fire\", direction);\t\n\t\t\t\tfree(direction);\n\t\t\t}\n\t\t}\n\t}\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\tif(gamepads[0].button & L_CBUTTONS)\n\t{\n\t\tself->rotationAngle -= 1.0f;\n\t}\n\t\n\tif(gamepads[0].button & R_CBUTTONS)\n\t{\n\t\tself->rotationAngle += 1.0f;\n\t}\n\t\n\tif((gamepads[0].trigger & A_BUTTON))\n\t{\n\t\t$Fire(self);\n\t}\n}\n",
+   "script": "void $Fire(Actor *self)\n{\n\tModel *bullet = (Model *)FindActorByName(\"Bullet\");\n\t\n\tif(bullet != NULL)\n\t{\n\t\tActor *clonedBullet = (Actor *)Clone(bullet);\n\t\t\n\t\tif(clonedBullet != NULL && clonedBullet->notify != NULL)\n\t\t{\n\t\t\tclonedBullet->position = CActor_GetPosition(self);\n\t\t\t\n\t\t\tVector3 *direction = malloc(sizeof(Vector3));\n\t\t\t\n\t\t\tif(direction != NULL)\n\t\t\t{\n\t\t\t\tVector3 forward = VECTOR3(0, 1, 0);\n\t\t\t\tforward = CMath_Vec3MulMat(forward, CActor_GetRotationMatrix(self));\n\t\n\t\t\t\t*direction = VECTOR3(forward.x, forward.y, forward.z);\n\t\t\t\tclonedBullet->notify(clonedBullet, \"Fire\", direction);\t\n\t\t\t\tfree(direction);\n\t\t\t}\n\t\t}\n\t}\n}\n\nvoid $Input(Actor *self, NUContData gamepads[4])\n{\n\tif(gamepads[0].button & L_CBUTTONS)\n\t{\n\t\tself->rotationAngle -= 1.0f;\n\t}\n\t\n\tif(gamepads[0].button & R_CBUTTONS)\n\t{\n\t\tself->rotationAngle += 1.0f;\n\t}\n\t\n\tif((gamepads[0].trigger & A_BUTTON))\n\t{\n\t\t$Fire(self);\n\t}\n}\n",
    "texture_id": "175af6b9-1640-48ff-9b7a-729700c730da",
    "type": 0
   },
@@ -474,8 +474,8 @@
     "z": 8.26987361907959
    },
    "rotation": {
-    "w": 0.7000389099121094,
-    "x": 0.7141045928001404,
+    "w": 0.7000390291213989,
+    "x": 0.7141044735908508,
     "y": 0.0,
     "z": 0.0
    },
@@ -506,8 +506,8 @@
     "z": 2.9829154014587402
    },
    "rotation": {
-    "w": 0.7071071267127991,
-    "x": 0.707106351852417,
+    "w": 0.7071071863174438,
+    "x": 0.7071062922477722,
     "y": 0.0,
     "z": 0.0
    },
@@ -560,24 +560,24 @@
  "views": [
   {
    "forward": {
-    "x": -0.1457429975271225,
-    "y": -0.31895968317985535,
-    "z": 0.9364953637123108
+    "x": -0.14574268460273743,
+    "y": -0.31895920634269714,
+    "z": 0.9364956021308899
    },
    "position": {
-    "x": 4.6881422996521,
-    "y": 2.4301533699035645,
-    "z": 0.10907256603240967
+    "x": 1.0631035566329956,
+    "y": 0.2439012974500656,
+    "z": -2.0005459785461426
    },
    "right": {
-    "x": 0.9881055951118469,
-    "y": 4.59328293800354e-06,
-    "z": 0.15377645194530487
+    "x": 0.9881057143211365,
+    "y": 4.746020294987829e-06,
+    "z": 0.153776153922081
    },
    "up": {
-    "x": -0.04905279725790024,
-    "y": 0.9477682709693909,
-    "z": 0.3151652216911316
+    "x": -0.04905276373028755,
+    "y": 0.9477683901786804,
+    "z": 0.315164715051651
    }
   },
   {
