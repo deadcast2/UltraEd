@@ -172,9 +172,10 @@ void mainproc()
     if (InitHeapMemory() > -1)
     {
         _UER_Load();
-        _UER_Start();
 
         SetDefaultCamera();
+
+        _UER_Start();
     }
 
     nuGfxFuncSet((NUGfxFunc)GfxCallback);
