@@ -3,12 +3,12 @@
 
 #include "actor.h"
 
-int check_collision(Actor *a, Actor *b);
+int CCollision_Test(Actor *a, Actor *b);
 
-int sphere_sphere_collision(Actor *a, Actor *b);
+int CCollision_SphereSphereTest(Actor *a, Actor *b);
 
-int box_box_collision(Actor *a, Actor *b);
+int CCollision_BoxBoxTest(Actor *a, Actor *b);
 
-int box_sphere_collision(Actor *a, Actor *b);
+int CCollision_BoxSphereTest(Actor *a, Actor *b);
 
 #endif

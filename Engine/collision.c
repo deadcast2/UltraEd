@@ -1,21 +1,21 @@
 #include "utilities.h"
 #include "collision.h"
 
-int check_collision(Actor *a, Actor *b)
+int CCollision_Test(Actor *a, Actor *b)
 {
     if (a->collider == TSphere && b->collider == TSphere)
-        return sphere_sphere_collision(a, b);
+        return CCollision_SphereSphereTest(a, b);
     else if (a->collider == TBox && b->collider == TSphere)
-        return box_sphere_collision(a, b);
+        return CCollision_BoxSphereTest(a, b);
     else if (a->collider == TSphere && b->collider == TBox)
-        return box_sphere_collision(b, a);
+        return CCollision_BoxSphereTest(b, a);
     else if (a->collider == TBox && b->collider == TBox)
-        return box_box_collision(a, b);
+        return CCollision_BoxBoxTest(a, b);
     
     return 0;
 }
 
-int sphere_sphere_collision(Actor *a, Actor *b)
+int CCollision_SphereSphereTest(Actor *a, Actor *b)
 {
     CActor_UpdateSphere(a);
     CActor_UpdateSphere(b);
@@ -28,7 +28,7 @@ int sphere_sphere_collision(Actor *a, Actor *b)
     return vec3_dot(dist, dist) <= radiusSum * radiusSum;
 }
 
-int box_box_collision(Actor *a, Actor *b)
+int CCollision_BoxBoxTest(Actor *a, Actor *b)
 {
     CActor_UpdateAABB(a);
     CActor_UpdateAABB(b);
@@ -43,7 +43,7 @@ int box_box_collision(Actor *a, Actor *b)
     return 1;
 }
 
-int box_sphere_collision(Actor *a, Actor *b)
+int CCollision_BoxSphereTest(Actor *a, Actor *b)
 {
     CActor_UpdateAABB(a);
     CActor_UpdateSphere(b);

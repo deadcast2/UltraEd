@@ -12,7 +12,7 @@ void _UER_ActorCollision()
             
             if (innerActor->collider == TNone) continue;
             
-            if (check_collision(outerActor, innerActor))
+            if (CCollision_Test(outerActor, innerActor))
             { 
                 if (outerActor->collide != NULL) outerActor->collide(outerActor, innerActor);
                 
