@@ -1,8 +1,8 @@
 void _UER_ActorUpdate(Gfx **display_list, NUContData gamepads[4])
 {
-    for (int i = 0; i < vector_size(_UER_Actors); i++)
+    for (int i = 0; i < CVector_Size(_UER_Actors); i++)
     {
-        Actor *actor = vector_get(_UER_Actors, i);
+        Actor *actor = CVector_Get(_UER_Actors, i);
 
         if (actor->parent == NULL) 
             CActor_Draw(actor, display_list);
@@ -15,29 +15,29 @@ void _UER_ActorUpdate(Gfx **display_list, NUContData gamepads[4])
     }
 
     // Handle removal of actors marked as destroyed.
-    for (int i = 0; i < vector_size(_UER_ActorsPendingRemoval); i++)
+    for (int i = 0; i < CVector_Size(_UER_ActorsPendingRemoval); i++)
     {
-        Actor *actorToRemove = vector_get(_UER_ActorsPendingRemoval, i);
+        Actor *actorToRemove = CVector_Get(_UER_ActorsPendingRemoval, i);
 
-        for (int j = 0; j < vector_size(_UER_Actors); j++)
+        for (int j = 0; j < CVector_Size(_UER_Actors); j++)
         {
-            Actor *actor = vector_get(_UER_Actors, j);
+            Actor *actor = CVector_Get(_UER_Actors, j);
 
             if (actor->id != actorToRemove->id)
                 continue;
 
-            vector_remove_at(_UER_Actors, j);
+            CVector_RemoveAt(_UER_Actors, j);
 
             // Remove link from parent if any.
             if (actor->parent != NULL)
             {
-                for (int k = 0; k < vector_size(actor->parent->children); k++)
+                for (int k = 0; k < CVector_Size(actor->parent->children); k++)
                 {
-                    Actor *child = vector_get(actor->parent->children, k);
+                    Actor *child = CVector_Get(actor->parent->children, k);
 
                     if (child->id == actor->id)
                     {
-                        vector_remove_at(actor->parent->children, k);
+                        CVector_RemoveAt(actor->parent->children, k);
                     }
                 }
             }
@@ -55,8 +55,8 @@ void _UER_ActorUpdate(Gfx **display_list, NUContData gamepads[4])
     }
 
     // Clear out vector of actors needing to be removed.
-    while (!vector_is_empty(_UER_ActorsPendingRemoval))
+    while (!CVector_IsEmpty(_UER_ActorsPendingRemoval))
     {
-        vector_remove_at(_UER_ActorsPendingRemoval, vector_size(_UER_ActorsPendingRemoval) - 1);
+        CVector_RemoveAt(_UER_ActorsPendingRemoval, CVector_Size(_UER_ActorsPendingRemoval) - 1);
     }
 }

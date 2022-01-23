@@ -5,33 +5,33 @@
 #define INITIAL_CAPACITY 8
 #define min(x,y) (((x)<(y))?(x):(y))
 
-struct _vector
+struct _Vector
 {
-    value_type *array;
+    ValueType *array;
     int size;
     int capacity;
 };
 
-vector vector_create() 
+Vector CVector_Create() 
 {
-    vector v = (vector)malloc(sizeof(struct _vector)); 
+    Vector v = (Vector)malloc(sizeof(struct _Vector)); 
     
     if (v == NULL) return NULL;
     
     v->size = 0; 
     v->capacity = INITIAL_CAPACITY; 
-    v->array = (value_type *)malloc(sizeof(value_type) * v->capacity); 
+    v->array = (ValueType *)malloc(sizeof(ValueType) * v->capacity); 
     
     if (v->array == NULL)
     {
-        vector_destroy(v);
+        CVector_Destroy(v);
         return NULL;
     }
     
     return v;
 }
 
-void vector_destroy(vector v) 
+void CVector_Destroy(Vector v) 
 {
     if (v == NULL) return;
 
@@ -39,62 +39,62 @@ void vector_destroy(vector v)
     free(v);
 }
 
-void vector_double_capacity(vector v) 
+void CVector_DoubleCapacity(Vector v) 
 {
     if (v == NULL) return;
 
-    int new_capacity = 2 * v->capacity; 
+    const int newCapacity = 2 * v->capacity; 
     
-    value_type *new_array = (value_type *)malloc(sizeof(value_type) * new_capacity); 
+    ValueType *newArray = (ValueType *)malloc(sizeof(ValueType) * newCapacity); 
     
-    if (new_array == NULL) return;
+    if (newArray == NULL) return;
     
     for (int i = 0; i < v->size; i++)
     {
-        new_array[i] = v->array[i];
+        newArray[i] = v->array[i];
     }
     
     free(v->array); 
-    v->array = new_array; 
-    v->capacity = new_capacity;
+    v->array = newArray; 
+    v->capacity = newCapacity;
 }
 
-void vector_half_capacity(vector v) 
+void CVector_HalfCapacity(Vector v) 
 {
     if (v == NULL) return;
 
     if (v->capacity <= INITIAL_CAPACITY) return;
     
-    int new_capacity = v->capacity / 2; 
+    const int newCapacity = v->capacity / 2; 
     
-    value_type *new_array = (value_type *)malloc(sizeof(value_type) * new_capacity); 
+    ValueType *newArray = (ValueType *)malloc(sizeof(ValueType) * newCapacity); 
     
-    if (new_array == NULL) return;
+    if (newArray == NULL) return;
     
-    for (int i = 0; i < min(v->size, new_capacity); i++)
+    for (int i = 0; i < min(v->size, newCapacity); i++)
     {
-        new_array[i] = v->array[i];
+        newArray[i] = v->array[i];
     }
     
     free(v->array); 
-    v->array = new_array; 
-    v->capacity = new_capacity; 
-    v->size = min(v->size, new_capacity);
+    v->array = newArray; 
+    v->capacity = newCapacity; 
+    v->size = min(v->size, newCapacity);
 }
 
-void vector_add(vector v, value_type value)
+void CVector_Add(Vector v, ValueType value)
 {
     if (v == NULL) return;
 
     if (v->size >= v->capacity)
     {
-        vector_double_capacity(v);
+        CVector_DoubleCapacity(v);
     }
     
     v->array[v->size++] = value;
 }
 
-value_type vector_get(vector v, int i) 
+ValueType CVector_Get(Vector v, int i) 
 {
     if (v == NULL) return NULL;
 
@@ -103,7 +103,7 @@ value_type vector_get(vector v, int i)
     return v->array[i];
 }
 
-void vector_put(vector v, int i, value_type value) 
+void CVector_Put(Vector v, int i, ValueType value) 
 {
     if (v == NULL) return;
 
@@ -112,7 +112,7 @@ void vector_put(vector v, int i, value_type value)
     v->array[i] = value;
 }
 
-void vector_add_at(vector v, int i, value_type value) 
+void CVector_AddAt(Vector v, int i, ValueType value) 
 {
     if (v == NULL) return;
 
@@ -120,7 +120,7 @@ void vector_add_at(vector v, int i, value_type value)
     
     if (v->size >= v->capacity)
     {
-        vector_double_capacity(v);
+        CVector_DoubleCapacity(v);
     }
     
     for (int j = v->size; j > i; j--)
@@ -132,13 +132,13 @@ void vector_add_at(vector v, int i, value_type value)
     v->size++;
 }
 
-value_type vector_remove_at(vector v, int i) 
+ValueType CVector_RemoveAt(Vector v, int i) 
 {
     if (v == NULL) return NULL;
 
     if (i < 0 || i >= v->size) return NULL;
     
-    value_type ret = v->array[i]; 
+    ValueType ret = v->array[i]; 
     
     for (int j = i + 1; j < v->size; j++)
     {
@@ -149,27 +149,27 @@ value_type vector_remove_at(vector v, int i)
     
     if (4 * v->size < v->capacity)
     {
-        vector_half_capacity(v);
+        CVector_HalfCapacity(v);
     }
     
     return ret;
 }
 
-int vector_is_empty(vector v) 
+int CVector_IsEmpty(Vector v) 
 { 
     if (v == NULL) return 1;
 
     return v->size == 0;
 }
 
-int vector_size(vector v) 
+int CVector_Size(Vector v) 
 {
     if (v == NULL) return 0;
 
     return v->size;
 }
 
-void vector_clear(vector v) 
+void CVector_Clear(Vector v) 
 {
     if (v == NULL) return;
 
@@ -177,6 +177,6 @@ void vector_clear(vector v)
     
     while (v->capacity > INITIAL_CAPACITY)
     {
-        vector_half_capacity(v);
+        CVector_HalfCapacity(v);
     }
 }

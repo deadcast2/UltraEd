@@ -9,9 +9,9 @@
 
 Actor *FindActorByName(const char *name)
 {
-    for (int i = 0; i < vector_size(_UER_Actors); i++)
+    for (int i = 0; i < CVector_Size(_UER_Actors); i++)
     {
-        Actor *curr = vector_get(_UER_Actors, i);
+        Actor *curr = CVector_Get(_UER_Actors, i);
 
         if (curr->name == name)
             return curr;
@@ -42,9 +42,9 @@ Actor *Clone(Model *model)
 
         // Get the largest ID to use as base for next ID.
         int maxId = 0;
-        for (int i = 0; i < vector_size(_UER_Actors); i++)
+        for (int i = 0; i < CVector_Size(_UER_Actors); i++)
         {
-            Actor *curr = vector_get(_UER_Actors, i);
+            Actor *curr = CVector_Get(_UER_Actors, i);
 
             if (curr->id > maxId)
                 maxId = curr->id;
@@ -58,7 +58,7 @@ Actor *Clone(Model *model)
         // Will clone and re-link any available child actors.
         clonedActor->children = NULL;
 
-        vector_add(_UER_Actors, clonedActor);
+        CVector_Add(_UER_Actors, clonedActor);
 
         if (clonedActor->start != NULL)
             clonedActor->start(clonedActor);
@@ -67,9 +67,9 @@ Actor *Clone(Model *model)
         Actor *actor = (Actor *)model;
         if (actor->children != NULL)
         {
-            for (int i = 0; i < vector_size(actor->children); i++)
+            for (int i = 0; i < CVector_Size(actor->children); i++)
             {
-                Actor *child = vector_get(actor->children, i);
+                Actor *child = CVector_Get(actor->children, i);
                 Actor *clonedChild = Clone((Model*)child);
 
                 if (clonedChild != NULL)
@@ -91,15 +91,15 @@ void Destroy(Actor *actor)
 
     if (actor->children != NULL)
     {
-        for (int i = 0; i < vector_size(actor->children); i++)
+        for (int i = 0; i < CVector_Size(actor->children); i++)
         {
-            Actor *child = vector_get(actor->children, i);
+            Actor *child = CVector_Get(actor->children, i);
 
             Destroy(child);
         }
     }
 
-    vector_add(_UER_ActorsPendingRemoval, actor);
+    CVector_Add(_UER_ActorsPendingRemoval, actor);
 }
 
 #endif

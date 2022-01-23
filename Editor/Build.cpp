@@ -203,17 +203,17 @@ namespace UltraEd
     {
         int actorCount = -1;
         
-        std::string actorsArrayDef("vector _UER_Actors = NULL;\nvector _UER_ActorsPendingRemoval = NULL;");
+        std::string actorsArrayDef("Vector _UER_Actors = NULL;\nVector _UER_ActorsPendingRemoval = NULL;");
         actorsArrayDef.append("\nActor *_UER_ActiveCamera = NULL;\n");
 
-        std::string actorInits("\n\t_UER_Actors = vector_create();\n\t_UER_ActorsPendingRemoval = vector_create();\n");
+        std::string actorInits("\n\t_UER_Actors = CVector_Create();\n\t_UER_ActorsPendingRemoval = CVector_Create();\n");
 
         std::map<boost::uuids::uuid, int> reducedActorIds;
         
         for (const auto &actor : actors)
         {
             std::string resourceName = Util::NewResourceName(++actorCount);
-            actorInits.append("\n\tvector_add(_UER_Actors, ");
+            actorInits.append("\n\tCVector_Add(_UER_Actors, ");
 
             D3DXVECTOR3 colliderCenter = actor->HasCollider() ? actor->GetCollider()->GetCenter() : D3DXVECTOR3(0, 0, 0);
             FLOAT colliderRadius = actor->HasCollider() && actor->GetCollider()->GetType() == ColliderType::Sphere ?
@@ -317,8 +317,8 @@ namespace UltraEd
             for (const auto &child : actor->GetChildren())
             {
                 actorInits.append("\n\tCActor_LinkChildToParent(_UER_Actors, ")
-                    .append("vector_get(_UER_Actors, ").append(std::to_string(reducedActorIds[child->GetId()])).append(")")
-                    .append(", vector_get(_UER_Actors, ").append(std::to_string(reducedActorIds[actor->GetId()])).append("));\n");
+                    .append("CVector_Get(_UER_Actors, ").append(std::to_string(reducedActorIds[child->GetId()])).append(")")
+                    .append(", CVector_Get(_UER_Actors, ").append(std::to_string(reducedActorIds[actor->GetId()])).append("));\n");
             }
         }
 
@@ -361,7 +361,7 @@ namespace UltraEd
         for (const auto &actor : actors)
         {
             std::string actorRef;
-            actorRef.append("vector_get(_UER_Actors, ");
+            actorRef.append("CVector_Get(_UER_Actors, ");
 
             std::string newResName = Util::NewResourceName(++actorCount);
             std::string script = actor->GetScript();

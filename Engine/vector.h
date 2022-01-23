@@ -8,18 +8,20 @@ https://d-michail.github.io/assets/teaching/data-structures/013_VectorImplementa
 #define _VECTOR_H
 
 typedef struct _Actor Actor;
-typedef struct _vector *vector;
-typedef Actor *value_type;
+typedef struct _Vector *Vector;
+typedef Actor *ValueType;
 
-vector vector_create();
-void vector_destroy(vector);
-value_type vector_get(vector, int);
-void vector_put(vector, int, value_type);
-void vector_add(vector, value_type);
-void vector_add_at(vector, int, value_type);
-value_type vector_remove_at(vector, int);
-int vector_is_empty(vector);
-int vector_size(vector);
-void vector_clear(vector);
+Vector CVector_Create();
+void CVector_Destroy(Vector);
+void CVector_DoubleCapacity(Vector v);
+void CVector_HalfCapacity(Vector v);
+ValueType CVector_Get(Vector, int);
+void CVector_Put(Vector, int, ValueType);
+void CVector_Add(Vector, ValueType);
+void CVector_AddAt(Vector, int, ValueType);
+ValueType CVector_RemoveAt(Vector, int);
+int CVector_IsEmpty(Vector);
+int CVector_Size(Vector);
+void CVector_Clear(Vector);
 
 #endif

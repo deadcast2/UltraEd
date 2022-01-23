@@ -220,25 +220,25 @@ void CActor_Draw(Actor *actor, Gfx **displayList)
 
     if (actor->children != NULL)
     {
-        for (int i = 0; i < vector_size(actor->children); i++)
+        for (int i = 0; i < CVector_Size(actor->children); i++)
         {
-            CActor_Draw(vector_get(actor->children, i), displayList);
+            CActor_Draw(CVector_Get(actor->children, i), displayList);
         }
     }
 
     gSPPopMatrix((*displayList)++, G_MTX_MODELVIEW);
 }
 
-void CActor_LinkChildToParent(vector actors, Actor *child, Actor *parent)
+void CActor_LinkChildToParent(Vector actors, Actor *child, Actor *parent)
 {
     if (parent && child)
     {
         if (parent->children == NULL)
         {
-            parent->children = vector_create();
+            parent->children = CVector_Create();
         }
 
-        vector_add(parent->children, child);
+        CVector_Add(parent->children, child);
 
         child->parent = parent;
     }

@@ -28,7 +28,7 @@ typedef struct _Mesh
     Vtx *vertices;
 } Mesh;
 
-typedef struct _vector *vector;
+typedef struct _Vector *Vector;
 
 struct _Actor
 {
@@ -49,7 +49,7 @@ struct _Actor
     Vector3 originalExtents;
     Transform transform;
     struct _Actor *parent;
-    vector children;
+    Vector children;
     void (*start)();
     void (*update)();
     void (*input)();
@@ -99,7 +99,7 @@ Actor *CActor_CreateCamera(int id, const char *name, double positionX, double po
     double centerX, double centerY, double centerZ, double radius,
     double extentX, double extentY, double extentZ, double fov, enum ColliderType collider);
 
-void CActor_LinkChildToParent(vector actors, Actor *child, Actor *parent);
+void CActor_LinkChildToParent(Vector actors, Actor *child, Actor *parent);
 
 void CActor_Draw(Actor *model, Gfx **displayList);
 

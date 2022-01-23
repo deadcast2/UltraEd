@@ -149,11 +149,11 @@ int InitHeapMemory()
 
 void SetDefaultCamera()
 {
-    for (int i = 0; i < vector_size(_UER_Actors); i++)
+    for (int i = 0; i < CVector_Size(_UER_Actors); i++)
     {
-        if (vector_get(_UER_Actors, i)->type == TCamera)
+        if (CVector_Get(_UER_Actors, i)->type == TCamera)
         {
-            _UER_ActiveCamera = vector_get(_UER_Actors, i);
+            _UER_ActiveCamera = CVector_Get(_UER_Actors, i);
 
             break;
         }
