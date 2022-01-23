@@ -4,7 +4,6 @@
 #include "util.h"
 #include "actor.h"
 #include "collision.h"
-#include "scene.h"
 #include "vector.h"
 #include "math.h"
 #include "core.h"
@@ -15,6 +14,7 @@
 #include "actors_auto.h"
 #include "scripts_auto.h"
 #include "collisions_auto.h"
+#include "scene_auto.h"
 
 #define SCREEN_WD 320
 #define SCREEN_HT 240
