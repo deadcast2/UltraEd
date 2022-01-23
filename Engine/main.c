@@ -28,26 +28,26 @@ NUContData ControllerData[4];
 
 static Vp ViewPort =
 {
-  SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
-  SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
+    SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
+    SCREEN_WD * 2, SCREEN_HT * 2, G_MAXZ / 2, 0,
 };
 
 Gfx RspState[] =
 {
-  gsSPViewport(&ViewPort),
-  gsSPClearGeometryMode(0xFFFFFFFF),
-  gsSPSetGeometryMode(G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH | G_CULL_BACK),
-  gsSPTexture(0, 0, 0, 0, G_OFF),
-  gsSPEndDisplayList()
+    gsSPViewport(&ViewPort),
+    gsSPClearGeometryMode(0xFFFFFFFF),
+    gsSPSetGeometryMode(G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH | G_CULL_BACK),
+    gsSPTexture(0, 0, 0, 0, G_OFF),
+    gsSPEndDisplayList()
 };
 
 Gfx RdpState[] =
 {
-  gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
-  gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
-  gsDPSetScissor(G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT),
-  gsDPSetColorDither(G_CD_BAYER),
-  gsSPEndDisplayList()
+    gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
+    gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
+    gsDPSetScissor(G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT),
+    gsDPSetColorDither(G_CD_BAYER),
+    gsSPEndDisplayList()
 };
 
 void RcpInit()
@@ -59,7 +59,7 @@ void RcpInit()
 
 void ClearFrameBuffer()
 {
-    unsigned int backgroundColor = GPACK_RGBA5551(_UER_SceneBackgroundColor[0],
+    const unsigned int backgroundColor = GPACK_RGBA5551(_UER_SceneBackgroundColor[0],
         _UER_SceneBackgroundColor[1], _UER_SceneBackgroundColor[2], 1);
 
     gDPSetDepthImage(GfxListPointer++, OS_K0_TO_PHYSICAL(nuGfxZBuffer));
@@ -82,8 +82,8 @@ void SetupWorldMatrix(Gfx **display_list)
 {
     u16 persp_normal;
 
-    Camera *camera = (Camera *)_UER_ActiveCamera;
-    float fov = camera == NULL ? 80.0 : camera->fov;
+    const Camera *camera = (Camera *)_UER_ActiveCamera;
+    const float fov = camera == NULL ? 80.0 : camera->fov;
 
     guPerspective(&World.projection,
         &persp_normal,
@@ -123,7 +123,7 @@ void Render()
 
 void UpdateCamera()
 {
-    Actor *camera = _UER_ActiveCamera;
+    const Actor *camera = _UER_ActiveCamera;
 
     if (camera != NULL)
     {
@@ -182,5 +182,5 @@ void mainproc()
     nuGfxFuncSet((NUGfxFunc)GfxCallback);
     nuGfxDisplayOn();
 
-    while (1) { }
+    while (1) {}
 }
