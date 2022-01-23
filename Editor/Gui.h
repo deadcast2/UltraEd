@@ -30,7 +30,7 @@ namespace UltraEd
         void Resize(UINT width, UINT height);
         ImGuiIO &IO();
         void OpenContextMenu(Actor *selectedActor);
-        void ConfirmScene(std::function<void()> block);
+        void ConfirmScene(std::function<void()> onComplete);
         void RefreshScene(const std::vector<boost::uuids::uuid> &changedAssetIds);
         void LoadProject(const std::filesystem::path &path);
         static const int ImageButtonWidth = 64;
@@ -72,7 +72,7 @@ namespace UltraEd
         void AddModelModal();
         void LoadSceneModal();
         void SaveSceneModal();
-        void ConfirmSceneModal();
+        void ConfirmModal();
         void SaveScene(bool openModal = false);
         void RenderTreeNode(Actor *actor);
         void StatusBar();
@@ -92,7 +92,7 @@ namespace UltraEd
         bool m_moveConsoleToBottom;
         bool m_openContextMenu;
         std::tuple<bool, std::function<void()>> m_saveSceneModalOpen;
-        std::tuple<bool, std::function<void()>> m_openConfirmSceneModal;
+        std::tuple<bool, std::function<void()>, std::function<void()>, bool> m_openConfirmModal;
         bool m_optionsModalOpen;
         bool m_sceneSettingsModalOpen;
         bool m_newProjectModalOpen;

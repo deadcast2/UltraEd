@@ -36,7 +36,7 @@ namespace UltraEd
         m_addModelModalOpen(),
         m_loadSceneModalOpen(),
         m_saveSceneModalOpen(),
-        m_openConfirmSceneModal()
+        m_openConfirmModal()
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -122,7 +122,7 @@ namespace UltraEd
             LoadProjectModal();
             AddTextureModal();
             AddModelModal();
-            ConfirmSceneModal();
+            ConfirmModal();
             SaveSceneModal();
             LoadSceneModal();
             StatusBar();
@@ -182,9 +182,23 @@ namespace UltraEd
         m_selectedActor = selectedActor;
     }
 
-    void Gui::ConfirmScene(std::function<void()> block)
+    void Gui::ConfirmScene(std::function<void()> onComplete)
     {
-        m_openConfirmSceneModal = std::make_tuple(true, block);
+        m_openConfirmModal = std::make_tuple(true, [&]() {
+            if (m_scene->HasPath())
+            {
+                // Has already been saved so just save and run callback.
+                m_scene->SaveAs();
+                std::get<2>(m_openConfirmModal)();
+            }
+            else
+            {
+                // Open save scene modal and forward defined callback.
+                m_saveSceneModalOpen = std::make_tuple(true, std::get<2>(m_openConfirmModal));
+                m_fileBrowser.SetTitle("Save Scene As...");
+                m_fileBrowser.Open();
+            }
+        }, onComplete, !m_scene->IsDirty());
     }
 
     void Gui::RefreshScene(const std::vector<boost::uuids::uuid> &changedAssetIds)
@@ -1323,9 +1337,10 @@ namespace UltraEd
         for (const auto &editor : std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>>(m_scriptEditors))
         {
             bool isOpen = true;
+            const bool isDirty = std::get<1>(editor.second)->GetText() != editor.first->GetScript();
             ImGuiWindowFlags flags = ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar;
 
-            if (std::get<1>(editor.second)->GetText() != editor.first->GetScript())
+            if (isDirty)
             {
                 flags |= ImGuiWindowFlags_UnsavedDocument;
             }
@@ -1356,7 +1371,12 @@ namespace UltraEd
 
                 if (!isOpen)
                 {
-                    m_scriptEditors.erase(editor.first);
+                    m_openConfirmModal = std::make_tuple(true, [=]() {
+                        SaveScriptEditor(editor.first);
+                        std::get<2>(m_openConfirmModal)();
+                    }, [=]() {
+                        m_scriptEditors.erase(editor.first);
+                    }, !isDirty);
                 }
             }
 
@@ -1610,12 +1630,12 @@ namespace UltraEd
         }
     }
 
-    void Gui::ConfirmSceneModal()
+    void Gui::ConfirmModal()
     {
-        if (std::get<0>(m_openConfirmSceneModal))
+        if (std::get<0>(m_openConfirmModal))
         {
             ImGui::OpenPopup("Are you sure?");
-            std::get<0>(m_openConfirmSceneModal) = false;
+            std::get<0>(m_openConfirmModal) = false;
         }
 
         if (ImGui::BeginPopupModal("Are you sure?", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
@@ -1624,28 +1644,17 @@ namespace UltraEd
 
             if (ImGui::Button("Yes"))
             {
-                if (m_scene->HasPath())
-                {
-                    // Has already been saved so just save and run callback.
-                    m_scene->SaveAs();
-                    std::get<1>(m_openConfirmSceneModal)();
-                }
-                else
-                {
-                    // Open save scene modal and forward defined callback.
-                    m_saveSceneModalOpen = std::make_tuple(true, std::get<1>(m_openConfirmSceneModal));
-                    m_fileBrowser.SetTitle("Save Scene As...");
-                    m_fileBrowser.Open();
-                }
+                std::get<1>(m_openConfirmModal)();
 
                 ImGui::CloseCurrentPopup();
             }
 
             ImGui::SameLine();
 
-            if (ImGui::Button("No") || !m_scene->IsDirty())
+            if (ImGui::Button("No") || std::get<3>(m_openConfirmModal))
             {
-                std::get<1>(m_openConfirmSceneModal)();
+                std::get<2>(m_openConfirmModal)();
+
                 ImGui::CloseCurrentPopup();
             }
 
