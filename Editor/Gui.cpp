@@ -93,11 +93,14 @@ namespace UltraEd
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2());
         ImGui::Begin("DockSpace", 0, flags);
         {
             ImGui::PopStyleVar(3);
-            ImGui::DockSpace(ImGui::GetID("RootDockspace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+
+            // Subtracting frame height from available content height so dock viewport doesn't go behind the status bar.
+            const ImVec2 contentAvailable = ImGui::GetContentRegionAvail();
+            ImGui::DockSpace(ImGui::GetID("RootDockspace"), ImVec2(0, contentAvailable.y - ImGui::GetFrameHeight()), ImGuiDockNodeFlags_PassthruCentralNode);
 
             if (ImGui::BeginMainMenuBar())
             {
