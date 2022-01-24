@@ -23,6 +23,8 @@ namespace UltraEd
 
     enum class ViewType { Perspective, Top, Left, Right, Front };
 
+    enum class ModelPreset { Pumpkin };
+
     inline bool operator&(BuildFlag a, BuildFlag b)
     {
         return static_cast<int>(a) & static_cast<int>(b);

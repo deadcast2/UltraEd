@@ -706,6 +706,16 @@ namespace UltraEd
                 ImGui::EndMenu();
             }
 
+            if (ImGui::BeginMenu("Presets"))
+            {
+                if (ImGui::MenuItem("Pumpkin"))
+                {
+                    m_scene->AddModel(ModelPreset::Pumpkin);
+                }
+
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMenu();
         }
     }

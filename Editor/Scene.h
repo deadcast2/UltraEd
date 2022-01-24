@@ -64,7 +64,8 @@ namespace UltraEd
         void AddCamera();
         void AddTexture(const uuid &assetId);
         void DeleteTexture();
-        void AddModel(const uuid &assetId);
+        Model *AddModel(const uuid &assetId);
+        void AddModel(ModelPreset preset);
         void AddCollider(ColliderType type);
         void DeleteCollider();
         void BuildROM(BuildFlag flag);

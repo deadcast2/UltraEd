@@ -7,6 +7,7 @@
 #include "Project.h"
 #include "Util.h"
 #include "Gui.h"
+#include "AssetPreset.h"
 
 namespace UltraEd
 {
@@ -53,12 +54,18 @@ namespace UltraEd
     {
         if (IsLoaded())
         {
+            if (AssetPreset::IsPresetID(id))
+            {
+                return AssetPreset::GetPath(id);
+            }
+
             auto asset = m_projectInstance->GetAsset(id);
             if (asset)
             {
                 return m_projectInstance->LibraryPath(asset);
             }
         }
+
         return path();
     }
 

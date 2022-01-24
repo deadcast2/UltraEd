@@ -6,6 +6,7 @@
 #include "Util.h"
 #include "BoxCollider.h"
 #include "SphereCollider.h"
+#include "AssetPreset.h"
 
 namespace UltraEd
 {
@@ -112,7 +113,7 @@ namespace UltraEd
         run.detach();
     }
 
-    void Scene::AddModel(const uuid &assetId)
+    Model *Scene::AddModel(const uuid &assetId)
     {
         auto newModel = new Model(assetId);
 
@@ -122,6 +123,23 @@ namespace UltraEd
             newModel->SetName(std::string("Actor ").append(std::to_string(m_actors.size())));
             m_auditor.AddActor("Model", newModel->GetId());
             SelectActorById(newModel->GetId());
+        }
+
+        return newModel;
+    }
+
+    void Scene::AddModel(ModelPreset preset)
+    {
+        switch (preset)
+        {
+            case ModelPreset::Pumpkin:
+                auto presetModel = AddModel(AssetPreset::PumpkinModelID());
+                if (presetModel != nullptr)
+                {
+                    presetModel->Rotate(D3DX_PI / 2, D3DXVECTOR3(1, 0, 0));
+                    presetModel->SetTexture(m_renderDevice.GetDevice(), AssetPreset::PumpkinTextureID());
+                }
+                break;
         }
     }
 
