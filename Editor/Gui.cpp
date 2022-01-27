@@ -835,9 +835,34 @@ namespace UltraEd
 
     void Gui::SceneGraph()
     {
-        if (ImGui::Begin(ICON_FK_TH_LIST" Scene Graph", 0, ImGuiWindowFlags_HorizontalScrollbar))
+        if (ImGui::Begin(ICON_FK_TH_LIST" Scene Graph", 0, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar))
         {
-            for (const auto &actor : m_scene->GetActors())
+            const auto actors = m_scene->GetActors();
+
+            if (ImGui::BeginMenuBar())
+            {            
+                if (ImGui::SmallButton(ICON_FK_COMPRESS))
+                {
+                    // Need to pop the ID pushed on from calling begin menu bar since it will alter the IDs returned for the
+                    // actor(s) below and the collapse won't work since it will set false on the wrong items. Yes, a bit tricky.
+                    ImGui::PopID();
+
+                    for (const auto &actor : actors)
+                    {
+                        ImGui::GetStateStorage()->SetBool(ImGui::GetID(actor), false);
+                    }
+
+                    // Restore what the begin initially did to not disturb the end menu bar call.
+                    ImGui::PushID("##menubar");
+                }
+
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Collapse All");             
+
+                ImGui::EndMenuBar();
+            }
+
+            for (const auto &actor : actors)
             {
                 if (actor->HasParent()) continue;
 
@@ -861,7 +886,7 @@ namespace UltraEd
         if (actor->GetChildren().empty())
             leafFlags |= ImGuiTreeNodeFlags_Leaf;
 
-        const bool isOpen = ImGui::TreeNodeEx(&actor->GetId(), leafFlags, actor->GetName().c_str());
+        const bool isOpen = ImGui::TreeNodeEx(actor, leafFlags, actor->GetName().c_str());
 
         if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
         {
