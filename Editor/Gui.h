@@ -77,6 +77,9 @@ namespace UltraEd
         void ConfirmModal();
         void SaveScene(bool openModal = false);
         void RenderTreeNode(Actor *actor, ImGuiID stackID);
+        void RenderTreeNodeChildren(bool isOpen, Actor *actor, ImGuiID stackID);
+        void HandleTreeNodeContextMenu(Actor *actor);
+        void HandleTreeNodeDragDrop(Actor *actor);
         void StatusBar();
 
     private:

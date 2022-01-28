@@ -898,6 +898,15 @@ namespace UltraEd
 
         ImGui::PopID();
 
+        HandleTreeNodeContextMenu(actor);
+
+        HandleTreeNodeDragDrop(actor);
+
+        RenderTreeNodeChildren(isOpen, actor, stackID);
+    }
+
+    void Gui::HandleTreeNodeContextMenu(Actor *actor)
+    {
         if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
         {
             m_scene->SelectActorById(actor->GetId(), !IO().KeyShift);
@@ -907,7 +916,10 @@ namespace UltraEd
                 OpenContextMenu(actor);
             }
         }
+    }
 
+    void Gui::HandleTreeNodeDragDrop(Actor *actor)
+    {
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
         {
             ImGui::SetDragDropPayload("ACTOR_NODE_ID", &actor->GetId(), sizeof(boost::uuids::uuid));
@@ -944,7 +956,10 @@ namespace UltraEd
 
             ImGui::EndDragDropTarget();
         }
+    }
 
+    void Gui::RenderTreeNodeChildren(bool isOpen, Actor *actor, ImGuiID stackID)
+    {
         if (!isOpen) return;
 
         ImGui::TreePush();
