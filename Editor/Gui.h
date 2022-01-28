@@ -54,6 +54,7 @@ namespace UltraEd
         void Console();
         void KeyListener();
         void SceneGraph();
+        void SceneGraphMenuBar(const ImGuiID &stackID, const std::vector<Actor *> &actors);
         void SceneView();
         void Properties();
         void SetActorName(Actor *targetActor, const boost::uuids::uuid &groupId);
@@ -75,7 +76,7 @@ namespace UltraEd
         void SaveSceneModal();
         void ConfirmModal();
         void SaveScene(bool openModal = false);
-        void RenderTreeNode(Actor *actor);
+        void RenderTreeNode(Actor *actor, ImGuiID stackID);
         void StatusBar();
 
     private:

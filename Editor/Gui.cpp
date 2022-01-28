@@ -838,42 +838,47 @@ namespace UltraEd
         if (ImGui::Begin(ICON_FK_TH_LIST" Scene Graph", 0, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar))
         {
             const auto actors = m_scene->GetActors();
+            const auto stackID = ImGui::GetIDWithSeed("scene_graph_seed", NULL, ImGui::GetCurrentWindowRead()->ID);
 
-            if (ImGui::BeginMenuBar())
-            {            
-                if (ImGui::SmallButton(ICON_FK_COMPRESS))
-                {
-                    // Need to pop the ID pushed on from calling begin menu bar since it will alter the IDs returned for the
-                    // actor(s) below and the collapse won't work since it will set false on the wrong items. Yes, a bit tricky.
-                    ImGui::PopID();
-
-                    for (const auto &actor : actors)
-                    {
-                        ImGui::GetStateStorage()->SetBool(ImGui::GetID(actor), false);
-                    }
-
-                    // Restore what the begin initially did to not disturb the end menu bar call.
-                    ImGui::PushID("##menubar");
-                }
-
-                if (ImGui::IsItemHovered())
-                    ImGui::SetTooltip("Collapse All");             
-
-                ImGui::EndMenuBar();
-            }
+            SceneGraphMenuBar(stackID, actors);
 
             for (const auto &actor : actors)
             {
                 if (actor->HasParent()) continue;
 
-                RenderTreeNode(actor);
+                RenderTreeNode(actor, stackID);
             }
         }
 
         ImGui::End();
     }
 
-    void Gui::RenderTreeNode(Actor *actor)
+    void Gui::SceneGraphMenuBar(const ImGuiID &stackID, const std::vector<Actor *> &actors)
+    {
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::SmallButton(ICON_FK_COMPRESS))
+            {
+                // Overriding the ID stack so the node items being set to close will match
+                // the nodes created when the tree list is actually rendered.
+                ImGui::PushOverrideID(stackID);
+
+                for (const auto &actor : actors)
+                {
+                    ImGui::GetStateStorage()->SetBool(ImGui::GetID(actor), false);
+                }
+
+                ImGui::PopID();
+            }
+
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("Collapse All");
+
+            ImGui::EndMenuBar();
+        }
+    }
+
+    void Gui::RenderTreeNode(Actor *actor, ImGuiID stackID)
     {
         if (actor == nullptr) return;
 
@@ -886,7 +891,12 @@ namespace UltraEd
         if (actor->GetChildren().empty())
             leafFlags |= ImGuiTreeNodeFlags_Leaf;
 
+        // Force a known ID for the tree nodes.
+        ImGui::PushOverrideID(stackID);
+
         const bool isOpen = ImGui::TreeNodeEx(actor, leafFlags, actor->GetName().c_str());
+
+        ImGui::PopID();
 
         if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
         {
@@ -941,7 +951,7 @@ namespace UltraEd
 
         for (const auto &child : actor->GetChildren())
         {
-            RenderTreeNode(child);
+            RenderTreeNode(child, stackID);
         }
 
         ImGui::TreePop();
