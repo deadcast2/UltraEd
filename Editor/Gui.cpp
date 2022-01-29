@@ -20,7 +20,6 @@ namespace UltraEd
         m_renderDevice(hWnd),
         m_sceneTexture(),
         m_noTexture(),
-        m_selectedActor(),
         m_recentSelectedActor(),
         m_scriptEditors(),
         m_scriptEditorDockTargetID(),
@@ -184,10 +183,9 @@ namespace UltraEd
         return ImGui::GetIO();
     }
 
-    void Gui::OpenContextMenu(Actor *selectedActor)
+    void Gui::OpenContextMenu()
     {
         m_openContextMenu = true;
-        m_selectedActor = selectedActor;
     }
 
     void Gui::ConfirmScene(std::function<void()> onComplete)
@@ -940,7 +938,7 @@ namespace UltraEd
 
             if (IO().MouseClicked[ImGuiMouseButton_Right])
             {
-                OpenContextMenu(actor);
+                OpenContextMenu();
             }
         }
     }
@@ -1332,41 +1330,44 @@ namespace UltraEd
         if (m_openContextMenu)
         {
             ImGui::OpenPopup("Context Menu");
+
             m_openContextMenu = false;
         }
 
         if (ImGui::BeginPopup("Context Menu"))
         {
+            const auto selectedActor = m_scene->GetSelectedActor();
+
             if (ImGui::MenuItem("Edit Script"))
             {
-                if (m_scriptEditors.find(m_selectedActor) == m_scriptEditors.end())
+                if (m_scriptEditors.find(selectedActor) == m_scriptEditors.end())
                 {
                     std::string name = ICON_FK_CODE" ";
-                    name.append(m_selectedActor->GetName()).append("##").append(boost::uuids::to_string(m_selectedActor->GetId()));
+                    name.append(selectedActor->GetName()).append("##").append(boost::uuids::to_string(selectedActor->GetId()));
 
-                    std::get<0>(m_scriptEditors[m_selectedActor]) = name;
-                    std::get<1>(m_scriptEditors[m_selectedActor]) = std::make_shared<TextEditor>();
+                    std::get<0>(m_scriptEditors[selectedActor]) = name;
+                    std::get<1>(m_scriptEditors[selectedActor]) = std::make_shared<TextEditor>();
 
-                    std::get<1>(m_scriptEditors[m_selectedActor])->SetLanguageDefinition(TextEditor::LanguageDefinition::C());
-                    std::get<1>(m_scriptEditors[m_selectedActor])->SetText(m_selectedActor->GetScript());
+                    std::get<1>(m_scriptEditors[selectedActor])->SetLanguageDefinition(TextEditor::LanguageDefinition::C());
+                    std::get<1>(m_scriptEditors[selectedActor])->SetText(selectedActor->GetScript());
 
                     ImGui::DockBuilderDockWindow(name.c_str(), m_scriptEditorDockTargetID);
                 }
                 else 
                 {
                     // Bring focus to an already opened script editor.
-                    ImGui::SetWindowFocus(std::get<0>(m_scriptEditors[m_selectedActor]).c_str());
+                    ImGui::SetWindowFocus(std::get<0>(m_scriptEditors[selectedActor]).c_str());
                 }
             }
 
-            if (m_selectedActor != nullptr && m_selectedActor->GetType() == ActorType::Model && ImGui::BeginMenu("Texture"))
+            if (selectedActor != nullptr && selectedActor->GetType() == ActorType::Model && ImGui::BeginMenu("Texture"))
             {
                 if (ImGui::MenuItem("Add"))
                 {
                     m_addTextureModalOpen = true;
                 }
 
-                if (reinterpret_cast<Model *>(m_selectedActor)->GetTexture()->IsLoaded())
+                if (reinterpret_cast<Model *>(selectedActor)->GetTexture()->IsLoaded())
                 {
                     ImGui::Separator();
 
@@ -1391,7 +1392,7 @@ namespace UltraEd
                     m_scene->AddCollider(ColliderType::Sphere);
                 }
 
-                if (m_selectedActor != NULL && m_selectedActor->HasCollider())
+                if (selectedActor != NULL && selectedActor->HasCollider())
                 {
                     ImGui::Separator();
 
@@ -1414,12 +1415,12 @@ namespace UltraEd
                 m_scene->Duplicate();
             }
 
-            if (m_selectedActor != nullptr && m_selectedActor->HasParent())
+            if (selectedActor != nullptr && selectedActor->HasParent())
             {
                 if (ImGui::MenuItem("Unparent"))
                 {
-                    m_scene->m_auditor.ParentActor("Unparent", m_selectedActor->GetId(), Util::NewUuid());
-                    m_selectedActor->Unparent();
+                    m_scene->m_auditor.ParentActor("Unparent", selectedActor->GetId(), Util::NewUuid());
+                    selectedActor->Unparent();
                 }
             }
 

@@ -30,7 +30,7 @@ namespace UltraEd
         void Render();
         void Resize(UINT width, UINT height);
         ImGuiIO &IO();
-        void OpenContextMenu(Actor *selectedActor);
+        void OpenContextMenu();
         void ConfirmScene(std::function<void()> onComplete);
         void RefreshScene(const std::vector<boost::uuids::uuid> &changedAssetIds);
         void LoadProject(const std::filesystem::path &path);
@@ -89,7 +89,6 @@ namespace UltraEd
         RenderDevice m_renderDevice;
         LPDIRECT3DTEXTURE9 m_sceneTexture;
         LPDIRECT3DTEXTURE9 m_noTexture;
-        Actor *m_selectedActor;
         Actor *m_recentSelectedActor;
         std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>> m_scriptEditors;
         ImGuiID m_scriptEditorDockTargetID;

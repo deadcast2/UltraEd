@@ -440,12 +440,10 @@ namespace UltraEd
     void Scene::ContextMenu(const D3DXVECTOR2 &mousePos)
     {
         // Since right mouse moves the camera and can open the context menu only open context menu when right click was very quick.
-        Actor *selectedActor = nullptr;
-
         if (m_gui->IO().MouseReleased[ImGuiMouseButton_Right] && m_gui->IO().MouseDownDurationPrev[ImGuiMouseButton_Right] < 0.2f
-            && Pick(mousePos, true, &selectedActor))
+            && Pick(mousePos, true))
         {
-            m_gui->OpenContextMenu(selectedActor);
+            m_gui->OpenContextMenu();
         }
     }
 
