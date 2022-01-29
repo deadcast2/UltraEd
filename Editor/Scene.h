@@ -53,7 +53,7 @@ namespace UltraEd
         void Duplicate();
         Actor *CopyActor(const uuid &selectedActorId, const uuid &groupId);
         void CopyCollider(const uuid &selectedActorId, UltraEd::Actor *newActor);
-        void LinkCopiedActors(std::map<uuid, Actor *> &newActors);
+        void LinkAndSelectCopiedActors(std::map<uuid, Actor *> &newActors);
         void FocusSelected();
         void SetBackgroundColor(COLORREF color);
         void SetGizmoSnapSize(float size);

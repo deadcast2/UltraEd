@@ -722,7 +722,7 @@ namespace UltraEd
             CopyCollider(selectedActorId, newActor);
         }
 
-        LinkCopiedActors(newActors);
+        LinkAndSelectCopiedActors(newActors);
     }
 
     Actor *Scene::CopyActor(const uuid &selectedActorId, const uuid &groupId)
@@ -771,8 +771,10 @@ namespace UltraEd
         }
     }
 
-    void Scene::LinkCopiedActors(std::map<uuid, Actor *> &newActors)
+    void Scene::LinkAndSelectCopiedActors(std::map<uuid, Actor *> &newActors)
     {
+        UnselectAll();
+
         for (const auto &newActor : newActors)
         {
             // The copied actor will have a reference to the source's parent, if any, but the parent needs to be notified
@@ -793,6 +795,8 @@ namespace UltraEd
                 // Link all copied children of the source actor to the new duplicated actor.
                 newActors[child->GetId()]->SetParent(newActor.second);
             }
+
+            SelectActorById(newActor.second->GetId(), false);
         }
     }
 
