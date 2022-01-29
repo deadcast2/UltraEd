@@ -69,7 +69,7 @@ namespace UltraEd
         void AddCollider(ColliderType type);
         void DeleteCollider();
         void BuildROM(BuildFlag flag);
-        bool Pick(const D3DXVECTOR2 &mousePoint, bool ignoreGizmo = false, Actor **selectedActor = NULL);
+        bool Pick(const D3DXVECTOR2 &mousePoint, bool ignoreGizmo = false);
         void Release();
         void SetViewType(ViewType type);
         View *GetActiveView();

@@ -241,7 +241,7 @@ namespace UltraEd
         }
     }
 
-    bool Scene::Pick(const D3DXVECTOR2 &mousePoint, bool ignoreGizmo, Actor **selectedActor)
+    bool Scene::Pick(const D3DXVECTOR2 &mousePoint, bool ignoreGizmo)
     {
         D3DXVECTOR3 orig, dir;
         Util::ScreenRaycast(m_renderDevice.GetDevice(), mousePoint, GetActiveView()->GetViewMatrix(), &orig, &dir);
@@ -263,9 +263,6 @@ namespace UltraEd
             {
                 closestDist = pickDist;
                 closestActorId = actor->GetId();
-
-                if (selectedActor != nullptr)
-                    *selectedActor = actor;
             }
         }
 
