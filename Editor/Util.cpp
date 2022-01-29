@@ -2,6 +2,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <fstream>
 #include <sstream>
+#include <regex>
 #include "Util.h"
 #include "shlwapi.h"
 
@@ -32,6 +33,14 @@ namespace UltraEd
     std::string Util::NewResourceName(int count)
     {
         return std::string("UER_").append(std::to_string(count));
+    }
+
+    std::string Util::UniqueName(std::string name)
+    {
+        // Will append a small portion of a unique uuid's chars and replace an existing partial uuid postfix.
+        auto replaced = std::regex_replace(name, std::regex("-[abcdefABCDEF0123456789]{5}$"), "");
+
+        return std::string(replaced).append("-").append(UuidToString(NewUuid()).substr(0, 5));
     }
 
     std::string Util::ReplaceString(const std::string &str, const std::string &from, const std::string &to)

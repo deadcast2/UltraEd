@@ -715,7 +715,7 @@ namespace UltraEd
             auto newActor = CopyActor(selectedActorId, groupId);
             if (newActor == nullptr) continue;
 
-            newActor->SetName(UniqueName(newActor));
+            newActor->SetName(Util::UniqueName(newActor->GetName()));
 
             newActors[selectedActorId] = newActor;
 
@@ -1067,17 +1067,6 @@ namespace UltraEd
         m_gizmo.SetModifier(state);
 
         RefreshGizmo();
-    }
-
-    std::string Scene::UniqueName(Actor* actor)
-    {
-        if (actor == nullptr)
-            return std::string("");
-
-        // Will append a small portion of a unique uuid's chars and replace an existing partial uuid postfix.
-        auto replaced = std::regex_replace(actor->GetName(), std::regex("-[abcdefABCDEF0123456789]{5}$"), "");
-
-        return std::string(replaced).append("-").append(boost::uuids::to_string(Util::NewUuid()).substr(0, 5));
     }
 
     nlohmann::json Scene::Save()

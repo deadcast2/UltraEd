@@ -21,6 +21,7 @@ namespace UltraEd
         static boost::uuids::uuid StringToUuid(const std::string &uuid);
         static std::string UuidToString(const boost::uuids::uuid &uuid);
         static std::string NewResourceName(int count);
+        static std::string UniqueName(std::string name);
         static std::string ReplaceString(const std::string &str, const std::string &from, const std::string &to);
         static std::vector<std::string> SplitString(const std::string &str, const std::string &delimiter);
         static std::string GetPathFor(const std::string &name);
