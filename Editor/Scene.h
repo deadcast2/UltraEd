@@ -76,6 +76,8 @@ namespace UltraEd
         bool ToggleMovementSpace();
         void SelectAll();
         void SelectAllWithin(D3DXVECTOR2 topLeft, D3DXVECTOR2 bottomRight);
+        void OnSelect(std::function<void(Actor *)> callback);
+        void CallOnSelectListeners(Actor *const &actor);
         void Load(const nlohmann::json &root);
         void SetDirty(bool value);
         void ResetViews();
@@ -101,23 +103,23 @@ namespace UltraEd
     private:
         int m_version;
         HWND m_hWnd;
+        Gui *m_gui;
         D3DMATERIAL9 m_defaultMaterial;
         D3DFILLMODE m_fillMode;
         Gizmo m_gizmo;
+        Grid m_grid;
+        ViewType m_activeViewType;
+        Auditor m_auditor;
+        RenderDevice m_renderDevice;
         std::array<View, 5> m_views;
         std::map<uuid, std::unique_ptr<Actor>> m_actors;
-        Grid m_grid;
         std::vector<uuid> m_selectedActorIds;
-        float m_mouseSmoothX, m_mouseSmoothY;
-        ViewType m_activeViewType;
-        std::string m_sceneName;
         std::array<int, 3> m_backgroundColorRGB;
-        Auditor m_auditor;
-        Gui *m_gui;
-        RenderDevice m_renderDevice;
+        std::vector<std::function<void(Actor *)>> m_onSelectCallbacks;
+        std::string m_sceneName;
         std::filesystem::path m_path;
-        bool m_isDragging;
-        bool m_isSelecting;
+        bool m_isDragging, m_isSelecting;
+        float m_mouseSmoothX, m_mouseSmoothY;
     };
 }
 

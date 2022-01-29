@@ -54,7 +54,8 @@ namespace UltraEd
         void Console();
         void KeyListener();
         void SceneGraph();
-        void SceneGraphMenuBar(const ImGuiID &stackID, const std::vector<Actor *> &actors);
+        void RevealSelectedActorNode(ImGuiID stackID);
+        void SceneGraphMenuBar(const std::vector<Actor *> &actors, ImGuiID stackID);
         void SceneView();
         void Properties();
         void SetActorName(Actor *targetActor, const boost::uuids::uuid &groupId);
@@ -89,15 +90,16 @@ namespace UltraEd
         LPDIRECT3DTEXTURE9 m_sceneTexture;
         LPDIRECT3DTEXTURE9 m_noTexture;
         Actor *m_selectedActor;
+        Actor *m_recentSelectedActor;
         std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>> m_scriptEditors;
         ImGuiID m_scriptEditorDockTargetID;
         ImGui::FileBrowser m_fileBrowser;
         ImGui::FileBrowser m_folderBrowser;
         std::string m_consoleText;
-        bool m_moveConsoleToBottom;
-        bool m_openContextMenu;
         ModalProperties m_saveSceneModal;
         ModalProperties m_openConfirmModal;
+        bool m_moveConsoleToBottom;
+        bool m_openContextMenu;
         bool m_optionsModalOpen;
         bool m_sceneSettingsModalOpen;
         bool m_newProjectModalOpen;

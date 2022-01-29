@@ -21,6 +21,7 @@ namespace UltraEd
         m_sceneTexture(),
         m_noTexture(),
         m_selectedActor(),
+        m_recentSelectedActor(),
         m_scriptEditors(),
         m_scriptEditorDockTargetID(),
         m_fileBrowser(ImGuiFileBrowserFlags_EnterNewFilename),
@@ -60,6 +61,10 @@ namespace UltraEd
         {
             Debug::Instance().Error("Could not load no texture asset.");
         }
+
+        m_scene->OnSelect([&](Actor *selected) {
+            m_recentSelectedActor = selected;
+        });
     }
 
     Gui::~Gui()
@@ -840,7 +845,9 @@ namespace UltraEd
             const auto actors = m_scene->GetActors();
             const auto stackID = ImGui::GetIDWithSeed("scene_graph_seed", NULL, ImGui::GetCurrentWindowRead()->ID);
 
-            SceneGraphMenuBar(stackID, actors);
+            RevealSelectedActorNode(stackID);
+
+            SceneGraphMenuBar(actors, stackID);
 
             for (const auto &actor : actors)
             {
@@ -853,7 +860,27 @@ namespace UltraEd
         ImGui::End();
     }
 
-    void Gui::SceneGraphMenuBar(const ImGuiID &stackID, const std::vector<Actor *> &actors)
+    void Gui::RevealSelectedActorNode(ImGuiID stackID)
+    {
+        if (m_recentSelectedActor == nullptr) return;
+
+        ImGui::PushOverrideID(stackID);
+
+        auto parent = m_recentSelectedActor->GetParent();
+
+        while (parent != nullptr)
+        {
+            ImGui::GetStateStorage()->SetBool(ImGui::GetID(parent), true);
+
+            parent = parent->GetParent();
+        }
+
+        ImGui::PopID();
+
+        m_recentSelectedActor = nullptr;
+    }
+
+    void Gui::SceneGraphMenuBar(const std::vector<Actor *> &actors, ImGuiID stackID)
     {
         if (ImGui::BeginMenuBar())
         {

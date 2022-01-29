@@ -13,24 +13,25 @@ namespace UltraEd
     Scene::Scene(HWND hWnd, Gui *gui) :
         m_version(APP_SCENE_VERSION),
         m_hWnd(hWnd),
+        m_gui(gui),
         m_defaultMaterial(),
         m_fillMode(D3DFILLMODE::D3DFILL_SOLID),
         m_gizmo(),
+        m_grid(),
+        m_activeViewType(ViewType::Perspective),
+        m_auditor(this),
+        m_renderDevice(800, 600),
         m_views(),
         m_actors(),
-        m_grid(),
         m_selectedActorIds(),
-        m_mouseSmoothX(0),
-        m_mouseSmoothY(0),
-        m_activeViewType(ViewType::Perspective),
-        m_sceneName(),
         m_backgroundColorRGB({ 0, 0, 0 }),
-        m_auditor(this),
-        m_gui(gui),
-        m_renderDevice(800, 600),
+        m_onSelectCallbacks(),
+        m_sceneName(),
         m_path(),
         m_isDragging(false),
-        m_isSelecting(false)
+        m_isSelecting(false),
+        m_mouseSmoothX(0),
+        m_mouseSmoothY(0)
     {
         m_defaultMaterial.Diffuse.r = m_defaultMaterial.Ambient.r = 1.0f;
         m_defaultMaterial.Diffuse.g = m_defaultMaterial.Ambient.g = 1.0f;
@@ -257,6 +258,7 @@ namespace UltraEd
         {
             // Only choose the closest actors to the view.
             float pickDist = 0;
+
             if (actor->Pick(orig, dir, &pickDist) && pickDist < closestDist)
             {
                 closestDist = pickDist;
@@ -924,6 +926,16 @@ namespace UltraEd
 
             m_selectedActorIds.push_back(id);
             m_gizmo.Update(actor);
+
+            CallOnSelectListeners(actor);
+        }
+    }
+
+    void Scene::CallOnSelectListeners(Actor *const &actor)
+    {
+        for (const auto &callback : m_onSelectCallbacks)
+        {
+            callback(actor);
         }
     }
 
@@ -995,6 +1007,13 @@ namespace UltraEd
                 }
             }
         }
+    }
+
+    void Scene::OnSelect(std::function<void(Actor *)> callback)
+    {
+        if (callback == nullptr) return;
+
+        m_onSelectCallbacks.push_back(callback);
     }
 
     void Scene::UnselectAll()
