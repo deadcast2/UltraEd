@@ -511,6 +511,7 @@ namespace UltraEd
 
         const auto device = m_renderDevice.GetDevice();
         device->SetTransform(D3DTS_WORLD, stack->GetTop());
+        device->SetRenderState(D3DRS_ZENABLE, TRUE);
         device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
             D3DCOLOR_XRGB(m_backgroundColorRGB[0], m_backgroundColorRGB[1], m_backgroundColorRGB[2]), 1.0f, 0);
 
@@ -537,7 +538,6 @@ namespace UltraEd
         const auto device = m_renderDevice.GetDevice();
 
         device->SetMaterial(&m_defaultMaterial);
-        device->SetRenderState(D3DRS_ZENABLE, TRUE);
         device->SetRenderState(D3DRS_FILLMODE, m_fillMode);
         device->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
 
