@@ -6,6 +6,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <nlohmann/json.hpp>
+#include <boost/signals2/signal.hpp>
 #include "Flags.h"
 #include "Gui.h"
 #include "View.h"
@@ -76,8 +77,7 @@ namespace UltraEd
         bool ToggleMovementSpace();
         void SelectAll();
         void SelectAllWithin(D3DXVECTOR2 topLeft, D3DXVECTOR2 bottomRight);
-        void OnSelect(std::function<void(Actor *)> callback);
-        void CallOnSelectListeners(Actor *const &actor);
+        void OnSelect(std::function<void(Actor *)> slot);
         void Load(const nlohmann::json &root);
         void SetDirty(bool value);
         void ResetViews();
@@ -114,7 +114,7 @@ namespace UltraEd
         std::map<uuid, std::unique_ptr<Actor>> m_actors;
         std::vector<uuid> m_selectedActorIds;
         std::array<int, 3> m_backgroundColorRGB;
-        std::vector<std::function<void(Actor *)>> m_onSelectCallbacks;
+        boost::signals2::signal<void(Actor *)> m_onSelectSignal;
         std::string m_sceneName;
         std::filesystem::path m_path;
         bool m_isDragging, m_isSelecting;

@@ -25,7 +25,7 @@ namespace UltraEd
         m_actors(),
         m_selectedActorIds(),
         m_backgroundColorRGB({ 0, 0, 0 }),
-        m_onSelectCallbacks(),
+        m_onSelectSignal(),
         m_sceneName(),
         m_path(),
         m_isDragging(false),
@@ -925,16 +925,7 @@ namespace UltraEd
 
             m_selectedActorIds.push_back(id);
             m_gizmo.Update(actor);
-
-            CallOnSelectListeners(actor);
-        }
-    }
-
-    void Scene::CallOnSelectListeners(Actor *const &actor)
-    {
-        for (const auto &callback : m_onSelectCallbacks)
-        {
-            callback(actor);
+            m_onSelectSignal(actor);
         }
     }
 
@@ -1008,11 +999,11 @@ namespace UltraEd
         }
     }
 
-    void Scene::OnSelect(std::function<void(Actor *)> callback)
+    void Scene::OnSelect(std::function<void(Actor *)> slot)
     {
-        if (callback == nullptr) return;
+        if (slot == nullptr) return;
 
-        m_onSelectCallbacks.push_back(callback);
+        m_onSelectSignal.connect(slot);
     }
 
     void Scene::UnselectAll()
