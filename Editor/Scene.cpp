@@ -259,7 +259,7 @@ namespace UltraEd
             // Only choose the closest actors to the view.
             float pickDist = 0;
 
-            if (actor->Pick(orig, dir, &pickDist) && pickDist < closestDist)
+            if (actor->Pick(orig, dir, &pickDist) && pickDist > 0 && pickDist < closestDist)
             {
                 closestDist = pickDist;
                 closestActorId = actor->GetId();
