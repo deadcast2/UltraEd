@@ -56,14 +56,22 @@ namespace UltraEd
 
     void Gizmo::Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack, View *view)
     {
-        // Scale the size of the gizmo based on the view distance.
-        D3DXVECTOR3 gizmoPos = m_models[0].GetPosition();
-        D3DXVECTOR3 viewPos = m_models[0].GetPosition();
-        float distX = gizmoPos.x - viewPos.x;
-        float distY = gizmoPos.y - viewPos.y;
-        float distZ = gizmoPos.z - viewPos.z;
-        float scaleFactor = view->GetType() == ViewType::Perspective ? 0.2f : 0.1f;
-        SetScale(D3DXVECTOR3(distX * scaleFactor, distY * scaleFactor, distZ * scaleFactor));
+        // Scale the size of the gizmo based on the view.
+
+        D3DXVECTOR3 gizPos = m_models[0].GetPosition();
+        D3DXVECTOR3 viewPos = view->GetPosition();
+        D3DXVECTOR3 difference = gizPos - viewPos;
+
+        float dist = D3DXVec3Dot(&difference, &view->GetForward());
+        D3DVIEWPORT9 viewport;
+        device->GetViewport(&viewport);
+        DWORD width = viewport.Width;
+        DWORD height = viewport.Height;
+        float tan = std::tanf((D3DX_PI / 2.0f) * (180.0f / D3DX_PI));
+        float denom = std::sqrtf(width * width + height * height) * std::tanf(60.0f);
+        float scale = std::max(0.0001f, dist / denom * 100.0f);
+        SetScale(D3DXVECTOR3(scale, scale, scale));
+
 
         // Render all gizmo handles.
         device->SetMaterial(&m_redMaterial);
