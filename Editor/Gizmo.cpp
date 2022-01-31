@@ -67,7 +67,6 @@ namespace UltraEd
         device->GetViewport(&viewport);
         DWORD width = viewport.Width;
         DWORD height = viewport.Height;
-        float tan = std::tanf((D3DX_PI / 2.0f) * (180.0f / D3DX_PI));
         float denom = std::sqrtf(width * width + height * height) * std::tanf(60.0f);
         float scale = std::max(0.0001f, dist / denom * 100.0f);
         SetScale(D3DXVECTOR3(scale, scale, scale));
