@@ -57,10 +57,13 @@ namespace UltraEd
     void Gizmo::Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack, View *view)
     {
         // Scale the size of the gizmo based on the view distance.
-        D3DXVECTOR3 distance = m_models[0].GetPosition() - view->GetPosition();
+        D3DXVECTOR3 gizmoPos = m_models[0].GetPosition();
+        D3DXVECTOR3 viewPos = m_models[0].GetPosition();
+        float distX = gizmoPos.x - viewPos.x;
+        float distY = gizmoPos.y - viewPos.y;
+        float distZ = gizmoPos.z - viewPos.z;
         float scaleFactor = view->GetType() == ViewType::Perspective ? 0.2f : 0.1f;
-        float length = D3DXVec3Length(&distance) * scaleFactor;
-        SetScale(D3DXVECTOR3(length, length, length));
+        SetScale(D3DXVECTOR3(distX * scaleFactor, distY * scaleFactor, distZ * scaleFactor));
 
         // Render all gizmo handles.
         device->SetMaterial(&m_redMaterial);
