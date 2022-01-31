@@ -68,7 +68,7 @@ namespace UltraEd
         DWORD width = viewport.Width;
         DWORD height = viewport.Height;
         float denom = std::sqrtf(width * width + height * height) * std::tanf(60.0f);
-        float scale = std::max(0.0001f, dist / denom * 100.0f);
+        float scale = dist / denom * 100.0f;
         SetScale(D3DXVECTOR3(scale, scale, scale));
 
 
