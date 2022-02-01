@@ -72,7 +72,7 @@ namespace UltraEd
         device->GetViewport(&viewport);
         DWORD width = viewport.Width;
         DWORD height = viewport.Height;
-        float denom = std::sqrtf(width * width + height * height) * std::tanf(60.0f);
+        float denom = std::sqrtf(static_cast<float>(width * width + height * height)) * std::tanf(60.0f);
         float scale = dist / denom * 100.0f;
         SetScale(D3DXVECTOR3(scale, scale, scale));
     }
