@@ -27,6 +27,8 @@ namespace UltraEd
         bool IsSnapToGrid() { return m_snapToGridToggled; }
 
     private:
+        void ScaleBasedOnView(View *view, IDirect3DDevice9 *device);
+        void RenderHandles(IDirect3DDevice9 *device, ID3DXMatrixStack *stack);
         void SetPosition(D3DXVECTOR3 position);
         void SetScale(D3DXVECTOR3 scale);
         D3DXVECTOR3 GetModifyVector();

@@ -56,8 +56,13 @@ namespace UltraEd
 
     void Gizmo::Render(IDirect3DDevice9 *device, ID3DXMatrixStack *stack, View *view)
     {
-        // Scale the size of the gizmo based on the view.
+        ScaleBasedOnView(view, device);
 
+        RenderHandles(device, stack);
+    }
+
+    void Gizmo::ScaleBasedOnView(UltraEd::View *view, IDirect3DDevice9 *device)
+    {
         D3DXVECTOR3 gizPos = m_models[0].GetPosition();
         D3DXVECTOR3 viewPos = view->GetPosition();
         D3DXVECTOR3 difference = gizPos - viewPos;
@@ -70,9 +75,10 @@ namespace UltraEd
         float denom = std::sqrtf(width * width + height * height) * std::tanf(60.0f);
         float scale = dist / denom * 100.0f;
         SetScale(D3DXVECTOR3(scale, scale, scale));
+    }
 
-
-        // Render all gizmo handles.
+    void Gizmo::RenderHandles(IDirect3DDevice9 *device, ID3DXMatrixStack *stack)
+    {
         device->SetMaterial(&m_redMaterial);
         m_models[static_cast<int>(m_modifierState) * 3 + 0].Render(device, stack);
 
