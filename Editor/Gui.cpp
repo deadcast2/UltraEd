@@ -1430,7 +1430,7 @@ namespace UltraEd
 
     void Gui::ScriptEditor()
     {
-        for (const auto &editor : std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>>(m_scriptEditors))
+        for (const auto &editor : m_scriptEditors)
         {
             bool isOpen = true;
             const bool isDirty = std::get<1>(editor.second)->GetText() != editor.first->GetScript();
