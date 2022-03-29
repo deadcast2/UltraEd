@@ -1464,21 +1464,21 @@ namespace UltraEd
                 }
 
                 std::get<1>(editor.second)->Render("Edit Script");
+            }
 
-                if (!isOpen)
-                {
-                    m_openConfirmModal = {
-                        true,
-                        isDirty,
-                        [=]() {
-                            SaveScriptEditor(editor.first);
-                            m_openConfirmModal.No();
-                        },
-                        [=]() {
-                            m_scriptEditors.erase(editor.first);
-                        }
-                    };
-                }
+            if (!isOpen)
+            {
+                m_openConfirmModal = {
+                    true,
+                    isDirty,
+                    [=]() {
+                        SaveScriptEditor(editor.first);
+                        m_openConfirmModal.No();
+                    },
+                    [=]() {
+                        m_scriptEditors.erase(editor.first);
+                    }
+                };
             }
 
             ImGui::End();
