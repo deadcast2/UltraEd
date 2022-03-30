@@ -15,6 +15,7 @@
 #include "Project.h"
 #include "RenderDevice.h"
 #include "ModalProperties.h"
+#include "ScriptEditorData.h"
 #include "font-fk.h"
 #include "font-roboto.h"
 
@@ -90,7 +91,7 @@ namespace UltraEd
         LPDIRECT3DTEXTURE9 m_sceneTexture;
         LPDIRECT3DTEXTURE9 m_noTexture;
         Actor *m_recentSelectedActor;
-        std::map<Actor *, std::tuple<std::string, std::shared_ptr<TextEditor>>> m_scriptEditors;
+        std::map<Actor *, ScriptEditorData> m_scriptEditors;
         ImGuiID m_scriptEditorDockTargetID;
         ImGui::FileBrowser m_fileBrowser;
         ImGui::FileBrowser m_folderBrowser;

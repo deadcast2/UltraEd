@@ -84,6 +84,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Savable.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="ScriptEditorData.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Auditor.h" />

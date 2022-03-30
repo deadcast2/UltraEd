@@ -1345,18 +1345,19 @@ namespace UltraEd
                     std::string name = ICON_FK_CODE" ";
                     name.append(selectedActor->GetName()).append("##").append(boost::uuids::to_string(selectedActor->GetId()));
 
-                    std::get<0>(m_scriptEditors[selectedActor]) = name;
-                    std::get<1>(m_scriptEditors[selectedActor]) = std::make_shared<TextEditor>();
+                    m_scriptEditors[selectedActor].name = name;
+                    m_scriptEditors[selectedActor].actor = selectedActor;
+                    m_scriptEditors[selectedActor].textEditor = std::make_shared<TextEditor>();
 
-                    std::get<1>(m_scriptEditors[selectedActor])->SetLanguageDefinition(TextEditor::LanguageDefinition::C());
-                    std::get<1>(m_scriptEditors[selectedActor])->SetText(selectedActor->GetScript());
+                    m_scriptEditors[selectedActor].textEditor->SetLanguageDefinition(TextEditor::LanguageDefinition::C());
+                    m_scriptEditors[selectedActor].textEditor->SetText(selectedActor->GetScript());
 
                     ImGui::DockBuilderDockWindow(name.c_str(), m_scriptEditorDockTargetID);
                 }
                 else 
                 {
                     // Bring focus to an already opened script editor.
-                    ImGui::SetWindowFocus(std::get<0>(m_scriptEditors[selectedActor]).c_str());
+                    ImGui::SetWindowFocus(m_scriptEditors[selectedActor].name.c_str());
                 }
             }
 
@@ -1433,7 +1434,7 @@ namespace UltraEd
         for (const auto &editor : m_scriptEditors)
         {
             bool isOpen = true;
-            const bool isDirty = std::get<1>(editor.second)->GetText() != editor.first->GetScript();
+            const bool isDirty = editor.second.IsDirty();
             ImGuiWindowFlags flags = ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar;
 
             if (isDirty)
@@ -1441,7 +1442,7 @@ namespace UltraEd
                 flags |= ImGuiWindowFlags_UnsavedDocument;
             }
 
-            if (ImGui::Begin(std::get<0>(editor.second).c_str(), &isOpen, flags))
+            if (ImGui::Begin(editor.second.name.c_str(), &isOpen, flags))
             {
                 if (ImGui::BeginMenuBar())
                 {
@@ -1463,7 +1464,7 @@ namespace UltraEd
                     ImGui::EndMenuBar();
                 }
 
-                std::get<1>(editor.second)->Render("Edit Script");
+                editor.second.textEditor->Render("Edit Script");
             }
 
             if (!isOpen)
@@ -1491,7 +1492,7 @@ namespace UltraEd
         {
             if (m_scriptEditors.find(actor) != m_scriptEditors.end())
             {
-                actor->SetScript(std::get<1>(m_scriptEditors[actor])->GetText());
+                actor->SetScript(m_scriptEditors[actor].textEditor->GetText());
             }
         }
         else 
