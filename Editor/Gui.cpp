@@ -612,7 +612,7 @@ namespace UltraEd
         {
             if (Settings::GetSaveUponBuild())
             {
-                SaveScriptEditor();
+                SaveScene();
             }
 
             m_scene->BuildROM(selectedBuildOption);
