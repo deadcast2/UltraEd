@@ -60,18 +60,12 @@ namespace UltraEd
         SetDirty(false);
     }
 
-    bool Scene::SaveAs()
+    bool Scene::SaveToFile()
     {
-        return HasPath() && SaveAs(m_path);
-    }
-
-    bool Scene::SaveAs(const std::filesystem::path &path)
-    {
-        if (FileIO::Save(this, path))
+        if (HasPath() && FileIO::Save(this, m_path))
         {
-            SetTitle(path.stem().string());
+            SetTitle(m_path.stem().string());
             SetDirty(false);
-            m_path = path;
 
             return true;
         }
@@ -1052,6 +1046,11 @@ namespace UltraEd
     bool Scene::HasPath()
     {
         return !m_path.empty();
+    }
+
+    void Scene::SetPath(const std::filesystem::path &path)
+    {
+        m_path = path;
     }
 
     void Scene::SetModifier(GizmoModifierState state)

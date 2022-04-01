@@ -45,6 +45,7 @@ namespace UltraEd
         void Resize(UINT width, UINT height);
         void Refresh(const std::vector<uuid> &changedAssetIds);
         bool HasPath();
+        void SetPath(const std::filesystem::path &path);
         bool IsDragging() { return m_isDragging; }
         bool IsSelecting() { return m_isSelecting; }
         void SetModifier(GizmoModifierState state);
@@ -59,8 +60,7 @@ namespace UltraEd
         void SetBackgroundColor(COLORREF color);
         void SetGizmoSnapSize(float size);
         void New();
-        bool SaveAs();
-        bool SaveAs(const std::filesystem::path &path);
+        bool SaveToFile();
         void Load(const std::filesystem::path &path);
         void AddCamera();
         void AddTexture(const uuid &assetId);

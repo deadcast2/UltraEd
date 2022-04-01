@@ -196,8 +196,9 @@ namespace UltraEd
             [&]() {
                 if (m_scene->HasPath())
                 {
+                    SaveScene();
+
                     // Has already been saved so just save and run callback.
-                    m_scene->SaveAs();
                     m_openConfirmModal.No();
                 }
                 else
@@ -1717,7 +1718,9 @@ namespace UltraEd
             {
                 try
                 {
-                    m_scene->SaveAs(m_fileBrowser.GetSelected());
+                    m_scene->SetPath(m_fileBrowser.GetSelected());
+
+                    SaveScene();
 
                     m_saveSceneModal.No();
                 }
@@ -1779,6 +1782,7 @@ namespace UltraEd
         {
             m_saveSceneModal = { true, false, []() {}, []() {} };
             m_fileBrowser.SetTitle("Save Scene As...");
+            m_fileBrowser.SetTypeFilters({ APP_SCENE_FILE_EXT });
             m_fileBrowser.Open();
             m_fileBrowser.SetPwd(Project::RootPath());
         }
@@ -1786,7 +1790,7 @@ namespace UltraEd
         {
             SaveScriptEditor();
             
-            m_scene->SaveAs();
+            m_scene->SaveToFile();
         }
     }
 
