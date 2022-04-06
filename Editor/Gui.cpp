@@ -930,7 +930,7 @@ namespace UltraEd
 
         HandleTreeNodeContextMenu(actor);
 
-        HandleTreeNodeDragDrop(actor);
+        HandleTreeNodeDragDrop(actor, stackID);
 
         RenderTreeNodeChildren(isOpen, actor, stackID);
     }
@@ -948,7 +948,7 @@ namespace UltraEd
         }
     }
 
-    void Gui::HandleTreeNodeDragDrop(Actor *actor)
+    void Gui::HandleTreeNodeDragDrop(Actor *actor, ImGuiID stackID)
     {
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
         {
@@ -965,6 +965,7 @@ namespace UltraEd
                 if (selectedActor != nullptr)
                 {
                     auto traversedParent = actor->GetParent();
+                    int treeDepth = 1;
 
                     // Travel up the parent tree to see if the selected actor may already be in the heirarchy.
                     while (traversedParent != nullptr)
@@ -973,13 +974,20 @@ namespace UltraEd
                             break;
 
                         traversedParent = traversedParent->GetParent();
+                        treeDepth++;
                     }
 
-                    // Prohibit an actor trying to be a child of itself.
-                    if (traversedParent == nullptr)
+                    // Prohibit an actor trying to be a child of itself and limit depth due to the N64's 10 level limit.
+                    if (traversedParent == nullptr && treeDepth < 11)
                     {
                         m_scene->m_auditor.ParentActor("Parent", selectedActor->GetId(), Util::NewUuid());
+                        
                         selectedActor->SetParent(actor);
+                        
+                        // Expand parent node.
+                        ImGui::PushOverrideID(stackID);
+                        ImGui::GetStateStorage()->SetBool(ImGui::GetID(actor), true);
+                        ImGui::PopID();
                     }
                 }
             }

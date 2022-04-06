@@ -81,7 +81,7 @@ namespace UltraEd
         void RenderTreeNode(Actor *actor, ImGuiID stackID);
         void RenderTreeNodeChildren(bool isOpen, Actor *actor, ImGuiID stackID);
         void HandleTreeNodeContextMenu(Actor *actor);
-        void HandleTreeNodeDragDrop(Actor *actor);
+        void HandleTreeNodeDragDrop(Actor *actor, ImGuiID stackID);
         void StatusBar();
         bool HasDirtyScriptEditors();
 
