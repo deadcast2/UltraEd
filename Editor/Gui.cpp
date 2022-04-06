@@ -192,7 +192,7 @@ namespace UltraEd
     {
         m_openConfirmModal = {
             true, 
-            m_scene->IsDirty(),
+            m_scene->IsDirty() || HasDirtyScriptEditors(),
             [&]() {
                 if (m_scene->HasPath())
                 {
@@ -209,7 +209,11 @@ namespace UltraEd
                     m_fileBrowser.Open();
                 }
             }, 
-            onComplete
+            [=]() {
+                onComplete();
+
+                m_scriptEditors.clear();
+            }
         };
     }
 
@@ -1451,7 +1455,7 @@ namespace UltraEd
                     {
                         if (ImGui::MenuItem(ICON_FK_FLOPPY_O" Save Changes"))
                         {
-                            SaveScriptEditor(editor.first);
+                            SaveScriptEditors(editor.first);
                         }
 
                         if (ImGui::MenuItem("Close"))
@@ -1474,7 +1478,7 @@ namespace UltraEd
                     true,
                     isDirty,
                     [=]() {
-                        SaveScriptEditor(editor.first);
+                        SaveScriptEditors(editor.first);
                         m_openConfirmModal.No();
                     },
                     [=]() {
@@ -1487,7 +1491,7 @@ namespace UltraEd
         }
     }
 
-    void Gui::SaveScriptEditor(Actor *actor)
+    void Gui::SaveScriptEditors(Actor *actor)
     {
         if (actor != nullptr)
         {
@@ -1500,7 +1504,7 @@ namespace UltraEd
         {
             for (const auto &editor : m_scriptEditors)
             {
-                SaveScriptEditor(editor.first);
+                SaveScriptEditors(editor.first);
             }
         }
     }
@@ -1788,7 +1792,7 @@ namespace UltraEd
         }
         else
         {
-            SaveScriptEditor();
+            SaveScriptEditors();
             
             m_scene->SaveToFile();
         }
@@ -1808,5 +1812,16 @@ namespace UltraEd
 
             ImGui::End();
         }
+    }
+
+    bool Gui::HasDirtyScriptEditors()
+    {
+        for (const auto &editor : m_scriptEditors)
+        {
+            if (editor.second.IsDirty())
+                return true;
+        }
+
+        return false;
     }
 }

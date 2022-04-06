@@ -69,7 +69,7 @@ namespace UltraEd
         void SceneSettingsModal();
         void ContextMenu();
         void ScriptEditor();
-        void SaveScriptEditor(Actor *actor = nullptr);
+        void SaveScriptEditors(Actor *actor = nullptr);
         void NewProjectModal();
         void LoadProjectModal();
         void AddTextureModal();
@@ -83,6 +83,7 @@ namespace UltraEd
         void HandleTreeNodeContextMenu(Actor *actor);
         void HandleTreeNodeDragDrop(Actor *actor);
         void StatusBar();
+        bool HasDirtyScriptEditors();
 
     private:
         std::unique_ptr<Scene> m_scene;
