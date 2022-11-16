@@ -6,6 +6,10 @@
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f246a65f5b4f480f922a5ed886eb37e8)](https://www.codacy.com/gh/deadcast2/UltraEd/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=deadcast2/UltraEd&amp;utm_campaign=Badge_Grade)
 
+### Important Update
+
+Life has changed for me in this last part of the year (a good change!) and I don't have as much motivation and time as I used to have so I won't be working on this project much anymore. A major issue I'm having is the lack of good debugging tools while developing software for the N64. A debugger is paramount when you start stepping beyond constructing a non-trivial application. I feel like I'm approaching that barrier which will make future development very difficult on the N64. I've grown as a developer working on this project but didn't do too much upfront planning to know this obstacle would be inevitable. Perhaps circumstances will change in the future with the advent of a good way to debug and step through code as it’s executed on the console. Maybe one exists now and can be recommended to me for inspection. I’m not calling it totally quits on this project but need better tooling and more time. Thanks for checking out the project and I'll be around. :)
+
 ### Setup
 
 Due to the project using Git LFS the zipped version from GitHub won't contain all necessary files. Clone the project using Git and then run `git lfs pull` to hydrate all of the pointer files. After that make sure that the Windows 10 SDK is installed and then open the editor solution file in Visual Studio 2022. Set the solution to build as a x64 application and then all should build fine. Make sure to also install OpenAL so you can test your rom out in the cen64 emulator included. I've included it in Editor/Vendor. Also if you so happen to have the excellent 64drive you can test on that too.
